@@ -8,6 +8,42 @@
   --color-chat-blue: #34b7f1;
 }
 
+:root {
+  /* Light mode colors (default) */
+  --color-bg-primary: #ffffff;
+  --color-bg-secondary: #f3f4f6;
+  --color-text-primary: #000000;
+  --color-text-secondary: #4b5563;
+  --color-text-tertiary: #6b7280;
+  --color-border-primary: #d1d5db;
+  --color-border-secondary: #e5e7eb;
+  --color-shadow: rgba(0, 0, 0, 0.1);
+  --color-self-message-bg: var(--color-chat-light-green);
+  --color-self-message-text: #000000;
+  --color-other-message-bg: var(--color-bg-secondary);
+  --color-other-message-text: var(--color-text-primary);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Dark mode colors */
+    --color-bg-primary: #1f2937;
+    --color-bg-secondary: #111827;
+    --color-text-primary: #f9fafb;
+    --color-text-secondary: #e5e7eb;
+    --color-text-tertiary: #d1d5db;
+    --color-border-primary: #4b5563;
+    --color-border-secondary: #374151;
+    --color-shadow: rgba(0, 0, 0, 0.3);
+
+    /* Dark mode message colors */
+    --color-self-message-bg: #2d4a3e; /* Darker green for dark mode */
+    --color-self-message-text: #e5e7eb;
+    --color-other-message-bg: #374151; /* Darker gray for dark mode */
+    --color-other-message-text: #f9fafb;
+  }
+}
+
 @layer components {
   /* Button styles */
   .btn {
@@ -17,7 +53,12 @@
     @apply bg-brand-600 text-white;
   }
   .btn-secondary {
-    @apply bg-gray-100 hover:bg-gray-200 text-sm px-3 py-1 rounded;
+    @apply text-sm px-3 py-1 rounded;
+    background-color: var(--color-bg-secondary);
+    color: var(--color-text-primary);
+  }
+  .btn-secondary:hover {
+    filter: brightness(0.95);
   }
   .btn-save {
     @apply w-full bg-chat-green text-white py-2 px-4 rounded transition-colors;
@@ -28,7 +69,10 @@
 
   /* Card styles */
   .card {
-    @apply border border-gray-300 p-4 bg-white;
+    @apply border p-4;
+    background-color: var(--color-bg-primary);
+    border-color: var(--color-border-primary);
+    color: var(--color-text-primary);
   }
 
   /* Layout styles */
@@ -44,7 +88,8 @@
 
   /* Form styles */
   .form-label {
-    @apply text-sm font-medium text-gray-700;
+    @apply text-sm font-medium;
+    color: var(--color-text-secondary);
   }
   .client-id-container {
     @apply flex items-center;
@@ -53,7 +98,13 @@
     @apply w-20;
   }
   .client-id-input {
-    @apply border border-gray-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-blue-300 transition-colors;
+    @apply border px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors;
+    border-color: var(--color-border-primary);
+    background-color: var(--color-bg-primary);
+    color: var(--color-text-primary);
+  }
+  .client-id-input:hover {
+    border-color: var(--color-border-secondary);
   }
   .status-container {
     @apply flex items-baseline;
@@ -65,7 +116,10 @@
     @apply flex items-center;
   }
   .text-input {
-    @apply flex-1 p-2 border border-gray-400 rounded outline-none bg-white text-black;
+    @apply flex-1 p-2 border rounded outline-none;
+    background-color: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    border-color: var(--color-border-primary);
   }
   .text-input-button {
     @apply bg-chat-green text-white px-4 ml-2 h-10 flex items-center justify-center rounded transition-colors;
@@ -86,21 +140,29 @@
     @apply flex items-center;
   }
   .form-radio-label {
-    @apply ml-2 text-sm font-medium text-gray-700;
+    @apply ml-2 text-sm font-medium;
+    color: var(--color-text-secondary);
   }
 
   /* Chat styles */
   .chat-window {
-    @apply flex flex-col w-full border-1 border-gray-300 border-t-0 overflow-hidden font-sans max-h-full;
+    @apply flex flex-col w-full border-1 border-t-0 overflow-hidden font-sans max-h-full;
+    border-color: var(--color-border-primary);
+    background-color: var(--color-bg-primary);
   }
   .message-bubble {
     @apply px-4 py-2 rounded-lg block w-full whitespace-normal break-words;
   }
   .message-bubble-self {
-    @apply rounded-br bg-chat-light-green text-gray-800;
+    @apply rounded-br;
+    background-color: var(--color-self-message-bg);
+    color: var(--color-self-message-text);
   }
   .message-bubble-other {
-    @apply rounded-bl bg-white text-gray-800 shadow-sm;
+    @apply rounded-bl shadow-sm;
+    background-color: var(--color-other-message-bg);
+    color: var(--color-other-message-text);
+    box-shadow: 0 1px 2px var(--color-shadow);
   }
   .chat-message-container {
     @apply flex-1 p-4 overflow-y-auto space-y-2 max-h-[calc(100%-100px)] h-full min-h-[calc(100%-100px)];
@@ -121,7 +183,8 @@
     @apply flex flex-col w-1/2 mx-2 relative items-start order-2;
   }
   .chat-message-meta {
-    @apply text-xs text-gray-500;
+    @apply text-xs;
+    color: var(--color-text-tertiary);
   }
   .chat-message-time {
     position: relative;
@@ -147,13 +210,16 @@
     display: flex;
   }
   .chat-input-area {
-    @apply border-t border-gray-300 bg-gray-100 flex-shrink-0;
+    @apply border-t flex-shrink-0;
+    border-color: var(--color-border-primary);
+    background-color: var(--color-bg-secondary);
   }
   .chat-typing-indicator {
     @apply h-6 px-2 pt-2;
   }
   .typing-indicator {
-    @apply px-4 py-2 text-xs italic text-gray-500;
+    @apply px-4 py-2 text-xs italic;
+    color: var(--color-text-tertiary);
   }
   .chat-input-wrapper {
     @apply px-2 mt-auto mb-2;
@@ -161,16 +227,25 @@
 
   /* Icon styles */
   .icon-edit {
-    @apply cursor-pointer text-gray-400 hover:text-gray-600 m-1 inline-block;
+    @apply cursor-pointer m-1 inline-block;
+    color: var(--color-text-tertiary);
+  }
+  .icon-edit:hover {
+    color: var(--color-text-secondary);
   }
   .reaction-button {
-    @apply text-sm inline-block cursor-pointer m-0 border-0 bg-transparent p-0;
+    @apply text-sm inline-block cursor-pointer m-0 border-0 p-0;
+    background-color: transparent;
+    color: var(--color-text-primary);
   }
   .reaction-container {
     @apply flex space-x-2;
   }
   .reaction-list {
-    @apply flex gap-2 px-2 py-3 border-t bg-white border-gray-300 mx-auto text-black;
+    @apply flex gap-2 px-2 py-3 border-t mx-auto;
+    background-color: var(--color-bg-primary);
+    border-color: var(--color-border-primary);
+    color: var(--color-text-primary);
   }
   .reaction-list-container {
     @apply flex-1 flex items-center max-h-[24px] gap-1 overflow-x-auto whitespace-nowrap;
@@ -179,14 +254,20 @@
     height: 4px;
   }
   .reaction-list-container::-webkit-scrollbar-thumb {
-    background-color: #d1d5db; /* gray-300 */
+    background-color: var(--color-border-primary);
     border-radius: 2px;
   }
   .reaction-item {
-    @apply px-2 py-1 bg-white rounded text-blue-600;
+    @apply px-2 py-1 rounded;
+    background-color: var(--color-bg-secondary);
+    color: var(--color-text-primary);
   }
   .icon-delete {
-    @apply cursor-pointer text-red-500 hover:text-red-700 m-1 inline-block;
+    @apply cursor-pointer m-1 inline-block;
+    color: #ef4444; /* red-500, keeping this color consistent in both modes */
+  }
+  .icon-delete:hover {
+    color: #b91c1c; /* red-700, keeping this color consistent in both modes */
   }
 
   /* Header styles */
@@ -195,6 +276,7 @@
   }
   .header-title {
     @apply text-lg font-semibold;
+    color: var(--color-text-primary);
   }
   .header-actions {
     @apply flex gap-2;
