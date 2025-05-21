@@ -23,11 +23,23 @@
     "dev": "tsc --watch && npm run css:dev",
     "css:dev": "npx @tailwindcss/cli -i ./src/styles.css -o ./dist/styles.css --watch",
     "css:build": "npx @tailwindcss/cli -i ./src/styles.css -o ./dist/styles.css",
+    "prepare": "npm run build",
     "lint": "eslint 'src/**/*.{ts,tsx}'",
     "lint:fix": "eslint 'src/**/*.{ts,tsx}' --fix",
     "format": "prettier --write 'src/**/*.{ts,tsx,css}'",
     "format:check": "prettier --check 'src/**/*.{ts,tsx,css}'"
   },
+  "files": [
+    "dist/**",
+    "src/**"
+    ],
+
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ably/ably-chat-react-ui-components.git"
+  },
+  "author": "Ably Realtime",
+  "license": "Apache-2.0",
   "dependencies": {
     "clsx": "^2.1.1",
     "react-icons": "^5.5.0"
