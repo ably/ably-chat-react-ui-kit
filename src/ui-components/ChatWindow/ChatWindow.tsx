@@ -219,7 +219,7 @@ export function ChatWindow({
       {loading && (
         <div
           className="flex-1 p-4 min-h-[calc(100%-100px)] flex items-center justify-center"
-          style={{ minHeight: 'calc(100% - 100px)' }}
+          style={{ minHeight: 'calc(100% - 120px)' }}
         >
           loading...
         </div>
@@ -228,12 +228,12 @@ export function ChatWindow({
         <>
           <div
             className="chat-message-container flex-grow overflow-y-auto h-full"
-            style={{ minHeight: 'calc(100% - 100px)' }}
+            style={{ minHeight: 'calc(100% - 120px)' }}
           >
             {messages.length === 0 ? (
               <div
                 className="h-full flex items-center justify-center text-gray-500"
-                style={{ minHeight: 'calc(100% - 100px)' }}
+                style={{ minHeight: 'calc(100% - 120px)' }}
               >
                 No messages yet. Start the conversation!
               </div>
@@ -313,13 +313,13 @@ export function ChatWindow({
 
           <div
             className="chat-input-area mt-auto flex-shrink-0"
-            style={{ minHeight: '100px', maxHeight: '100px' }}
+            style={{ minHeight: '120px', maxHeight: '120px' }}
           >
             {showTypingIndicator && (
               <div className="chat-typing-indicator">
                 <TypingIndicator
                   currentTypers={otherTypingUsers}
-                  className="text-sm text-gray-700 overflow-hidden"
+                  className="text-sm overflow-hidden"
                 />
               </div>
             )}
