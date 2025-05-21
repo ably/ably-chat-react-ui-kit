@@ -1,0 +1,59 @@
+{
+  "name": "ably-chat-react-ui-components",
+  "version": "0.0.1",
+  "description": "A library of configurable components for use with @ably/chat",
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "style": "dist/styles.css",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts",
+      "style": "./dist/styles.css"
+    }
+  },
+  "scripts": {
+    "build": "tsc && npm run css:build",
+    "dev": "tsc --watch && npm run css:dev",
+    "css:dev": "npx @tailwindcss/cli -i ./src/styles.css -o ./dist/styles.css --watch",
+    "css:build": "npx @tailwindcss/cli -i ./src/styles.css -o ./dist/styles.css",
+    "lint": "eslint 'src/**/*.{ts,tsx}'",
+    "lint:fix": "eslint 'src/**/*.{ts,tsx}' --fix",
+    "format": "prettier --write 'src/**/*.{ts,tsx,css}'",
+    "format:check": "prettier --check 'src/**/*.{ts,tsx,css}'"
+  },
+  "dependencies": {
+    "clsx": "^2.1.1",
+    "react-icons": "^5.5.0"
+  },
+  "peerDependencies": {
+    "@ably/chat": "^0.7.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.1.7",
+    "@tailwindcss/postcss": "^4.1.7",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "@typescript-eslint/eslint-plugin": "^8.32.1",
+    "@typescript-eslint/parser": "^8.32.1",
+    "eslint": "^9.27.0",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-plugin-prettier": "^5.4.0",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "postcss-cli": "^11.0.1",
+    "prettier": "^3.5.3",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "tailwindcss": "^4.1.7",
+    "typescript": "^5.5.3"
+  }
+}
