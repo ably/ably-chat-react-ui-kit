@@ -248,17 +248,17 @@ export function ChatWindow({
                     <div className={`chat-bubble ${msg.clientId === clientId ? 'chat-end chat-bubble-primary' : 'chat-start chat-bubble-secondary'} break-words overflow-y-auto`}>
                       {msg.text}
                     </div>
-                    <div className="absolute -bottom-8 right-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <MessageReactions
-                        message={msg}
-                        clientId={clientId}
-                        reactionType={reactionType}
-                        onReactionAdd={addReaction}
-                        onReactionDelete={deleteReaction}
-                      />
+                    <div className="absolute right-0 opacity-0 group-hover:opacity-100 transition-opacity">
                     </div>
-                  <div className="chat-footer opacity-50">
+                  <div className="chat-footer">
                     <div className="flex gap-2 items-center">
+                      <MessageReactions
+                          message={msg}
+                          clientId={clientId}
+                          reactionType={reactionType}
+                          onReactionAdd={addReaction}
+                          onReactionDelete={deleteReaction}
+                      />
                       <button
                         className="btn btn-ghost btn-xs"
                         onClick={() => handleMessageUpdate(msg)}
