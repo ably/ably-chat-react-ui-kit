@@ -15,12 +15,14 @@ export function MessageBubble({
   className = '',
 }: MessageBubbleProps) {
   return (
-    <div className={clsx('text-base-content', className)}>
+
+    <div className={clsx('text-base-content w-full', className)}>
       {isDeleted ? (
         <span className="italic text-base-content/50">This message was deleted.</span>
       ) : (
-        <p className="whitespace-pre-wrap break-words">{text}</p>
+        <p className="whitespace-pre-wrap break-words overflow-y-auto">{text}</p>
       )}
     </div>
   );
 }
+

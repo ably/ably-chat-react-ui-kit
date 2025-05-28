@@ -245,13 +245,9 @@ export function ChatWindow({
                       </span>
                     )}
                   </div>
-                  <div className="chat-bubble bg-base-200/50 group relative">
-                    <MessageBubble
-                      text={msg.text}
-                      isDeleted={msg.isDeleted}
-                      isSelf={msg.clientId === clientId}
-                      className="max-h-[200px] overflow-y-auto break-words"
-                    />
+                    <div className={`chat-bubble ${msg.clientId === clientId ? 'chat-end chat-bubble-primary' : 'chat-start chat-bubble-secondary'} break-words overflow-y-auto`}>
+                      {msg.text}
+                    </div>
                     <div className="absolute -bottom-8 right-0 opacity-0 group-hover:opacity-100 transition-opacity">
                       <MessageReactions
                         message={msg}
@@ -261,7 +257,6 @@ export function ChatWindow({
                         onReactionDelete={deleteReaction}
                       />
                     </div>
-                  </div>
                   <div className="chat-footer opacity-50">
                     <div className="flex gap-2 items-center">
                       <button
