@@ -27,6 +27,7 @@ export function Room({
   showTypingIndicator = true,
   options = { occupancy: { enableEvents: true } },
 }: RoomProps) {
+
   return (
     <ChatRoomProvider id={id} release={true} attach={true} options={options}>
       <div className={`flex flex-col ${className}`}>

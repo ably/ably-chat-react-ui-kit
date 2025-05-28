@@ -20,13 +20,10 @@ export function RoomList({
                              allowCreateRoom = true,
                              className = '',
                          }: RoomListProps) {
-    const [availableRooms, setAvailableRooms] = useState<Room[]>(rooms);
+    /* initialise with an empty array if no rooms were passed */
+    const [availableRooms, setAvailableRooms] = useState<Room[]>(rooms ?? []);
     const [isCreating, setIsCreating] = useState(false);
     const newRoomRef = useRef<HTMLInputElement | null>(null);
-
-    useEffect(() => {
-        setAvailableRooms(rooms);
-    }, [rooms]);
 
     // Auto-focus the input whenever it appears
     useEffect(() => {
@@ -69,10 +66,37 @@ export function RoomList({
                     <p className="font-medium">Rooms</p>
                     <span className="text-zinc-300">({availableRooms.length})</span>
                 </div>
+
+                {/* Optional future icons / actions */}
+                <div className="flex gap-2">
+                    {/* More options */}
+                    <button
+                        type="button"
+                        aria-label="More options"
+                        className="inline-flex h-9 w-9 items-center justify-center rounded-md text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className="lucide lucide-more-horizontal"
+                        >
+                            <circle cx="12" cy="12" r="1"/>
+                            <circle cx="19" cy="12" r="1"/>
+                            <circle cx="5" cy="12" r="1"/>
+                        </svg>
+                    </button>
+                </div>
             </div>
 
             {/* Room list */}
-            <nav className="grid flex-1 gap-1 overflow-y-auto px-2 group-[[data-collapsed=true]]:justify-center">
+            <nav className="flex flex-col flex-1 content-start gap-1 overflow-y-auto px-2 group-[[data-collapsed=true]]:justify-center">
                 {availableRooms.map((room) => {
                     const selected = selectedRoomId === room.id;
                     return (

@@ -15,7 +15,7 @@ interface AppProps {
 }
 
 function AppContent() {
-    const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
+    const [selectedRoomId, setSelectedRoomId] = useState<string | undefined>(undefined);
     const [showSettings, setShowSettings] = useState(false);
 
     const handleRoomSelect = (roomId: string) => {
@@ -23,27 +23,33 @@ function AppContent() {
     };
 
     return (
-        <div className="z-10 border rounded-lg max-w-5xl w-full h-3/4 text-sm flex">
-            <div className="w-full">
-                <div className="h-screen w-screen overflow-hidden">
+        /* fills the parent container, but never grows beyond it */
+        <div className="z-10 border rounded-lg w-full h-full text-sm flex">
+            {/* 100 % width so the resize-panel logic can work properly */}
+            <div className="w-full h-full">
+                <div className="h-full w-full overflow-hidden">
                     <PanelGroup direction="horizontal" className="flex w-full h-full">
-                        {/* Left Panel – Room List */}
-                        <Panel defaultSize={30} minSize={20} maxSize={40} className="bg-gray-100 p-4">
-                            <div className="h-full flex flex-col">
+                        {/* Left Panel */}
+                        <Panel
+                            defaultSize={30}
+                            minSize={20}
+                            maxSize={40}
+                            className="bg-gray-100 p-4 h-full"
+                        >
+                            <div className="h-full flex flex-col ">
                                 <RoomList
                                     onRoomSelect={handleRoomSelect}
-                                    selectedRoomId={selectedRoomId || undefined}
+                                    selectedRoomId={selectedRoomId}
                                 />
                             </div>
                         </Panel>
 
-                        {/* Resize Handle */}
-                        <PanelResizeHandle className="w-2 bg-gray-300 cursor-col-resize"/>
+                        <PanelResizeHandle className="w-2 bg-gray-300 cursor-col-resize" />
 
                         {/* Right Panel – Chat Area */}
-                        <Panel defaultSize={70} minSize={60} className="p-4">
-                            <div className="h-full flex flex-col max-h-full">
-                                {selectedRoomId ? (
+                        <Panel defaultSize={70} minSize={60} className="p-4 h-full">
+                            <div className="h-full flex flex-col">
+                            {selectedRoomId ? (
                                     <div className="flex flex-col h-full max-h-full">
                                         <div
                                             className="card flex justify-between items-center border-b py-2 px-4 flex-shrink-0 h-14">
@@ -73,7 +79,6 @@ function AppContent() {
                         </Panel>
                     </PanelGroup>
                 </div>
-                );
             </div>
         </div>
     );
@@ -95,8 +100,14 @@ export function App({chatClient, initialRooms = [], className = ''}: AppProps) {
     }
 
     return (
-        <div className={`flex justify-center items-center h-screen ${className}`}>
-            <div className="w-3/5 h-4/5 flex flex-col">
+        <div className={`flex justify-center items-center min-h-screen ${className}`}>
+            <div
+                className="flex flex-col border rounded-lg shadow-lg w-full"
+                style={{
+                    width: 'min(90vw, calc(90vh * 1.618))',
+                    height: 'min(90vh, calc(90vw / 1.618))',
+                }}
+            >
                 <ChatClientProvider client={chatClient}>
                     <ReactionTypeProvider>
                         <AppContent/>
