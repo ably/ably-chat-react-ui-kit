@@ -14,14 +14,13 @@ export function MessageBubble({
   isSelf = false,
   className = '',
 }: MessageBubbleProps) {
-  const baseClasses = clsx('message-bubble', {
-    'message-bubble-self': isSelf,
-    'message-bubble-other': !isSelf,
-  });
-
   return (
-    <div className={`${baseClasses} ${className}`}>
-      {isDeleted ? <>This message was deleted.</> : text}
+    <div className={clsx('text-base-content', className)}>
+      {isDeleted ? (
+        <span className="italic text-base-content/50">This message was deleted.</span>
+      ) : (
+        <p className="whitespace-pre-wrap break-words">{text}</p>
+      )}
     </div>
   );
 }

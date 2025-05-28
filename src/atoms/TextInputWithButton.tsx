@@ -42,17 +42,21 @@ export function TextInputWithButton({
   };
 
   return (
-    <form onSubmit={handleFormSubmit} className={`text-input-form ${className}`}>
+    <form onSubmit={handleFormSubmit} className={`join w-full ${className}`}>
       <input
         type="text"
         onChange={onChange}
         disabled={disabled}
         placeholder={placeholder}
-        className={`text-input ${inputClassName}`}
+        className={`input input-bordered join-item flex-1 ${inputClassName}`}
         ref={inputRef}
         autoFocus={autoFocus}
       />
-      <button type="submit" disabled={disabled} className={`text-input-button ${buttonClassName}`}>
+      <button 
+        type="submit" 
+        disabled={disabled} 
+        className={`btn btn-primary join-item ${buttonClassName}`}
+      >
         {buttonText}
       </button>
     </form>

@@ -11,10 +11,26 @@ export function StatusIndicator({ status, statusMap, className = '' }: StatusInd
 
   if (!statusInfo) return null;
 
+  // Map color classes to DaisyUI badge colors
+  const getBadgeColor = (color: string) => {
+    switch (color.toLowerCase()) {
+      case 'green':
+        return 'badge-success';
+      case 'red':
+        return 'badge-error';
+      case 'yellow':
+        return 'badge-warning';
+      case 'blue':
+        return 'badge-info';
+      default:
+        return 'badge-neutral';
+    }
+  };
+
   return (
-    <div className={`status-container ${className}`}>
-      <span className="status-label">Status:</span>
-      <span className={statusInfo.color}>{statusInfo.text}</span>
+    <div className={`flex items-center gap-2 ${className}`}>
+      <span className="text-sm font-medium">Status:</span>
+      <span className={`badge ${getBadgeColor(statusInfo.color)}`}>{statusInfo.text}</span>
     </div>
   );
 }

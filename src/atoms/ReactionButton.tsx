@@ -1,4 +1,5 @@
 import React from 'react';
+import clsx from 'clsx';
 
 interface ReactionButtonProps {
   emoji: string;
@@ -12,6 +13,7 @@ interface ReactionButtonProps {
 export function ReactionButton({
   emoji,
   count,
+  isActive = false,
   onClick,
   onContextMenu,
   className = '',
@@ -32,10 +34,15 @@ export function ReactionButton({
     <button
       onClick={handleClick}
       onContextMenu={handleContextMenu}
-      className={`reaction-button ${className}`}
+      className={clsx(
+        'btn btn-sm gap-1 min-h-0 h-auto py-1 px-2',
+        isActive ? 'btn-primary' : 'btn-ghost',
+        className
+      )}
       aria-label={`React with ${emoji}`}
     >
-      {emoji} ({count})
+      <span>{emoji}</span>
+      {count > 0 && <span className="text-xs opacity-70">({count})</span>}
     </button>
   );
 }

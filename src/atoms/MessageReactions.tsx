@@ -1,5 +1,6 @@
 import { Message, MessageReactionType, Messages } from '@ably/chat';
 import { ReactionButton } from './ReactionButton';
+import { EmojiPicker } from './EmojiPicker';
 import React from 'react';
 
 interface MessageReactionsProps {
@@ -9,7 +10,6 @@ interface MessageReactionsProps {
   onReactionAdd: Messages['reactions']['add'];
   onReactionDelete: Messages['reactions']['delete'];
   className?: string;
-  emojis?: string[];
 }
 
 export function MessageReactions({
@@ -19,7 +19,6 @@ export function MessageReactions({
   onReactionAdd,
   onReactionDelete,
   className = '',
-  emojis = ['👍', '❤️', '🔥', '🚀'],
 }: MessageReactionsProps) {
   // Get the appropriate reactions object based on the reaction type
   const getReactions = () => {
@@ -37,49 +36,37 @@ export function MessageReactions({
 
   const reactions = getReactions();
 
-  // Add any emojis from the reactions that aren't in the default list
-  const allEmojis = [...emojis];
-  for (const emoji in reactions) {
-    if (!allEmojis.includes(emoji)) {
-      allEmojis.push(emoji);
-    }
-  }
+  // Convert reactions object to array and sort by first reaction time
+  const sortedReactions = Object.entries(reactions)
+    .map(([emoji, data]) => ({
+      emoji,
+      count: (data as { total: number }).total,
+      hasReacted: (data as { clientIds: string[] }).clientIds.includes(clientId),
+    }))
+    .sort((a, b) => a.emoji.localeCompare(b.emoji));
 
-  // Handle reaction click based on the reaction type
   const handleReactionClick = (emoji: string) => {
-    if (reactionType === MessageReactionType.Multiple) {
-      // Multiple reactions always add
-      onReactionAdd(message, {type: reactionType, name: emoji})
-    } else {
-      // Unique and Distinct reactions toggle
-      if ((reactions[emoji] as { clientIds: string[] })?.clientIds.includes(clientId)) {
-        onReactionDelete(message, { type: reactionType, name: emoji });
-      } else {
-        onReactionAdd(message, { type: reactionType, name: emoji });
-      }
-    }
-  };
-
-  // Handle right-click for Multiple reactions
-  const handleReactionContextMenu = (emoji: string) => {
-    if (reactionType === MessageReactionType.Multiple) {
+    if ((reactions[emoji] as { clientIds: string[] })?.clientIds.includes(clientId)) {
       onReactionDelete(message, { type: reactionType, name: emoji });
+    } else {
+      onReactionAdd(message, { type: reactionType, name: emoji });
     }
   };
 
   return (
-    <div className={`reaction-container ${className}`}>
-      {allEmojis.map((emoji) => (
+    <div className={`flex flex-wrap gap-1 items-center ${className}`}>
+      {sortedReactions.map(({ emoji, count, hasReacted }) => (
         <ReactionButton
           key={emoji}
           emoji={emoji}
-          count={reactions[emoji]?.total || 0}
+          count={count}
+          isActive={hasReacted}
           onClick={handleReactionClick}
-          onContextMenu={
-            reactionType === MessageReactionType.Multiple ? handleReactionContextMenu : undefined
-          }
         />
       ))}
+      <EmojiPicker
+        onEmojiSelect={(emoji) => onReactionAdd(message, { type: reactionType, name: emoji })}
+      />
     </div>
   );
 }

@@ -213,96 +213,71 @@ export function ChatWindow({
 
   return (
     <div
-      className={`chat-window flex flex-col max-h-full overflow-hidden ${className}`}
+      className={`flex flex-col max-h-full overflow-hidden bg-base-100 ${className}`}
       style={{ height }}
     >
       {loading && (
-        <div
-          className="flex-1 p-4 min-h-[calc(100%-100px)] flex items-center justify-center"
-          style={{ minHeight: 'calc(100% - 120px)' }}
-        >
-          loading...
+        <div className="flex-1 p-4 min-h-[calc(100%-100px)] flex items-center justify-center">
+          <span className="loading loading-spinner loading-lg text-primary"></span>
         </div>
       )}
       {!loading && (
         <>
-          <div
-            className="chat-message-container flex-grow overflow-y-auto h-full"
-            style={{ minHeight: 'calc(100% - 120px)' }}
-          >
+          <div className="flex-grow overflow-y-auto h-full p-4 space-y-4">
             {messages.length === 0 ? (
-              <div
-                className="h-full flex items-center justify-center text-gray-500"
-                style={{ minHeight: 'calc(100% - 120px)' }}
-              >
-                No messages yet. Start the conversation!
+              <div className="h-full flex items-center justify-center text-base-content/70">
+                <div className="text-center">
+                  <p className="text-lg font-medium">No messages yet</p>
+                  <p className="text-sm">Start the conversation!</p>
+                </div>
               </div>
             ) : (
               messages.map((msg) => (
-                <div key={msg.serial} className="chat-message">
-                  <div
-                    className={
-                      msg.clientId === clientId
-                        ? 'chat-message-wrapper-self'
-                        : 'chat-message-wrapper-other'
-                    }
-                  >
-                    <div
-                      className={
-                        msg.clientId === clientId
-                          ? 'chat-message-content-self'
-                          : 'chat-message-content-other'
-                      }
-                    >
-                      <div className="chat-message-meta">
-                        <span>{msg.clientId}</span> &middot;{' '}
-                        <span className="chat-message-time">
-                          <span className="time-short">
-                            {new Date(msg.createdAt).toLocaleTimeString()}
-                          </span>
-                          <span className="time-full">{msg.createdAt.toLocaleString()}</span>
-                        </span>
-                        {msg.isUpdated && msg.updatedAt ? (
-                          <>
-                            {' '}
-                            &middot; Edited{' '}
-                            <span className="chat-message-time">
-                              <span className="time-short">
-                                {new Date(msg.updatedAt).toLocaleTimeString()}
-                              </span>
-                              <span className="time-full">{msg.updatedAt.toLocaleString()}</span>
-                            </span>
-                            {msg.updatedBy ? <span> by {msg.updatedBy}</span> : ''}
-                          </>
-                        ) : (
-                          ''
-                        )}
-                      </div>
-                      <MessageBubble
-                        text={msg.text}
-                        isDeleted={msg.isDeleted}
-                        isSelf={msg.clientId === clientId}
-                        className="max-h-[200px] overflow-y-auto"
+                <div key={msg.serial} className={`chat ${msg.clientId === clientId ? 'chat-end' : 'chat-start'}`}>
+                  <div className="chat-header">
+                    {msg.clientId}
+                    <time className="text-xs opacity-50 ml-2">
+                      {new Date(msg.createdAt).toLocaleTimeString()}
+                    </time>
+                    {msg.isUpdated && msg.updatedAt && (
+                      <span className="text-xs opacity-50 ml-2">
+                        (edited {new Date(msg.updatedAt).toLocaleTimeString()})
+                      </span>
+                    )}
+                  </div>
+                  <div className="chat-bubble bg-base-200/50 group relative">
+                    <MessageBubble
+                      text={msg.text}
+                      isDeleted={msg.isDeleted}
+                      isSelf={msg.clientId === clientId}
+                      className="max-h-[200px] overflow-y-auto break-words"
+                    />
+                    <div className="absolute -bottom-8 right-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <MessageReactions
+                        message={msg}
+                        clientId={clientId}
+                        reactionType={reactionType}
+                        onReactionAdd={addReaction}
+                        onReactionDelete={deleteReaction}
                       />
-                      <div className="chat-message-buttons">
-                        <FaPencil
-                          className="icon-edit"
-                          onClick={() => handleMessageUpdate(msg)}
-                          aria-label="Edit message"
-                        />
-                        <FaTrash
-                          className="icon-delete"
-                          onClick={() => handleMessageDelete(msg)}
-                          aria-label="Delete message"
-                        />
-                        <MessageReactions
-                          message={msg}
-                          clientId={clientId}
-                          reactionType={reactionType}
-                          onReactionAdd={addReaction}
-                          onReactionDelete={deleteReaction}
-                        />
-                      </div>
+                    </div>
+                  </div>
+                  <div className="chat-footer opacity-50">
+                    <div className="flex gap-2 items-center">
+                      <button
+                        className="btn btn-ghost btn-xs"
+                        onClick={() => handleMessageUpdate(msg)}
+                        aria-label="Edit message"
+                      >
+                        <FaPencil className="h-3 w-3" />
+                      </button>
+                      <button
+                        className="btn btn-ghost btn-xs"
+                        onClick={() => handleMessageDelete(msg)}
+                        aria-label="Delete message"
+                      >
+                        <FaTrash className="h-3 w-3" />
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -311,27 +286,22 @@ export function ChatWindow({
             <div ref={messagesEndRef} />
           </div>
 
-          <div
-            className="chat-input-area mt-auto flex-shrink-0"
-            style={{ minHeight: '120px', maxHeight: '120px' }}
-          >
-            {showTypingIndicator && (
-              <div className="chat-typing-indicator">
+          <div className="border-t border-base-300 bg-base-200 p-4">
+            {showTypingIndicator && otherTypingUsers.length > 0 && (
+              <div className="mb-2">
                 <TypingIndicator
                   currentTypers={otherTypingUsers}
-                  className="text-sm overflow-hidden"
+                  className="text-sm text-base-content/70"
                 />
               </div>
             )}
-            <div className="chat-input-wrapper">
-              <TextInputWithButton
-                onSubmit={handleSendMessage}
-                onChange={handleInputChange}
-                placeholder="Type a message..."
-                buttonText="Send"
-                autoFocus
-              />
-            </div>
+            <TextInputWithButton
+              onSubmit={handleSendMessage}
+              onChange={handleInputChange}
+              placeholder="Type a message..."
+              buttonText="Send"
+              autoFocus
+            />
           </div>
         </>
       )}

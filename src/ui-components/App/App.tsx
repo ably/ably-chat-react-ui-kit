@@ -23,9 +23,7 @@ function AppContent() {
     };
 
     return (
-        /* fills the parent container, but never grows beyond it */
-        <div className="z-10 border rounded-lg w-full h-full text-sm flex">
-            {/* 100 % width so the resize-panel logic can work properly */}
+        <div className="z-10 bg-base-100 rounded-lg w-full h-full text-sm flex">
             <div className="w-full h-full">
                 <div className="h-full w-full overflow-hidden">
                     <PanelGroup direction="horizontal" className="flex w-full h-full">
@@ -34,9 +32,9 @@ function AppContent() {
                             defaultSize={30}
                             minSize={20}
                             maxSize={40}
-                            className="bg-gray-100 p-4 h-full"
+                            className="bg-base-200 h-full"
                         >
-                            <div className="h-full flex flex-col ">
+                            <div className="h-full flex flex-col">
                                 <RoomList
                                     onRoomSelect={handleRoomSelect}
                                     selectedRoomId={selectedRoomId}
@@ -44,19 +42,20 @@ function AppContent() {
                             </div>
                         </Panel>
 
-                        <PanelResizeHandle className="w-2 bg-gray-300 cursor-col-resize" />
+                        <PanelResizeHandle className="w-2 bg-base-300 cursor-col-resize hover:bg-primary/20 transition-colors" />
 
                         {/* Right Panel – Chat Area */}
-                        <Panel defaultSize={70} minSize={60} className="p-4 h-full">
+                        <Panel defaultSize={70} minSize={60} className="h-full">
                             <div className="h-full flex flex-col">
-                            {selectedRoomId ? (
+                                {selectedRoomId ? (
                                     <div className="flex flex-col h-full max-h-full">
-                                        <div
-                                            className="card flex justify-between items-center border-b py-2 px-4 flex-shrink-0 h-14">
-                                            <h2 className="header-title">Room: {selectedRoomId}</h2>
-                                            <div className="header-actions">
-                                                <button onClick={() => setShowSettings(!showSettings)}
-                                                        className="btn-secondary">
+                                        <div className="flex justify-between items-center border-b border-base-300 py-2 px-4 flex-shrink-0 h-14">
+                                            <h2 className="text-lg font-medium">Room: {selectedRoomId}</h2>
+                                            <div className="flex gap-2">
+                                                <button 
+                                                    onClick={() => setShowSettings(!showSettings)}
+                                                    className="btn btn-ghost btn-sm"
+                                                >
                                                     {showSettings ? 'Hide Settings' : 'Settings'}
                                                 </button>
                                             </div>
@@ -71,8 +70,8 @@ function AppContent() {
                                         </Room>
                                     </div>
                                 ) : (
-                                    <div className="flex items-center justify-center h-full card bg-gray-50">
-                                        <p className="text-gray-500">Select a room to start chatting</p>
+                                    <div className="flex items-center justify-center h-full bg-base-200">
+                                        <p className="text-base-content/70">Select a room to start chatting</p>
                                     </div>
                                 )}
                             </div>
@@ -100,9 +99,9 @@ export function App({chatClient, initialRooms = [], className = ''}: AppProps) {
     }
 
     return (
-        <div className={`flex justify-center items-center min-h-screen ${className}`}>
+        <div className={`flex justify-center items-center min-h-screen bg-base-100 ${className}`}>
             <div
-                className="flex flex-col border rounded-lg shadow-lg w-full"
+                className="flex flex-col bg-base-100 rounded-lg shadow-lg w-full"
                 style={{
                     width: 'min(90vw, calc(90vh * 1.618))',
                     height: 'min(90vh, calc(90vw / 1.618))',

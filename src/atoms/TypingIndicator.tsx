@@ -13,5 +13,10 @@ export function TypingIndicator({ currentTypers, className = '' }: TypingIndicat
       ? `${currentTypers[0]} is typing…`
       : `${currentTypers.join(', ')} are typing…`;
 
-  return <div className={`typing-indicator ${className}`}>{text}</div>;
+  return (
+    <div className={`flex items-center gap-2 ${className}`}>
+      <span className="loading loading-dots loading-xs"></span>
+      <span>{text}</span>
+    </div>
+  );
 }
