@@ -19,8 +19,8 @@
     }
   },
   "scripts": {
-    "build": "tsc && npm run css:build",
-    "dev": "tsc --watch && npm run css:dev",
+    "dev": "vite",
+    "build": "vite build && tsc --declaration --emitDeclarationOnly --outDir dist && npm run css:build",
     "css:dev": "tailwindcss -i ./src/styles.css -o ./dist/styles.css --watch",
     "css:build": "tailwindcss -i ./src/styles.css -o ./dist/styles.css",
     "prepare": "npm run build",
@@ -40,8 +40,8 @@
   "author": "Ably Realtime",
   "license": "Apache-2.0",
   "dependencies": {
+    "@vitejs/plugin-react": "^4.5.0",
     "clsx": "^2.1.1",
-    "daisyui": "^5.0.38",
     "emoji-picker-react": "^4.12.2",
     "react-icons": "^5.5.0",
     "react-resizable-panels": "^3.0.2"
@@ -56,6 +56,7 @@
     "@types/react-dom": "^18.2.0",
     "@typescript-eslint/eslint-plugin": "^8.32.1",
     "@typescript-eslint/parser": "^8.32.1",
+    "ably": "^2.9.0",
     "autoprefixer": "^10.4.18",
     "eslint": "^9.27.0",
     "eslint-config-prettier": "^10.1.5",
@@ -68,6 +69,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "tailwindcss": "^3.4.1",
-    "typescript": "^5.5.3"
+    "typescript": "^5.5.3",
+    "vite": "^4.4.5"
   }
 }
