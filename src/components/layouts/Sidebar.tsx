@@ -33,7 +33,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const [showCreateRoomModal, setShowCreateRoomModal] = useState(false);
   const handleCreateRoom = async (roomName: string) => {
     if (onCreateRoom) {
-      await onCreateRoom(roomName);
+      onCreateRoom(roomName);
     }
   };
 
@@ -102,38 +102,37 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Room List */}
       <div className="flex-1 overflow-y-auto">
-        {isCollapsed ? (
-          // Collapsed view - just avatars
-          <div className="flex flex-col items-center gap-2 p-2">
-            {roomIds.map((roomId) => {
-              const roomName = getRoomDisplayName(roomId);
-              return (
-                <div
-                  key={roomId}
-                  className={`relative cursor-pointer transition-transform hover:scale-110 ${
-                    roomId === currentRoomId ? 'ring-2 ring-blue-500 rounded-full' : ''
-                  }`}
-                  onClick={() => onSelectRoom(roomId)}
-                  title={roomName}
-                >
-                  <Avatar
-                    alt={roomName}
-                    src={`https://via.placeholder.com/40?text=${encodeURIComponent(roomName)}`}
-                    color="bg-gray-500"
-                    size="md"
-                  />
+        {/* Collapsed view - just avatars */}
+        <div className={`flex flex-col items-center gap-2 p-2 ${isCollapsed ? 'block' : 'hidden'}`}>
+          {roomIds.map((roomId) => {
+            const roomName = getRoomDisplayName(roomId);
+            return (
+              <div
+                key={roomId}
+                className={`relative cursor-pointer transition-transform hover:scale-110 ${
+                  roomId === currentRoomId ? 'ring-2 ring-blue-500 rounded-full' : ''
+                }`}
+                onClick={() => onSelectRoom(roomId)}
+                title={roomName}
+              >
+                <Avatar
+                  alt={roomName}
+                  src={`https://via.placeholder.com/40?text=${encodeURIComponent(roomName)}`}
+                  color="bg-gray-500"
+                  size="md"
+                />
 
-                  {/* Present indicator */}
-                  {roomId === currentRoomId && (
-                    <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-gray-900" />
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        ) : (
-          // Expanded view - full room list with real-time data
-          roomIds.map((roomId) => (
+                {/* Present indicator */}
+                {roomId === currentRoomId && (
+                  <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-gray-900" />
+                )}
+              </div>
+            );
+          })}
+        </div>
+        {/* Expanded view - full room list with real-time data */}
+        <div className={isCollapsed ? 'hidden' : 'block'}>
+          {roomIds.map((roomId) => (
             <ChatRoomProvider
               key={roomId}
               id={roomId}
@@ -149,8 +148,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 currentUserId={currentUserId}
               />
             </ChatRoomProvider>
-          ))
-        )}
+          ))}
+        </div>
       </div>
 
       {/* Create Room Modal */}
