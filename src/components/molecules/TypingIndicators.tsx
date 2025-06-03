@@ -1,67 +1,87 @@
 import React from 'react';
-import { useTyping } from '@ably/chat/react';
+import { useChatClient, useRoom, useTyping } from '@ably/chat/react';
+import clsx from 'clsx';
+import { TypingDots } from '../atoms/TypingDots.tsx';
 
 interface TypingIndicatorsProps {
   currentUserId: string;
   className?: string;
 }
 
-const TypingIndicators: React.FC<TypingIndicatorsProps> = ({ currentUserId, className = '' }) => {
-  // Use typing hook directly in this component
-  const { currentlyTyping } = useTyping();
+/**
+ * Builds a human-readable “is / are typing” sentence.
+ *
+ *  • `maxClients` – how many distinct clients to list before collapsing the rest
+ *    into “n other(s)”.
+ *    If `maxClients` is `undefined` or ≤ 0, we default to 1.
+ */
+export function buildTypingSentence(userIds: string[], maxClients: number = 1): string {
+  const count = userIds.length;
+  const safeMax = Math.max(1, maxClients); // never smaller than 1
 
-  // Filter out current user from typing set
-  const activeTypingUsers = Array.from(currentlyTyping).filter(
-    (clientId) => clientId !== currentUserId
-  );
+  // No users
+  if (count === 0) return '';
 
-  if (activeTypingUsers.length === 0) {
-    return null;
+  // All users fit into the limit → list them, nothing to collapse
+  if (count <= safeMax) {
+    if (count === 1) return `${userIds[0]} is typing`;
+    if (count === 2) return `${userIds[0]} and ${userIds[1]} are typing`;
+    if (count === 3) return `${userIds[0]}, ${userIds[1]} and ${userIds[2]} are typing`;
+
+    // >3 but still within the limit – generic join
+    const names = userIds.slice(0, -1).join(', ');
+    return `${names} and ${userIds[count - 1]} are typing`;
   }
 
-  const formatTypingText = () => {
-    const count = activeTypingUsers.length;
+  // Need to collapse the tail into “…n others”
+  const displayNames = userIds.slice(0, safeMax).join(', ');
+  const remaining = count - safeMax;
 
-    if (count === 1) {
-      return `${activeTypingUsers[0]} is typing`;
-    }
+  return `${displayNames} and ${remaining} other${remaining > 1 ? 's' : ''} are typing`;
+}
 
-    if (count === 2) {
-      return `${activeTypingUsers[0]} and ${activeTypingUsers[1]} are typing`;
-    }
+interface TypingIndicatorsProps extends React.HTMLAttributes<HTMLDivElement> {
+  maxClients?: number; // max number of distinct clients to display
 
-    if (count <= 3) {
-      const names = activeTypingUsers.slice(0, -1).join(', ');
-      const lastName = activeTypingUsers[activeTypingUsers.length - 1];
-      return `${names} and ${lastName} are typing`;
-    }
+  /* style hooks */
+  className?: string;
+  dotsClassName?: string;
+  dotClassName?: string;
+  dotSizeClassName?: string; // size util, e.g. 'w-2 h-2'
+  textClassName?: string;
+}
 
-    // More than 3 users
-    const remaining = count - 1;
-    return `${activeTypingUsers[0]} and ${remaining} other${remaining > 1 ? 's' : ''} are typing`;
-  };
+const TypingIndicators: React.FC<TypingIndicatorsProps> = ({
+  maxClients,
+  className,
+  dotsClassName,
+  dotClassName,
+  dotSizeClassName,
+  textClassName,
+  ...rest
+}) => {
+  const { currentlyTyping } = useTyping();
+  const { clientId } = useChatClient();
+
+  /* Exclude yourself */
+  const activeTypingUsers = Array.from(currentlyTyping).filter((id) => id !== clientId);
+
+  if (!activeTypingUsers.length) return null;
 
   return (
     <div
-      className={`flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 ${className}`}
+      className={clsx(
+        'flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400',
+        className
+      )}
+      {...rest}
     >
-      {/* Animated typing dots */}
-      <div className="flex gap-0.5">
-        <div
-          className="w-1.5 h-1.5 bg-current rounded-full animate-bounce"
-          style={{ animationDelay: '0ms', animationDuration: '1s' }}
-        />
-        <div
-          className="w-1.5 h-1.5 bg-current rounded-full animate-bounce"
-          style={{ animationDelay: '200ms', animationDuration: '1s' }}
-        />
-        <div
-          className="w-1.5 h-1.5 bg-current rounded-full animate-bounce"
-          style={{ animationDelay: '400ms', animationDuration: '1s' }}
-        />
-      </div>
-
-      <span>{formatTypingText()}</span>
+      <TypingDots
+        className={dotsClassName}
+        dotClassName={dotClassName}
+        dotSizeClassName={dotSizeClassName}
+      />
+      <span className={textClassName}>{buildTypingSentence(activeTypingUsers, maxClients)}</span>
     </div>
   );
 };

@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import ChatMessage from '../molecules/ChatMessage';
 import TypingIndicators from '../molecules/TypingIndicators';
 import MessageInput from '../molecules/MessageInput';
-import RoomParticipants from '../molecules/RoomParticipants';
+import RoomInfo from '../molecules/RoomInfo';
 import PresenceIndicators from '../molecules/PresenceIndicators';
 import Button from '../atoms/Button';
 import Icon from '../atoms/Icon';
@@ -221,8 +221,8 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ roomId }) => {
       {/* Room Header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
         <div className="flex items-center gap-3">
-          {/* Room participants component*/}
-          <RoomParticipants
+          {/* Room info component*/}
+          <RoomInfo
             roomAvatar={undefined}
             roomName={getRoomName()}
             isOpen={showParticipants}

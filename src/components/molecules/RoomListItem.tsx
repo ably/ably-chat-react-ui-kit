@@ -1,6 +1,7 @@
 import React from 'react';
 import { useOccupancy, useTyping } from '@ably/chat/react';
 import Avatar from '../atoms/Avatar';
+import TypingIndicators from './TypingIndicators.tsx';
 
 interface RoomListItemProps {
   room: string; // Now just the roomId
@@ -133,9 +134,7 @@ const RoomListItem: React.FC<RoomListItemProps> = ({
         </div>
 
         {/* Show typing indicator */}
-        {typingText && (
-          <p className="text-xs text-blue-600 dark:text-blue-400 mt-1 italic">{typingText}</p>
-        )}
+        {typingText && <TypingIndicators currentUserId={currentUserId} />}
       </div>
     </div>
   );
