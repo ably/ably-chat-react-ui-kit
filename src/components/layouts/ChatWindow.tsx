@@ -27,28 +27,6 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ roomId }) => {
   const currentUserId = chatClient.clientId;
   usePresence(); // enter presence in the room
 
-  const reactionsListener = useCallback((reaction: MessageReactionSummaryEvent) => {
-    const messageSerial = reaction.summary.messageSerial;
-    setMessages((prevMessages) => {
-      const index = prevMessages.findIndex((m) => m.serial === messageSerial);
-      if (index === -1) {
-        return prevMessages;
-      }
-
-      const newMessage = prevMessages[index].with(reaction);
-
-      // if no change, do nothing
-      if (newMessage === prevMessages[index]) {
-        return prevMessages;
-      }
-
-      // copy array and replace the message
-      const updatedArray = prevMessages.slice();
-      updatedArray[index] = newMessage;
-      return updatedArray;
-    });
-  }, []);
-
   // Handle messages using the useMessages hook with proper event handling
   const { send, deleteMessage, update, addReaction, deleteReaction } = useMessages({
     listener: (event: MessageEvent) => {
@@ -99,7 +77,27 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ roomId }) => {
         }
       }
     },
-    reactionsListener: reactionsListener,
+    reactionsListener: (reaction: MessageReactionSummaryEvent) => {
+      const messageSerial = reaction.summary.messageSerial;
+      setMessages((prevMessages) => {
+        const index = prevMessages.findIndex((m) => m.serial === messageSerial);
+        if (index === -1) {
+          return prevMessages;
+        }
+
+        const newMessage = prevMessages[index].with(reaction);
+
+        // if no change, do nothing
+        if (newMessage === prevMessages[index]) {
+          return prevMessages;
+        }
+
+        // copy array and replace the message
+        const updatedArray = prevMessages.slice();
+        updatedArray[index] = newMessage;
+        return updatedArray;
+      });
+    },
     onDiscontinuity: () => {
       console.log('Discontinuity detected');
       setMessages([]);

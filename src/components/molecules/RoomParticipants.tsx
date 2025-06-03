@@ -95,18 +95,6 @@ const RoomParticipants: React.FC<RoomParticipantsProps> = ({
     setShowTooltip(true);
   };
 
-  const formatLastSeen = (updatedAt?: number) => {
-    if (!updatedAt) return 'Unknown';
-
-    const now = new Date();
-    const lastSeenDate = new Date(updatedAt);
-    const diffMinutes = Math.floor((now.getTime() - lastSeenDate.getTime()) / (1000 * 60));
-
-    if (diffMinutes < 1) return 'Just now';
-    if (diffMinutes < 60) return `${diffMinutes}m ago`;
-    return 'More than 1h ago';
-  };
-
   const getTooltipText = () => {
     if (!presenceData || presenceData.length === 0) {
       return 'No one is currently present';
@@ -180,7 +168,7 @@ const RoomParticipants: React.FC<RoomParticipantsProps> = ({
             initials={getRoomInitials()}
           />
 
-          {/* Edit overlay - smaller central area */}
+          {/* Edit overlay */}
           {onAvatarChange && (
             <div
               className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity cursor-pointer group"
@@ -282,35 +270,27 @@ const RoomParticipants: React.FC<RoomParticipantsProps> = ({
                   </div>
 
                   <div className="flex items-center gap-2 mt-0.5">
-                    {member.clientId === currentUserId ? (
-                      <span className="text-sm text-green-600 dark:text-green-400">Online</span>
+                    {/* Check if this participant is currently typing */}
+                    {currentlyTyping.has(member.clientId) && member.clientId !== currentUserId ? (
+                      <span className="text-xs text-blue-600 dark:text-blue-400 flex items-center gap-1">
+                        <div className="flex gap-1">
+                          <div
+                            className="w-1 h-1 bg-blue-500 rounded-full animate-bounce"
+                            style={{ animationDelay: '0ms' }}
+                          ></div>
+                          <div
+                            className="w-1 h-1 bg-blue-500 rounded-full animate-bounce"
+                            style={{ animationDelay: '150ms' }}
+                          ></div>
+                          <div
+                            className="w-1 h-1 bg-blue-500 rounded-full animate-bounce"
+                            style={{ animationDelay: '300ms' }}
+                          ></div>
+                        </div>
+                        typing...
+                      </span>
                     ) : (
-                      <>
-                        {/* Check if this participant is currently typing */}
-                        {currentlyTyping.has(member.clientId) ? (
-                          <span className="text-xs text-blue-600 dark:text-blue-400 flex items-center gap-1">
-                            <div className="flex gap-1">
-                              <div
-                                className="w-1 h-1 bg-blue-500 rounded-full animate-bounce"
-                                style={{ animationDelay: '0ms' }}
-                              ></div>
-                              <div
-                                className="w-1 h-1 bg-blue-500 rounded-full animate-bounce"
-                                style={{ animationDelay: '150ms' }}
-                              ></div>
-                              <div
-                                className="w-1 h-1 bg-blue-500 rounded-full animate-bounce"
-                                style={{ animationDelay: '300ms' }}
-                              ></div>
-                            </div>
-                            typing...
-                          </span>
-                        ) : (
-                          <span className="text-sm text-gray-500 dark:text-gray-400">
-                            Last seen {formatLastSeen(member.updatedAt)}
-                          </span>
-                        )}
-                      </>
+                      <span className="text-sm text-green-600 dark:text-green-400">Online</span>
                     )}
                   </div>
                 </div>

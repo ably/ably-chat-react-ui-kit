@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { ThemeProvider } from '../context/ThemeContext.tsx';
 import { useChatClient, ChatRoomProvider, useRoom } from '@ably/chat/react';
 import { AppLayout, Sidebar, ChatWindow } from '../components/layouts';
@@ -26,41 +26,50 @@ const ChatWindowWithRoom = React.memo(({ roomId }: { roomId: string }) => {
 });
 
 const ChatApp: React.FC = () => {
-  const chatClient = useChatClient();
   const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
   const [roomIds, setRoomIds] = useState<string[]>([]);
   const [currentRoomId, setCurrentRoomId] = useState<string | null>(null);
+  const chatClient = useChatClient();
 
-  // Cleanup all rooms when component unmounts (only run on unmount)
+  // Ref that holds the latest roomIds
+  const roomIdsRef = useRef<string[]>([]);
+
+  // Keep the ref updated whenever roomIds changes
+  useEffect(() => {
+    roomIdsRef.current = roomIds;
+  }, [roomIds]);
+
+  // Cleanup all rooms when component unmounts
   useEffect(() => {
     return () => {
-      // Release all rooms on unmount
-      if (chatClient) {
-        // Get the current roomIds at cleanup time
-        setRoomIds((currentRoomIds) => {
-          currentRoomIds.forEach((roomId) => {
-            try {
-              chatClient.rooms.release(roomId);
-            } catch (error) {
-              console.warn(`Failed to release room ${roomId}:`, error);
-            }
-          });
-          return currentRoomIds;
-        });
-      }
+      if (!chatClient) return;
+      Promise.all(
+        roomIdsRef.current.map((roomId) =>
+          chatClient.rooms.release(roomId).catch((error) => {
+            console.warn(`Failed to release room ${roomId}:`, error);
+          })
+        )
+      ).catch((err) => console.error('Error releasing rooms:', err));
     };
-  }, [chatClient]); // Only depend on chatClient, not roomIds
+  }, [chatClient]);
 
   // Memoize callback functions to prevent unnecessary re-renders
   const handleSelectRoom = useCallback((roomId: string) => {
     setCurrentRoomId(roomId);
   }, []);
 
-  const handleCreateRoom = useCallback(async (roomName: string) => {
-    const newRoomId = `room-${Date.now()}-${roomName.toLowerCase().replace(/\s+/g, '-')}`;
-    setRoomIds((prev) => [...prev, newRoomId]);
-    setCurrentRoomId(newRoomId);
-  }, []);
+  const handleCreateRoom = useCallback(
+    (roomName: string) => {
+      // Check if the room already exists, and switch to it if it does
+      if (roomIds.includes(roomName)) {
+        setCurrentRoomId(roomName);
+        return;
+      }
+      setRoomIds((prev) => [...prev, roomName]);
+      setCurrentRoomId(roomName);
+    },
+    [roomIds]
+  );
 
   const handleToggleCollapse = useCallback(() => {
     setIsCollapsed((prev) => !prev);
@@ -126,7 +135,6 @@ const ChatApp: React.FC = () => {
   );
 };
 
-// Root App Component with Providers
 export const App: React.FC = () => {
   return <ChatApp />;
 };
