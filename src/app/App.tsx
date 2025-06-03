@@ -2,9 +2,19 @@ import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { ThemeProvider } from '../context/ThemeContext.tsx';
 import { useChatClient, ChatRoomProvider, useRoom } from '@ably/chat/react';
 import { AppLayout, Sidebar, ChatWindow } from '../components/layouts';
+import { AvatarData } from '../components/atoms/Avatar';
+import { AvatarProvider, useAvatar } from '../context/AvatarContext';
 
+/**
+ * ChatWindowWithRoom component that wraps the ChatWindow with a ChatRoomProvider
+ * Uses the AvatarProvider to get room avatars
+ */
 const ChatWindowWithRoom = React.memo(({ roomId }: { roomId: string }) => {
   const { room } = useRoom();
+  const { getAvatarForRoom } = useAvatar();
+
+  // Get the room avatar from the AvatarProvider
+  const roomAvatar = getAvatarForRoom(roomId);
 
   // Don't render until room is ready
   if (!room || !roomId) {
@@ -20,16 +30,21 @@ const ChatWindowWithRoom = React.memo(({ roomId }: { roomId: string }) => {
 
   return (
     <div className="flex-1 h-full">
-      <ChatWindow roomId={roomId} />
+      <ChatWindow roomId={roomId} roomAvatar={roomAvatar} />
     </div>
   );
 });
 
+/**
+ * Main chat application component
+ * Uses AvatarProvider for centralized avatar management
+ */
 const ChatApp: React.FC = () => {
   const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
   const [roomIds, setRoomIds] = useState<string[]>([]);
   const [currentRoomId, setCurrentRoomId] = useState<string | null>(null);
   const chatClient = useChatClient();
+  const { getAvatarForRoom, setRoomAvatar, getRoomAvatars } = useAvatar();
 
   // Ref that holds the latest roomIds
   const roomIdsRef = useRef<string[]>([]);
@@ -65,10 +80,22 @@ const ChatApp: React.FC = () => {
         setCurrentRoomId(roomName);
         return;
       }
+
+      // Create a new room avatar using the AvatarProvider
+      const roomAvatar = getAvatarForRoom(roomName, roomName);
+
+      // Update roomIds and currentRoomId
       setRoomIds((prev) => [...prev, roomName]);
       setCurrentRoomId(roomName);
     },
-    [roomIds]
+    [roomIds, getAvatarForRoom]
+  );
+
+  const handleRoomAvatarChange = useCallback(
+    (roomId: string, avatarData: Partial<AvatarData>) => {
+      setRoomAvatar(roomId, avatarData);
+    },
+    [setRoomAvatar]
   );
 
   const handleToggleCollapse = useCallback(() => {
@@ -99,6 +126,9 @@ const ChatApp: React.FC = () => {
     );
   }
 
+  // Get all room avatars from the AvatarProvider
+  const roomAvatars = getRoomAvatars();
+
   return (
     <ThemeProvider>
       <AppLayout width="50vw" height="50vh">
@@ -110,6 +140,7 @@ const ChatApp: React.FC = () => {
           currentUserId={chatClient.clientId}
           isCollapsed={isCollapsed}
           onToggleCollapse={handleToggleCollapse}
+          roomAvatars={roomAvatars}
         />
         {currentRoomId ? (
           <ChatRoomProvider
@@ -135,6 +166,14 @@ const ChatApp: React.FC = () => {
   );
 };
 
+/**
+ * Main application component
+ * Wraps the ChatApp with AvatarProvider for centralized avatar management
+ */
 export const App: React.FC = () => {
-  return <ChatApp />;
+  return (
+    <AvatarProvider>
+      <ChatApp />
+    </AvatarProvider>
+  );
 };

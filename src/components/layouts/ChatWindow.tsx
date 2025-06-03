@@ -6,6 +6,7 @@ import RoomInfo from '../molecules/RoomInfo';
 import PresenceIndicators from '../molecules/PresenceIndicators';
 import Button from '../atoms/Button';
 import Icon from '../atoms/Icon';
+import { AvatarData } from '../atoms/Avatar';
 import { useMessages, useChatClient, usePresence } from '@ably/chat/react';
 import {
   Message,
@@ -17,9 +18,10 @@ import {
 
 interface ChatWindowProps {
   roomId: string;
+  roomAvatar?: AvatarData;
 }
 
-export const ChatWindow: React.FC<ChatWindowProps> = ({ roomId }) => {
+export const ChatWindow: React.FC<ChatWindowProps> = ({ roomId, roomAvatar }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [showParticipants, setShowParticipants] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -223,8 +225,9 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ roomId }) => {
         <div className="flex items-center gap-3">
           {/* Room info component*/}
           <RoomInfo
-            roomAvatar={undefined}
+            roomAvatar={roomAvatar}
             roomName={getRoomName()}
+            roomId={roomId}
             isOpen={showParticipants}
             onToggle={() => setShowParticipants(!showParticipants)}
           />

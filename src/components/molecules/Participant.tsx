@@ -1,5 +1,5 @@
 import React from 'react';
-import Avatar from '../atoms/Avatar';
+import Avatar, { AvatarData } from '../atoms/Avatar';
 import { TypingDots } from '../atoms/TypingDots.tsx';
 
 interface ParticipantProps {
@@ -7,8 +7,7 @@ interface ParticipantProps {
   isPresent: boolean;
   isSelf: boolean;
   isTyping: boolean;
-  avatarSrc: string;
-  avatarColor: string;
+  avatar: AvatarData;
 }
 
 const Participant: React.FC<ParticipantProps> = ({
@@ -16,13 +15,18 @@ const Participant: React.FC<ParticipantProps> = ({
   isPresent,
   isSelf,
   isTyping,
-  avatarSrc,
-  avatarColor,
+  avatar,
 }) => {
   return (
     <div className="flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-700">
       <div className="relative">
-        <Avatar alt={clientId} src={avatarSrc} color={avatarColor} size="sm" />
+        <Avatar
+          alt={avatar.displayName || clientId}
+          src={avatar.src}
+          color={avatar.color}
+          size="sm"
+          initials={avatar.initials}
+        />
         {/* Presence Icon */}
         <div
           className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white dark:border-gray-800 ${

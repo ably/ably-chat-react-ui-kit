@@ -1,15 +1,94 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
-interface AvatarProps {
+/**
+ * AvatarData interface defines the structure for avatar data across the application.
+ * This standardized format ensures consistent avatar representation.
+ * 
+ * @property src - URL to the avatar image (optional)
+ * @property color - Background color for initials fallback (optional, will be generated if not provided)
+ * @property initials - Custom initials to display when no image is available (optional, will be generated from displayName)
+ * @property displayName - Used for alt text and generating initials (required)
+ */
+export interface AvatarData {
   src?: string;
-  alt: string;
-  color?: string; // Optional - will generate random color if not provided
-  size?: 'sm' | 'md' | 'lg' | 'xl';
-  initials?: string; // Custom initials to display when no image
-  onClick?: () => void; // Click handler for editing
+  color?: string;
+  initials?: string;
+  displayName: string;
 }
 
+/**
+ * Recommended image dimensions: 256x256 pixels
+ * Supported formats: JPG, PNG, WebP, SVG
+ * Maximum file size: 5MB
+ */
+interface AvatarProps {
+  /**
+   * URL to the avatar image
+   */
+  src?: string;
+
+  /**
+   * Alternative text for the avatar image, also used for generating initials if needed
+   */
+  alt: string;
+
+  /**
+   * Background color for the avatar when no image is provided
+   * Uses Tailwind CSS color classes (e.g., 'bg-blue-500')
+   * If not provided, a color will be generated based on the alt text
+   */
+  color?: string;
+
+  /**
+   * Size of the avatar
+   * - sm: 32px (2rem)
+   * - md: 40px (2.5rem) - default
+   * - lg: 48px (3rem)
+   * - xl: 64px (4rem)
+   */
+  size?: 'sm' | 'md' | 'lg' | 'xl';
+
+  /**
+   * Custom initials to display when no image is available
+   * If not provided, initials will be generated from the alt text
+   */
+  initials?: string;
+
+  /**
+   * Click handler for the avatar, typically used for editing
+   */
+  onClick?: () => void;
+}
+
+/**
+ * Avatar component displays a user or room avatar with fallback to initials
+ * 
+ * @example
+ * // Basic usage
+ * <Avatar alt="John Doe" />
+ * 
+ * @example
+ * // With image
+ * <Avatar src="https://example.com/avatar.jpg" alt="John Doe" />
+ * 
+ * @example
+ * // With custom color and size
+ * <Avatar alt="John Doe" color="bg-purple-500" size="lg" />
+ * 
+ * @example
+ * // Using AvatarData object
+ * const avatarData = { displayName: "John Doe", src: "https://example.com/avatar.jpg" };
+ * <Avatar alt={avatarData.displayName} src={avatarData.src} color={avatarData.color} initials={avatarData.initials} />
+ */
 const Avatar: React.FC<AvatarProps> = ({ src, alt, color, size = 'md', initials, onClick }) => {
+  const [imgError, setImgError] = useState(false);
+
+  // Reset image error state if src changes
+  useEffect(() => {
+    setImgError(false);
+  }, [src]);
+
+  // Size classes mapping
   const sizeClasses = {
     sm: 'w-8 h-8 text-sm',
     md: 'w-10 h-10 text-lg',
@@ -17,7 +96,11 @@ const Avatar: React.FC<AvatarProps> = ({ src, alt, color, size = 'md', initials,
     xl: 'w-16 h-16 text-2xl',
   };
 
-  // Generate random color based on alt field if no color provided
+  /**
+   * Generates a deterministic color based on text
+   * @param text - The text to generate a color from
+   * @returns A Tailwind CSS color class
+   */
   const getRandomColor = (text: string) => {
     const colors = [
       'bg-blue-500',
@@ -38,6 +121,7 @@ const Avatar: React.FC<AvatarProps> = ({ src, alt, color, size = 'md', initials,
       'bg-sky-500',
     ];
 
+    // Generate a deterministic hash from the text
     let hash = 0;
     for (let i = 0; i < text.length; i++) {
       hash = ((hash << 5) - hash + text.charCodeAt(i)) & 0xffffffff;
@@ -45,16 +129,30 @@ const Avatar: React.FC<AvatarProps> = ({ src, alt, color, size = 'md', initials,
     return colors[Math.abs(hash) % colors.length];
   };
 
+  // Use provided color or generate one based on alt text
   const avatarColor = color || getRandomColor(alt);
 
+  /**
+   * Generates display text (initials) for the avatar
+   * @returns Up to 2 characters of initials
+   */
   const getDisplayText = () => {
+    // Use provided initials if available
     if (initials) return initials;
+
     // Fallback to generating initials from alt text
+    if (!alt) return '??'; // Handle empty alt text
+
     const words = alt.trim().split(/\s+/);
     if (words.length >= 2) {
       return (words[0][0] + words[1][0]).toUpperCase();
     }
     return alt.substring(0, 2).toUpperCase();
+  };
+
+  // Handle image loading error
+  const handleImageError = () => {
+    setImgError(true);
   };
 
   return (
@@ -63,9 +161,15 @@ const Avatar: React.FC<AvatarProps> = ({ src, alt, color, size = 'md', initials,
         onClick ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''
       }`}
       onClick={onClick}
+      title={alt}
     >
-      {src ? (
-        <img src={src} alt={alt} className="w-full h-full rounded-full object-cover" />
+      {src && !imgError ? (
+        <img 
+          src={src} 
+          alt={alt} 
+          className="w-full h-full rounded-full object-cover" 
+          onError={handleImageError}
+        />
       ) : (
         <span>{getDisplayText()}</span>
       )}

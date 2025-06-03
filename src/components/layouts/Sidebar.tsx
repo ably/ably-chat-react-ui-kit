@@ -3,7 +3,7 @@ import { ChatRoomProvider } from '@ably/chat/react';
 import RoomListItem from '../molecules/RoomListItem';
 import Button from '../atoms/Button';
 import Icon from '../atoms/Icon';
-import Avatar from '../atoms/Avatar';
+import Avatar, { AvatarData } from '../atoms/Avatar';
 import DropdownMenu from '../molecules/DropdownMenu';
 import CreateRoomModal from '../molecules/CreateRoomModal';
 import { useTheme } from '../../hooks/useTheme';
@@ -17,6 +17,7 @@ interface SidebarProps {
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
   width?: string | number;
+  roomAvatars?: Record<string, AvatarData>; // Map of room IDs to avatar data
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -28,6 +29,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   isCollapsed = false,
   onToggleCollapse,
   width = '20rem', // 320px default
+  roomAvatars = {},
 }) => {
   const { theme, toggleTheme } = useTheme();
   const [showCreateRoomModal, setShowCreateRoomModal] = useState(false);
@@ -117,12 +119,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
               >
                 <Avatar
                   alt={roomName}
-                  src={`https://via.placeholder.com/40?text=${encodeURIComponent(roomName)}`}
-                  color="bg-gray-500"
+                  src={
+                    roomAvatars[roomId]?.src ||
+                    `https://via.placeholder.com/40?text=${encodeURIComponent(roomName)}`
+                  }
+                  color={roomAvatars[roomId]?.color || 'bg-gray-500'}
                   size="md"
+                  initials={roomAvatars[roomId]?.initials}
                 />
 
-                {/* Present indicator */}
+                {/* Active Chat indicator */}
                 {roomId === currentRoomId && (
                   <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-gray-900" />
                 )}
@@ -130,7 +136,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             );
           })}
         </div>
-        {/* Expanded view - full room list with real-time data */}
+        {/* Expanded view - full room list */}
         <div className={isCollapsed ? 'hidden' : 'block'}>
           {roomIds.map((roomId) => (
             <ChatRoomProvider
@@ -146,6 +152,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 selected={roomId === currentRoomId}
                 onClick={() => onSelectRoom(roomId)}
                 currentUserId={currentUserId}
+                avatar={roomAvatars[roomId]}
               />
             </ChatRoomProvider>
           ))}

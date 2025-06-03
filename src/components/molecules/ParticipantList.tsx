@@ -3,6 +3,7 @@ import Button from '../atoms/Button';
 import Icon from '../atoms/Icon';
 import Participant from './Participant';
 import { PresenceMember } from '@ably/chat';
+import { useAvatar } from '../../context/AvatarContext';
 
 interface ParticipantListProps {
   presenceData: PresenceMember[];
@@ -11,10 +12,12 @@ interface ParticipantListProps {
   isOpen: boolean;
   onToggle: () => void;
   position: { top: number; left: number };
-  generateAvatarUrl: (clientId: string) => string;
-  getUserColor: (clientId: string) => string;
 }
 
+/**
+ * ParticipantList component displays a list of participants in a room
+ * Uses the AvatarProvider to get user avatars
+ */
 const ParticipantList: React.FC<ParticipantListProps> = ({
   presenceData,
   currentUserId,
@@ -22,9 +25,10 @@ const ParticipantList: React.FC<ParticipantListProps> = ({
   isOpen,
   onToggle,
   position,
-  generateAvatarUrl,
-  getUserColor,
 }) => {
+  // Use the AvatarProvider to get user avatars
+  const { getAvatarForUser } = useAvatar();
+
   if (!isOpen) {
     return null;
   }
@@ -65,17 +69,21 @@ const ParticipantList: React.FC<ParticipantListProps> = ({
 
       {/* Participants List */}
       <div className="max-h-64 overflow-y-auto">
-        {sortedParticipants.map((member) => (
-          <Participant
-            key={member.clientId}
-            clientId={member.clientId}
-            isPresent={true}
-            isSelf={member.clientId === currentUserId}
-            isTyping={currentlyTyping.has(member.clientId)}
-            avatarSrc={generateAvatarUrl(member.clientId)}
-            avatarColor={getUserColor(member.clientId)}
-          />
-        ))}
+        {sortedParticipants.map((member) => {
+          // Get the avatar for this user from the AvatarProvider
+          const userAvatar = getAvatarForUser(member.clientId);
+
+          return (
+            <Participant
+              key={member.clientId}
+              clientId={member.clientId}
+              isPresent={true}
+              isSelf={member.clientId === currentUserId}
+              isTyping={currentlyTyping.has(member.clientId)}
+              avatar={userAvatar}
+            />
+          );
+        })}
       </div>
     </div>
   );

@@ -1,20 +1,27 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useOccupancy, useTyping } from '@ably/chat/react';
-import Avatar from '../atoms/Avatar';
+import Avatar, { AvatarData } from '../atoms/Avatar';
 import TypingIndicators from './TypingIndicators.tsx';
+import { useAvatar } from '../../context/AvatarContext';
 
 interface RoomListItemProps {
-  room: string; // Now just the roomId
+  room: string; // The roomId
   selected: boolean;
   onClick: () => void;
   currentUserId: string;
+  avatar?: AvatarData; // Optional avatar data for the room (from props)
 }
 
+/**
+ * RoomListItem component displays a room in the sidebar
+ * Uses the AvatarProvider to get room avatars
+ */
 const RoomListItem: React.FC<RoomListItemProps> = ({
   room: roomId,
   selected,
   onClick,
   currentUserId,
+  avatar: propAvatar,
 }) => {
   // Get real-time occupancy data
   const { connections, presenceMembers } = useOccupancy();
@@ -22,43 +29,16 @@ const RoomListItem: React.FC<RoomListItemProps> = ({
   // Get real-time typing data
   const { currentlyTyping } = useTyping();
 
+  // Use the AvatarProvider to get room avatars
+  const { getAvatarForRoom } = useAvatar();
+
   // Helper functions for display
   const getRoomDisplayName = () => {
     return roomId.replace(/^room-\d+-/, '').replace(/-/g, ' ');
   };
 
-  const getRoomAvatarColor = () => {
-    // Generate consistent color for rooms
-    const colors = [
-      'bg-blue-500',
-      'bg-purple-500',
-      'bg-green-500',
-      'bg-orange-500',
-      'bg-red-500',
-      'bg-pink-500',
-      'bg-indigo-500',
-      'bg-yellow-500',
-      'bg-teal-500',
-      'bg-cyan-500',
-      'bg-emerald-500',
-      'bg-violet-500',
-    ];
-    let hash = 0;
-    const roomName = getRoomDisplayName();
-    for (let i = 0; i < roomName.length; i++) {
-      hash = ((hash << 5) - hash + roomName.charCodeAt(i)) & 0xffffffff;
-    }
-    return colors[Math.abs(hash) % colors.length];
-  };
-
-  const getRoomInitials = () => {
-    const name = getRoomDisplayName();
-    const words = name.trim().split(/\s+/);
-    if (words.length >= 2) {
-      return (words[0][0] + words[1][0]).toUpperCase();
-    }
-    return name.substring(0, 2).toUpperCase();
-  };
+  // Get the room avatar from props or from the AvatarProvider
+  const roomAvatar = propAvatar || getAvatarForRoom(roomId, getRoomDisplayName());
 
   const isRoomActive = () => {
     // Check if anyone is present in the room using real-time data
@@ -103,10 +83,11 @@ const RoomListItem: React.FC<RoomListItemProps> = ({
     >
       <div className="relative">
         <Avatar
-          alt={getRoomDisplayName()}
-          color={getRoomAvatarColor()}
+          alt={roomAvatar.displayName}
+          src={roomAvatar.src}
+          color={roomAvatar.color}
           size="md"
-          initials={getRoomInitials()}
+          initials={roomAvatar.initials}
         />
 
         {/* Present indicator */}
@@ -125,7 +106,7 @@ const RoomListItem: React.FC<RoomListItemProps> = ({
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between">
           <h3 className="font-medium text-gray-900 dark:text-gray-100 truncate">
-            {getRoomDisplayName()}
+            {roomAvatar.displayName}
           </h3>
           <div className="flex items-center gap-2 flex-shrink-0">
             {/* Room participant count */}
