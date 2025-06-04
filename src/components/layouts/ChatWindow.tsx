@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import ChatMessage from '../molecules/ChatMessage';
 import TypingIndicators from '../molecules/TypingIndicators';
 import MessageInput from '../molecules/MessageInput';
@@ -22,6 +22,7 @@ interface ChatWindowProps {
 }
 
 export const ChatWindow: React.FC<ChatWindowProps> = ({ roomId, roomAvatar }) => {
+  console.log('[RENDER] ChatWindow', { roomId });
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [showParticipants, setShowParticipants] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -127,7 +128,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ roomId, roomAvatar }) =>
   }
 
   // Handle REST message updates for optimistic UI updates
-  const handleRESTMessageUpdate = (updatedMessage: Message) => {
+  const handleRESTMessageUpdate = useCallback((updatedMessage: Message) => {
     setMessages((prevMessages) => {
       const index = prevMessages.findIndex((m) => m.serial === updatedMessage.serial);
       if (index === -1) {
@@ -140,10 +141,10 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ roomId, roomAvatar }) =>
       updatedArray[index] = updatedMessage;
       return updatedArray;
     });
-  };
+  }, []);
 
   // Message operation handlers
-  const handleMessageEdit = async (messageSerial: string, newText: string) => {
+  const handleMessageEdit = useCallback(async (messageSerial: string, newText: string) => {
     try {
       const message = messages.find((m) => m.serial === messageSerial);
       if (!message) return;
@@ -163,9 +164,9 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ roomId, roomAvatar }) =>
     } catch (error) {
       console.error('Failed to edit message:', error);
     }
-  };
+  }, [messages, update, handleRESTMessageUpdate]);
 
-  const handleMessageDelete = async (messageSerial: string) => {
+  const handleMessageDelete = useCallback(async (messageSerial: string) => {
     try {
       const message = messages.find((m) => m.serial === messageSerial);
       if (!message) return;
@@ -179,9 +180,9 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ roomId, roomAvatar }) =>
     } catch (error) {
       console.error('Failed to delete message:', error);
     }
-  };
+  }, [messages, deleteMessage, handleRESTMessageUpdate]);
 
-  const handleReactionAdd = async (messageSerial: string, emoji: string) => {
+  const handleReactionAdd = useCallback(async (messageSerial: string, emoji: string) => {
     try {
       const message = messages.find((m) => m.serial === messageSerial);
       if (!message) return;
@@ -190,9 +191,9 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ roomId, roomAvatar }) =>
     } catch (error) {
       console.error('Failed to add reaction:', error);
     }
-  };
+  }, [messages, addReaction]);
 
-  const handleReactionRemove = async (messageSerial: string, emoji: string) => {
+  const handleReactionRemove = useCallback(async (messageSerial: string, emoji: string) => {
     try {
       const message = messages.find((m) => m.serial === messageSerial);
       if (!message) return;
@@ -201,10 +202,10 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ roomId, roomAvatar }) =>
     } catch (error) {
       console.error('Failed to remove reaction:', error);
     }
-  };
+  }, [messages, deleteReaction]);
 
   // Handle sending messages
-  const handleSendMessage = async (text: string) => {
+  const handleSendMessage = useCallback(async (text: string) => {
     if (text.trim()) {
       try {
         await send({ text: text.trim() });
@@ -212,11 +213,12 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ roomId, roomAvatar }) =>
         console.error('Failed to send message:', error);
       }
     }
-  };
+  }, [send]);
 
-  const getRoomName = () => {
+  // Memoize the room name to prevent unnecessary recalculations
+  const roomName = useMemo(() => {
     return roomId.replace(/^room-\d+-/, '').replace(/-/g, ' ');
-  };
+  }, [roomId]);
 
   return (
     <div className="flex flex-col h-full bg-white dark:bg-gray-900 flex-1">
@@ -226,7 +228,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ roomId, roomAvatar }) =>
           {/* Room info component*/}
           <RoomInfo
             roomAvatar={roomAvatar}
-            roomName={getRoomName()}
+            roomName={roomName}
             roomId={roomId}
             isOpen={showParticipants}
             onToggle={() => setShowParticipants(!showParticipants)}

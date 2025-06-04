@@ -1,61 +1,123 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { ChatRoomProvider } from '@ably/chat/react';
 import RoomListItem from '../molecules/RoomListItem';
 import Button from '../atoms/Button';
 import Icon from '../atoms/Icon';
-import Avatar, { AvatarData } from '../atoms/Avatar';
+import Avatar from '../atoms/Avatar';
 import DropdownMenu from '../molecules/DropdownMenu';
 import CreateRoomModal from '../molecules/CreateRoomModal';
 import { useTheme } from '../../hooks/useTheme';
 import { useAvatar } from '../../context/AvatarContext.tsx';
+import { useCurrentRoom } from '../../context/CurrentRoomContext';
+
+// Memoized RoomListItem that uses context to determine if it's selected
+const MemoizedRoomListItemWithContext: React.FC<{
+  roomId: string;
+  onClick: () => void;
+  currentUserId: string;
+}> = React.memo(({ roomId, onClick, currentUserId }) => {
+  const currentRoomId = useCurrentRoom();
+  const selected = roomId === currentRoomId;
+
+  return (
+    <RoomListItem
+      room={roomId}
+      selected={selected}
+      onClick={onClick}
+      currentUserId={currentUserId}
+    />
+  );
+});
+
+// Add a tiny memoised component that *does* consume the context
+const CollapsedAvatarStrip: React.FC<{
+  roomIds: string[];
+  onSelectRoom: (id: string) => void;
+}> = React.memo(({ roomIds, onSelectRoom }) => {
+  const currentRoomId = useCurrentRoom(); // context read lives here
+  const { getAvatarForRoom } = useAvatar();
+  return (
+    <div className="flex flex-col items-center gap-2 p-2">
+      {roomIds.map((roomId) => {
+        const { src, color, initials } = getAvatarForRoom(roomId, roomId); // or helper
+        const selected = roomId === currentRoomId;
+
+        return (
+          <div
+            key={roomId}
+            className={`relative cursor-pointer transition-transform hover:scale-110 ${
+              selected ? 'ring-2 ring-blue-500 rounded-full' : ''
+            }`}
+            onClick={() => onSelectRoom(roomId)}
+            title={roomId}
+          >
+            <Avatar alt={roomId} src={src} color={color} size="md" initials={initials} />
+            {selected && (
+              <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-gray-900" />
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+});
 
 interface SidebarProps {
   roomIds: string[];
-  currentRoomId: string;
   onSelectRoom: (id: string) => void;
   onCreateRoom?: (roomName: string) => void;
   currentUserId: string;
-  isCollapsed?: boolean;
-  onToggleCollapse?: () => void;
   width?: string | number;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
   roomIds,
-  currentRoomId,
   onSelectRoom,
   onCreateRoom,
   currentUserId,
-  isCollapsed = false,
-  onToggleCollapse,
   width = '20rem', // 320px default
 }) => {
+  const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
+  console.log('[RENDER] Sidebar', { roomIds, currentUserId, isCollapsed });
   const { theme, toggleTheme } = useTheme();
-  const { getAvatarForRoom } = useAvatar();
   const [showCreateRoomModal, setShowCreateRoomModal] = useState(false);
-  const handleCreateRoom = async (roomName: string) => {
-    if (onCreateRoom) {
-      onCreateRoom(roomName);
-    }
-  };
 
-  const dropdownItems = [
-    {
-      id: 'create-room',
-      label: 'Create Room',
-      icon: '➕',
-      onClick: () => setShowCreateRoomModal(true),
+  // Handle toggle collapse
+  const handleToggleCollapse = useCallback(() => {
+    setIsCollapsed((prev) => !prev);
+  }, []);
+
+  // Memoize the handleCreateRoom function to prevent unnecessary re-renders
+  const handleCreateRoom = useCallback(
+    async (roomName: string) => {
+      if (onCreateRoom) {
+        onCreateRoom(roomName);
+      }
     },
-  ];
+    [onCreateRoom]
+  );
 
-  const getRoomDisplayName = (roomId: string) => {
-    return roomId.replace(/^room-\d+-/, '').replace(/-/g, ' ');
-  };
+  // Memoize the dropdownItems array to prevent it from being recreated on every render
+  const dropdownItems = useMemo(
+    () => [
+      {
+        id: 'create-room',
+        label: 'Create Room',
+        icon: '➕',
+        onClick: () => setShowCreateRoomModal(true),
+      },
+    ],
+    []
+  );
 
-  const sidebarStyle = {
-    width: isCollapsed ? '4rem' : typeof width === 'number' ? `${width}px` : width,
-    transition: 'width 0.3s ease-in-out',
-  };
+  // Memoize the sidebarStyle object to prevent it from being recreated on every render
+  const sidebarStyle = useMemo(
+    () => ({
+      width: isCollapsed ? '4rem' : typeof width === 'number' ? `${width}px` : width,
+      transition: 'width 0.3s ease-in-out',
+    }),
+    [isCollapsed, width]
+  );
 
   return (
     <aside
@@ -81,11 +143,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 }
                 items={dropdownItems}
               />
-              {onToggleCollapse && (
-                <Button variant="ghost" size="sm" onClick={onToggleCollapse}>
-                  <Icon name="chevronleft" size="md" />
-                </Button>
-              )}
+              <Button variant="ghost" size="sm" onClick={handleToggleCollapse}>
+                <Icon name="chevronleft" size="md" />
+              </Button>
             </div>
           </>
         ) : (
@@ -93,66 +153,37 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <Button variant="ghost" size="sm" onClick={toggleTheme}>
               <Icon name={theme === 'dark' ? 'sun' : 'moon'} size="md" />
             </Button>
-            {onToggleCollapse && (
-              <Button variant="ghost" size="sm" onClick={onToggleCollapse}>
-                <Icon name="chevronright" size="md" />
-              </Button>
-            )}
+            <Button variant="ghost" size="sm" onClick={handleToggleCollapse}>
+              <Icon name="chevronright" size="md" />
+            </Button>
           </div>
         )}
       </div>
 
       {/* Room List */}
       <div className="flex-1 overflow-y-auto">
-        {/* Collapsed view - just avatars */}
-        <div className={`flex flex-col items-center gap-2 p-2 ${isCollapsed ? 'block' : 'hidden'}`}>
-          {roomIds.map((roomId) => {
-            const roomName = getRoomDisplayName(roomId);
-            return (
-              <div
+        {isCollapsed ? (
+          /* Collapsed view – just avatars */
+          <CollapsedAvatarStrip roomIds={roomIds} onSelectRoom={onSelectRoom} />
+        ) : (
+          /* Expanded view – full room list */
+          <div>
+            {roomIds.map((roomId) => (
+              <ChatRoomProvider
                 key={roomId}
-                className={`relative cursor-pointer transition-transform hover:scale-110 ${
-                  roomId === currentRoomId ? 'ring-2 ring-blue-500 rounded-full' : ''
-                }`}
-                onClick={() => onSelectRoom(roomId)}
-                title={roomName}
+                id={roomId}
+                release={false}
+                options={{ occupancy: { enableEvents: true } }}
               >
-                <Avatar
-                  alt={roomName}
-                  src={getAvatarForRoom(roomId, roomName).src}
-                  color={getAvatarForRoom(roomId, roomName).color}
-                  size="md"
-                  initials={getAvatarForRoom(roomId, roomName).initials}
+                <MemoizedRoomListItemWithContext
+                  roomId={roomId}
+                  onClick={() => onSelectRoom(roomId)}
+                  currentUserId={currentUserId}
                 />
-
-                {/* Active Chat indicator */}
-                {roomId === currentRoomId && (
-                  <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-gray-900" />
-                )}
-              </div>
-            );
-          })}
-        </div>
-        {/* Expanded view - full room list */}
-        <div className={isCollapsed ? 'hidden' : 'block'}>
-          {roomIds.map((roomId) => (
-            <ChatRoomProvider
-              key={roomId}
-              id={roomId}
-              release={false}
-              options={{
-                occupancy: { enableEvents: true },
-              }}
-            >
-              <RoomListItem
-                room={roomId}
-                selected={roomId === currentRoomId}
-                onClick={() => onSelectRoom(roomId)}
-                currentUserId={currentUserId}
-              />
-            </ChatRoomProvider>
-          ))}
-        </div>
+              </ChatRoomProvider>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Create Room Modal */}

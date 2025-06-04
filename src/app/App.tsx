@@ -1,20 +1,21 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { ThemeProvider } from '../context/ThemeContext.tsx';
 import { useChatClient, ChatRoomProvider, useRoom } from '@ably/chat/react';
-import { AppLayout, Sidebar, ChatWindow } from '../components/layouts';
-import { AvatarData } from '../components/atoms/Avatar';
+import { AppLayout, ChatWindow } from '../components/layouts';
+import { Sidebar } from '../components/layouts';
 import { AvatarProvider, useAvatar } from '../context/AvatarContext';
+import { CurrentRoomContext } from '../context/CurrentRoomContext';
+
+// Memoize the Sidebar component to prevent unnecessary re-renders
+const MemoizedSidebar = React.memo(Sidebar);
 
 /**
  * ChatWindowWithRoom component that wraps the ChatWindow with a ChatRoomProvider
  * Uses the AvatarProvider to get room avatars
  */
 const ChatWindowWithRoom = React.memo(({ roomId }: { roomId: string }) => {
+  console.log('[RENDER] ChatWindowWithRoom', { roomId });
   const { room } = useRoom();
-  const { getAvatarForRoom } = useAvatar();
-
-  // Get the room avatar from the AvatarProvider
-  const roomAvatar = getAvatarForRoom(roomId);
 
   // Don't render until room is ready
   if (!room || !roomId) {
@@ -30,7 +31,7 @@ const ChatWindowWithRoom = React.memo(({ roomId }: { roomId: string }) => {
 
   return (
     <div className="flex-1 h-full">
-      <ChatWindow roomId={roomId} roomAvatar={roomAvatar} />
+      <ChatWindow roomId={roomId} />
     </div>
   );
 });
@@ -40,11 +41,10 @@ const ChatWindowWithRoom = React.memo(({ roomId }: { roomId: string }) => {
  * Uses AvatarProvider for centralized avatar management
  */
 const ChatApp: React.FC = () => {
-  const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
+  console.log('[RENDER] ChatApp');
   const [roomIds, setRoomIds] = useState<string[]>([]);
   const [currentRoomId, setCurrentRoomId] = useState<string | null>(null);
   const chatClient = useChatClient();
-  const { getAvatarForRoom, getRoomAvatars } = useAvatar();
 
   // Ref that holds the latest roomIds
   const roomIdsRef = useRef<string[]>([]);
@@ -76,7 +76,7 @@ const ChatApp: React.FC = () => {
   const handleCreateRoom = useCallback(
     (roomName: string) => {
       // Check if the room already exists, and switch to it if it does
-      if (roomIds.includes(roomName)) {
+      if (roomIdsRef.current.includes(roomName)) {
         setCurrentRoomId(roomName);
         return;
       }
@@ -84,12 +84,8 @@ const ChatApp: React.FC = () => {
       setRoomIds((prev) => [...prev, roomName]);
       setCurrentRoomId(roomName);
     },
-    [roomIds]
+    [] // Remove dependency on roomIds to make this callback stable
   );
-
-  const handleToggleCollapse = useCallback(() => {
-    setIsCollapsed((prev) => !prev);
-  }, []);
 
   // Memoize the ChatRoomProvider options to prevent recreating on every render
   const chatRoomOptions = useMemo(
@@ -117,34 +113,33 @@ const ChatApp: React.FC = () => {
   return (
     <ThemeProvider>
       <AppLayout width="50vw" height="50vh">
-        <Sidebar
-          roomIds={roomIds}
-          currentRoomId={currentRoomId || ''}
-          onSelectRoom={handleSelectRoom}
-          onCreateRoom={handleCreateRoom}
-          currentUserId={chatClient.clientId}
-          isCollapsed={isCollapsed}
-          onToggleCollapse={handleToggleCollapse}
-        />
-        {currentRoomId ? (
-          <ChatRoomProvider
-            key={currentRoomId}
-            id={currentRoomId}
-            release={false}
-            options={chatRoomOptions}
-          >
-            <ChatWindowWithRoom roomId={currentRoomId} />
-          </ChatRoomProvider>
-        ) : (
-          <div className="flex-1 flex items-center justify-center">
-            <div className="text-center">
-              <h3 className="text-lg font-medium text-gray-600 mb-2">
-                Select a room to start chatting
-              </h3>
-              <p className="text-gray-500">Choose a room from the sidebar or create a new one</p>
+        <CurrentRoomContext.Provider value={currentRoomId}>
+          <MemoizedSidebar
+            roomIds={roomIds}
+            onSelectRoom={handleSelectRoom}
+            onCreateRoom={handleCreateRoom}
+            currentUserId={chatClient.clientId}
+          />
+          {currentRoomId ? (
+            <ChatRoomProvider
+              key={currentRoomId}
+              id={currentRoomId}
+              release={false}
+              options={chatRoomOptions}
+            >
+              <ChatWindowWithRoom roomId={currentRoomId} />
+            </ChatRoomProvider>
+          ) : (
+            <div className="flex-1 flex items-center justify-center">
+              <div className="text-center">
+                <h3 className="text-lg font-medium text-gray-600 mb-2">
+                  Select a room to start chatting
+                </h3>
+                <p className="text-gray-500">Choose a room from the sidebar or create a new one</p>
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </CurrentRoomContext.Provider>
       </AppLayout>
     </ThemeProvider>
   );
@@ -153,11 +148,13 @@ const ChatApp: React.FC = () => {
 /**
  * Main application component
  * Wraps the ChatApp with AvatarProvider for centralized avatar management
+ * Memoized to prevent unnecessary re-renders
  */
-export const App: React.FC = () => {
+export const App: React.FC = React.memo(() => {
+  console.log('[RENDER] App');
   return (
     <AvatarProvider>
       <ChatApp />
     </AvatarProvider>
   );
-};
+});

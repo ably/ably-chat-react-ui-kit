@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useMemo } from 'react';
 
 /**
  * Represents the properties required for the AppLayout component.
@@ -29,21 +29,29 @@ interface AppLayoutProps {
  * @constant
  * @type {React.FC<AppLayoutProps>}
  */
-export const AppLayout: React.FC<AppLayoutProps> = ({ children, width, height, className = '' }) => {
-  // Convert width and height to string with 'px' if they are numbers
-  if (width === undefined) width = '50vw'; // 50% of viewport width by default
-  if (height === undefined) height = '50vh'; // 50% of viewport height by default
-  const style = {
-    width: typeof width === 'number' ? `${width}px` : width,
-    height: typeof height === 'number' ? `${height}px` : height,
-  };
+// Memoize the AppLayout component to prevent unnecessary re-renders
+export const AppLayout = React.memo<AppLayoutProps>(
+  ({ children, width, height, className = '' }) => {
+    // Convert width and height to string with 'px' if they are numbers
+    if (width === undefined) width = '50vw'; // 50% of viewport width by default
+    if (height === undefined) height = '50vh'; // 50% of viewport height by default
 
-  return (
-    <div
-      className={`flex bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 overflow-hidden border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg mx-auto my-8 ${className}`}
-      style={style}
-    >
-      {children}
-    </div>
-  );
-};
+    // Memoize the style object to prevent unnecessary re-renders
+    const style = useMemo(
+      () => ({
+        width: typeof width === 'number' ? `${width}px` : width,
+        height: typeof height === 'number' ? `${height}px` : height,
+      }),
+      [width, height]
+    );
+
+    return (
+      <div
+        className={`flex bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 overflow-hidden border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg mx-auto my-8 ${className}`}
+        style={style}
+      >
+        {children}
+      </div>
+    );
+  }
+);

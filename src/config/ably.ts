@@ -13,4 +13,4 @@ export const ablyClient = new Ably.Realtime({
 });
 
 // Create Chat client using the Ably client
-export const chatClient = new ChatClient(ablyClient, {logLevel: LogLevel.Debug, logHandler:console.log});
+export const chatClient = new ChatClient(ablyClient);

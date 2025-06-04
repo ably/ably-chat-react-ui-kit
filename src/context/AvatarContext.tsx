@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useCallback, ReactNode, useMemo } from 'react';
 import { AvatarData } from '../components/atoms/Avatar';
 
 interface AvatarContextType {
@@ -200,15 +200,22 @@ export const AvatarProvider: React.FC<AvatarProviderProps> = ({ children }) => {
     return roomAvatars;
   }, [roomAvatars]);
 
-  // Create the context value
-  const value = {
+  // Create the context value and memoize it to prevent unnecessary re-renders
+  const value = useMemo(() => ({
     getAvatarForUser,
     getAvatarForRoom,
     setUserAvatar,
     setRoomAvatar,
     getUserAvatars,
     getRoomAvatars,
-  };
+  }), [
+    getAvatarForUser,
+    getAvatarForRoom,
+    setUserAvatar,
+    setRoomAvatar,
+    getUserAvatars,
+    getRoomAvatars,
+  ]);
 
   return <AvatarContext.Provider value={value}>{children}</AvatarContext.Provider>;
 };
