@@ -7,6 +7,7 @@ import Avatar, { AvatarData } from '../atoms/Avatar';
 import DropdownMenu from '../molecules/DropdownMenu';
 import CreateRoomModal from '../molecules/CreateRoomModal';
 import { useTheme } from '../../hooks/useTheme';
+import { useAvatar } from '../../context/AvatarContext.tsx';
 
 interface SidebarProps {
   roomIds: string[];
@@ -17,7 +18,6 @@ interface SidebarProps {
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
   width?: string | number;
-  roomAvatars?: Record<string, AvatarData>; // Map of room IDs to avatar data
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -29,9 +29,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
   isCollapsed = false,
   onToggleCollapse,
   width = '20rem', // 320px default
-  roomAvatars = {},
 }) => {
   const { theme, toggleTheme } = useTheme();
+  const { getAvatarForRoom } = useAvatar();
   const [showCreateRoomModal, setShowCreateRoomModal] = useState(false);
   const handleCreateRoom = async (roomName: string) => {
     if (onCreateRoom) {
@@ -119,13 +119,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
               >
                 <Avatar
                   alt={roomName}
-                  src={
-                    roomAvatars[roomId]?.src ||
-                    `https://via.placeholder.com/40?text=${encodeURIComponent(roomName)}`
-                  }
-                  color={roomAvatars[roomId]?.color || 'bg-gray-500'}
+                  src={getAvatarForRoom(roomId, roomName).src}
+                  color={getAvatarForRoom(roomId, roomName).color}
                   size="md"
-                  initials={roomAvatars[roomId]?.initials}
+                  initials={getAvatarForRoom(roomId, roomName).initials}
                 />
 
                 {/* Active Chat indicator */}
@@ -152,7 +149,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 selected={roomId === currentRoomId}
                 onClick={() => onSelectRoom(roomId)}
                 currentUserId={currentUserId}
-                avatar={roomAvatars[roomId]}
               />
             </ChatRoomProvider>
           ))}

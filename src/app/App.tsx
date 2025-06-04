@@ -44,7 +44,7 @@ const ChatApp: React.FC = () => {
   const [roomIds, setRoomIds] = useState<string[]>([]);
   const [currentRoomId, setCurrentRoomId] = useState<string | null>(null);
   const chatClient = useChatClient();
-  const { getAvatarForRoom, setRoomAvatar, getRoomAvatars } = useAvatar();
+  const { getAvatarForRoom, getRoomAvatars } = useAvatar();
 
   // Ref that holds the latest roomIds
   const roomIdsRef = useRef<string[]>([]);
@@ -80,22 +80,11 @@ const ChatApp: React.FC = () => {
         setCurrentRoomId(roomName);
         return;
       }
-
-      // Create a new room avatar using the AvatarProvider
-      const roomAvatar = getAvatarForRoom(roomName, roomName);
-
       // Update roomIds and currentRoomId
       setRoomIds((prev) => [...prev, roomName]);
       setCurrentRoomId(roomName);
     },
-    [roomIds, getAvatarForRoom]
-  );
-
-  const handleRoomAvatarChange = useCallback(
-    (roomId: string, avatarData: Partial<AvatarData>) => {
-      setRoomAvatar(roomId, avatarData);
-    },
-    [setRoomAvatar]
+    [roomIds]
   );
 
   const handleToggleCollapse = useCallback(() => {
@@ -125,10 +114,6 @@ const ChatApp: React.FC = () => {
       </ThemeProvider>
     );
   }
-
-  // Get all room avatars from the AvatarProvider
-  const roomAvatars = getRoomAvatars();
-
   return (
     <ThemeProvider>
       <AppLayout width="50vw" height="50vh">
@@ -140,7 +125,6 @@ const ChatApp: React.FC = () => {
           currentUserId={chatClient.clientId}
           isCollapsed={isCollapsed}
           onToggleCollapse={handleToggleCollapse}
-          roomAvatars={roomAvatars}
         />
         {currentRoomId ? (
           <ChatRoomProvider
