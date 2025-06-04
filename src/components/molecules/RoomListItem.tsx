@@ -3,10 +3,10 @@ import { useOccupancy, useTyping } from '@ably/chat/react';
 import Avatar, { AvatarData } from '../atoms/Avatar';
 import TypingIndicators from './TypingIndicators.tsx';
 import { useAvatar } from '../../context/AvatarContext';
+import { useCurrentRoom } from '../../context/CurrentRoomContext.tsx';
 
 interface RoomListItemProps {
-  room: string; // The roomId
-  selected: boolean;
+  roomId: string;
   onClick: () => void;
   currentUserId: string;
   avatar?: AvatarData; // Optional avatar data for the room (from props)
@@ -17,23 +17,19 @@ interface RoomListItemProps {
  * Uses the AvatarProvider to get room avatars
  */
 const RoomListItem: React.FC<RoomListItemProps> = React.memo(
-  ({ room: roomId, selected, onClick, currentUserId, avatar: propAvatar }) => {
-    // Get real-time occupancy data
-    const { connections, presenceMembers } = useOccupancy();
-
-    // Get real-time typing data
-    const { currentlyTyping } = useTyping();
-
-    // Use the AvatarProvider to get room avatars
+  ({ roomId, onClick, currentUserId, avatar: propAvatar }) => {
+    const { currentRoomId } = useCurrentRoom();
     const { getAvatarForRoom } = useAvatar();
 
-    // Helper functions for display
-    const getRoomDisplayName = () => {
-      return roomId.replace(/^room-\d+-/, '').replace(/-/g, ' ');
-    };
+    // Get occupancy data
+    const { connections, presenceMembers } = useOccupancy();
+    // Get typing data
+    const { currentlyTyping } = useTyping();
 
     // Get the room avatar from props or from the AvatarProvider
-    const roomAvatar = propAvatar || getAvatarForRoom(roomId, getRoomDisplayName());
+    const roomAvatar = propAvatar || getAvatarForRoom(roomId);
+
+    const isSelected = roomId === currentRoomId;
 
     const isRoomActive = () => {
       // Check if anyone is present in the room
@@ -41,12 +37,11 @@ const RoomListItem: React.FC<RoomListItemProps> = React.memo(
     };
 
     const getPresentCount = () => {
-      // Use real-time presence count from SDK
       return presenceMembers || 0;
     };
 
     const getTotalCount = () => {
-      // Use real-time connection count from SDK
+      // Use connections that include both presence and other connections
       return connections || 0;
     };
 
@@ -71,9 +66,9 @@ const RoomListItem: React.FC<RoomListItemProps> = React.memo(
 
     return (
       <div
-        className={`flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors ${
-          selected ? 'bg-gray-100 dark:bg-gray-800 border-r-2 border-blue-500' : ''
-        }`}
+        className={`flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-800
+                    cursor-pointer transition-colors
+                    ${isSelected ? 'bg-gray-100 dark:bg-gray-800 border-r-2 border-blue-500' : ''}`}
         onClick={onClick}
       >
         <div className="relative">
@@ -90,7 +85,7 @@ const RoomListItem: React.FC<RoomListItemProps> = React.memo(
             <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-gray-900" />
           )}
 
-          {/* Present count badge for group rooms */}
+          {/* Present count badge */}
           {getPresentCount() > 0 && (
             <div className="absolute -top-1 -right-1 bg-green-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-medium">
               {getPresentCount() > 9 ? '9+' : getPresentCount()}
@@ -109,7 +104,6 @@ const RoomListItem: React.FC<RoomListItemProps> = React.memo(
             </div>
           </div>
 
-          {/* Show typing indicator */}
           {typingText && <TypingIndicators />}
         </div>
       </div>

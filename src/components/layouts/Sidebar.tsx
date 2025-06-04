@@ -10,25 +10,6 @@ import { useTheme } from '../../hooks/useTheme';
 import { useAvatar } from '../../context/AvatarContext.tsx';
 import { useCurrentRoom } from '../../context/CurrentRoomContext';
 
-// Memoized RoomListItem that uses context to determine if it's selected
-const MemoizedRoomListItemWithContext: React.FC<{
-  roomId: string;
-  onClick: () => void;
-  currentUserId: string;
-}> = React.memo(({ roomId, onClick, currentUserId }) => {
-  const { currentRoomId } = useCurrentRoom();
-  const selected = roomId === currentRoomId;
-
-  return (
-    <RoomListItem
-      room={roomId}
-      selected={selected}
-      onClick={onClick}
-      currentUserId={currentUserId}
-    />
-  );
-});
-
 // Collapsed room avatar component that properly uses hooks
 const CollapsedRoomAvatar: React.FC<{
   roomId: string;
@@ -185,10 +166,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
             >
               {isCollapsed ? (
                 /* Collapsed view – just avatar */
-                <CollapsedRoomAvatar roomId={roomId} onClick={() => setCurrentRoom(roomId)} />
+                <CollapsedRoomAvatar roomId={roomId} onClick={() => handleSelectRoom(roomId)} />
               ) : (
                 /* Expanded view – full room item */
-                <MemoizedRoomListItemWithContext
+                <RoomListItem
                   roomId={roomId}
                   onClick={() => handleSelectRoom(roomId)}
                   currentUserId={currentUserId}

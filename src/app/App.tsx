@@ -7,14 +7,8 @@ import { ChatArea } from '../components/layouts/ChatArea';
 import { AvatarProvider } from '../context/AvatarContext';
 import { CurrentRoomProvider } from '../context/CurrentRoomContext';
 
-// Memoize the Sidebar component to prevent unnecessary re-renders
-const MemoizedSidebar = React.memo(Sidebar);
-
-// ChatWindowWithRoom has been moved to ChatArea.tsx
-
 /**
  * Main chat application component
- * Uses AvatarProvider for centralized avatar management
  */
 const ChatApp: React.FC = () => {
   console.log('[RENDER] ChatApp');
@@ -48,7 +42,7 @@ const ChatApp: React.FC = () => {
     <ThemeProvider>
       <CurrentRoomProvider>
         <AppLayout width="50vw" height="50vh">
-          <MemoizedSidebar currentUserId={chatClient.clientId} />
+          <Sidebar currentUserId={chatClient.clientId} />
           <ChatArea chatRoomOptions={chatRoomOptions} />
         </AppLayout>
       </CurrentRoomProvider>
@@ -59,10 +53,8 @@ const ChatApp: React.FC = () => {
 /**
  * Main application component
  * Wraps the ChatApp with AvatarProvider for centralized avatar management
- * Memoized to prevent unnecessary re-renders
  */
 export const App: React.FC = React.memo(() => {
-  console.log('[RENDER] App');
   return (
     <AvatarProvider>
       <ChatApp />
