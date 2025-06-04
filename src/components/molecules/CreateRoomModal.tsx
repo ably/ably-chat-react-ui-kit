@@ -11,24 +11,15 @@ interface CreateRoomModalProps {
 
 const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose, onCreateRoom }) => {
   const [roomName, setRoomName] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
 
   if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!roomName.trim()) return;
-
-    setIsLoading(true);
-    try {
-      await onCreateRoom(roomName.trim());
-      setRoomName('');
-      onClose();
-    } catch (error) {
-      console.error('Error creating room:', error);
-    } finally {
-      setIsLoading(false);
-    }
+    onCreateRoom(roomName.trim());
+    setRoomName('');
+    onClose();
   };
 
   const handleClose = () => {
@@ -73,17 +64,16 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose, onCr
                 placeholder="Enter room name..."
                 className="w-full"
                 autoFocus
-                disabled={isLoading}
               />
             </div>
 
             {/* Actions */}
             <div className="flex items-center justify-end gap-3">
-              <Button type="button" variant="secondary" onClick={handleClose} disabled={isLoading}>
+              <Button type="button" variant="secondary" onClick={handleClose}>
                 Cancel
               </Button>
-              <Button type="submit" variant="primary" disabled={!roomName.trim() || isLoading}>
-                {isLoading ? 'Creating...' : 'Create Room'}
+              <Button type="submit" variant="primary" disabled={!roomName.trim()}>
+                Create Room
               </Button>
             </div>
           </form>

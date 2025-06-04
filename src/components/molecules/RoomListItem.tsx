@@ -36,7 +36,7 @@ const RoomListItem: React.FC<RoomListItemProps> = React.memo(
     const roomAvatar = propAvatar || getAvatarForRoom(roomId, getRoomDisplayName());
 
     const isRoomActive = () => {
-      // Check if anyone is present in the room using real-time data
+      // Check if anyone is present in the room
       return (presenceMembers || 0) > 0;
     };
 
@@ -110,7 +110,7 @@ const RoomListItem: React.FC<RoomListItemProps> = React.memo(
           </div>
 
           {/* Show typing indicator */}
-          {typingText && <TypingIndicators currentUserId={currentUserId} />}
+          {typingText && <TypingIndicators />}
         </div>
       </div>
     );

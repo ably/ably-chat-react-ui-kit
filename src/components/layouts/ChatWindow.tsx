@@ -112,21 +112,6 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ roomId, roomAvatar }) =>
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  if (!roomId) {
-    return (
-      <div className="flex items-center justify-center h-full bg-gray-50 dark:bg-gray-950 flex-1">
-        <div className="text-center">
-          <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-            Select a room to start chatting
-          </h3>
-          <p className="text-gray-500 dark:text-gray-400">
-            Choose a room from the sidebar to begin the conversation
-          </p>
-        </div>
-      </div>
-    );
-  }
-
   // Handle REST message updates for optimistic UI updates
   const handleRESTMessageUpdate = useCallback((updatedMessage: Message) => {
     setMessages((prevMessages) => {
@@ -144,81 +129,111 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ roomId, roomAvatar }) =>
   }, []);
 
   // Message operation handlers
-  const handleMessageEdit = useCallback(async (messageSerial: string, newText: string) => {
-    try {
-      const message = messages.find((m) => m.serial === messageSerial);
-      if (!message) return;
+  const handleMessageEdit = useCallback(
+    async (messageSerial: string, newText: string) => {
+      try {
+        const message = messages.find((m) => m.serial === messageSerial);
+        if (!message) return;
 
-      const updatedMessage = message.copy({
-        text: newText,
-        metadata: message.metadata,
-        headers: message.headers,
-      });
+        const updatedMessage = message.copy({
+          text: newText,
+          metadata: message.metadata,
+          headers: message.headers,
+        });
 
-      const result = await update(updatedMessage);
+        const result = await update(updatedMessage);
 
-      // Apply optimistic update
-      if (result) {
-        handleRESTMessageUpdate(result);
+        // Apply optimistic update
+        if (result) {
+          handleRESTMessageUpdate(result);
+        }
+      } catch (error) {
+        console.error('Failed to edit message:', error);
       }
-    } catch (error) {
-      console.error('Failed to edit message:', error);
-    }
-  }, [messages, update, handleRESTMessageUpdate]);
+    },
+    [messages, update, handleRESTMessageUpdate]
+  );
 
-  const handleMessageDelete = useCallback(async (messageSerial: string) => {
-    try {
-      const message = messages.find((m) => m.serial === messageSerial);
-      if (!message) return;
+  const handleMessageDelete = useCallback(
+    async (messageSerial: string) => {
+      try {
+        const message = messages.find((m) => m.serial === messageSerial);
+        if (!message) return;
 
-      const result = await deleteMessage(message, { description: 'deleted by user' });
+        const result = await deleteMessage(message, { description: 'deleted by user' });
 
-      // Apply optimistic update
-      if (result) {
-        handleRESTMessageUpdate(result);
+        // Apply optimistic update
+        if (result) {
+          handleRESTMessageUpdate(result);
+        }
+      } catch (error) {
+        console.error('Failed to delete message:', error);
       }
-    } catch (error) {
-      console.error('Failed to delete message:', error);
-    }
-  }, [messages, deleteMessage, handleRESTMessageUpdate]);
+    },
+    [messages, deleteMessage, handleRESTMessageUpdate]
+  );
 
-  const handleReactionAdd = useCallback(async (messageSerial: string, emoji: string) => {
-    try {
-      const message = messages.find((m) => m.serial === messageSerial);
-      if (!message) return;
+  const handleReactionAdd = useCallback(
+    async (messageSerial: string, emoji: string) => {
+      try {
+        const message = messages.find((m) => m.serial === messageSerial);
+        if (!message) return;
 
-      await addReaction(message, { type: MessageReactionType.Distinct, name: emoji });
-    } catch (error) {
-      console.error('Failed to add reaction:', error);
-    }
-  }, [messages, addReaction]);
+        await addReaction(message, { type: MessageReactionType.Distinct, name: emoji });
+      } catch (error) {
+        console.error('Failed to add reaction:', error);
+      }
+    },
+    [messages, addReaction]
+  );
 
-  const handleReactionRemove = useCallback(async (messageSerial: string, emoji: string) => {
-    try {
-      const message = messages.find((m) => m.serial === messageSerial);
-      if (!message) return;
+  const handleReactionRemove = useCallback(
+    async (messageSerial: string, emoji: string) => {
+      try {
+        const message = messages.find((m) => m.serial === messageSerial);
+        if (!message) return;
 
-      await deleteReaction(message, { type: MessageReactionType.Distinct, name: emoji });
-    } catch (error) {
-      console.error('Failed to remove reaction:', error);
-    }
-  }, [messages, deleteReaction]);
+        await deleteReaction(message, { type: MessageReactionType.Distinct, name: emoji });
+      } catch (error) {
+        console.error('Failed to remove reaction:', error);
+      }
+    },
+    [messages, deleteReaction]
+  );
 
   // Handle sending messages
-  const handleSendMessage = useCallback(async (text: string) => {
-    if (text.trim()) {
-      try {
-        await send({ text: text.trim() });
-      } catch (error) {
-        console.error('Failed to send message:', error);
+  const handleSendMessage = useCallback(
+    async (text: string) => {
+      if (text.trim()) {
+        try {
+          await send({ text: text.trim() });
+        } catch (error) {
+          console.error('Failed to send message:', error);
+        }
       }
-    }
-  }, [send]);
+    },
+    [send]
+  );
 
   // Memoize the room name to prevent unnecessary recalculations
   const roomName = useMemo(() => {
     return roomId.replace(/^room-\d+-/, '').replace(/-/g, ' ');
   }, [roomId]);
+
+  if (!roomId) {
+    return (
+      <div className="flex items-center justify-center h-full bg-gray-50 dark:bg-gray-950 flex-1">
+        <div className="text-center">
+          <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+            Select a room to start chatting
+          </h3>
+          <p className="text-gray-500 dark:text-gray-400">
+            Choose a room from the sidebar to begin the conversation
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-full bg-white dark:bg-gray-900 flex-1">
@@ -240,7 +255,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ roomId, roomAvatar }) =>
               <PresenceIndicators />
 
               {/* Typing Indicators in Header */}
-              <TypingIndicators currentUserId={currentUserId} className="text-xs" />
+              <TypingIndicators className="text-xs" />
             </div>
           </div>
         </div>
@@ -268,7 +283,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ roomId, roomAvatar }) =>
         ))}
 
         {/* Typing Indicators in Chat Area */}
-        <TypingIndicators currentUserId={currentUserId} className="px-4 py-2" />
+        <TypingIndicators className="px-4 py-2" />
 
         <div ref={messagesEndRef} />
       </div>
