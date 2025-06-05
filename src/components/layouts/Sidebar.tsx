@@ -134,7 +134,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           {roomIds.map((roomId) => (
             <ChatRoomProvider
               key={roomId}
-              id={roomId}
+              name={roomId}
               attach={false}
               release={false}
               options={{ occupancy: { enableEvents: true } }}

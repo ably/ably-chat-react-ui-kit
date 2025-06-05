@@ -6,8 +6,8 @@ import { AvatarData } from '../atoms/Avatar';
 import { useMessages, useChatClient, usePresence, useRoom } from '@ably/chat/react';
 import {
   Message,
-  MessageEvent,
-  MessageEvents,
+  ChatMessageEvent,
+  ChatMessageEventType,
   MessageReactionType,
   MessageReactionSummaryEvent,
 } from '@ably/chat';
@@ -34,11 +34,11 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ roomId, roomAvatar }) =>
   }, [room]);
 
   // Handle messages using the useMessages hook with proper event handling
-  const { send, deleteMessage, update, addReaction, deleteReaction } = useMessages({
-    listener: (event: MessageEvent) => {
+  const { send, deleteMessage, update, sendReaction, deleteReaction } = useMessages({
+    listener: (event: ChatMessageEvent) => {
       const message = event.message;
       switch (event.type) {
-        case MessageEvents.Created: {
+        case ChatMessageEventType.Created: {
           setMessages((prevMessages) => {
             // if already exists do nothing
             const index = prevMessages.findIndex((other) => message.isSameAs(other));
@@ -56,8 +56,8 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ roomId, roomAvatar }) =>
           });
           break;
         }
-        case MessageEvents.Updated:
-        case MessageEvents.Deleted: {
+        case ChatMessageEventType.Updated:
+        case ChatMessageEventType.Deleted: {
           setMessages((prevMessages) => {
             const index = prevMessages.findIndex((other) => message.isSameAs(other));
             if (index === -1) {
@@ -105,6 +105,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ roomId, roomAvatar }) =>
       });
     },
     onDiscontinuity: () => {
+      // TODO: Handle discontinuity in messages
       console.log('Discontinuity detected');
       setMessages([]);
     },
@@ -144,7 +145,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ roomId, roomAvatar }) =>
           headers: message.headers,
         });
 
-        const result = await update(updatedMessage);
+        const result = await update(message.serial, updatedMessage);
 
         // Apply optimistic update
         if (result) {
@@ -182,12 +183,12 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ roomId, roomAvatar }) =>
         const message = messages.find((m) => m.serial === messageSerial);
         if (!message) return;
 
-        await addReaction(message, { type: MessageReactionType.Distinct, name: emoji });
+        await sendReaction(message, { type: MessageReactionType.Distinct, name: emoji });
       } catch (error) {
         console.error('Failed to add reaction:', error);
       }
     },
-    [messages, addReaction]
+    [messages, sendReaction]
   );
 
   const handleReactionRemove = useCallback(
