@@ -4,6 +4,7 @@ import Icon from '../atoms/Icon';
 import EmojiBurst from './EmojiBurst';
 import EmojiWheel from './EmojiWheel';
 import { RoomReactionEvent } from '@ably/chat';
+import { useThrottle } from '../../hooks/useThrottle';
 
 /**
  * Props for the RoomReaction component
@@ -20,6 +21,7 @@ interface RoomReactionProps {
  * - Long press to open emoji selection wheel
  * - Selected emoji becomes new default for quick reactions
  * - Emoji burst animation when reaction is sent or received
+ * - Throttled sending (max 1 reaction per 200ms) with immediate visual feedback
  * - Uses ephemeral room reactions (not stored messages)
  * - Positioned alongside the message input
  *
@@ -57,25 +59,30 @@ const RoomReaction: React.FC<RoomReactionProps> = () => {
   });
 
   /**
-   * Handles sending a room reaction with the specified emoji
+   * Shows the local burst animation at the button position
+   * This provides immediate visual feedback regardless of network throttling
    */
-  const sendReaction = useCallback(
+  const showLocalBurst = useCallback((emoji: string) => {
+    const button = reactionButtonRef.current;
+    if (button) {
+      const rect = button.getBoundingClientRect();
+      setBurstEmoji(emoji);
+      setEmojiBurstPosition({
+        x: rect.left + rect.width / 2,
+        y: rect.top + rect.height / 2,
+      });
+      setShowEmojiBurst(true);
+    }
+  }, []);
+
+  /**
+   * Sends a room reaction (without throttling)
+   * This is the base function that will be wrapped by useThrottle
+   */
+  const sendRoomReaction = useCallback(
     async (emoji: string) => {
       try {
-        // Send an ephemeral room reaction
         await send({ type: emoji });
-
-        // Show the animation at the button's position for our own reaction
-        const button = reactionButtonRef.current;
-        if (button) {
-          const rect = button.getBoundingClientRect();
-          setBurstEmoji(emoji);
-          setEmojiBurstPosition({
-            x: rect.left + rect.width / 2,
-            y: rect.top + rect.height / 2,
-          });
-          setShowEmojiBurst(true);
-        }
       } catch (error) {
         console.error('Failed to send room reaction:', error);
       }
@@ -83,9 +90,26 @@ const RoomReaction: React.FC<RoomReactionProps> = () => {
     [send]
   );
 
+  // Create throttled version of the send function to avoid excessive network calls
+  const throttledSendReaction = useThrottle(sendRoomReaction, 200);
+
+  /**
+   * Handles sending a room reaction with immediate visual feedback and throttled network call
+   */
+  const sendReaction = useCallback(
+    (emoji: string) => {
+      // Always show local burst for immediate feedback
+      showLocalBurst(emoji);
+
+      // Send throttled network request
+      throttledSendReaction(emoji);
+    },
+    [showLocalBurst, throttledSendReaction]
+  );
+
   /**
    * Handles clicking the reaction button (short press)
-   * Sends the current default emoji reaction
+   * Sends the current default emoji reaction with throttling
    */
   const handleReactionClick = useCallback(() => {
     // Only send reaction if this wasn't a long press
@@ -148,7 +172,7 @@ const RoomReaction: React.FC<RoomReactionProps> = () => {
 
   /**
    * Handles emoji selection from the wheel
-   * Updates the default emoji and sends the reaction
+   * Updates the default emoji and sends the reaction with throttling
    */
   const handleEmojiSelect = useCallback(
     (emoji: string) => {
