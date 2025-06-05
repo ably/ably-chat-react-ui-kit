@@ -13,8 +13,6 @@ import { useAvatar } from '../../context/AvatarContext';
 interface RoomInfoProps {
   /** Avatar data for the room (optional, will use AvatarContext if not provided) */
   roomAvatar?: AvatarData;
-  /** Display name of the room */
-  roomName: string;
   /** Unique identifier for the room */
   roomId: string;
   /** Whether the participant list is currently open */
@@ -37,7 +35,6 @@ interface RoomInfoProps {
  */
 const RoomInfo: React.FC<RoomInfoProps> = ({
   roomAvatar: propRoomAvatar,
-  roomName,
   roomId,
   isOpen,
   onToggle,
@@ -56,7 +53,7 @@ const RoomInfo: React.FC<RoomInfoProps> = ({
   const { getAvatarForRoom, setRoomAvatar } = useAvatar();
 
   // Use the avatar from props if provided, otherwise get it from the AvatarProvider
-  const roomAvatar = propRoomAvatar || getAvatarForRoom(roomId, roomName);
+  const roomAvatar = propRoomAvatar || getAvatarForRoom(roomId);
 
   /**
    * Handles mouse enter event on the room avatar
@@ -116,7 +113,7 @@ const RoomInfo: React.FC<RoomInfoProps> = ({
         role="button"
         aria-haspopup="dialog"
         aria-expanded={isOpen}
-        aria-label={`${roomName} (${presenceData?.length || 0} participants)`}
+        aria-label={`${roomId} (${presenceData?.length || 0} participants)`}
         tabIndex={0}
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {

@@ -1,7 +1,14 @@
-import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import ChatMessage from '../molecules/ChatMessage';
 import TypingIndicators from '../molecules/TypingIndicators';
+import RoomInfo from '../molecules/RoomInfo';
+import PresenceIndicators from '../molecules/PresenceIndicators';
 import MessageInput from '../molecules/MessageInput';
+import RoomReaction from '../molecules/RoomReaction';
+import Button from '../atoms/Button';
+import Icon from '../atoms/Icon';
+import ChatWindowHeader from './ChatWindowHeader';
+import ChatWindowFooter from './ChatWindowFooter';
 import { AvatarData } from '../atoms/Avatar';
 import { useMessages, useChatClient, usePresence, useRoom } from '@ably/chat/react';
 import {
@@ -11,10 +18,6 @@ import {
   MessageReactionType,
   MessageReactionSummaryEvent,
 } from '@ably/chat';
-import RoomReaction from '../molecules/RoomReaction';
-import RoomInfo from '../molecules/RoomInfo.tsx';
-import PresenceIndicators from '../molecules/PresenceIndicators.tsx';
-import { Button, Icon } from '../atoms';
 
 interface ChatWindowProps {
   roomId: string;
@@ -224,11 +227,6 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ roomId, roomAvatar }) =>
     [send]
   );
 
-  // Memoize the room name to prevent unnecessary recalculations
-  const roomName = useMemo(() => {
-    return roomId.replace(/^room-\d+-/, '').replace(/-/g, ' ');
-  }, [roomId]);
-
   if (!roomId) {
     return (
       <div className="flex items-center justify-center h-full bg-gray-50 dark:bg-gray-950 flex-1">
@@ -246,13 +244,11 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ roomId, roomAvatar }) =>
 
   return (
     <div className="flex flex-col h-full bg-white dark:bg-gray-900 flex-1">
-      {/*Room Header*/}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+      {/* Chat Window Header */}
+      <ChatWindowHeader>
         <div className="flex items-center gap-3">
           {/* Room info component*/}
           <RoomInfo
-            roomAvatar={roomAvatar}
-            roomName={roomName}
             roomId={roomId}
             isOpen={showParticipants}
             onToggle={() => setShowParticipants(!showParticipants)}
@@ -274,7 +270,8 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ roomId, roomAvatar }) =>
             <Icon name="info" size="md" />
           </Button>
         </div>
-      </div>
+      </ChatWindowHeader>
+
       {/* Messages Area */}
       <div
         className="flex-1 overflow-y-auto pt-10 px-6 pb-6 space-y-6 bg-gray-50 dark:bg-gray-950"
@@ -300,15 +297,16 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ roomId, roomAvatar }) =>
 
         <div ref={messagesEndRef} />
       </div>
-      {/* Message Input and Room Reaction Container */}
-      <div className="flex items-center bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
+
+      {/* Chat Window Footer */}
+      <ChatWindowFooter>
         <div className="flex-1">
-          <MessageInput onSend={handleSendMessage} placeholder={`Message ${roomName}...`} />
+          <MessageInput onSend={handleSendMessage} placeholder={`Message ${roomId}...`} />
         </div>
         <div className="px-4 py-4">
           <RoomReaction />
         </div>
-      </div>
+      </ChatWindowFooter>
     </div>
   );
 };

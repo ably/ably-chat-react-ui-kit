@@ -1,15 +1,16 @@
 import React from 'react';
-import { useCurrentRoom } from '../../context/CurrentRoomContext';
 import { ChatRoomProvider } from '@ably/chat/react';
+import { useCurrentRoom } from '../../context/CurrentRoomContext';
 import { ChatWindow } from './ChatWindow';
-import { RoomOptions } from '@ably/chat';
+import { AvatarData } from '../atoms/Avatar';
 
 interface ChatAreaProps {
-  chatRoomOptions: RoomOptions;
+  chatRoomOptions?: any;
 }
 
 export const ChatArea: React.FC<ChatAreaProps> = ({ chatRoomOptions }) => {
   const { currentRoomId } = useCurrentRoom();
+  
   if (!currentRoomId) {
     return (
       <div className="flex-1 flex items-center justify-center">
@@ -23,6 +24,12 @@ export const ChatArea: React.FC<ChatAreaProps> = ({ chatRoomOptions }) => {
     );
   }
 
+  // Create proper avatar data for the room
+  const roomAvatar: AvatarData = {
+    src: `https://api.dicebear.com/6.x/initials/svg?seed=${currentRoomId}`,
+    displayName: `Room ${currentRoomId}`,
+  };
+
   return (
     <ChatRoomProvider
       key={currentRoomId}
@@ -31,9 +38,7 @@ export const ChatArea: React.FC<ChatAreaProps> = ({ chatRoomOptions }) => {
       release={false}
       options={chatRoomOptions}
     >
-      <div className="flex-1 h-full">
-        <ChatWindow roomId={currentRoomId} />
-      </div>
+      <ChatWindow roomId={currentRoomId} roomAvatar={roomAvatar} />
     </ChatRoomProvider>
   );
 };
