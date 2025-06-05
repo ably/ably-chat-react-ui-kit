@@ -12,6 +12,9 @@ import {
   MessageReactionSummaryEvent,
 } from '@ably/chat';
 import RoomReaction from '../molecules/RoomReaction';
+import RoomInfo from '../molecules/RoomInfo.tsx';
+import PresenceIndicators from '../molecules/PresenceIndicators.tsx';
+import { Button, Icon } from '../atoms';
 
 interface ChatWindowProps {
   roomId: string;
@@ -22,6 +25,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ roomId, roomAvatar }) =>
   console.log('[RENDER] ChatWindow', { roomId });
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [messages, setMessages] = useState<Message[]>([]);
+  const [showParticipants, setShowParticipants] = useState(false);
   const chatClient = useChatClient();
   const currentUserId = chatClient.clientId;
   const { room } = useRoom();
@@ -242,13 +246,34 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ roomId, roomAvatar }) =>
 
   return (
     <div className="flex flex-col h-full bg-white dark:bg-gray-900">
-      {/* Header */}
-      <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 p-4">
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-          Room: {roomName}
-        </h2>
-      </div>
+      <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+        <div className="flex items-center gap-3">
+          {/* Room info component*/}
+          <RoomInfo
+            roomAvatar={roomAvatar}
+            roomName={roomName}
+            roomId={roomId}
+            isOpen={showParticipants}
+            onToggle={() => setShowParticipants(!showParticipants)}
+          />
 
+          <div className="flex-1">
+            <h2 className="font-semibold text-gray-900 dark:text-gray-100">{roomId}</h2>
+            <div className="flex items-center gap-2">
+              <PresenceIndicators />
+
+              {/* Typing Indicators in Header */}
+              <TypingIndicators className="text-xs" />
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="sm">
+            <Icon name="info" size="md" />
+          </Button>
+        </div>
+      </div>
       {/* Messages area */}
       <div
         ref={messagesEndRef}
@@ -271,7 +296,6 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ roomId, roomAvatar }) =>
         ))}
         <TypingIndicators className="px-4 py-2" />
       </div>
-
       {/* Message Input and Room Reaction Container */}
       <div className="flex items-center bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
         <div className="flex-1">
