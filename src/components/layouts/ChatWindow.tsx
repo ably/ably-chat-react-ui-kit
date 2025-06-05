@@ -2,12 +2,8 @@ import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react'
 import ChatMessage from '../molecules/ChatMessage';
 import TypingIndicators from '../molecules/TypingIndicators';
 import MessageInput from '../molecules/MessageInput';
-import RoomInfo from '../molecules/RoomInfo';
-import PresenceIndicators from '../molecules/PresenceIndicators';
-import Button from '../atoms/Button';
-import Icon from '../atoms/Icon';
 import { AvatarData } from '../atoms/Avatar';
-import { useMessages, useChatClient, usePresence } from '@ably/chat/react';
+import { useMessages, useChatClient, usePresence, useRoom } from '@ably/chat/react';
 import {
   Message,
   MessageEvent,
@@ -24,11 +20,18 @@ interface ChatWindowProps {
 export const ChatWindow: React.FC<ChatWindowProps> = ({ roomId, roomAvatar }) => {
   console.log('[RENDER] ChatWindow', { roomId });
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const [showParticipants, setShowParticipants] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const chatClient = useChatClient();
   const currentUserId = chatClient.clientId;
+  const { room } = useRoom();
   usePresence(); // enter presence in the room
+
+  useEffect(() => {
+    // attach the room when the component renders
+    // detaching and release is handled at the top app level for now
+    // TODO: Remove once the ChatClientProvider has room reference counts implemented
+    room?.attach();
+  }, [room]);
 
   // Handle messages using the useMessages hook with proper event handling
   const { send, deleteMessage, update, addReaction, deleteReaction } = useMessages({

@@ -1,5 +1,5 @@
-import React from 'react';
-import { useOccupancy, useTyping } from '@ably/chat/react';
+import React, { useEffect } from 'react';
+import { useOccupancy, useRoom, useTyping } from '@ably/chat/react';
 import Avatar, { AvatarData } from '../atoms/Avatar';
 import TypingIndicators from './TypingIndicators.tsx';
 import { useAvatar } from '../../context/AvatarContext';
@@ -21,7 +21,7 @@ interface RoomListItemProps {
 
 /**
  * RoomListItem component displays a room in the sidebar
- * 
+ *
  * Features:
  * - Shows room avatar with presence indicators
  * - Displays room name and participant count
@@ -31,13 +31,20 @@ interface RoomListItemProps {
  */
 const RoomListItem: React.FC<RoomListItemProps> = React.memo(
   ({ roomId, onClick, currentUserId, avatar: propAvatar }) => {
-    const { currentRoomId } = useCurrentRoom();
     const { getAvatarForRoom } = useAvatar();
-
+    const { currentRoomId } = useCurrentRoom();
+    const { room } = useRoom();
     // Get occupancy data
     const { connections, presenceMembers } = useOccupancy();
     // Get typing data
     const { currentlyTyping } = useTyping();
+
+    useEffect(() => {
+      // attach the room when the component renders
+      // detaching and release is handled at the top app level for now
+      // TODO: Remove once the ChatClientProvider has room reference counts implemented
+      room?.attach();
+    }, [room]);
 
     // Get the room avatar from props or from the AvatarProvider
     const roomAvatar = propAvatar || getAvatarForRoom(roomId);
@@ -46,7 +53,7 @@ const RoomListItem: React.FC<RoomListItemProps> = React.memo(
 
     /**
      * Checks if the room has any active users
-     * 
+     *
      * @returns True if at least one user is present in the room
      */
     const isRoomActive = () => {
@@ -56,7 +63,7 @@ const RoomListItem: React.FC<RoomListItemProps> = React.memo(
 
     /**
      * Gets the count of users present in the room
-     * 
+     *
      * @returns Number of present users
      */
     const getPresentCount = () => {
@@ -65,7 +72,7 @@ const RoomListItem: React.FC<RoomListItemProps> = React.memo(
 
     /**
      * Gets the total count of connections to the room
-     * 
+     *
      * @returns Total number of connections
      */
     const getTotalCount = () => {
@@ -75,7 +82,7 @@ const RoomListItem: React.FC<RoomListItemProps> = React.memo(
 
     /**
      * Generates a human-readable string about who is typing
-     * 
+     *
      * @returns A formatted string or null if no one is typing
      */
     const getTypingUsers = () => {
@@ -128,8 +135,8 @@ const RoomListItem: React.FC<RoomListItemProps> = React.memo(
 
           {/* Present indicator */}
           {isActive && (
-            <div 
-              className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-gray-900" 
+            <div
+              className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-gray-900"
               aria-hidden="true"
               title="Room is active"
             />
@@ -137,7 +144,7 @@ const RoomListItem: React.FC<RoomListItemProps> = React.memo(
 
           {/* Present count badge */}
           {presentCount > 0 && (
-            <div 
+            <div
               className="absolute -top-1 -right-1 bg-green-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-medium"
               aria-hidden="true"
               title={`${presentCount} ${presentCount === 1 ? 'person' : 'people'} online`}
@@ -154,7 +161,7 @@ const RoomListItem: React.FC<RoomListItemProps> = React.memo(
             </h3>
             <div className="flex items-center gap-2 flex-shrink-0">
               {/* Room participant count */}
-              <span 
+              <span
                 className="text-xs text-gray-400"
                 title={`${totalCount} total ${totalCount === 1 ? 'connection' : 'connections'}`}
               >

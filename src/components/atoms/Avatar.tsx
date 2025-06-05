@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 /**
  * AvatarData interface defines the structure for avatar data across the application.
  * This standardized format ensures consistent avatar representation.
- * 
+ *
  * @property src - URL to the avatar image (optional)
  * @property color - Background color for initials fallback (optional, will be generated if not provided)
  * @property initials - Custom initials to display when no image is available (optional, will be generated from displayName)
@@ -30,7 +30,7 @@ interface AvatarProps {
   /**
    * Alternative text for the avatar image, also used for generating initials if needed
    */
-  alt: string;
+  alt?: string;
 
   /**
    * Background color for the avatar when no image is provided
@@ -62,30 +62,30 @@ interface AvatarProps {
 
 /**
  * Avatar component displays a user or room avatar with fallback to initials
- * 
+ *
  * TODO: Consider breaking this component into smaller subcomponents:
  * - AvatarImage: Handles image loading and error states
- * - AvatarInitials: Handles initials generation and display  
+ * - AvatarInitials: Handles initials generation and display
  * - AvatarContainer: Handles sizing and common styling
- * 
+ *
  * TODO: Add support for:
  * - Status indicators (online/offline/away)
  * - Avatar groups/stacks for multiple users
  * - Upload functionality for editable avatars
  * - Image optimization and lazy loading
- * 
+ *
  * @example
  * // Basic usage
  * <Avatar alt="John Doe" />
- * 
+ *
  * @example
  * // With image
  * <Avatar src="https://example.com/avatar.jpg" alt="John Doe" />
- * 
+ *
  * @example
  * // With custom color and size
  * <Avatar alt="John Doe" color="bg-purple-500" size="lg" />
- * 
+ *
  * @example
  * // Using AvatarData object
  * const avatarData = { displayName: "John Doe", src: "https://example.com/avatar.jpg" };
@@ -143,7 +143,7 @@ const Avatar: React.FC<AvatarProps> = ({ src, alt, color, size = 'md', initials,
   };
 
   // Use provided color or generate one based on alt text
-  const avatarColor = color || getRandomColor(alt);
+  const avatarColor = color || getRandomColor(alt ?? 'default');
 
   // TODO: Extract to separate utility - generateInitials
   /**
@@ -172,25 +172,31 @@ const Avatar: React.FC<AvatarProps> = ({ src, alt, color, size = 'md', initials,
   return (
     <div
       className={`${sizeClasses[size]} rounded-full flex items-center justify-center text-white font-medium ${avatarColor} relative ${
-        onClick ? 'cursor-pointer hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500' : ''
+        onClick
+          ? 'cursor-pointer hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500'
+          : ''
       }`}
       onClick={onClick}
-      onKeyDown={onClick ? (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          onClick();
-        }
-      } : undefined}
+      onKeyDown={
+        onClick
+          ? (e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onClick();
+              }
+            }
+          : undefined
+      }
       role={onClick ? 'button' : 'img'}
       tabIndex={onClick ? 0 : undefined}
       title={alt}
       aria-label={alt}
     >
       {src && !imgError ? (
-        <img 
-          src={src} 
-          alt={alt} 
-          className="w-full h-full rounded-full object-cover" 
+        <img
+          src={src}
+          alt={alt}
+          className="w-full h-full rounded-full object-cover"
           onError={handleImageError}
           loading="lazy"
         />

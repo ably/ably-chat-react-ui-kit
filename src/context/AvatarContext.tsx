@@ -1,12 +1,12 @@
-import React, { 
-  createContext, 
-  useContext, 
-  useState, 
-  useCallback, 
-  ReactNode, 
-  useMemo, 
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  ReactNode,
+  useMemo,
   useEffect,
-  useRef 
+  useRef,
 } from 'react';
 import { AvatarData } from '../components/atoms/Avatar';
 
@@ -19,9 +19,9 @@ const STORAGE_KEY = 'chat-ui-avatars';
  * Callback function type for avatar change events
  */
 type AvatarChangeCallback = (
-  type: 'user' | 'room', 
-  id: string, 
-  avatar: AvatarData, 
+  type: 'user' | 'room',
+  id: string,
+  avatar: AvatarData,
   previousAvatar?: AvatarData
 ) => void;
 
@@ -34,12 +34,12 @@ interface AvatarOptions {
    * @default true
    */
   persist?: boolean;
-  
+
   /**
    * Custom color palette for avatar generation
    */
   customColors?: string[];
-  
+
   /**
    * Maximum number of cached avatars (0 = unlimited)
    * @default 100
@@ -67,7 +67,7 @@ interface AvatarContextType {
    * @returns An AvatarData object for the user
    */
   getAvatarForUser: (userId: string, displayName?: string) => AvatarData;
-  
+
   /**
    * Gets or creates an avatar for a room with automatic caching
    * @param roomId - The unique identifier for the room
@@ -82,7 +82,7 @@ interface AvatarContextType {
    * @param avatar - Partial avatar data to update
    */
   setUserAvatar: (userId: string, avatar: Partial<AvatarData>) => void;
-  
+
   /**
    * Updates an existing room avatar or creates a new one
    * @param roomId - The unique identifier for the room
@@ -95,41 +95,41 @@ interface AvatarContextType {
    * @returns Record of user ID to avatar data
    */
   getUserAvatars: () => Record<string, AvatarData>;
-  
+
   /**
    * Returns all cached room avatars
    * @returns Record of room ID to avatar data
    */
   getRoomAvatars: () => Record<string, AvatarData>;
-  
+
   /**
    * Clears all user avatars from cache
    */
   clearUserAvatars: () => void;
-  
+
   /**
    * Clears all room avatars from cache
    */
   clearRoomAvatars: () => void;
-  
+
   /**
    * Clears all avatars from cache
    */
   clearAllAvatars: () => void;
-  
+
   /**
    * Registers a callback for avatar change events
    * @param callback - Function to call when avatars change
    * @returns Cleanup function to remove the callback
    */
   onAvatarChange: (callback: AvatarChangeCallback) => () => void;
-  
+
   /**
    * Exports all avatar data for backup/migration
    * @returns Serializable avatar data
    */
   exportAvatars: () => PersistedAvatarData;
-  
+
   /**
    * Imports avatar data from backup/migration
    * @param data - Previously exported avatar data
@@ -149,7 +149,7 @@ const AvatarContext = createContext<AvatarContextType | undefined>(undefined);
  */
 const DEFAULT_AVATAR_COLORS = [
   'bg-blue-500',
-  'bg-purple-500', 
+  'bg-purple-500',
   'bg-green-500',
   'bg-orange-500',
   'bg-red-500',
@@ -179,7 +179,7 @@ interface AvatarProviderProps {
    * Child components that will have access to the avatar context
    */
   children: ReactNode;
-  
+
   /**
    * Configuration options for avatar management
    */
@@ -188,7 +188,7 @@ interface AvatarProviderProps {
 
 /**
  * AvatarProvider manages avatar state, caching, and persistence across the application
- * 
+ *
  * Features:
  * - Automatic avatar generation with deterministic colors and initials
  * - Persistent caching in localStorage (configurable)
@@ -196,21 +196,21 @@ interface AvatarProviderProps {
  * - Import/export functionality for data migration
  * - Memory management with configurable cache limits
  * - Type-safe avatar operations
- * 
+ *
  * TODO: Consider breaking this provider into smaller hooks:
  * - useAvatarCache: Handle caching and persistence
  * - useAvatarGeneration: Handle color and initial generation
  * - useAvatarNotifications: Handle change callbacks
- * 
+ *
  * @example
  * // Basic usage
  * <AvatarProvider>
  *   <ChatApplication />
  * </AvatarProvider>
- * 
+ *
  * @example
  * // With custom configuration
- * <AvatarProvider 
+ * <AvatarProvider
  *   options={{
  *     persist: true,
  *     maxCacheSize: 50,
@@ -220,31 +220,24 @@ interface AvatarProviderProps {
  *   <ChatApplication />
  * </AvatarProvider>
  */
-export const AvatarProvider: React.FC<AvatarProviderProps> = ({ 
-  children, 
-  options = {} 
-}) => {
-  const {
-    persist = true,
-    customColors,
-    maxCacheSize = 100
-  } = options;
+export const AvatarProvider: React.FC<AvatarProviderProps> = ({ children, options = {} }) => {
+  const { persist = true, customColors, maxCacheSize = 100 } = options;
 
   // Use custom colors or default palette
   const avatarColors = customColors || DEFAULT_AVATAR_COLORS;
-  
+
   // State for avatar storage
   const [userAvatars, setUserAvatars] = useState<Record<string, AvatarData>>({});
   const [roomAvatars, setRoomAvatars] = useState<Record<string, AvatarData>>({});
   const [changeCallbacks, setChangeCallbacks] = useState<Set<AvatarChangeCallback>>(new Set());
-  
+
   // Refs for performance optimization
   const isInitialized = useRef(false);
 
   // Load persisted data on mount
   useEffect(() => {
     if (!persist || isInitialized.current) return;
-    
+
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
@@ -261,19 +254,19 @@ export const AvatarProvider: React.FC<AvatarProviderProps> = ({
         console.warn('Failed to load persisted avatar data:', error);
       }
     }
-    
+
     isInitialized.current = true;
   }, [persist]);
 
   // Persist data when avatars change
   useEffect(() => {
     if (!persist || !isInitialized.current) return;
-    
+
     try {
       const data: PersistedAvatarData = {
         userAvatars,
         roomAvatars,
-        version: AVATAR_DATA_VERSION
+        version: AVATAR_DATA_VERSION,
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     } catch (error) {
@@ -288,13 +281,16 @@ export const AvatarProvider: React.FC<AvatarProviderProps> = ({
    * @param text - The text to generate a color from
    * @returns A Tailwind CSS color class
    */
-  const generateColor = useCallback((text: string): string => {
-    let hash = 0;
-    for (let i = 0; i < text.length; i++) {
-      hash = ((hash << 5) - hash + text.charCodeAt(i)) & 0xffffffff;
-    }
-    return avatarColors[Math.abs(hash) % avatarColors.length];
-  }, [avatarColors]);
+  const generateColor = useCallback(
+    (text: string): string => {
+      let hash = 0;
+      for (let i = 0; i < text.length; i++) {
+        hash = ((hash << 5) - hash + text.charCodeAt(i)) & 0xffffffff;
+      }
+      return avatarColors[Math.abs(hash) % avatarColors.length];
+    },
+    [avatarColors]
+  );
 
   /**
    * Generates initials from a display name with intelligent word parsing
@@ -303,16 +299,16 @@ export const AvatarProvider: React.FC<AvatarProviderProps> = ({
    */
   const generateInitials = useCallback((displayName: string): string => {
     if (!displayName.trim()) return '??';
-    
+
     // Remove common prefixes and clean the name
     const cleanName = displayName
       .trim()
       .replace(/^(mr|mrs|ms|dr|prof)\.?\s+/i, '')
       .replace(/[^\w\s]/g, ' ')
       .replace(/\s+/g, ' ');
-    
-    const words = cleanName.split(' ').filter(word => word.length > 0);
-    
+
+    const words = cleanName.split(' ').filter((word) => word.length > 0);
+
     if (words.length >= 2) {
       return (words[0][0] + words[1][0]).toUpperCase();
     }
@@ -322,150 +318,162 @@ export const AvatarProvider: React.FC<AvatarProviderProps> = ({
   /**
    * Manages cache size to prevent memory issues
    */
-  const manageCacheSize = useCallback((
-    currentCache: Record<string, AvatarData>,
-    newKey: string
-  ): Record<string, AvatarData> => {
-    if (maxCacheSize === 0 || Object.keys(currentCache).length < maxCacheSize) {
-      return currentCache;
-    }
-    
-    // Remove oldest entries (simple LRU-like behavior)
-    const entries = Object.entries(currentCache);
-    const toKeep = entries.slice(1); // Remove first entry
-    return Object.fromEntries(toKeep);
-  }, [maxCacheSize]);
+  const manageCacheSize = useCallback(
+    (currentCache: Record<string, AvatarData>, newKey: string): Record<string, AvatarData> => {
+      if (maxCacheSize === 0 || Object.keys(currentCache).length < maxCacheSize) {
+        return currentCache;
+      }
+
+      // Remove oldest entries (simple LRU-like behavior)
+      const entries = Object.entries(currentCache);
+      const toKeep = entries.slice(1); // Remove first entry
+      return Object.fromEntries(toKeep);
+    },
+    [maxCacheSize]
+  );
 
   /**
    * Notifies all registered callbacks about avatar changes
    */
-  const notifyAvatarChange = useCallback((
-    type: 'user' | 'room',
-    id: string,
-    avatar: AvatarData,
-    previousAvatar?: AvatarData
-  ) => {
-    changeCallbacks.forEach(callback => {
-      try {
-        callback(type, id, avatar, previousAvatar);
-      } catch (error) {
-        if (process.env.NODE_ENV === 'development') {
-          console.error('Error in avatar change callback:', error);
+  const notifyAvatarChange = useCallback(
+    (type: 'user' | 'room', id: string, avatar: AvatarData, previousAvatar?: AvatarData) => {
+      changeCallbacks.forEach((callback) => {
+        try {
+          callback(type, id, avatar, previousAvatar);
+        } catch (error) {
+          if (process.env.NODE_ENV === 'development') {
+            console.error('Error in avatar change callback:', error);
+          }
         }
-      }
-    });
-  }, [changeCallbacks]);
+      });
+    },
+    [changeCallbacks]
+  );
 
   /**
    * Gets or creates an avatar for a user with caching and notifications
    */
-  const getAvatarForUser = useCallback((userId: string, displayName?: string): AvatarData => {
-    // Return cached avatar if it exists
-    if (userAvatars[userId]) {
-      return userAvatars[userId];
-    }
+  const getAvatarForUser = useCallback(
+    (userId: string, displayName?: string): AvatarData => {
+      // Return cached avatar if it exists
+      if (userAvatars[userId]) {
+        return userAvatars[userId];
+      }
 
-    // Create new avatar
-    const name = displayName || userId;
-    const newAvatar: AvatarData = {
-      displayName: name,
-      color: generateColor(userId),
-      initials: generateInitials(name),
-    };
+      // Create new avatar
+      const name = displayName || userId;
+      const newAvatar: AvatarData = {
+        displayName: name,
+        color: generateColor(userId),
+        initials: generateInitials(name),
+      };
 
-    // Update cache with size management
-    setUserAvatars(prev => {
-      const managed = manageCacheSize(prev, userId);
-      const updated = { ...managed, [userId]: newAvatar };
-      
-      // Notify change in next tick to avoid state update during render
-      setTimeout(() => notifyAvatarChange('user', userId, newAvatar), 0);
-      
-      return updated;
-    });
+      // Update cache with size management
+      setUserAvatars((prev) => {
+        const managed = manageCacheSize(prev, userId);
+        const updated = { ...managed, [userId]: newAvatar };
 
-    return newAvatar;
-  }, [userAvatars, generateColor, generateInitials, manageCacheSize, notifyAvatarChange]);
+        // Notify change in next tick to avoid state update during render
+        setTimeout(() => notifyAvatarChange('user', userId, newAvatar), 0);
+
+        return updated;
+      });
+
+      return newAvatar;
+    },
+    [userAvatars, generateColor, generateInitials, manageCacheSize, notifyAvatarChange]
+  );
 
   /**
    * Gets or creates an avatar for a room with intelligent name processing
    */
-  const getAvatarForRoom = useCallback((roomId: string, roomName?: string): AvatarData => {
-    // Return cached avatar if it exists  
-    if (roomAvatars[roomId]) {
-      return roomAvatars[roomId];
-    }
+  const getAvatarForRoom = useCallback(
+    (roomId: string, roomName?: string): AvatarData => {
+      // Return cached avatar if it exists
+      if (roomAvatars[roomId]) {
+        return roomAvatars[roomId];
+      }
 
-    // Process room name with better formatting
-    const name = roomName || roomId
-      .replace(/^room-\d+-/, '') // Remove room- prefix
-      .replace(/[-_]/g, ' ') // Replace dashes and underscores with spaces
-      .replace(/\b\w/g, l => l.toUpperCase()); // Title case
+      // Process room name with better formatting
+      const name =
+        roomName ||
+        roomId
+          .replace(/^room-\d+-/, '') // Remove room- prefix
+          .replace(/[-_]/g, ' ') // Replace dashes and underscores with spaces
+          .replace(/\b\w/g, (l) => l.toUpperCase()); // Title case
 
-    const newAvatar: AvatarData = {
-      displayName: name,
-      color: generateColor(roomId),
-      initials: generateInitials(name),
-    };
+      const newAvatar: AvatarData = {
+        displayName: name,
+        color: generateColor(roomId),
+        initials: generateInitials(name),
+      };
 
-    // Update cache with size management
-    setRoomAvatars(prev => {
-      const managed = manageCacheSize(prev, roomId);
-      const updated = { ...managed, [roomId]: newAvatar };
-      
-      // Notify change in next tick
-      setTimeout(() => notifyAvatarChange('room', roomId, newAvatar), 0);
-      
-      return updated;
-    });
+      // Update cache with size management
+      setRoomAvatars((prev) => {
+        const managed = manageCacheSize(prev, roomId);
+        const updated = { ...managed, [roomId]: newAvatar };
 
-    return newAvatar;
-  }, [roomAvatars, generateColor, generateInitials, manageCacheSize, notifyAvatarChange]);
+        // Notify change in next tick
+        setTimeout(() => notifyAvatarChange('room', roomId, newAvatar), 0);
+
+        return updated;
+      });
+
+      return newAvatar;
+    },
+    [roomAvatars, generateColor, generateInitials, manageCacheSize, notifyAvatarChange]
+  );
 
   /**
    * Updates or creates a user avatar with change notifications
    */
-  const setUserAvatar = useCallback((userId: string, avatar: Partial<AvatarData>) => {
-    setUserAvatars(prev => {
-      const existing = prev[userId];
-      const name = avatar.displayName || existing?.displayName || userId;
-      
-      const updatedAvatar: AvatarData = {
-        displayName: name,
-        color: avatar.color || existing?.color || generateColor(userId),
-        initials: avatar.initials || existing?.initials || generateInitials(name),
-        src: avatar.src || existing?.src,
-      };
+  const setUserAvatar = useCallback(
+    (userId: string, avatar: Partial<AvatarData>) => {
+      setUserAvatars((prev) => {
+        const existing = prev[userId];
+        const name = avatar.displayName || existing?.displayName || userId;
 
-      // Notify change
-      setTimeout(() => notifyAvatarChange('user', userId, updatedAvatar, existing), 0);
-      
-      return { ...prev, [userId]: updatedAvatar };
-    });
-  }, [generateColor, generateInitials, notifyAvatarChange]);
+        const updatedAvatar: AvatarData = {
+          displayName: name,
+          color: avatar.color || existing?.color || generateColor(userId),
+          initials: avatar.initials || existing?.initials || generateInitials(name),
+          src: avatar.src || existing?.src,
+        };
+
+        // Notify change
+        setTimeout(() => notifyAvatarChange('user', userId, updatedAvatar, existing), 0);
+
+        return { ...prev, [userId]: updatedAvatar };
+      });
+    },
+    [generateColor, generateInitials, notifyAvatarChange]
+  );
 
   /**
    * Updates or creates a room avatar with change notifications
    */
-  const setRoomAvatar = useCallback((roomId: string, avatar: Partial<AvatarData>) => {
-    setRoomAvatars(prev => {
-      const existing = prev[roomId];
-      const defaultName = roomId.replace(/^room-\d+-/, '').replace(/[-_]/g, ' ');
-      const name = avatar.displayName || existing?.displayName || defaultName;
+  const setRoomAvatar = useCallback(
+    (roomId: string, avatar: Partial<AvatarData>) => {
+      setRoomAvatars((prev) => {
+        const existing = prev[roomId];
+        const defaultName = roomId.replace(/^room-\d+-/, '').replace(/[-_]/g, ' ');
+        const name = avatar.displayName || existing?.displayName || defaultName;
 
-      const updatedAvatar: AvatarData = {
-        displayName: name,
-        color: avatar.color || existing?.color || generateColor(roomId),
-        initials: avatar.initials || existing?.initials || generateInitials(name),
-        src: avatar.src || existing?.src,
-      };
+        const updatedAvatar: AvatarData = {
+          displayName: name,
+          color: avatar.color || existing?.color || generateColor(roomId),
+          initials: avatar.initials || existing?.initials || generateInitials(name),
+          src: avatar.src || existing?.src,
+        };
 
-      // Notify change
-      setTimeout(() => notifyAvatarChange('room', roomId, updatedAvatar, existing), 0);
-      
-      return { ...prev, [roomId]: updatedAvatar };
-    });
-  }, [generateColor, generateInitials, notifyAvatarChange]);
+        // Notify change
+        setTimeout(() => notifyAvatarChange('room', roomId, updatedAvatar, existing), 0);
+
+        return { ...prev, [roomId]: updatedAvatar };
+      });
+    },
+    [generateColor, generateInitials, notifyAvatarChange]
+  );
 
   // Simple getter methods
   const getUserAvatars = useCallback(() => userAvatars, [userAvatars]);
@@ -481,10 +489,10 @@ export const AvatarProvider: React.FC<AvatarProviderProps> = ({
 
   // Change notification management
   const onAvatarChange = useCallback((callback: AvatarChangeCallback) => {
-    setChangeCallbacks(prev => new Set(prev).add(callback));
-    
+    setChangeCallbacks((prev) => new Set(prev).add(callback));
+
     return () => {
-      setChangeCallbacks(prev => {
+      setChangeCallbacks((prev) => {
         const newSet = new Set(prev);
         newSet.delete(callback);
         return newSet;
@@ -493,11 +501,14 @@ export const AvatarProvider: React.FC<AvatarProviderProps> = ({
   }, []);
 
   // Import/export functionality
-  const exportAvatars = useCallback((): PersistedAvatarData => ({
-    userAvatars,
-    roomAvatars,
-    version: AVATAR_DATA_VERSION
-  }), [userAvatars, roomAvatars]);
+  const exportAvatars = useCallback(
+    (): PersistedAvatarData => ({
+      userAvatars,
+      roomAvatars,
+      version: AVATAR_DATA_VERSION,
+    }),
+    [userAvatars, roomAvatars]
+  );
 
   const importAvatars = useCallback((data: PersistedAvatarData) => {
     if (data.version === AVATAR_DATA_VERSION) {
@@ -509,52 +520,51 @@ export const AvatarProvider: React.FC<AvatarProviderProps> = ({
   }, []);
 
   // Memoize context value to prevent unnecessary re-renders
-  const contextValue = useMemo(() => ({
-    getAvatarForUser,
-    getAvatarForRoom,
-    setUserAvatar,
-    setRoomAvatar,
-    getUserAvatars,
-    getRoomAvatars,
-    clearUserAvatars,
-    clearRoomAvatars,
-    clearAllAvatars,
-    onAvatarChange,
-    exportAvatars,
-    importAvatars,
-  }), [
-    getAvatarForUser,
-    getAvatarForRoom,
-    setUserAvatar,
-    setRoomAvatar,
-    getUserAvatars,
-    getRoomAvatars,
-    clearUserAvatars,
-    clearRoomAvatars,
-    clearAllAvatars,
-    onAvatarChange,
-    exportAvatars,
-    importAvatars,
-  ]);
-
-  return (
-    <AvatarContext.Provider value={contextValue}>
-      {children}
-    </AvatarContext.Provider>
+  const contextValue = useMemo(
+    () => ({
+      getAvatarForUser,
+      getAvatarForRoom,
+      setUserAvatar,
+      setRoomAvatar,
+      getUserAvatars,
+      getRoomAvatars,
+      clearUserAvatars,
+      clearRoomAvatars,
+      clearAllAvatars,
+      onAvatarChange,
+      exportAvatars,
+      importAvatars,
+    }),
+    [
+      getAvatarForUser,
+      getAvatarForRoom,
+      setUserAvatar,
+      setRoomAvatar,
+      getUserAvatars,
+      getRoomAvatars,
+      clearUserAvatars,
+      clearRoomAvatars,
+      clearAllAvatars,
+      onAvatarChange,
+      exportAvatars,
+      importAvatars,
+    ]
   );
+
+  return <AvatarContext.Provider value={contextValue}>{children}</AvatarContext.Provider>;
 };
 
 /**
  * Hook to access the avatar context with comprehensive avatar management
- * 
+ *
  * @returns The avatar context value
  * @throws Error if used outside of an AvatarProvider
- * 
+ *
  * @example
  * // Basic usage
  * const { getAvatarForUser, setUserAvatar } = useAvatar();
  * const userAvatar = getAvatarForUser('user-123', 'John Doe');
- * 
+ *
  * @example
  * // Listen for avatar changes
  * const { onAvatarChange } = useAvatar();
@@ -564,7 +574,7 @@ export const AvatarProvider: React.FC<AvatarProviderProps> = ({
  *   });
  *   return cleanup;
  * }, [onAvatarChange]);
- * 
+ *
  * @example
  * // Backup and restore avatars
  * const { exportAvatars, importAvatars } = useAvatar();
@@ -574,13 +584,13 @@ export const AvatarProvider: React.FC<AvatarProviderProps> = ({
  */
 export const useAvatar = (): AvatarContextType => {
   const context = useContext(AvatarContext);
-  
+
   if (context === undefined) {
     throw new Error(
       'useAvatar must be used within an AvatarProvider. ' +
-      'Make sure your component is wrapped with <AvatarProvider>.'
+        'Make sure your component is wrapped with <AvatarProvider>.'
     );
   }
-  
+
   return context;
 };

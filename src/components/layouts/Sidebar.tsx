@@ -1,5 +1,5 @@
-import React, { useState, useCallback, useMemo, useRef } from 'react';
-import { ChatRoomProvider } from '@ably/chat/react';
+import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react';
+import { ChatRoomProvider, useRoom } from '@ably/chat/react';
 import RoomListItem from '../molecules/RoomListItem';
 import Button from '../atoms/Button';
 import Icon from '../atoms/Icon';
@@ -17,8 +17,16 @@ const CollapsedRoomAvatar: React.FC<{
 }> = React.memo(({ roomId, onClick }) => {
   const { currentRoomId } = useCurrentRoom();
   const { getAvatarForRoom } = useAvatar();
-  const { src, color, initials } = getAvatarForRoom(roomId, roomId);
+  const { src, color, initials } = getAvatarForRoom(roomId);
   const selected = roomId === currentRoomId;
+  const { room } = useRoom();
+
+  useEffect(() => {
+    // attach the room when the component renders
+    // detaching and release is handled at the top app level for now
+    // TODO: Remove once the ChatClientProvider has room reference counts implemented
+    room?.attach();
+  }, [room]);
 
   return (
     <div className="flex justify-center p-2">
@@ -161,6 +169,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <ChatRoomProvider
               key={roomId}
               id={roomId}
+              attach={false}
               release={false}
               options={{ occupancy: { enableEvents: true } }}
             >

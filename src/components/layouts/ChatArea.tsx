@@ -27,6 +27,7 @@ export const ChatArea: React.FC<ChatAreaProps> = ({ chatRoomOptions }) => {
     <ChatRoomProvider
       key={currentRoomId}
       id={currentRoomId}
+      attach={false}
       release={false}
       options={chatRoomOptions}
     >

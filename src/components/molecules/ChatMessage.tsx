@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Avatar from '../atoms/Avatar';
 import Icon from '../atoms/Icon';
 import TextInput from '../atoms/TextInput';
@@ -10,7 +10,7 @@ import EmojiPicker from './EmojiPicker';
 import AvatarEditor from './AvatarEditor';
 import { Message } from '@ably/chat';
 import { useAvatar } from '../../context/AvatarContext';
-import { AvatarData } from '../atoms/Avatar';
+import { AvatarData } from '../atoms';
 
 /**
  * Props for the ChatMessage component
@@ -54,6 +54,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
   const [isHovered, setIsHovered] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(message.text || '');
+  const [avatarData, setAvatarData] = useState<AvatarData | undefined>(undefined);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [emojiPickerPosition, setEmojiPickerPosition] = useState({ top: 0, left: 0 });
 
@@ -70,7 +71,10 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
 
   // Get avatar data from context
   const { getAvatarForUser, setUserAvatar } = useAvatar();
-  const userAvatar = getAvatarForUser(message.clientId, message.clientId);
+  useEffect(() => {
+    const avatarData = getAvatarForUser(message.clientId);
+    setAvatarData(avatarData);
+  }, [getAvatarForUser, message]);
 
   /**
    * Formats a timestamp into a readable time string (HH:MM)
@@ -266,6 +270,39 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
     setShowAvatarEditor(false);
   };
 
+  /**
+   * Calculates tooltip position based on avatar location and viewport constraints
+   *
+   * @returns Object containing top and left positioning values, or null if refs are unavailable
+   */
+  const calculateTooltipPosition = () => {
+    const avatarRect = avatarRef.current?.getBoundingClientRect();
+
+    if (!avatarRect) return null;
+
+    // Calculate vertical position
+    const tooltipY =
+      tooltipPosition === 'above'
+        ? avatarRect.top - 10 // Closer to avatar
+        : avatarRect.bottom + 10;
+
+    // Calculate horizontal position
+    const tooltipWidthEstimate = 200; // Safe fallback max
+    const padding = 8;
+    const avatarCenter = (avatarRect.left + avatarRect.right) / 2;
+
+    // Center on avatar for all messages, just respect viewport bounds
+    const clampedLeft = Math.max(
+      tooltipWidthEstimate / 2 + padding,
+      Math.min(window.innerWidth - tooltipWidthEstimate / 2 - padding, avatarCenter)
+    );
+
+    return {
+      top: `${tooltipY}px`,
+      left: `${clampedLeft}px`,
+    };
+  };
+
   return (
     <div
       ref={messageRef}
@@ -296,11 +333,11 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
           }
         >
           <Avatar
-            alt={userAvatar.displayName}
-            src={userAvatar.src}
-            color={userAvatar.color}
+            alt={avatarData?.displayName}
+            src={avatarData?.src}
+            color={avatarData?.color}
             size="sm"
-            initials={userAvatar.initials}
+            initials={avatarData?.initials}
           />
 
           {/* Edit overlay for own avatar */}
@@ -329,39 +366,22 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
         </div>
 
         {/* Avatar Hover Tooltip */}
-        {showAvatarTooltip && !showAvatarEditor && (
-          <div
-            className="fixed z-50 transform -translate-x-1/2"
-            style={{
-              top:
-                tooltipPosition === 'above'
-                  ? `${avatarRef.current?.getBoundingClientRect().top! - 10}px` // Closer to avatar
-                  : `${avatarRef.current?.getBoundingClientRect().bottom! + 10}px`,
-              left: (() => {
-                const avatarRect = avatarRef.current?.getBoundingClientRect();
+        {showAvatarTooltip &&
+          !showAvatarEditor &&
+          (() => {
+            const position = calculateTooltipPosition();
 
-                if (!avatarRect) return '50%';
+            if (!position) return null;
 
-                const tooltipWidthEstimate = 200; // Safe fallback max
-                const padding = 8;
-                const avatarCenter = (avatarRect.left + avatarRect.right) / 2;
-
-                // Center on avatar for all messages, just respect viewport bounds
-                const clampedLeft = Math.max(
-                  tooltipWidthEstimate / 2 + padding,
-                  Math.min(window.innerWidth - tooltipWidthEstimate / 2 - padding, avatarCenter)
-                );
-
-                return `${clampedLeft}px`;
-              })(),
-            }}
-          >
-            <TooltipSurface position={tooltipPosition} role="tooltip" aria-live="polite">
-              <div className="text-center text-sm px-2 py-1">{message.clientId}</div>
-              <TooltipArrow position={tooltipPosition} aria-hidden="true" />
-            </TooltipSurface>
-          </div>
-        )}
+            return (
+              <div className="fixed z-50 transform -translate-x-1/2" style={position}>
+                <TooltipSurface position={tooltipPosition} role="tooltip" aria-live="polite">
+                  <div className="text-center text-sm px-2 py-1">{message.clientId}</div>
+                  <TooltipArrow position={tooltipPosition} aria-hidden="true" />
+                </TooltipSurface>
+              </div>
+            );
+          })()}
       </div>
 
       <div
@@ -465,14 +485,14 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
       )}
 
       {/* Avatar Editor Modal (only for own messages) */}
-      {isOwn && showAvatarEditor && (
+      {isOwn && showAvatarEditor && avatarData && (
         <AvatarEditor
           isOpen={showAvatarEditor}
           onClose={() => setShowAvatarEditor(false)}
           onSave={handleAvatarSave}
-          currentAvatar={userAvatar.src}
-          currentColor={userAvatar.color}
-          displayName={userAvatar.displayName}
+          currentAvatar={avatarData.src}
+          currentColor={avatarData.color}
+          displayName={avatarData.displayName}
         />
       )}
     </div>
