@@ -174,17 +174,6 @@ const MessageInput: React.FC<MessageInputProps> = ({
       aria-label="Message input"
     >
       <div className="flex items-center gap-3">
-        {/* Attachment Button */}
-        <Button
-          variant="ghost"
-          size="sm"
-          className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-          aria-label="Add attachment"
-          disabled={true} // Currently non-functional
-        >
-          <Icon name="attachment" size="md" aria-hidden="true" />
-        </Button>
-
         {/* Text Input */}
         <TextInput
           ref={inputRef}

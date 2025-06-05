@@ -17,6 +17,8 @@ interface RoomListItemProps {
   currentUserId: string;
   /** Optional avatar data for the room (from props) */
   avatar?: AvatarData;
+  /** Whether the component should render in collapsed mode (avatar only) */
+  isCollapsed?: boolean;
 }
 
 /**
@@ -28,9 +30,11 @@ interface RoomListItemProps {
  * - Shows typing indicators when users are typing
  * - Highlights the currently selected room
  * - Integrates with Ably's occupancy and typing data
+ * - Supports collapsed mode (avatar only) for compact sidebar display
  */
 const RoomListItem: React.FC<RoomListItemProps> = React.memo(
-  ({ roomId, onClick, currentUserId, avatar: propAvatar }) => {
+  ({ roomId, onClick, currentUserId, avatar: propAvatar, isCollapsed = false }) => {
+    const [roomAvatarData, setRoomAvatarData] = React.useState<AvatarData | undefined>(undefined);
     const { getAvatarForRoom } = useAvatar();
     const { currentRoomId } = useCurrentRoom();
     const { room } = useRoom();
@@ -45,6 +49,12 @@ const RoomListItem: React.FC<RoomListItemProps> = React.memo(
       // TODO: Remove once the ChatClientProvider has room reference counts implemented
       room?.attach();
     }, [room]);
+
+    useEffect(() => {
+      // Get the avatar for the room, either from props or AvatarProvider
+      const avatar = propAvatar || getAvatarForRoom(roomId);
+      setRoomAvatarData(avatar);
+    }, [getAvatarForRoom, propAvatar, roomId]);
 
     // Get the room avatar from props or from the AvatarProvider
     const roomAvatar = propAvatar || getAvatarForRoom(roomId);
@@ -107,6 +117,43 @@ const RoomListItem: React.FC<RoomListItemProps> = React.memo(
     const totalCount = getTotalCount();
     const isActive = isRoomActive();
 
+    // If collapsed, render just the avatar with selection indicator
+    if (isCollapsed) {
+      return (
+        <div className="flex justify-center p-2">
+          <div
+            className={`relative cursor-pointer transition-transform hover:scale-110 ${
+              isSelected ? 'ring-2 ring-blue-500 rounded-full' : ''
+            }`}
+            onClick={onClick}
+            title={roomAvatar.displayName}
+            role="button"
+            aria-label={`${roomAvatar.displayName} room${isSelected ? ' (selected)' : ''}`}
+            aria-pressed={isSelected}
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onClick();
+              }
+            }}
+          >
+            <Avatar
+              alt={roomAvatarData?.displayName}
+              src={roomAvatarData?.src}
+              color={roomAvatarData?.color}
+              size="md"
+              initials={roomAvatarData?.initials}
+            />
+            {isSelected && (
+              <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-gray-900" />
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    // Otherwise render the full room list item
     return (
       <div
         className={`flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-800

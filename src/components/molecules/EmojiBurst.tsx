@@ -40,7 +40,7 @@ interface FlyingEmoji {
 
 /**
  * EmojiBurst component creates an animated burst of emoji characters
- * 
+ *
  * Features:
  * - Creates a circular burst of thumbs-up emojis with different skin tones
  * - Animates emojis with physics-based motion (velocity, gravity, rotation)
@@ -79,7 +79,7 @@ const EmojiBurst: React.FC<EmojiBurstProps> = ({ isActive, position, onComplete 
 
     // Animation loop
     let animationFrame: number;
-    let startTime = Date.now();
+    const startTime = Date.now();
     const duration = 2000; // 2 seconds
 
     const animate = () => {
@@ -119,11 +119,7 @@ const EmojiBurst: React.FC<EmojiBurstProps> = ({ isActive, position, onComplete 
   if (!isActive || emojis.length === 0) return null;
 
   return (
-    <div 
-      className="fixed inset-0 pointer-events-none z-50" 
-      aria-hidden="true" 
-      role="presentation"
-    >
+    <div className="fixed inset-0 pointer-events-none z-50" aria-hidden="true" role="presentation">
       {emojis.map((emoji) => (
         <div
           key={emoji.id}

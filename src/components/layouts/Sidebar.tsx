@@ -10,41 +10,7 @@ import { useTheme } from '../../hooks/useTheme';
 import { useAvatar } from '../../context/AvatarContext.tsx';
 import { useCurrentRoom } from '../../context/CurrentRoomContext';
 
-// Collapsed room avatar component that properly uses hooks
-const CollapsedRoomAvatar: React.FC<{
-  roomId: string;
-  onClick: () => void;
-}> = React.memo(({ roomId, onClick }) => {
-  const { currentRoomId } = useCurrentRoom();
-  const { getAvatarForRoom } = useAvatar();
-  const { src, color, initials } = getAvatarForRoom(roomId);
-  const selected = roomId === currentRoomId;
-  const { room } = useRoom();
-
-  useEffect(() => {
-    // attach the room when the component renders
-    // detaching and release is handled at the top app level for now
-    // TODO: Remove once the ChatClientProvider has room reference counts implemented
-    room?.attach();
-  }, [room]);
-
-  return (
-    <div className="flex justify-center p-2">
-      <div
-        className={`relative cursor-pointer transition-transform hover:scale-110 ${
-          selected ? 'ring-2 ring-blue-500 rounded-full' : ''
-        }`}
-        onClick={onClick}
-        title={roomId}
-      >
-        <Avatar alt={roomId} src={src} color={color} size="md" initials={initials} />
-        {selected && (
-          <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-gray-900" />
-        )}
-      </div>
-    </div>
-  );
-});
+// CollapsedRoomAvatar functionality has been moved into RoomListItem component
 
 // Sidebar component props definition
 interface SidebarProps {
@@ -173,17 +139,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
               release={false}
               options={{ occupancy: { enableEvents: true } }}
             >
-              {isCollapsed ? (
-                /* Collapsed view – just avatar */
-                <CollapsedRoomAvatar roomId={roomId} onClick={() => handleSelectRoom(roomId)} />
-              ) : (
-                /* Expanded view – full room item */
-                <RoomListItem
-                  roomId={roomId}
-                  onClick={() => handleSelectRoom(roomId)}
-                  currentUserId={currentUserId}
-                />
-              )}
+              {/* Use RoomListItem for both collapsed and expanded views */}
+              <RoomListItem
+                roomId={roomId}
+                onClick={() => handleSelectRoom(roomId)}
+                currentUserId={currentUserId}
+                isCollapsed={isCollapsed}
+              />
             </ChatRoomProvider>
           ))}
         </div>
