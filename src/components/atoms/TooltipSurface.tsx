@@ -16,29 +16,29 @@ interface TooltipSurfaceProps extends React.HTMLAttributes<HTMLDivElement> {
    * - 'below': Tooltip appears below the trigger
    */
   position: TooltipPosition;
-  
+
   /**
    * Tooltip content - can be text or React elements
    */
   children: React.ReactNode;
-  
+
   /**
    * Additional CSS classes to apply to the tooltip surface
    */
   className?: string;
-  
+
   /**
    * Maximum width constraint for the tooltip
    * @default 'max-w-xs' (20rem)
    */
   maxWidth?: string;
-  
+
   /**
    * Background color variant for the tooltip
    * @default 'dark' - dark background with light text
    */
   variant?: 'dark' | 'light';
-  
+
   /**
    * Z-index for tooltip layering
    * @default 'z-50'
@@ -48,30 +48,30 @@ interface TooltipSurfaceProps extends React.HTMLAttributes<HTMLDivElement> {
 
 /**
  * TooltipSurface component renders a positioned tooltip with customizable styling
- * 
+ *
  * Features:
  * - Automatic positioning (above/below trigger)
  * - Dark and light theme variants
  * - Responsive sizing with max-width constraints
  * - Proper accessibility attributes
  * - Smooth animations and shadows
- * 
+ *
  * @example
  * // Basic usage
  * <TooltipSurface position="above">
  *   This is a tooltip
  * </TooltipSurface>
- * 
+ *
  * @example
  * // Light variant with custom styling
- * <TooltipSurface 
- *   position="below" 
+ * <TooltipSurface
+ *   position="below"
  *   variant="light"
  *   maxWidth="max-w-sm"
  * >
  *   <span>Custom tooltip content</span>
  * </TooltipSurface>
- * 
+ *
  * @example
  * // With custom z-index for layering
  * <TooltipSurface position="above" zIndex="z-[60]">
@@ -92,13 +92,14 @@ export const TooltipSurface: React.FC<TooltipSurfaceProps> = ({
   // Variant-specific styling
   const variantClasses = {
     dark: 'bg-gray-900 dark:bg-gray-700 text-white',
-    light: 'bg-white dark:bg-gray-100 text-gray-900 dark:text-gray-800 border border-gray-200 dark:border-gray-300'
+    light:
+      'bg-white dark:bg-gray-100 text-gray-900 dark:text-gray-800 border border-gray-200 dark:border-gray-300',
   };
 
   // Position-specific classes
   const positionClasses = {
     above: 'bottom-full mb-2',
-    below: 'top-full mt-2'
+    below: 'top-full mt-2',
   };
 
   return (

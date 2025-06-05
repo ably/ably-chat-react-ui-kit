@@ -3,10 +3,14 @@ import Avatar from '../atoms/Avatar';
 import Icon from '../atoms/Icon';
 import TextInput from '../atoms/TextInput';
 import Button from '../atoms/Button';
+import { TooltipSurface, TooltipArrow } from '../atoms';
 import MessageActions from './MessageActions';
 import MessageReactions from './MessageReactions';
 import EmojiPicker from './EmojiPicker';
+import AvatarEditor from './AvatarEditor';
 import { Message } from '@ably/chat';
+import { useAvatar } from '../../context/AvatarContext';
+import { AvatarData } from '../atoms/Avatar';
 
 /**
  * Props for the ChatMessage component
@@ -30,7 +34,7 @@ interface ChatMessageProps {
 
 /**
  * ChatMessage component displays a single chat message with various interactive features
- * 
+ *
  * Features:
  * - Display message content with sender information
  * - Edit and delete messages (for own messages)
@@ -52,12 +56,25 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
   const [editText, setEditText] = useState(message.text || '');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [emojiPickerPosition, setEmojiPickerPosition] = useState({ top: 0, left: 0 });
+
+  // Avatar hover tooltip state
+  const [showAvatarTooltip, setShowAvatarTooltip] = useState(false);
+  const [tooltipPosition, setTooltipPosition] = useState<'above' | 'below'>('above');
+
+  // Avatar editor state
+  const [showAvatarEditor, setShowAvatarEditor] = useState(false);
+
   const messageRef = useRef<HTMLDivElement>(null);
   const messageBubbleRef = useRef<HTMLDivElement>(null);
+  const avatarRef = useRef<HTMLDivElement>(null);
+
+  // Get avatar data from context
+  const { getAvatarForUser, setUserAvatar } = useAvatar();
+  const userAvatar = getAvatarForUser(message.clientId, message.clientId);
 
   /**
    * Formats a timestamp into a readable time string (HH:MM)
-   * 
+   *
    * @param timestamp - The timestamp to format (milliseconds since epoch)
    * @returns Formatted time string in HH:MM format
    */
@@ -95,7 +112,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
 
   /**
    * Handles message deletion after confirmation
-   * 
+   *
    * TODO: Consider replacing the browser's confirm dialog with a custom modal
    * for better UX and styling consistency
    */
@@ -150,7 +167,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
   /**
    * Handles emoji selection from the emoji picker
    * Adds the selected emoji as a reaction to the message
-   * 
+   *
    * @param emoji - The selected emoji
    */
   const handleEmojiSelect = (emoji: string) => {
@@ -162,7 +179,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
    * Toggles a reaction on a message when clicking an existing reaction
    * If the user has already reacted with this emoji, it removes the reaction
    * Otherwise, it adds the reaction
-   * 
+   *
    * @param emoji - The emoji to toggle
    */
   const handleReactionClick = (emoji: string) => {
@@ -180,7 +197,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
    * Handles keyboard events in the edit message input
    * - Enter (without Shift) saves the edit
    * - Escape cancels the edit
-   * 
+   *
    * @param e - The keyboard event
    */
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -192,20 +209,187 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
     }
   };
 
+  /**
+   * Handles mouse enter event on the avatar
+   * Calculates optimal tooltip position and shows tooltip with user's clientId
+   *
+   * @param event - The mouse enter event
+   */
+  const handleAvatarMouseEnter = (event: React.MouseEvent) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const tooltipHeight = 40; // Approximate tooltip height
+    const spaceAbove = rect.top;
+    const spaceBelow = window.innerHeight - rect.bottom;
+
+    // Position above if there's enough space, otherwise below
+    if (spaceAbove >= tooltipHeight + 10) {
+      setTooltipPosition('above');
+    } else if (spaceBelow >= tooltipHeight + 10) {
+      setTooltipPosition('below');
+    } else {
+      // If neither has enough space, use the side with more space
+      setTooltipPosition(spaceAbove > spaceBelow ? 'above' : 'below');
+    }
+
+    setShowAvatarTooltip(true);
+  };
+
+  /**
+   * Handles mouse leave event on the avatar
+   * Hides the tooltip
+   */
+  const handleAvatarMouseLeave = () => {
+    setShowAvatarTooltip(false);
+  };
+
+  /**
+   * Handles click on the avatar (only for own messages)
+   * Opens the avatar editor modal
+   *
+   * @param event - The click event
+   */
+  const handleAvatarClick = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    if (isOwn) {
+      setShowAvatarEditor(true);
+    }
+  };
+
+  /**
+   * Handles avatar changes from the AvatarEditor
+   * Updates the user avatar in the AvatarContext
+   *
+   * @param avatarData - Partial avatar data to update
+   */
+  const handleAvatarSave = (avatarData: Partial<AvatarData>) => {
+    setUserAvatar(message.clientId, avatarData);
+    setShowAvatarEditor(false);
+  };
+
   return (
     <div
       ref={messageRef}
       className={`relative flex items-start gap-2 mb-4 ${isOwn ? 'flex-row-reverse' : 'flex-row'}`}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
       role="article"
       aria-label={`Message from ${message.clientId}${message.isDeleted ? ' (deleted)' : ''}${message.isUpdated ? ' (edited)' : ''}`}
     >
-      <Avatar alt={message.clientId} color={undefined} src={undefined} size="sm" />
+      {/* Avatar with hover tooltip and click functionality */}
+      <div className="relative">
+        <div
+          ref={avatarRef}
+          className={`relative ${isOwn ? 'cursor-pointer' : ''}`}
+          onMouseEnter={handleAvatarMouseEnter}
+          onMouseLeave={handleAvatarMouseLeave}
+          onClick={handleAvatarClick}
+          role={isOwn ? 'button' : undefined}
+          aria-label={isOwn ? 'Click to edit your avatar' : `Avatar for ${message.clientId}`}
+          tabIndex={isOwn ? 0 : undefined}
+          onKeyDown={
+            isOwn
+              ? (e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleAvatarClick(e as unknown as React.MouseEvent);
+                  }
+                }
+              : undefined
+          }
+        >
+          <Avatar
+            alt={userAvatar.displayName}
+            src={userAvatar.src}
+            color={userAvatar.color}
+            size="sm"
+            initials={userAvatar.initials}
+          />
+
+          {/* Edit overlay for own avatar */}
+          {isOwn && (
+            <div
+              className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity cursor-pointer group"
+              title="Edit avatar"
+              aria-hidden="true"
+            >
+              {/* Semi-transparent overlay */}
+              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 rounded-full transition-all" />
+
+              {/* Edit icon in center - smaller for sm avatar */}
+              <div className="relative z-10 bg-black bg-opacity-60 rounded-full p-1 transform scale-0 group-hover:scale-100 transition-transform">
+                <svg
+                  className="w-2 h-2 text-white"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                  aria-hidden="true"
+                >
+                  <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                </svg>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Avatar Hover Tooltip */}
+        {showAvatarTooltip && !showAvatarEditor && (
+          <div 
+            className="fixed z-50 transform -translate-x-1/2"
+            style={{
+              top:
+                tooltipPosition === 'above'
+                  ? `${avatarRef.current?.getBoundingClientRect().top! - 10}px` // Closer to avatar
+                  : `${avatarRef.current?.getBoundingClientRect().bottom! + 10}px`,
+              left: (() => {
+                const avatarRect = avatarRef.current?.getBoundingClientRect();
+                const messageBubbleRect = messageBubbleRef.current?.getBoundingClientRect();
+                
+                if (!avatarRect || !messageBubbleRect) return '50%';
+                
+                const tooltipWidthEstimate = 200; // Safe fallback max
+                const padding = 8;
+                const avatarCenter = (avatarRect.left + avatarRect.right) / 2;
+                
+                let clampedLeft = avatarCenter;
+                
+                if (isOwn) {
+                  // For own messages: center on avatar but clamp to viewport bounds
+                  clampedLeft = Math.max(
+                    tooltipWidthEstimate / 2 + padding,
+                    Math.min(window.innerWidth - tooltipWidthEstimate / 2 - padding, avatarCenter)
+                  );
+                } else {
+                  // For other users' messages: center on avatar but ensure it doesn't go into sidebar
+                  const messageBubbleLeft = messageBubbleRect.left;
+                  const minLeft = messageBubbleLeft + tooltipWidthEstimate / 2 + padding; // Ensure tooltip doesn't extend left of message bubble
+                  
+                  clampedLeft = Math.max(
+                    minLeft,
+                    Math.min(window.innerWidth - tooltipWidthEstimate / 2 - padding, avatarCenter)
+                  );
+                }
+                
+                return `${clampedLeft}px`;
+              })(),
+            }}
+          >
+            <TooltipSurface 
+              position={tooltipPosition} 
+              role="tooltip"
+              aria-live="polite"
+            >
+              <div className="text-center text-sm px-2 py-1">{message.clientId}</div>
+              <TooltipArrow position={tooltipPosition} aria-hidden="true" />
+            </TooltipSurface>
+          </div>
+        )}
+      </div>
+
       <div
         className={`flex flex-col max-w-[85%] md:max-w-[80%] lg:max-w-[75%] ${isOwn ? 'items-end' : 'items-start'}`}
       >
-        <div className="relative">
+        <div
+          className="relative"
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+        >
           <div
             ref={messageBubbleRef}
             className={`relative px-4 py-2 rounded-2xl ${
@@ -213,7 +397,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
                 ? 'bg-gray-900 text-white rounded-br-md'
                 : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-bl-md'
             }`}
-            aria-live={message.isUpdated ? "polite" : "off"}
+            aria-live={message.isUpdated ? 'polite' : 'off'}
           >
             {isEditing ? (
               <div className="min-w-[200px]">
@@ -295,6 +479,18 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
           onClose={() => setShowEmojiPicker(false)}
           onEmojiSelect={handleEmojiSelect}
           position={emojiPickerPosition}
+        />
+      )}
+
+      {/* Avatar Editor Modal (only for own messages) */}
+      {isOwn && showAvatarEditor && (
+        <AvatarEditor
+          isOpen={showAvatarEditor}
+          onClose={() => setShowAvatarEditor(false)}
+          onSave={handleAvatarSave}
+          currentAvatar={userAvatar.src}
+          currentColor={userAvatar.color}
+          displayName={userAvatar.displayName}
         />
       )}
     </div>

@@ -11,7 +11,7 @@ interface PresenceIndicatorsProps {
 
 /**
  * PresenceIndicators component displays text showing how many people are present
- * 
+ *
  * Features:
  * - Shows count of unique users present in the room
  * - Automatically updates when presence changes
@@ -23,7 +23,7 @@ const PresenceIndicators: React.FC<PresenceIndicatorsProps> = ({ className = '' 
 
   /**
    * Generates human-readable text about presence count
-   * 
+   *
    * @returns A string indicating how many people are present
    */
   const getPresenceText = () => {
@@ -38,9 +38,7 @@ const PresenceIndicators: React.FC<PresenceIndicatorsProps> = ({ className = '' 
   return (
     <p
       className={`text-sm ${
-        isAnyonePresent
-          ? 'text-green-500'
-          : 'text-gray-500 dark:text-gray-400'
+        isAnyonePresent ? 'text-green-500' : 'text-gray-500 dark:text-gray-400'
       } ${className}`}
       role="status"
       aria-live="polite"

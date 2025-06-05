@@ -238,34 +238,34 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ roomId, roomAvatar }) =>
   return (
     <div className="flex flex-col h-full bg-white dark:bg-gray-900 flex-1">
       {/* Room Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
-        <div className="flex items-center gap-3">
-          {/* Room info component*/}
-          <RoomInfo
-            roomAvatar={roomAvatar}
-            roomName={roomName}
-            roomId={roomId}
-            isOpen={showParticipants}
-            onToggle={() => setShowParticipants(!showParticipants)}
-          />
+      {/*<div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">*/}
+      {/*  <div className="flex items-center gap-3">*/}
+      {/*    /!* Room info component*!/*/}
+      {/*    <RoomInfo*/}
+      {/*      roomAvatar={roomAvatar}*/}
+      {/*      roomName={roomName}*/}
+      {/*      roomId={roomId}*/}
+      {/*      isOpen={showParticipants}*/}
+      {/*      onToggle={() => setShowParticipants(!showParticipants)}*/}
+      {/*    />*/}
 
-          <div className="flex-1">
-            <h2 className="font-semibold text-gray-900 dark:text-gray-100">{roomId}</h2>
-            <div className="flex items-center gap-2">
-              <PresenceIndicators />
+      {/*    <div className="flex-1">*/}
+      {/*      <h2 className="font-semibold text-gray-900 dark:text-gray-100">{roomId}</h2>*/}
+      {/*      <div className="flex items-center gap-2">*/}
+      {/*        <PresenceIndicators />*/}
 
-              {/* Typing Indicators in Header */}
-              <TypingIndicators className="text-xs" />
-            </div>
-          </div>
-        </div>
+      {/*        /!* Typing Indicators in Header *!/*/}
+      {/*        <TypingIndicators className="text-xs" />*/}
+      {/*      </div>*/}
+      {/*    </div>*/}
+      {/*  </div>*/}
 
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm">
-            <Icon name="info" size="md" />
-          </Button>
-        </div>
-      </div>
+      {/*  <div className="flex items-center gap-2">*/}
+      {/*    <Button variant="ghost" size="sm">*/}
+      {/*      <Icon name="info" size="md" />*/}
+      {/*    </Button>*/}
+      {/*  </div>*/}
+      {/*</div>*/}
 
       {/* Messages Area */}
       <div className="flex-1 overflow-y-auto pt-10 px-6 pb-6 space-y-6 bg-gray-50 dark:bg-gray-950">

@@ -66,14 +66,14 @@ interface AvatarEditorProps {
 
 /**
  * AvatarEditor component allows users to customize their avatar
- * 
+ *
  * Features:
  * - Upload custom images
  * - Enter image URL
  * - Choose from preset avatars
  * - Select background colors
  * - Remove avatar
- * 
+ *
  * TODO: Consider breaking this component into smaller subcomponents:
  * - AvatarUploadTab
  * - AvatarPresetsTab
@@ -100,7 +100,7 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({
   /**
    * Handles file upload for avatar images
    * Validates file type and size, then creates a data URL for preview
-   * 
+   *
    * @param event - The file input change event
    */
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -139,7 +139,7 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({
 
   /**
    * Handles changes to the avatar URL input
-   * 
+   *
    * @param event - The input change event
    */
   const handleUrlChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -150,7 +150,7 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({
   /**
    * Handles changes to the custom initials input
    * Limits input to 2 characters and converts to uppercase
-   * 
+   *
    * @param event - The input change event
    */
   const handleInitialsChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -160,7 +160,7 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({
 
   /**
    * Handles selection of a preset avatar
-   * 
+   *
    * @param presetUrl - The URL of the selected preset avatar
    */
   const handlePresetSelect = (presetUrl: string) => {
@@ -170,7 +170,7 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({
 
   /**
    * Handles selection of a background color
-   * 
+   *
    * @param color - The selected color value (CSS class)
    */
   const handleColorSelect = (color: string) => {
@@ -214,7 +214,7 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({
 
   /**
    * Generates initials from the display name or returns custom initials if set
-   * 
+   *
    * @returns The initials to display in the avatar (max 2 characters)
    */
   const getInitials = () => {
@@ -297,10 +297,10 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({
 
         {/* Upload Tab Content */}
         {activeTab === 'upload' && (
-          <div 
-            className="space-y-4" 
-            role="tabpanel" 
-            id="upload-tab" 
+          <div
+            className="space-y-4"
+            role="tabpanel"
+            id="upload-tab"
             aria-labelledby="upload-tab-button"
           >
             <div>
@@ -353,11 +353,7 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({
 
         {/* Presets Tab Content */}
         {activeTab === 'presets' && (
-          <div
-            role="tabpanel"
-            id="presets-tab"
-            aria-labelledby="presets-tab-button"
-          >
+          <div role="tabpanel" id="presets-tab" aria-labelledby="presets-tab-button">
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Choose a Preset Avatar
             </label>
@@ -386,7 +382,7 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({
 
         {/* Color Tab Content */}
         {activeTab === 'color' && (
-          <div 
+          <div
             className="space-y-4"
             role="tabpanel"
             id="color-tab"

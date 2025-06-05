@@ -27,7 +27,7 @@ interface RoomInfoProps {
 
 /**
  * RoomInfo component displays information about a chat room
- * 
+ *
  * Features:
  * - Shows room avatar with presence count badge
  * - Displays tooltip with participant information on hover
@@ -61,7 +61,7 @@ const RoomInfo: React.FC<RoomInfoProps> = ({
   /**
    * Handles mouse enter event on the room avatar
    * Calculates optimal tooltip position based on available space
-   * 
+   *
    * @param event - The mouse enter event
    */
   const handleMouseEnter = (event: React.MouseEvent) => {
@@ -86,7 +86,7 @@ const RoomInfo: React.FC<RoomInfoProps> = ({
   /**
    * Handles click on the avatar edit overlay
    * Prevents event propagation and opens the avatar editor
-   * 
+   *
    * @param e - The click event
    */
   const handleAvatarClick = (e: React.MouseEvent) => {
@@ -97,7 +97,7 @@ const RoomInfo: React.FC<RoomInfoProps> = ({
   /**
    * Handles avatar changes from the AvatarEditor
    * Updates the room avatar in the AvatarContext
-   * 
+   *
    * @param avatarData - Partial avatar data to update
    */
   const handleAvatarSave = (avatarData: Partial<AvatarData>) => {
@@ -150,17 +150,22 @@ const RoomInfo: React.FC<RoomInfoProps> = ({
             }}
           >
             {/* Semi-transparent overlay */}
-            <div 
-              className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 rounded-full transition-all" 
+            <div
+              className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 rounded-full transition-all"
               aria-hidden="true"
             />
 
             {/* Edit icon in center - smaller clickable area */}
-            <div 
+            <div
               className="relative z-10 bg-black bg-opacity-60 rounded-full p-2 transform scale-0 group-hover:scale-100 transition-transform"
               aria-hidden="true"
             >
-              <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+              <svg
+                className="w-4 h-4 text-white"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                aria-hidden="true"
+              >
                 <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
               </svg>
             </div>

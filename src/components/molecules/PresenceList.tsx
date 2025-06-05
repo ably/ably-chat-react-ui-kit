@@ -27,13 +27,11 @@ interface PresenceListProps extends React.HTMLAttributes<HTMLDivElement> {
 
 /**
  * Builds a human-readable sentence describing who is present in the room
- * 
+ *
  * @param presenceData - Array of presence members
  * @returns A formatted string describing who is present
  */
-const buildPresenceSentence = (
-  presenceData: PresenceMember[],
-): string => {
+const buildPresenceSentence = (presenceData: PresenceMember[]): string => {
   if (!presenceData?.length) {
     return 'No one is currently present';
   }
@@ -53,7 +51,7 @@ const buildPresenceSentence = (
 
 /**
  * PresenceList component displays a tooltip with information about who is present
- * 
+ *
  * Features:
  * - Shows a list of participants who are present in the room
  * - Limits display to first 3 names with a count of remaining participants
@@ -75,19 +73,15 @@ export const PresenceList: React.FC<PresenceListProps> = ({
   const text = buildPresenceSentence(presenceData);
 
   return (
-    <TooltipSurface 
-      position={tooltipPosition} 
-      className={surfaceClassName} 
+    <TooltipSurface
+      position={tooltipPosition}
+      className={surfaceClassName}
       role="tooltip"
       aria-live="polite"
       {...rest}
     >
       <div className={clsx('text-center', textClassName)}>{text}</div>
-      <TooltipArrow 
-        position={tooltipPosition} 
-        className={arrowClassName} 
-        aria-hidden="true" 
-      />
+      <TooltipArrow position={tooltipPosition} className={arrowClassName} aria-hidden="true" />
     </TooltipSurface>
   );
 };
