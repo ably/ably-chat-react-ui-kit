@@ -330,7 +330,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
 
         {/* Avatar Hover Tooltip */}
         {showAvatarTooltip && !showAvatarEditor && (
-          <div 
+          <div
             className="fixed z-50 transform -translate-x-1/2"
             style={{
               top:
@@ -339,42 +339,24 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
                   : `${avatarRef.current?.getBoundingClientRect().bottom! + 10}px`,
               left: (() => {
                 const avatarRect = avatarRef.current?.getBoundingClientRect();
-                const messageBubbleRect = messageBubbleRef.current?.getBoundingClientRect();
-                
-                if (!avatarRect || !messageBubbleRect) return '50%';
-                
+
+                if (!avatarRect) return '50%';
+
                 const tooltipWidthEstimate = 200; // Safe fallback max
                 const padding = 8;
                 const avatarCenter = (avatarRect.left + avatarRect.right) / 2;
-                
-                let clampedLeft = avatarCenter;
-                
-                if (isOwn) {
-                  // For own messages: center on avatar but clamp to viewport bounds
-                  clampedLeft = Math.max(
-                    tooltipWidthEstimate / 2 + padding,
-                    Math.min(window.innerWidth - tooltipWidthEstimate / 2 - padding, avatarCenter)
-                  );
-                } else {
-                  // For other users' messages: center on avatar but ensure it doesn't go into sidebar
-                  const messageBubbleLeft = messageBubbleRect.left;
-                  const minLeft = messageBubbleLeft + tooltipWidthEstimate / 2 + padding; // Ensure tooltip doesn't extend left of message bubble
-                  
-                  clampedLeft = Math.max(
-                    minLeft,
-                    Math.min(window.innerWidth - tooltipWidthEstimate / 2 - padding, avatarCenter)
-                  );
-                }
-                
+
+                // Center on avatar for all messages, just respect viewport bounds
+                const clampedLeft = Math.max(
+                  tooltipWidthEstimate / 2 + padding,
+                  Math.min(window.innerWidth - tooltipWidthEstimate / 2 - padding, avatarCenter)
+                );
+
                 return `${clampedLeft}px`;
               })(),
             }}
           >
-            <TooltipSurface 
-              position={tooltipPosition} 
-              role="tooltip"
-              aria-live="polite"
-            >
+            <TooltipSurface position={tooltipPosition} role="tooltip" aria-live="polite">
               <div className="text-center text-sm px-2 py-1">{message.clientId}</div>
               <TooltipArrow position={tooltipPosition} aria-hidden="true" />
             </TooltipSurface>
