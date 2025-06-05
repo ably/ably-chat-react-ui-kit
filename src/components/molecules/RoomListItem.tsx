@@ -5,16 +5,29 @@ import TypingIndicators from './TypingIndicators.tsx';
 import { useAvatar } from '../../context/AvatarContext';
 import { useCurrentRoom } from '../../context/CurrentRoomContext.tsx';
 
+/**
+ * Props for the RoomListItem component
+ */
 interface RoomListItemProps {
+  /** Unique identifier for the room */
   roomId: string;
+  /** Callback function when the room is clicked */
   onClick: () => void;
+  /** ID of the current user */
   currentUserId: string;
-  avatar?: AvatarData; // Optional avatar data for the room (from props)
+  /** Optional avatar data for the room (from props) */
+  avatar?: AvatarData;
 }
 
 /**
  * RoomListItem component displays a room in the sidebar
- * Uses the AvatarProvider to get room avatars
+ * 
+ * Features:
+ * - Shows room avatar with presence indicators
+ * - Displays room name and participant count
+ * - Shows typing indicators when users are typing
+ * - Highlights the currently selected room
+ * - Integrates with Ably's occupancy and typing data
  */
 const RoomListItem: React.FC<RoomListItemProps> = React.memo(
   ({ roomId, onClick, currentUserId, avatar: propAvatar }) => {
@@ -31,20 +44,40 @@ const RoomListItem: React.FC<RoomListItemProps> = React.memo(
 
     const isSelected = roomId === currentRoomId;
 
+    /**
+     * Checks if the room has any active users
+     * 
+     * @returns True if at least one user is present in the room
+     */
     const isRoomActive = () => {
       // Check if anyone is present in the room
       return (presenceMembers || 0) > 0;
     };
 
+    /**
+     * Gets the count of users present in the room
+     * 
+     * @returns Number of present users
+     */
     const getPresentCount = () => {
       return presenceMembers || 0;
     };
 
+    /**
+     * Gets the total count of connections to the room
+     * 
+     * @returns Total number of connections
+     */
     const getTotalCount = () => {
       // Use connections that include both presence and other connections
       return connections || 0;
     };
 
+    /**
+     * Generates a human-readable string about who is typing
+     * 
+     * @returns A formatted string or null if no one is typing
+     */
     const getTypingUsers = () => {
       // Filter out current user from typing set
       const typingUserIds = Array.from(currentlyTyping).filter(
@@ -63,6 +96,9 @@ const RoomListItem: React.FC<RoomListItemProps> = React.memo(
     };
 
     const typingText = getTypingUsers();
+    const presentCount = getPresentCount();
+    const totalCount = getTotalCount();
+    const isActive = isRoomActive();
 
     return (
       <div
@@ -70,6 +106,16 @@ const RoomListItem: React.FC<RoomListItemProps> = React.memo(
                     cursor-pointer transition-colors
                     ${isSelected ? 'bg-gray-100 dark:bg-gray-800 border-r-2 border-blue-500' : ''}`}
         onClick={onClick}
+        role="button"
+        aria-label={`${roomAvatar.displayName} room${isSelected ? ' (selected)' : ''}${isActive ? `, ${presentCount} online` : ''}`}
+        aria-pressed={isSelected}
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            onClick();
+          }
+        }}
       >
         <div className="relative">
           <Avatar
@@ -81,14 +127,22 @@ const RoomListItem: React.FC<RoomListItemProps> = React.memo(
           />
 
           {/* Present indicator */}
-          {isRoomActive() && (
-            <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-gray-900" />
+          {isActive && (
+            <div 
+              className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-gray-900" 
+              aria-hidden="true"
+              title="Room is active"
+            />
           )}
 
           {/* Present count badge */}
-          {getPresentCount() > 0 && (
-            <div className="absolute -top-1 -right-1 bg-green-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-medium">
-              {getPresentCount() > 9 ? '9+' : getPresentCount()}
+          {presentCount > 0 && (
+            <div 
+              className="absolute -top-1 -right-1 bg-green-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-medium"
+              aria-hidden="true"
+              title={`${presentCount} ${presentCount === 1 ? 'person' : 'people'} online`}
+            >
+              {presentCount > 9 ? '9+' : presentCount}
             </div>
           )}
         </div>
@@ -100,11 +154,20 @@ const RoomListItem: React.FC<RoomListItemProps> = React.memo(
             </h3>
             <div className="flex items-center gap-2 flex-shrink-0">
               {/* Room participant count */}
-              <span className="text-xs text-gray-400">{getTotalCount()}</span>
+              <span 
+                className="text-xs text-gray-400"
+                title={`${totalCount} total ${totalCount === 1 ? 'connection' : 'connections'}`}
+              >
+                {totalCount}
+              </span>
             </div>
           </div>
 
-          {typingText && <TypingIndicators />}
+          {typingText && (
+            <div aria-live="polite">
+              <TypingIndicators />
+            </div>
+          )}
         </div>
       </div>
     );

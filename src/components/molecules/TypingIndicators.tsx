@@ -1,17 +1,32 @@
 import React from 'react';
-import { useChatClient, useRoom, useTyping } from '@ably/chat/react';
+import { useChatClient, useTyping } from '@ably/chat/react';
 import clsx from 'clsx';
 import { TypingDots } from '../atoms/TypingDots.tsx';
 
-
+/**
+ * Props for the TypingIndicators component
+ */
 interface TypingIndicatorsProps extends React.HTMLAttributes<HTMLDivElement> {
-  maxClients?: number; // max number of distinct clients to display
-
-  /* style hooks */
+  /** Maximum number of distinct clients to display before collapsing */
+  maxClients?: number;
+  
+  /** Additional CSS classes to apply to the component */
   className?: string;
+  
+  /** CSS classes to apply to the text element */
   textClassName?: string;
 }
 
+/**
+ * TypingIndicators component displays who is currently typing in a chat
+ * 
+ * Features:
+ * - Shows animated typing dots
+ * - Displays a human-readable message about who is typing
+ * - Excludes the current user from the typing list
+ * - Limits the number of displayed names to avoid long messages
+ * - Collapses additional typing users into a count
+ */
 const TypingIndicators: React.FC<TypingIndicatorsProps> = ({
   maxClients,
   className,
@@ -20,7 +35,7 @@ const TypingIndicators: React.FC<TypingIndicatorsProps> = ({
   const { currentlyTyping } = useTyping();
   const { clientId } = useChatClient();
 
-  /* Exclude yourself */
+  // Exclude yourself from the typing indicators
   const activeTypingUsers = Array.from(currentlyTyping).filter((id) => id !== clientId);
 
   if (!activeTypingUsers.length) return null;
@@ -31,8 +46,10 @@ const TypingIndicators: React.FC<TypingIndicatorsProps> = ({
         'flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400',
         className
       )}
+      role="status"
+      aria-live="polite"
     >
-      <TypingDots />
+      <TypingDots aria-hidden="true" />
       <span className={textClassName}>{buildTypingSentence(activeTypingUsers, maxClients)}</span>
     </div>
   );
@@ -41,11 +58,15 @@ const TypingIndicators: React.FC<TypingIndicatorsProps> = ({
 export default TypingIndicators;
 
 /**
- * Builds a human-readable “is / are typing” sentence.
+ * Builds a human-readable "is / are typing" sentence
+ * 
+ * Creates a grammatically correct sentence showing who is typing,
+ * with special handling for different numbers of users.
  *
- *  • `maxClients` – how many distinct clients to list before collapsing the rest
- *    into “n other(s)”.
- *    If `maxClients` is `undefined` or ≤ 0, we default to 1.
+ * @param userIds - Array of user IDs who are currently typing
+ * @param maxClients - Maximum number of users to display by name before collapsing
+ *                     the rest into "n others". Defaults to 1 if undefined or ≤ 0.
+ * @returns A formatted string describing who is typing
  */
 function buildTypingSentence(userIds: string[], maxClients: number = 1): string {
   const count = userIds.length;
@@ -65,7 +86,7 @@ function buildTypingSentence(userIds: string[], maxClients: number = 1): string 
     return `${names} and ${userIds[count - 1]} are typing`;
   }
 
-  // Need to collapse the tail into “…n others”
+  // Need to collapse the tail into "…n others"
   const displayNames = userIds.slice(0, safeMax).join(', ');
   const remaining = count - safeMax;
 

@@ -63,6 +63,17 @@ interface AvatarProps {
 /**
  * Avatar component displays a user or room avatar with fallback to initials
  * 
+ * TODO: Consider breaking this component into smaller subcomponents:
+ * - AvatarImage: Handles image loading and error states
+ * - AvatarInitials: Handles initials generation and display  
+ * - AvatarContainer: Handles sizing and common styling
+ * 
+ * TODO: Add support for:
+ * - Status indicators (online/offline/away)
+ * - Avatar groups/stacks for multiple users
+ * - Upload functionality for editable avatars
+ * - Image optimization and lazy loading
+ * 
  * @example
  * // Basic usage
  * <Avatar alt="John Doe" />
@@ -88,6 +99,7 @@ const Avatar: React.FC<AvatarProps> = ({ src, alt, color, size = 'md', initials,
     setImgError(false);
   }, [src]);
 
+  // TODO: Extract to separate hook - useAvatarSizing
   // Size classes mapping
   const sizeClasses = {
     sm: 'w-8 h-8 text-sm',
@@ -96,6 +108,7 @@ const Avatar: React.FC<AvatarProps> = ({ src, alt, color, size = 'md', initials,
     xl: 'w-16 h-16 text-2xl',
   };
 
+  // TODO: Extract to separate utility - generateAvatarColor
   /**
    * Generates a deterministic color based on text
    * @param text - The text to generate a color from
@@ -132,6 +145,7 @@ const Avatar: React.FC<AvatarProps> = ({ src, alt, color, size = 'md', initials,
   // Use provided color or generate one based on alt text
   const avatarColor = color || getRandomColor(alt);
 
+  // TODO: Extract to separate utility - generateInitials
   /**
    * Generates display text (initials) for the avatar
    * @returns Up to 2 characters of initials
@@ -158,10 +172,19 @@ const Avatar: React.FC<AvatarProps> = ({ src, alt, color, size = 'md', initials,
   return (
     <div
       className={`${sizeClasses[size]} rounded-full flex items-center justify-center text-white font-medium ${avatarColor} relative ${
-        onClick ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''
+        onClick ? 'cursor-pointer hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500' : ''
       }`}
       onClick={onClick}
+      onKeyDown={onClick ? (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onClick();
+        }
+      } : undefined}
+      role={onClick ? 'button' : 'img'}
+      tabIndex={onClick ? 0 : undefined}
       title={alt}
+      aria-label={alt}
     >
       {src && !imgError ? (
         <img 
@@ -169,9 +192,10 @@ const Avatar: React.FC<AvatarProps> = ({ src, alt, color, size = 'md', initials,
           alt={alt} 
           className="w-full h-full rounded-full object-cover" 
           onError={handleImageError}
+          loading="lazy"
         />
       ) : (
-        <span>{getDisplayText()}</span>
+        <span aria-hidden="true">{getDisplayText()}</span>
       )}
     </div>
   );
