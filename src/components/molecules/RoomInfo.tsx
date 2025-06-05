@@ -15,10 +15,6 @@ interface RoomInfoProps {
   roomAvatar?: AvatarData;
   /** Unique identifier for the room */
   roomId: string;
-  /** Whether the participant list is currently open */
-  isOpen: boolean;
-  /** Callback function to toggle the participant list open/closed */
-  onToggle: () => void;
   /** Position coordinates for rendering the participant list */
   position?: { top: number; left: number };
 }
@@ -36,13 +32,16 @@ interface RoomInfoProps {
 const RoomInfo: React.FC<RoomInfoProps> = ({
   roomAvatar: propRoomAvatar,
   roomId,
-  isOpen,
-  onToggle,
   position = { top: 0, left: 0 },
 }) => {
   const [showTooltip, setShowTooltip] = useState(false);
   const [tooltipPosition, setTooltipPosition] = useState<'above' | 'below'>('above');
   const [showAvatarEditor, setShowAvatarEditor] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+
+  const onToggle = () => {
+    setIsOpen(!isOpen);
+  };
 
   const { presenceData } = usePresenceListener();
   const { currentlyTyping } = useTyping();

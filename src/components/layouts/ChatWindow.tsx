@@ -9,7 +9,6 @@ import Button from '../atoms/Button';
 import Icon from '../atoms/Icon';
 import ChatWindowHeader from './ChatWindowHeader';
 import ChatWindowFooter from './ChatWindowFooter';
-import { AvatarData } from '../atoms/Avatar';
 import { useMessages, useChatClient, usePresence, useRoom } from '@ably/chat/react';
 import {
   Message,
@@ -21,14 +20,12 @@ import {
 
 interface ChatWindowProps {
   roomId: string;
-  roomAvatar?: AvatarData;
 }
 
-export const ChatWindow: React.FC<ChatWindowProps> = ({ roomId, roomAvatar }) => {
+export const ChatWindow: React.FC<ChatWindowProps> = ({ roomId }) => {
   console.log('[RENDER] ChatWindow', { roomId });
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [messages, setMessages] = useState<Message[]>([]);
-  const [showParticipants, setShowParticipants] = useState(false);
   const chatClient = useChatClient();
   const currentUserId = chatClient.clientId;
   const { room } = useRoom();
@@ -248,11 +245,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ roomId, roomAvatar }) =>
       <ChatWindowHeader>
         <div className="flex items-center gap-3">
           {/* Room info component*/}
-          <RoomInfo
-            roomId={roomId}
-            isOpen={showParticipants}
-            onToggle={() => setShowParticipants(!showParticipants)}
-          />
+          <RoomInfo roomId={roomId} />
 
           <div className="flex-1">
             <h2 className="font-semibold text-gray-900 dark:text-gray-100">{roomId}</h2>
