@@ -197,7 +197,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
           aria-haspopup="dialog"
           aria-expanded={showEmojiPicker}
         >
-          <Icon name="emoji" size="md" aria-hidden="true" />
+          <Icon name="emoji" size="md" aria-hidden={true} />
         </Button>
 
         {/* Thumbs Up Button */}
@@ -208,7 +208,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
           aria-label="Send thumbs up"
           type="button"
         >
-          <Icon name="thumbsup" size="md" aria-hidden="true" />
+          <Icon name="thumbsup" size="md" aria-hidden={true} />
         </button>
       </div>
 

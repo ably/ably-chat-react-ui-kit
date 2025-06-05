@@ -63,7 +63,7 @@ const MessageActions: React.FC<MessageActionsProps> = ({
             onClick={onEdit}
             aria-label="Edit message"
           >
-            <Icon name="edit" size="sm" aria-hidden="true" />
+            <Icon name="edit" size="sm" aria-hidden={true} />
           </Button>
 
           <Button
@@ -73,7 +73,7 @@ const MessageActions: React.FC<MessageActionsProps> = ({
             onClick={onDelete}
             aria-label="Delete message"
           >
-            <Icon name="delete" size="sm" aria-hidden="true" />
+            <Icon name="delete" size="sm" aria-hidden={true} />
           </Button>
         </>
       )}

@@ -79,7 +79,7 @@ const ParticipantList: React.FC<ParticipantListProps> = ({
             Participants ({presentCount})
           </h3>
           <Button variant="ghost" size="sm" onClick={onToggle} aria-label="Close participants list">
-            <Icon name="close" size="sm" aria-hidden="true" />
+            <Icon name="close" size="sm" aria-hidden={true} />
           </Button>
         </div>
         <p className="text-sm text-gray-500 dark:text-gray-400 mt-1" aria-live="polite">
