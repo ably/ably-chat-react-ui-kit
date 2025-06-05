@@ -1,10 +1,9 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef } from 'react';
 import { useTyping } from '@ably/chat/react';
 import Icon from '../atoms/Icon';
 import TextInput from '../atoms/TextInput';
 import Button from '../atoms/Button';
 import EmojiPicker from './EmojiPicker';
-import EmojiBurst from './EmojiBurst';
 
 /**
  * Props for the MessageInput component
@@ -32,11 +31,8 @@ const MessageInput: React.FC<MessageInputProps> = ({
 }) => {
   const [message, setMessage] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [showEmojiBurst, setShowEmojiBurst] = useState(false);
   const [emojiPickerPosition, setEmojiPickerPosition] = useState({ top: 0, left: 0 });
-  const [emojiBurstPosition, setEmojiBurstPosition] = useState({ x: 0, y: 0 });
   const inputRef = useRef<HTMLInputElement>(null);
-  const thumbsUpButtonRef = useRef<HTMLButtonElement>(null);
 
   // Use typing hook with keystroke and stop methods
   const { keystroke, stop } = useTyping();
@@ -139,37 +135,9 @@ const MessageInput: React.FC<MessageInputProps> = ({
     setShowEmojiPicker(false);
   };
 
-  /**
-   * Handles clicking the thumbs-up button
-   * Triggers the emoji burst animation at the button's position
-   */
-  const handleThumbsUpClick = useCallback(() => {
-    // Send a thumbs up message immediately
-    onSend('👍');
-
-    // Show the animation
-    const button = thumbsUpButtonRef.current;
-    if (button) {
-      const rect = button.getBoundingClientRect();
-      setEmojiBurstPosition({
-        x: rect.left + rect.width / 2,
-        y: rect.top + rect.height / 2,
-      });
-      setShowEmojiBurst(true);
-    }
-  }, [onSend]);
-
-  /**
-   * Callback when the emoji burst animation completes
-   * Hides the animation
-   */
-  const handleEmojiBurstComplete = useCallback(() => {
-    setShowEmojiBurst(false);
-  }, []);
-
   return (
     <div
-      className="border-t border-gray-200 dark:border-gray-700 p-4 bg-white dark:bg-gray-900"
+      className="p-4 bg-white dark:bg-gray-900"
       role="form"
       aria-label="Message input"
     >
@@ -199,17 +167,6 @@ const MessageInput: React.FC<MessageInputProps> = ({
         >
           <Icon name="emoji" size="md" aria-hidden={true} />
         </Button>
-
-        {/* Thumbs Up Button */}
-        <button
-          ref={thumbsUpButtonRef}
-          className="inline-flex items-center justify-center px-3 py-1.5 text-sm rounded-md text-gray-500 hover:text-yellow-500 dark:text-gray-400 dark:hover:text-yellow-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-          onClick={handleThumbsUpClick}
-          aria-label="Send thumbs up"
-          type="button"
-        >
-          <Icon name="thumbsup" size="md" aria-hidden={true} />
-        </button>
       </div>
 
       {/* Emoji Picker */}
@@ -218,13 +175,6 @@ const MessageInput: React.FC<MessageInputProps> = ({
         onClose={() => setShowEmojiPicker(false)}
         onEmojiSelect={handleEmojiSelect}
         position={emojiPickerPosition}
-      />
-
-      {/* Emoji Burst */}
-      <EmojiBurst
-        isActive={showEmojiBurst}
-        position={emojiBurstPosition}
-        onComplete={handleEmojiBurstComplete}
       />
     </div>
   );
