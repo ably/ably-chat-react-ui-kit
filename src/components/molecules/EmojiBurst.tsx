@@ -1,24 +1,52 @@
 import React, { useEffect, useState } from 'react';
 
+/**
+ * Props for the EmojiBurst component
+ */
 interface EmojiBurstProps {
+  /** Whether the burst animation is currently active */
   isActive: boolean;
+  /** The position where the burst should originate from */
   position: { x: number; y: number };
+  /** Callback function called when the animation completes */
   onComplete: () => void;
 }
 
+/**
+ * Internal interface representing a single emoji in the burst animation
+ */
 interface FlyingEmoji {
+  /** Unique identifier for the emoji */
   id: number;
+  /** The emoji character to display */
   emoji: string;
+  /** Current x-coordinate position */
   x: number;
+  /** Current y-coordinate position */
   y: number;
+  /** Velocity in the x direction */
   vx: number;
+  /** Velocity in the y direction */
   vy: number;
+  /** Current rotation angle in degrees */
   rotation: number;
+  /** Speed of rotation */
   rotationSpeed: number;
+  /** Current opacity value (0-1) */
   opacity: number;
+  /** Current scale factor */
   scale: number;
 }
 
+/**
+ * EmojiBurst component creates an animated burst of emoji characters
+ * 
+ * Features:
+ * - Creates a circular burst of thumbs-up emojis with different skin tones
+ * - Animates emojis with physics-based motion (velocity, gravity, rotation)
+ * - Automatically fades out and cleans up after animation completes
+ * - Non-interactive visual effect (pointer-events-none)
+ */
 const EmojiBurst: React.FC<EmojiBurstProps> = ({ isActive, position, onComplete }) => {
   const [emojis, setEmojis] = useState<FlyingEmoji[]>([]);
 
@@ -91,7 +119,11 @@ const EmojiBurst: React.FC<EmojiBurstProps> = ({ isActive, position, onComplete 
   if (!isActive || emojis.length === 0) return null;
 
   return (
-    <div className="fixed inset-0 pointer-events-none z-50">
+    <div 
+      className="fixed inset-0 pointer-events-none z-50" 
+      aria-hidden="true" 
+      role="presentation"
+    >
       {emojis.map((emoji) => (
         <div
           key={emoji.id}
@@ -103,6 +135,7 @@ const EmojiBurst: React.FC<EmojiBurstProps> = ({ isActive, position, onComplete 
             opacity: emoji.opacity,
             transition: 'none',
           }}
+          aria-hidden="true"
         >
           {emoji.emoji}
         </div>

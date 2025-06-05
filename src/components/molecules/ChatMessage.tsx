@@ -8,16 +8,36 @@ import MessageReactions from './MessageReactions';
 import EmojiPicker from './EmojiPicker';
 import { Message } from '@ably/chat';
 
+/**
+ * Props for the ChatMessage component
+ */
 interface ChatMessageProps {
+  /** The message object from Ably */
   message: Message;
+  /** Whether the current user is the author of the message */
   isOwn: boolean;
+  /** ID of the current user */
   currentUserId: string;
+  /** Callback when a message is edited */
   onEdit?: (messageSerial: string, newText: string) => void;
+  /** Callback when a message is deleted */
   onDelete?: (messageSerial: string) => void;
+  /** Callback when a reaction is added to a message */
   onReactionAdd?: (messageSerial: string, emoji: string) => void;
+  /** Callback when a reaction is removed from a message */
   onReactionRemove?: (messageSerial: string, emoji: string) => void;
 }
 
+/**
+ * ChatMessage component displays a single chat message with various interactive features
+ * 
+ * Features:
+ * - Display message content with sender information
+ * - Edit and delete messages (for own messages)
+ * - Add and remove reactions
+ * - Show message status (edited, deleted)
+ * - Display timestamps
+ */
 const ChatMessage: React.FC<ChatMessageProps> = ({
   message,
   isOwn,
@@ -35,17 +55,29 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
   const messageRef = useRef<HTMLDivElement>(null);
   const messageBubbleRef = useRef<HTMLDivElement>(null);
 
-  // Format time from Ably message
+  /**
+   * Formats a timestamp into a readable time string (HH:MM)
+   * 
+   * @param timestamp - The timestamp to format (milliseconds since epoch)
+   * @returns Formatted time string in HH:MM format
+   */
   const formatTime = (timestamp?: number) => {
     if (!timestamp)
       return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     return new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
+  /**
+   * Enables edit mode for the message
+   */
   const handleEdit = () => {
     setIsEditing(true);
   };
 
+  /**
+   * Saves the edited message text if it has changed
+   * Calls the onEdit callback with the message serial and new text
+   */
   const handleSaveEdit = () => {
     if (editText.trim() && editText !== (message.text || '')) {
       onEdit?.(message.serial, editText.trim());
@@ -53,17 +85,30 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
     setIsEditing(false);
   };
 
+  /**
+   * Cancels the edit operation and resets the edit text
+   */
   const handleCancelEdit = () => {
     setEditText(message.text || '');
     setIsEditing(false);
   };
 
+  /**
+   * Handles message deletion after confirmation
+   * 
+   * TODO: Consider replacing the browser's confirm dialog with a custom modal
+   * for better UX and styling consistency
+   */
   const handleDelete = () => {
     if (confirm('Are you sure you want to delete this message?')) {
       onDelete?.(message.serial);
     }
   };
 
+  /**
+   * Opens the emoji picker and positions it relative to the message bubble
+   * Calculates optimal position to ensure it's visible within the viewport
+   */
   const handleAddReaction = () => {
     const bubbleRect = messageBubbleRef.current?.getBoundingClientRect();
     if (!bubbleRect) return;
@@ -102,11 +147,24 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
     setShowEmojiPicker(true);
   };
 
+  /**
+   * Handles emoji selection from the emoji picker
+   * Adds the selected emoji as a reaction to the message
+   * 
+   * @param emoji - The selected emoji
+   */
   const handleEmojiSelect = (emoji: string) => {
     onReactionAdd?.(message.serial, emoji);
     setShowEmojiPicker(false);
   };
 
+  /**
+   * Toggles a reaction on a message when clicking an existing reaction
+   * If the user has already reacted with this emoji, it removes the reaction
+   * Otherwise, it adds the reaction
+   * 
+   * @param emoji - The emoji to toggle
+   */
   const handleReactionClick = (emoji: string) => {
     const distinct = message.reactions?.distinct ?? {};
     const hasUserReacted = distinct[emoji]?.clientIds.includes(currentUserId) ?? false;
@@ -118,6 +176,13 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
     }
   };
 
+  /**
+   * Handles keyboard events in the edit message input
+   * - Enter (without Shift) saves the edit
+   * - Escape cancels the edit
+   * 
+   * @param e - The keyboard event
+   */
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -133,6 +198,8 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
       className={`relative flex items-end gap-2 mb-4 ${isOwn ? 'flex-row-reverse' : 'flex-row'}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      role="article"
+      aria-label={`Message from ${message.clientId}${message.isDeleted ? ' (deleted)' : ''}${message.isUpdated ? ' (edited)' : ''}`}
     >
       <Avatar alt={message.clientId} color={undefined} src={undefined} size="sm" />
       <div
@@ -146,6 +213,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
                 ? 'bg-gray-900 text-white rounded-br-md'
                 : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-bl-md'
             }`}
+            aria-live={message.isUpdated ? "polite" : "off"}
           >
             {isEditing ? (
               <div className="min-w-[200px]">
@@ -156,6 +224,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
                   placeholder="Edit message..."
                   className="text-sm mb-2"
                   autoFocus
+                  aria-label="Edit message text"
                 />
                 <div className="flex gap-2">
                   <Button
@@ -215,11 +284,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
               <span className="ml-1">• edited {formatTime(message.updatedAt.getTime())}</span>
             )}
           </span>
-          {isOwn && (
-            <div className="flex items-center gap-1">
-              <Icon name="thumbsup" size="sm" className="text-gray-400" />
-            </div>
-          )}
+          {/* Removed non-functional thumbs-up icon */}
         </div>
       </div>
 

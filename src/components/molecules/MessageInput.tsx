@@ -6,11 +6,26 @@ import Button from '../atoms/Button';
 import EmojiPicker from './EmojiPicker';
 import EmojiBurst from './EmojiBurst';
 
+/**
+ * Props for the MessageInput component
+ */
 interface MessageInputProps {
+  /** Callback function when a message is sent, receives the message text */
   onSend: (message: string) => void;
+  /** Placeholder text for the input field */
   placeholder?: string;
 }
 
+/**
+ * MessageInput component provides a text input for composing and sending messages
+ *
+ * Features:
+ * - Text input with typing indicator integration
+ * - Emoji picker for inserting emojis
+ * - Quick thumbs-up button with animation
+ * - Attachment button (currently non-functional)
+ * - Enter key to send messages
+ */
 const MessageInput: React.FC<MessageInputProps> = ({
   onSend,
   placeholder = 'Type a message...',
@@ -26,6 +41,10 @@ const MessageInput: React.FC<MessageInputProps> = ({
   // Use typing hook with keystroke and stop methods
   const { keystroke, stop } = useTyping();
 
+  /**
+   * Handles sending the message
+   * Trims the message, calls the onSend callback, and resets the input
+   */
   const handleSend = () => {
     if (message.trim()) {
       onSend(message.trim());
@@ -35,6 +54,12 @@ const MessageInput: React.FC<MessageInputProps> = ({
     }
   };
 
+  /**
+   * Handles changes to the input field
+   * Updates the message state and manages typing indicators
+   *
+   * @param e - The input change event
+   */
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     setMessage(newValue);
@@ -48,6 +73,12 @@ const MessageInput: React.FC<MessageInputProps> = ({
     }
   };
 
+  /**
+   * Handles keyboard events in the input field
+   * Sends the message when Enter is pressed (without Shift)
+   *
+   * @param e - The keyboard event
+   */
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -55,6 +86,9 @@ const MessageInput: React.FC<MessageInputProps> = ({
     }
   };
 
+  /**
+   * Opens the emoji picker and positions it relative to the emoji button
+   */
   const handleEmojiButtonClick = () => {
     // Position emoji picker above the emoji button
     const button = document.querySelector('[data-emoji-button]') as HTMLElement;
@@ -72,6 +106,12 @@ const MessageInput: React.FC<MessageInputProps> = ({
     }
   };
 
+  /**
+   * Handles emoji selection from the emoji picker
+   * Inserts the emoji at the current cursor position
+   *
+   * @param emoji - The selected emoji character
+   */
   const handleEmojiSelect = (emoji: string) => {
     // Insert emoji at current cursor position or at the end
     const input = inputRef.current;
@@ -99,7 +139,15 @@ const MessageInput: React.FC<MessageInputProps> = ({
     setShowEmojiPicker(false);
   };
 
+  /**
+   * Handles clicking the thumbs-up button
+   * Triggers the emoji burst animation at the button's position
+   */
   const handleThumbsUpClick = useCallback(() => {
+    // Send a thumbs up message immediately
+    onSend('👍');
+
+    // Show the animation
     const button = thumbsUpButtonRef.current;
     if (button) {
       const rect = button.getBoundingClientRect();
@@ -109,22 +157,32 @@ const MessageInput: React.FC<MessageInputProps> = ({
       });
       setShowEmojiBurst(true);
     }
-  }, []);
+  }, [onSend]);
 
+  /**
+   * Callback when the emoji burst animation completes
+   * Hides the animation
+   */
   const handleEmojiBurstComplete = useCallback(() => {
     setShowEmojiBurst(false);
   }, []);
 
   return (
-    <div className="border-t border-gray-200 dark:border-gray-700 p-4 bg-white dark:bg-gray-900">
+    <div
+      className="border-t border-gray-200 dark:border-gray-700 p-4 bg-white dark:bg-gray-900"
+      role="form"
+      aria-label="Message input"
+    >
       <div className="flex items-center gap-3">
         {/* Attachment Button */}
         <Button
           variant="ghost"
           size="sm"
           className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+          aria-label="Add attachment"
+          disabled={true} // Currently non-functional
         >
-          <Icon name="attachment" size="md" />
+          <Icon name="attachment" size="md" aria-hidden="true" />
         </Button>
 
         {/* Text Input */}
@@ -136,6 +194,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
           onKeyPress={handleKeyPress}
           placeholder={placeholder}
           className="flex-1"
+          aria-label="Message text"
         />
 
         {/* Emoji Button */}
@@ -145,8 +204,11 @@ const MessageInput: React.FC<MessageInputProps> = ({
           className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
           onClick={handleEmojiButtonClick}
           data-emoji-button
+          aria-label="Open emoji picker"
+          aria-haspopup="dialog"
+          aria-expanded={showEmojiPicker}
         >
-          <Icon name="emoji" size="md" />
+          <Icon name="emoji" size="md" aria-hidden="true" />
         </Button>
 
         {/* Thumbs Up Button */}
@@ -154,8 +216,10 @@ const MessageInput: React.FC<MessageInputProps> = ({
           ref={thumbsUpButtonRef}
           className="inline-flex items-center justify-center px-3 py-1.5 text-sm rounded-md text-gray-500 hover:text-yellow-500 dark:text-gray-400 dark:hover:text-yellow-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
           onClick={handleThumbsUpClick}
+          aria-label="Send thumbs up"
+          type="button"
         >
-          <Icon name="thumbsup" size="md" />
+          <Icon name="thumbsup" size="md" aria-hidden="true" />
         </button>
       </div>
 

@@ -73,6 +73,12 @@ interface AvatarEditorProps {
  * - Choose from preset avatars
  * - Select background colors
  * - Remove avatar
+ * 
+ * TODO: Consider breaking this component into smaller subcomponents:
+ * - AvatarUploadTab
+ * - AvatarPresetsTab
+ * - AvatarCustomizeTab
+ * - AvatarPreview
  */
 const AvatarEditor: React.FC<AvatarEditorProps> = ({
   currentAvatar,
@@ -91,6 +97,12 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({
 
   if (!isOpen) return null;
 
+  /**
+   * Handles file upload for avatar images
+   * Validates file type and size, then creates a data URL for preview
+   * 
+   * @param event - The file input change event
+   */
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -125,25 +137,50 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({
     }
   };
 
+  /**
+   * Handles changes to the avatar URL input
+   * 
+   * @param event - The input change event
+   */
   const handleUrlChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setAvatarUrl(event.target.value);
     setError('');
   };
 
+  /**
+   * Handles changes to the custom initials input
+   * Limits input to 2 characters and converts to uppercase
+   * 
+   * @param event - The input change event
+   */
   const handleInitialsChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     // Limit to 2 characters
     setCustomInitials(event.target.value.slice(0, 2).toUpperCase());
   };
 
+  /**
+   * Handles selection of a preset avatar
+   * 
+   * @param presetUrl - The URL of the selected preset avatar
+   */
   const handlePresetSelect = (presetUrl: string) => {
     setAvatarUrl(presetUrl);
     setError('');
   };
 
+  /**
+   * Handles selection of a background color
+   * 
+   * @param color - The selected color value (CSS class)
+   */
   const handleColorSelect = (color: string) => {
     setSelectedColor(color);
   };
 
+  /**
+   * Handles saving the avatar changes
+   * Collects all avatar data and passes it to the onSave callback
+   */
   const handleSave = () => {
     const avatarData: Partial<AvatarData> = {
       displayName,
@@ -165,12 +202,21 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({
     onClose();
   };
 
+  /**
+   * Handles removing the avatar
+   * Clears the avatar URL and passes updated data to the onSave callback
+   */
   const handleRemove = () => {
     setAvatarUrl('');
     onSave({ displayName, src: undefined });
     onClose();
   };
 
+  /**
+   * Generates initials from the display name or returns custom initials if set
+   * 
+   * @returns The initials to display in the avatar (max 2 characters)
+   */
   const getInitials = () => {
     if (customInitials) return customInitials;
 
@@ -204,7 +250,7 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b border-gray-200 dark:border-gray-700 mb-4">
+        <div className="flex border-b border-gray-200 dark:border-gray-700 mb-4" role="tablist">
           <button
             className={`px-4 py-2 font-medium text-sm ${
               activeTab === 'upload'
@@ -212,6 +258,10 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({
                 : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
             }`}
             onClick={() => setActiveTab('upload')}
+            role="tab"
+            aria-selected={activeTab === 'upload'}
+            aria-controls="upload-tab"
+            id="upload-tab-button"
           >
             Upload
           </button>
@@ -222,6 +272,10 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({
                 : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
             }`}
             onClick={() => setActiveTab('presets')}
+            role="tab"
+            aria-selected={activeTab === 'presets'}
+            aria-controls="presets-tab"
+            id="presets-tab-button"
           >
             Presets
           </button>
@@ -232,6 +286,10 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({
                 : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
             }`}
             onClick={() => setActiveTab('color')}
+            role="tab"
+            aria-selected={activeTab === 'color'}
+            aria-controls="color-tab"
+            id="color-tab-button"
           >
             Customize
           </button>
@@ -239,7 +297,12 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({
 
         {/* Upload Tab Content */}
         {activeTab === 'upload' && (
-          <div className="space-y-4">
+          <div 
+            className="space-y-4" 
+            role="tabpanel" 
+            id="upload-tab" 
+            aria-labelledby="upload-tab-button"
+          >
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Upload Image
@@ -290,7 +353,11 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({
 
         {/* Presets Tab Content */}
         {activeTab === 'presets' && (
-          <div>
+          <div
+            role="tabpanel"
+            id="presets-tab"
+            aria-labelledby="presets-tab-button"
+          >
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Choose a Preset Avatar
             </label>
@@ -319,7 +386,12 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({
 
         {/* Color Tab Content */}
         {activeTab === 'color' && (
-          <div className="space-y-4">
+          <div 
+            className="space-y-4"
+            role="tabpanel"
+            id="color-tab"
+            aria-labelledby="color-tab-button"
+          >
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Background Color

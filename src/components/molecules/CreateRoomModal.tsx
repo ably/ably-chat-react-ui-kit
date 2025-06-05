@@ -3,17 +3,48 @@ import Button from '../atoms/Button';
 import TextInput from '../atoms/TextInput';
 import Icon from '../atoms/Icon';
 
+/**
+ * Props for the CreateRoomModal component
+ */
 interface CreateRoomModalProps {
+  /** Whether the modal is currently open */
   isOpen: boolean;
+  /** Callback function when the modal is closed */
   onClose: () => void;
+  /** Callback function when a new room is created, receives the room name */
   onCreateRoom: (roomName: string) => void;
 }
 
+/**
+ * Modal component for creating a new chat room
+ * 
+ * Displays a form with a text input for the room name and buttons to create or cancel
+ */
 const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose, onCreateRoom }) => {
   const [roomName, setRoomName] = useState('');
 
+  // Handle escape key press to close the modal
+  React.useEffect(() => {
+    const handleEscapeKey = (e: KeyboardEvent) => {
+      if (isOpen && e.key === 'Escape') {
+        handleClose();
+      }
+    };
+
+    document.addEventListener('keydown', handleEscapeKey);
+    return () => {
+      document.removeEventListener('keydown', handleEscapeKey);
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
+  /**
+   * Handles form submission when creating a new room
+   * Validates the room name, calls the onCreateRoom callback, and closes the modal
+   * 
+   * @param e - The form submission event
+   */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!roomName.trim()) return;
@@ -22,6 +53,10 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose, onCr
     onClose();
   };
 
+  /**
+   * Handles closing the modal
+   * Resets the room name input and calls the onClose callback
+   */
   const handleClose = () => {
     setRoomName('');
     onClose();
@@ -38,15 +73,19 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose, onCr
         <div
           className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md"
           onClick={(e) => e.stopPropagation()}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="modal-title"
         >
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+            <h2 id="modal-title" className="text-xl font-semibold text-gray-900 dark:text-gray-100">
               Create New Room
             </h2>
             <button
               onClick={handleClose}
               className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+              aria-label="Close modal"
             >
               <Icon name="close" size="md" />
             </button>
@@ -64,6 +103,8 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose, onCr
                 placeholder="Enter room name..."
                 className="w-full"
                 autoFocus
+                aria-label="Room name"
+                aria-required="true"
               />
             </div>
 
