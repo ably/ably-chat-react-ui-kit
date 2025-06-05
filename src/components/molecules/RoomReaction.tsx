@@ -2,6 +2,7 @@ import React, { useState, useRef, useCallback } from 'react';
 import { useRoomReactions } from '@ably/chat/react';
 import Icon from '../atoms/Icon';
 import EmojiBurst from './EmojiBurst';
+import EmojiWheel from './EmojiWheel';
 import { RoomReactionEvent } from '@ably/chat';
 
 /**
@@ -15,7 +16,9 @@ interface RoomReactionProps {
  * RoomReaction component provides quick reaction functionality for the chat room
  *
  * Features:
- * - Quick thumbs-up button with animation
+ * - Quick reaction button with customizable default emoji
+ * - Long press to open emoji selection wheel
+ * - Selected emoji becomes new default for quick reactions
  * - Emoji burst animation when reaction is sent or received
  * - Uses ephemeral room reactions (not stored messages)
  * - Positioned alongside the message input
@@ -27,7 +30,13 @@ const RoomReaction: React.FC<RoomReactionProps> = () => {
   const [showEmojiBurst, setShowEmojiBurst] = useState(false);
   const [emojiBurstPosition, setEmojiBurstPosition] = useState({ x: 0, y: 0 });
   const [burstEmoji, setBurstEmoji] = useState('👍');
-  const thumbsUpButtonRef = useRef<HTMLButtonElement>(null);
+  const [showEmojiWheel, setShowEmojiWheel] = useState(false);
+  const [emojiWheelPosition, setEmojiWheelPosition] = useState({ x: 0, y: 0 });
+  const [defaultEmoji, setDefaultEmoji] = useState('👍'); // Track current default emoji
+
+  const reactionButtonRef = useRef<HTMLButtonElement>(null);
+  const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const isLongPressRef = useRef(false);
 
   // Use room reactions hook for ephemeral reactions
   const { send } = useRoomReactions({
@@ -48,29 +57,114 @@ const RoomReaction: React.FC<RoomReactionProps> = () => {
   });
 
   /**
-   * Handles clicking the thumbs-up button
-   * Sends a room reaction and triggers the emoji burst animation at the button's position
+   * Handles sending a room reaction with the specified emoji
    */
-  const handleThumbsUpClick = useCallback(async () => {
-    try {
-      // Send an ephemeral room reaction
-      await send({ type: '👍' });
+  const sendReaction = useCallback(
+    async (emoji: string) => {
+      try {
+        // Send an ephemeral room reaction
+        await send({ type: emoji });
 
-      // Show the animation at the button's position for our own reaction
-      const button = thumbsUpButtonRef.current;
+        // Show the animation at the button's position for our own reaction
+        const button = reactionButtonRef.current;
+        if (button) {
+          const rect = button.getBoundingClientRect();
+          setBurstEmoji(emoji);
+          setEmojiBurstPosition({
+            x: rect.left + rect.width / 2,
+            y: rect.top + rect.height / 2,
+          });
+          setShowEmojiBurst(true);
+        }
+      } catch (error) {
+        console.error('Failed to send room reaction:', error);
+      }
+    },
+    [send]
+  );
+
+  /**
+   * Handles clicking the reaction button (short press)
+   * Sends the current default emoji reaction
+   */
+  const handleReactionClick = useCallback(() => {
+    // Only send reaction if this wasn't a long press
+    if (!isLongPressRef.current) {
+      sendReaction(defaultEmoji);
+    }
+    // Reset long press flag
+    isLongPressRef.current = false;
+  }, [sendReaction, defaultEmoji]);
+
+  /**
+   * Handles starting a potential long press
+   */
+  const handleMouseDown = useCallback(() => {
+    isLongPressRef.current = false;
+    longPressTimerRef.current = setTimeout(() => {
+      isLongPressRef.current = true;
+
+      // Show emoji wheel at button position
+      const button = reactionButtonRef.current;
       if (button) {
         const rect = button.getBoundingClientRect();
-        setBurstEmoji('👍');
-        setEmojiBurstPosition({
+        setEmojiWheelPosition({
           x: rect.left + rect.width / 2,
           y: rect.top + rect.height / 2,
         });
-        setShowEmojiBurst(true);
+        setShowEmojiWheel(true);
+
+        // Add haptic feedback if available
+        if (navigator.vibrate) {
+          navigator.vibrate(50);
+        }
       }
-    } catch (error) {
-      console.error('Failed to send room reaction:', error);
+    }, 500); // 500ms for long press
+  }, []);
+
+  /**
+   * Handles ending a potential long press
+   */
+  const handleMouseUp = useCallback(() => {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
     }
-  }, [send]);
+  }, []);
+
+  /**
+   * Handles touch start for mobile long press
+   */
+  const handleTouchStart = useCallback(() => {
+    handleMouseDown();
+  }, [handleMouseDown]);
+
+  /**
+   * Handles touch end for mobile long press
+   */
+  const handleTouchEnd = useCallback(() => {
+    handleMouseUp();
+  }, [handleMouseUp]);
+
+  /**
+   * Handles emoji selection from the wheel
+   * Updates the default emoji and sends the reaction
+   */
+  const handleEmojiSelect = useCallback(
+    (emoji: string) => {
+      setShowEmojiWheel(false);
+      setDefaultEmoji(emoji); // Update default emoji for future clicks
+      sendReaction(emoji);
+    },
+    [sendReaction]
+  );
+
+  /**
+   * Handles closing the emoji wheel
+   */
+  const handleEmojiWheelClose = useCallback(() => {
+    setShowEmojiWheel(false);
+  }, []);
 
   /**
    * Callback when the emoji burst animation completes
@@ -82,16 +176,31 @@ const RoomReaction: React.FC<RoomReactionProps> = () => {
 
   return (
     <>
-      {/* Thumbs Up Reaction Button */}
+      {/* Reaction Button */}
       <button
-        ref={thumbsUpButtonRef}
-        className="inline-flex items-center justify-center px-3 py-1.5 text-sm rounded-md text-gray-500 hover:text-yellow-500 dark:text-gray-400 dark:hover:text-yellow-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-        onClick={handleThumbsUpClick}
-        aria-label="Send thumbs up reaction"
+        ref={reactionButtonRef}
+        className="inline-flex items-center justify-center px-3 py-1.5 text-sm rounded-md text-gray-500 hover:text-yellow-500 dark:text-gray-400 dark:hover:text-yellow-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors select-none"
+        onClick={handleReactionClick}
+        onMouseDown={handleMouseDown}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+        aria-label={`Send ${defaultEmoji} reaction (long press for more options)`}
         type="button"
       >
-        <Icon name="thumbsup" size="md" aria-hidden={true} />
+        <span className="text-xl" aria-hidden={true}>
+          {defaultEmoji}
+        </span>
       </button>
+
+      {/* Emoji Selection Wheel */}
+      <EmojiWheel
+        isOpen={showEmojiWheel}
+        position={emojiWheelPosition}
+        onEmojiSelect={handleEmojiSelect}
+        onClose={handleEmojiWheelClose}
+      />
 
       {/* Emoji Burst Animation */}
       <EmojiBurst
