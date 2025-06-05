@@ -278,7 +278,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ roomId, roomAvatar }) =>
           <MessageInput onSend={handleSendMessage} placeholder={`Message ${roomName}...`} />
         </div>
         <div className="px-4 py-4">
-          <RoomReaction onReactionSend={handleSendMessage} />
+          <RoomReaction />
         </div>
       </div>
     </div>

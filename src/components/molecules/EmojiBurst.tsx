@@ -8,6 +8,8 @@ interface EmojiBurstProps {
   isActive: boolean;
   /** The position where the burst should originate from */
   position: { x: number; y: number };
+  /** The emoji to display in the burst animation */
+  emoji?: string;
   /** Callback function called when the animation completes */
   onComplete: () => void;
 }
@@ -42,12 +44,17 @@ interface FlyingEmoji {
  * EmojiBurst component creates an animated burst of emoji characters
  *
  * Features:
- * - Creates a circular burst of thumbs-up emojis with different skin tones
+ * - Creates a circular burst of emojis with different skin tones (for thumbs-up) or the specified emoji
  * - Animates emojis with physics-based motion (velocity, gravity, rotation)
  * - Automatically fades out and cleans up after animation completes
  * - Non-interactive visual effect (pointer-events-none)
  */
-const EmojiBurst: React.FC<EmojiBurstProps> = ({ isActive, position, onComplete }) => {
+const EmojiBurst: React.FC<EmojiBurstProps> = ({
+  isActive,
+  position,
+  emoji = '👍',
+  onComplete,
+}) => {
   const [emojis, setEmojis] = useState<FlyingEmoji[]>([]);
 
   useEffect(() => {
@@ -55,7 +62,9 @@ const EmojiBurst: React.FC<EmojiBurstProps> = ({ isActive, position, onComplete 
 
     // Create burst of emojis
     const newEmojis: FlyingEmoji[] = [];
-    const emojiVariants = ['👍', '👍🏻', '👍🏽', '👍🏿'];
+
+    // Use skin tone variations for thumbs-up, otherwise use the provided emoji
+    const emojiVariants = emoji === '👍' ? ['👍', '👍🏻', '👍🏽', '👍🏿'] : [emoji];
 
     for (let i = 0; i < 12; i++) {
       const angle = (i / 12) * Math.PI * 2;
@@ -114,7 +123,7 @@ const EmojiBurst: React.FC<EmojiBurstProps> = ({ isActive, position, onComplete 
         cancelAnimationFrame(animationFrame);
       }
     };
-  }, [isActive, position, onComplete]);
+  }, [isActive, position, emoji, onComplete]);
 
   if (!isActive || emojis.length === 0) return null;
 
