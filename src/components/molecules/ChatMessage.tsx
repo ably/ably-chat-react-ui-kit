@@ -195,7 +195,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
   return (
     <div
       ref={messageRef}
-      className={`relative flex items-end gap-2 mb-4 ${isOwn ? 'flex-row-reverse' : 'flex-row'}`}
+      className={`relative flex items-start gap-2 mb-4 ${isOwn ? 'flex-row-reverse' : 'flex-row'}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       role="article"
