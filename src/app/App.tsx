@@ -40,7 +40,7 @@ const ChatApp: React.FC = () => {
   return (
     <ThemeProvider>
       <AppStateProvider initialGlobalOptions={chatRoomOptions}>
-        <AppLayout width="50vw" height="50vh">
+        <AppLayout width="70vw" height="70vh">
           <Sidebar />
           <ChatArea />
         </AppLayout>

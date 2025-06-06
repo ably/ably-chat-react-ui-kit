@@ -60,7 +60,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               setCurrentRoom(newRoomIds[0]);
             } else {
               // No rooms left, clear current room
-              setCurrentRoom(null);
+              setCurrentRoom(undefined);
             }
           }
 

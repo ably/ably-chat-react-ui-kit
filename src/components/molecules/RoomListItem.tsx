@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
-import { useChatClient, useOccupancy, useRoom, useTyping } from '@ably/chat/react';
+import { useOccupancy, useRoom } from '@ably/chat/react';
 import Avatar, { AvatarData } from '../atoms/Avatar';
 import TypingIndicators from './TypingIndicators.tsx';
 import { useAvatar } from '../../context/AvatarContext';
-import { useCurrentRoom } from '../../context/CurrentRoomContext.tsx';
+import { useAppState } from '../../context/AppStateContext.tsx';
 import Icon from '../atoms/Icon';
 import Button from '../atoms/Button';
 
@@ -47,7 +47,7 @@ const RoomListItem: React.FC<RoomListItemProps> = React.memo(
   }) => {
     const [roomAvatarData, setRoomAvatarData] = React.useState<AvatarData | undefined>(undefined);
     const { getAvatarForRoom } = useAvatar();
-    const { currentRoomId } = useCurrentRoom();
+    const { currentRoomId } = useAppState();
     const { room } = useRoom();
     // Get occupancy data
     const { connections, presenceMembers } = useOccupancy();

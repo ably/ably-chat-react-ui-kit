@@ -7,6 +7,7 @@
 
 // Form and Input Components
 export { default as Button } from './Button';
+export { default as TypingDots } from './TypingDots';
 
 // Visual and Media Components
 export { default as Icon } from './Icon';

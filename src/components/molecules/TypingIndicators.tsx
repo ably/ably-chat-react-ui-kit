@@ -1,7 +1,7 @@
 import React from 'react';
 import { useChatClient, useTyping } from '@ably/chat/react';
 import clsx from 'clsx';
-import { TypingDots } from '../atoms/TypingDots.tsx';
+import { TypingDots } from '../atoms';
 
 /**
  * Props for the TypingIndicators component

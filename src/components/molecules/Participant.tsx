@@ -1,6 +1,6 @@
 import React from 'react';
 import Avatar, { AvatarData } from '../atoms/Avatar';
-import { TypingDots } from '../atoms/TypingDots.tsx';
+import { TypingDots } from '../atoms';
 
 /**
  * Props for the Participant component
