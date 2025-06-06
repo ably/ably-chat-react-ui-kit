@@ -55,7 +55,7 @@ interface AvatarProps {
   initials?: string;
 
   /**
-   * Click handler for the avatar, typically used for editing
+   * Click handler for the avatar, e.g for editing or viewing profiles
    */
   onClick?: () => void;
 }

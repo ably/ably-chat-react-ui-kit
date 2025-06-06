@@ -10,6 +10,8 @@ interface EmojiBurstProps {
   position: { x: number; y: number };
   /** The emoji to display in the burst animation */
   emoji?: string;
+  /** Duration of the burst animation in milliseconds */
+  duration?: number;
   /** Callback function called when the animation completes */
   onComplete: () => void;
 }
@@ -53,6 +55,7 @@ const EmojiBurst: React.FC<EmojiBurstProps> = ({
   isActive,
   position,
   emoji = '👍',
+  duration = 2000,
   onComplete,
 }) => {
   const [emojis, setEmojis] = useState<FlyingEmoji[]>([]);
@@ -89,7 +92,6 @@ const EmojiBurst: React.FC<EmojiBurstProps> = ({
     // Animation loop
     let animationFrame: number;
     const startTime = Date.now();
-    const duration = 2000; // 2 seconds
 
     const animate = () => {
       const elapsed = Date.now() - startTime;
@@ -123,7 +125,7 @@ const EmojiBurst: React.FC<EmojiBurstProps> = ({
         cancelAnimationFrame(animationFrame);
       }
     };
-  }, [isActive, position, emoji, onComplete]);
+  }, [isActive, position, emoji, duration, onComplete]);
 
   if (!isActive || emojis.length === 0) return null;
 

@@ -1,16 +1,18 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { useRoomReactions } from '@ably/chat/react';
-import Icon from '../atoms/Icon';
 import EmojiBurst from './EmojiBurst';
 import EmojiWheel from './EmojiWheel';
 import { RoomReactionEvent } from '@ably/chat';
 import { useThrottle } from '../../hooks/useThrottle';
 
 /**
- * Props for the RoomReaction component
+ * Defines the properties for managing and customizing emoji reaction animations in a room.
+ * @property {number} [emojiBurstDuration=500] - Duration for the emoji burst animation in milliseconds.
+ * @property {Object} [emojiBurstPosition={ x: 0, y: 0 }] - Position for the burst animation, with x and y coordinates.
  */
 interface RoomReactionProps {
-  // No props needed - component is self-contained with useRoomReactions hook
+  emojiBurstDuration?: number; // Duration for the emoji burst animation in ms
+  emojiBurstPosition?: { x: number; y: number }; // Position for the burst animation
 }
 
 /**
@@ -23,14 +25,18 @@ interface RoomReactionProps {
  * - Emoji burst animation when reaction is sent or received
  * - Throttled sending (max 1 reaction per 200ms) with immediate visual feedback
  * - Uses ephemeral room reactions (not stored messages)
- * - Positioned alongside the message input
  *
  * Room reactions are ephemeral and similar to typing indicators - they provide
  * momentary feedback without being persisted in the chat history.
  */
-const RoomReaction: React.FC<RoomReactionProps> = () => {
+const RoomReaction: React.FC<RoomReactionProps> = ({
+  emojiBurstDuration,
+  emojiBurstPosition: initialEmojiBurstPosition,
+}) => {
   const [showEmojiBurst, setShowEmojiBurst] = useState(false);
-  const [emojiBurstPosition, setEmojiBurstPosition] = useState({ x: 0, y: 0 });
+  const [emojiBurstPosition, setEmojiBurstPosition] = useState(
+    initialEmojiBurstPosition || { x: 0, y: 0 }
+  );
   const [burstEmoji, setBurstEmoji] = useState('👍');
   const [showEmojiWheel, setShowEmojiWheel] = useState(false);
   const [emojiWheelPosition, setEmojiWheelPosition] = useState({ x: 0, y: 0 });
@@ -40,7 +46,6 @@ const RoomReaction: React.FC<RoomReactionProps> = () => {
   const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);
   const isLongPressRef = useRef(false);
 
-  // Use room reactions hook for ephemeral reactions
   const { send } = useRoomReactions({
     listener: (reaction: RoomReactionEvent) => {
       if (reaction.reaction.isSelf) {
@@ -49,11 +54,16 @@ const RoomReaction: React.FC<RoomReactionProps> = () => {
       }
       // Set the emoji and show burst at a default position (could be enhanced to show at random positions)
       setBurstEmoji(reaction.reaction.type);
-      // Show burst in the screens center for incoming reactions
-      setEmojiBurstPosition({
-        x: window.innerWidth / 2, // horizontal center
-        y: window.innerHeight / 2, // vertical center
-      });
+
+      // If initialEmojiBurstPosition is provided, use it; otherwise use screen center
+      if (!initialEmojiBurstPosition) {
+        // Show burst in the screens center for incoming reactions
+        setEmojiBurstPosition({
+          x: window.innerWidth / 2, // horizontal center
+          y: window.innerHeight / 2, // vertical center
+        });
+      }
+
       setShowEmojiBurst(true);
     },
   });
@@ -199,7 +209,7 @@ const RoomReaction: React.FC<RoomReactionProps> = () => {
   }, []);
 
   return (
-    <>
+    <div className="px-4 py-4">
       {/* Reaction Button */}
       <button
         ref={reactionButtonRef}
@@ -231,9 +241,10 @@ const RoomReaction: React.FC<RoomReactionProps> = () => {
         isActive={showEmojiBurst}
         position={emojiBurstPosition}
         emoji={burstEmoji}
+        duration={emojiBurstDuration}
         onComplete={handleEmojiBurstComplete}
       />
-    </>
+    </div>
   );
 };
 
