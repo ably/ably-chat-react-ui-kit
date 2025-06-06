@@ -1,12 +1,8 @@
 /**
  * Atomic UI Components
- * 
+ *
  * This module exports all atomic components that serve as the foundational
- * building blocks for the chat UI. These components are designed to be:
- * - Highly reusable and composable
- * - Accessible and keyboard navigable
- * - Theme-aware (dark/light mode)
- * - Production-ready with proper error handling
+ * building blocks for the chat UI.
  */
 
 // Form and Input Components

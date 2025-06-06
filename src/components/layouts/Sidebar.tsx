@@ -32,7 +32,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   console.log('[RENDER] Sidebar', { roomIds, currentUserId, isCollapsed });
   const { theme, toggleTheme } = useTheme();
   const [showCreateRoomModal, setShowCreateRoomModal] = useState(false);
-  const { setCurrentRoom } = useCurrentRoom();
+  const { currentRoomId, setCurrentRoom } = useCurrentRoom();
   const { getAvatarForRoom } = useAvatar();
 
   // Handle room selection
@@ -47,6 +47,30 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const handleToggleCollapse = useCallback(() => {
     setIsCollapsed((prev) => !prev);
   }, []);
+
+  // Handle leaving a room
+  const handleLeaveRoom = useCallback(
+    (roomIdToLeave: string) => {
+      // Remove the room from the list
+      setRoomIds((prev) => {
+        const newRoomIds = prev.filter((id) => id !== roomIdToLeave);
+
+        // If the room being left is the current room, switch to another room or clear
+        if (roomIdToLeave === currentRoomId) {
+          if (newRoomIds.length > 0) {
+            // Switch to the first available room
+            setCurrentRoom(newRoomIds[0]);
+          } else {
+            // No rooms left, clear current room
+            setCurrentRoom(null);
+          }
+        }
+
+        return newRoomIds;
+      });
+    },
+    [currentRoomId, setCurrentRoom]
+  );
 
   // Memoize the handleCreateRoom function to prevent unnecessary re-renders
   const handleCreateRoom = useCallback(
@@ -143,6 +167,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <RoomListItem
                 roomId={roomId}
                 onClick={() => handleSelectRoom(roomId)}
+                onLeave={() => handleLeaveRoom(roomId)}
                 currentUserId={currentUserId}
                 isCollapsed={isCollapsed}
               />

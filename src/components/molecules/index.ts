@@ -1,17 +1,11 @@
-export { default as Avatar } from '../atoms/Avatar';
-export { default as Button } from '../atoms/Button';
-export { default as Icon } from '../atoms/Icon';
-export { default as EmojiBurst } from '../atoms/EmojiBurst';
+export { default as EmojiBurst } from '../molecules/EmojiBurst';
 export { default as EmojiPicker } from './EmojiPicker';
 export { default as MessageInput } from './MessageInput';
 export { default as RoomReaction } from './RoomReaction';
 export { default as ChatMessage } from './ChatMessage';
 export { default as RoomInfo } from './RoomInfo';
-export { default as MessageBubble } from './MessageBubble';
 export { default as MessageReactions } from './MessageReactions';
 export { default as MessageActions } from './MessageActions';
 export { default as PresenceIndicators } from './PresenceIndicators';
 export { default as TypingIndicators } from './TypingIndicators';
-export { ChatWindowHeaderContent } from './ChatWindowHeaderContent';
-export { ChatWindowFooterContent } from './ChatWindowFooterContent';
 export { ChatMessageList } from './ChatMessageList';

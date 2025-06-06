@@ -99,5 +99,3 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
     );
   }
 );
-
-ChatMessageList.displayName = 'ChatMessageList';

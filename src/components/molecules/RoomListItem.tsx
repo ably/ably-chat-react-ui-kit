@@ -4,6 +4,8 @@ import Avatar, { AvatarData } from '../atoms/Avatar';
 import TypingIndicators from './TypingIndicators.tsx';
 import { useAvatar } from '../../context/AvatarContext';
 import { useCurrentRoom } from '../../context/CurrentRoomContext.tsx';
+import Icon from '../atoms/Icon';
+import Button from '../atoms/Button';
 
 /**
  * Props for the RoomListItem component
@@ -13,6 +15,8 @@ interface RoomListItemProps {
   roomId: string;
   /** Callback function when the room is clicked */
   onClick: () => void;
+  /** Callback function when the leave button is clicked */
+  onLeave: () => void;
   /** ID of the current user */
   currentUserId: string;
   /** Optional avatar data for the room (from props) */
@@ -33,7 +37,7 @@ interface RoomListItemProps {
  * - Supports collapsed mode (avatar only) for compact sidebar display
  */
 const RoomListItem: React.FC<RoomListItemProps> = React.memo(
-  ({ roomId, onClick, currentUserId, avatar: propAvatar, isCollapsed = false }) => {
+  ({ roomId, onClick, onLeave, currentUserId, avatar: propAvatar, isCollapsed = false }) => {
     const [roomAvatarData, setRoomAvatarData] = React.useState<AvatarData | undefined>(undefined);
     const { getAvatarForRoom } = useAvatar();
     const { currentRoomId } = useCurrentRoom();
@@ -43,12 +47,15 @@ const RoomListItem: React.FC<RoomListItemProps> = React.memo(
     // Get typing data
     const { currentlyTyping } = useTyping();
 
-    useEffect(() => {
-      // attach the room when the component renders
-      // detaching and release is handled at the top app level for now
-      // TODO: Remove once the ChatClientProvider has room reference counts implemented
-      room?.attach();
-    }, [room]);
+    // useEffect(() => {
+    //   // attach the room when the component renders
+    //   // detaching and release is handled at the top app level for now
+    //   room?.attach();
+    //   return () => {
+    //     // Detach the room when the component unmounts
+    //     room?.detach();
+    //   };
+    // }, [room]);
 
     useEffect(() => {
       // Get the avatar for the room, either from props or AvatarProvider
@@ -156,7 +163,7 @@ const RoomListItem: React.FC<RoomListItemProps> = React.memo(
     // Otherwise render the full room list item
     return (
       <div
-        className={`flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-800
+        className={`group flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-800
                     cursor-pointer transition-colors
                     ${isSelected ? 'bg-gray-100 dark:bg-gray-800 border-r-2 border-blue-500' : ''}`}
         onClick={onClick}
@@ -207,6 +214,20 @@ const RoomListItem: React.FC<RoomListItemProps> = React.memo(
               {roomAvatar.displayName}
             </h3>
             <div className="flex items-center gap-2 flex-shrink-0">
+              {/* Leave button - only visible on hover */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onLeave();
+                }}
+                className="opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-red-500 p-1"
+                aria-label={`Leave ${roomAvatar.displayName} room`}
+                title={`Leave ${roomAvatar.displayName}`}
+              >
+                <Icon name="close" size="sm" />
+              </Button>
               {/* Room participant count */}
               <span
                 className="text-xs text-gray-400"
