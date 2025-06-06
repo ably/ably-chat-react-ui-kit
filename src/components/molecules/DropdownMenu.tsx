@@ -28,7 +28,7 @@ interface DropdownMenuProps {
 
 /**
  * DropdownMenu component displays a toggleable menu with customizable items
- * 
+ *
  * Features:
  * - Custom trigger element (button, icon, etc.)
  * - Configurable alignment (left or right)
@@ -58,7 +58,7 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({ trigger, items, align = 'ri
 
   return (
     <div className="relative" ref={dropdownRef}>
-      <div 
+      <div
         onClick={() => setIsOpen(!isOpen)}
         role="button"
         aria-haspopup="true"
@@ -78,11 +78,7 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({ trigger, items, align = 'ri
       {isOpen && (
         <>
           {/* Backdrop */}
-          <div 
-            className="fixed inset-0 z-40" 
-            onClick={() => setIsOpen(false)} 
-            aria-hidden="true" 
-          />
+          <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} aria-hidden="true" />
 
           {/* Dropdown Menu */}
           <div
@@ -103,7 +99,9 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({ trigger, items, align = 'ri
                   tabIndex={-1}
                 >
                   {item.icon && (
-                    <span className="text-gray-500 dark:text-gray-400" aria-hidden="true">{item.icon}</span>
+                    <span className="text-gray-500 dark:text-gray-400" aria-hidden="true">
+                      {item.icon}
+                    </span>
                   )}
                   {item.label}
                 </button>

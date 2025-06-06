@@ -32,7 +32,7 @@ interface RoomInfoProps {
 const RoomInfo: React.FC<RoomInfoProps> = ({
   roomAvatar: propRoomAvatar,
   roomId,
-  position = { top: 0, left: 0 },
+  position = { top: 0, left: 150 },
 }) => {
   const [showTooltip, setShowTooltip] = useState(false);
   const [tooltipPosition, setTooltipPosition] = useState<'above' | 'below'>('above');

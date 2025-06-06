@@ -8,7 +8,7 @@ import React, {
   useEffect,
   useRef,
 } from 'react';
-import { AvatarData } from '../components/atoms/Avatar';
+import { AvatarData } from '../components/atoms';
 
 /**
  * Storage key for persisting avatar data in localStorage
@@ -45,6 +45,12 @@ interface AvatarOptions {
    * @default 100
    */
   maxCacheSize?: number;
+
+  /**
+   * Error handler callback
+   * @param error - The error that occurred
+   */
+  onError?: (error: unknown) => void;
 }
 
 /**
@@ -175,14 +181,7 @@ const AVATAR_DATA_VERSION = 1;
  * Props for the AvatarProvider component
  */
 interface AvatarProviderProps {
-  /**
-   * Child components that will have access to the avatar context
-   */
-  children: ReactNode;
-
-  /**
-   * Configuration options for avatar management
-   */
+  children: React.ReactNode;
   options?: AvatarOptions;
 }
 
@@ -221,10 +220,24 @@ interface AvatarProviderProps {
  * </AvatarProvider>
  */
 export const AvatarProvider: React.FC<AvatarProviderProps> = ({ children, options = {} }) => {
-  const { persist = true, customColors, maxCacheSize = 100 } = options;
+  const { persist = true, customColors, maxCacheSize = 100, onError } = options;
 
   // Use custom colors or default palette
   const avatarColors = customColors || DEFAULT_AVATAR_COLORS;
+
+  /**
+   * Error handling helper that reports errors via onError callback or console in dev mode
+   */
+  const handleError = useCallback(
+    (error: unknown, context?: string) => {
+      if (onError) {
+        onError(error);
+      } else if (process.env.NODE_ENV === 'development') {
+        console.warn(`Avatar error${context ? ` (${context})` : ''}:`, error);
+      }
+    },
+    [onError]
+  );
 
   // State for avatar storage
   const [userAvatars, setUserAvatars] = useState<Record<string, AvatarData>>({});
@@ -241,22 +254,23 @@ export const AvatarProvider: React.FC<AvatarProviderProps> = ({ children, option
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
-        const data: PersistedAvatarData = JSON.parse(saved);
-        // Validate version compatibility
-        if (data.version === AVATAR_DATA_VERSION) {
-          setUserAvatars(data.userAvatars || {});
-          setRoomAvatars(data.roomAvatars || {});
+        const parsed = JSON.parse(saved);
+        if (parsed.version === AVATAR_DATA_VERSION) {
+          setUserAvatars(parsed.userAvatars || {});
+          setRoomAvatars(parsed.roomAvatars || {});
+        } else {
+          handleError(
+            new Error(`Mismatched avatar data version: ${parsed.version}`),
+            'Loading persisted avatars'
+          );
         }
       }
     } catch (error) {
-      // TODO: Replace with proper error reporting service in production
-      if (process.env.NODE_ENV === 'development') {
-        console.warn('Failed to load persisted avatar data:', error);
-      }
+      handleError(error, 'Loading persisted avatars');
     }
 
     isInitialized.current = true;
-  }, [persist]);
+  }, [persist, handleError]);
 
   // Persist data when avatars change
   useEffect(() => {
@@ -270,11 +284,9 @@ export const AvatarProvider: React.FC<AvatarProviderProps> = ({ children, option
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') {
-        console.warn('Failed to persist avatar data:', error);
-      }
+      handleError(error, 'Saving persisted avatars');
     }
-  }, [userAvatars, roomAvatars, persist]);
+  }, [userAvatars, roomAvatars, persist, handleError]);
 
   /**
    * Generates a deterministic color based on a string using a hash function
@@ -341,13 +353,11 @@ export const AvatarProvider: React.FC<AvatarProviderProps> = ({ children, option
         try {
           callback(type, id, avatar, previousAvatar);
         } catch (error) {
-          if (process.env.NODE_ENV === 'development') {
-            console.error('Error in avatar change callback:', error);
-          }
+          handleError(error, 'Avatar change callback');
         }
       });
     },
-    [changeCallbacks]
+    [changeCallbacks, handleError]
   );
 
   /**
@@ -385,7 +395,7 @@ export const AvatarProvider: React.FC<AvatarProviderProps> = ({ children, option
   );
 
   /**
-   * Gets or creates an avatar for a room with intelligent name processing
+   * Gets or creates an avatar for a room using the roomName directly as displayName
    */
   const getAvatarForRoom = useCallback(
     (roomId: string, roomName?: string): AvatarData => {
@@ -394,13 +404,8 @@ export const AvatarProvider: React.FC<AvatarProviderProps> = ({ children, option
         return roomAvatars[roomId];
       }
 
-      // Process room name with better formatting
-      const name =
-        roomName ||
-        roomId
-          .replace(/^room-\d+-/, '') // Remove room- prefix
-          .replace(/[-_]/g, ' ') // Replace dashes and underscores with spaces
-          .replace(/\b\w/g, (l) => l.toUpperCase()); // Title case
+      // Use roomName or roomId directly
+      const name = roomName || roomId;
 
       const newAvatar: AvatarData = {
         displayName: name,
@@ -456,8 +461,8 @@ export const AvatarProvider: React.FC<AvatarProviderProps> = ({ children, option
     (roomId: string, avatar: Partial<AvatarData>) => {
       setRoomAvatars((prev) => {
         const existing = prev[roomId];
-        const defaultName = roomId.replace(/^room-\d+-/, '').replace(/[-_]/g, ' ');
-        const name = avatar.displayName || existing?.displayName || defaultName;
+        // Use roomId directly without processing
+        const name = avatar.displayName || existing?.displayName || roomId;
 
         const updatedAvatar: AvatarData = {
           displayName: name,
@@ -510,14 +515,24 @@ export const AvatarProvider: React.FC<AvatarProviderProps> = ({ children, option
     [userAvatars, roomAvatars]
   );
 
-  const importAvatars = useCallback((data: PersistedAvatarData) => {
-    if (data.version === AVATAR_DATA_VERSION) {
-      setUserAvatars(data.userAvatars || {});
-      setRoomAvatars(data.roomAvatars || {});
-    } else {
-      throw new Error(`Unsupported avatar data version: ${data.version}`);
-    }
-  }, []);
+  const importAvatars = useCallback(
+    (data: PersistedAvatarData) => {
+      try {
+        if (data.version === AVATAR_DATA_VERSION) {
+          setUserAvatars(data.userAvatars || {});
+          setRoomAvatars(data.roomAvatars || {});
+        } else {
+          handleError(
+            new Error(`Unsupported avatar data version: ${data.version}`),
+            'Importing avatars'
+          );
+        }
+      } catch (error) {
+        handleError(error, 'Importing avatars');
+      }
+    },
+    [handleError]
+  );
 
   // Memoize context value to prevent unnecessary re-renders
   const contextValue = useMemo(
