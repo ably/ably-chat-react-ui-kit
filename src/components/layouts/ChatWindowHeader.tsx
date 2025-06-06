@@ -25,4 +25,4 @@ const ChatWindowHeader: React.FC<ChatWindowHeaderProps> = ({ children }) => {
   );
 };
 
-export default ChatWindowHeader; 
+export default ChatWindowHeader;

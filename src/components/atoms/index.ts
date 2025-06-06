@@ -7,18 +7,14 @@
 
 // Form and Input Components
 export { default as Button } from './Button';
-export { default as TextInput } from './TextInput';
 
 // Visual and Media Components
 export { default as Icon } from './Icon';
 export { default as Avatar } from './Avatar';
 
-// Feedback and Status Components
-export { TypingDots } from './TypingDots';
-
 // Tooltip Components
-export { TooltipSurface } from './TooltipSurface';
-export { TooltipArrow } from './TooltipArrow';
+export { default as TooltipSurface } from './TooltipSurface';
+export { default as TooltipArrow } from './TooltipArrow';
 
 // Re-export types for external use
 export type { AvatarData } from './Avatar';

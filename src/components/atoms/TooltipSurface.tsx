@@ -78,7 +78,7 @@ interface TooltipSurfaceProps extends React.HTMLAttributes<HTMLDivElement> {
  *   High priority tooltip
  * </TooltipSurface>
  */
-export const TooltipSurface: React.FC<TooltipSurfaceProps> = ({
+const TooltipSurface: React.FC<TooltipSurfaceProps> = ({
   position,
   className,
   children,
@@ -130,3 +130,5 @@ export const TooltipSurface: React.FC<TooltipSurfaceProps> = ({
     </div>
   );
 };
+
+export default TooltipSurface;

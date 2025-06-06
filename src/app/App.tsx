@@ -5,13 +5,12 @@ import { AppLayout } from '../components/layouts';
 import { Sidebar } from '../components/layouts';
 import { ChatArea } from '../components/layouts/ChatArea';
 import { AvatarProvider } from '../context/AvatarContext';
-import { CurrentRoomProvider } from '../context/CurrentRoomContext';
+import { AppStateProvider } from '../context/AppStateContext';
 
 /**
  * Main chat application component
  */
 const ChatApp: React.FC = () => {
-  console.log('[RENDER] ChatApp');
   const chatClient = useChatClient();
 
   // Memoize the ChatRoomProvider options to prevent recreating on every render
@@ -40,12 +39,12 @@ const ChatApp: React.FC = () => {
 
   return (
     <ThemeProvider>
-      <CurrentRoomProvider>
+      <AppStateProvider initialGlobalOptions={chatRoomOptions}>
         <AppLayout width="50vw" height="50vh">
-          <Sidebar currentUserId={chatClient.clientId} />
-          <ChatArea chatRoomOptions={chatRoomOptions} />
+          <Sidebar />
+          <ChatArea />
         </AppLayout>
-      </CurrentRoomProvider>
+      </AppStateProvider>
     </ThemeProvider>
   );
 };

@@ -7,7 +7,7 @@ import DropdownMenu from '../molecules/DropdownMenu';
 import CreateRoomModal from '../molecules/CreateRoomModal';
 import { useTheme } from '../../hooks';
 import { useAvatar } from '../../context/AvatarContext.tsx';
-import { useCurrentRoom } from '../../context/CurrentRoomContext';
+import { useAppState } from '../../context/AppStateContext';
 
 // Sidebar component props definition
 interface SidebarProps {
@@ -26,7 +26,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
   const { theme, toggleTheme } = useTheme();
   const [showCreateRoomModal, setShowCreateRoomModal] = useState(false);
-  const { currentRoomId, setCurrentRoom } = useCurrentRoom();
+  const { currentRoomId, setCurrentRoom } = useAppState();
   const { getAvatarForRoom } = useAvatar();
   const chatClient = useChatClient();
 

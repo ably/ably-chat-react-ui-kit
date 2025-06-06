@@ -1,15 +1,12 @@
 import React from 'react';
 import { ChatRoomProvider } from '@ably/chat/react';
-import { useCurrentRoom } from '../../context/CurrentRoomContext';
+import { useAppState } from '../../context/AppStateContext';
 import { ChatWindow } from './ChatWindow';
-import { RoomOptions } from '@ably/chat';
 
-interface ChatAreaProps {
-  chatRoomOptions?: RoomOptions;
-}
+interface ChatAreaProps {}
 
-export const ChatArea: React.FC<ChatAreaProps> = ({ chatRoomOptions }) => {
-  const { currentRoomId } = useCurrentRoom();
+export const ChatArea: React.FC<ChatAreaProps> = () => {
+  const { currentRoomId, getCurrentRoomOptions } = useAppState();
 
   if (!currentRoomId) {
     return (
@@ -30,7 +27,7 @@ export const ChatArea: React.FC<ChatAreaProps> = ({ chatRoomOptions }) => {
       name={currentRoomId}
       attach={false}
       release={false}
-      options={chatRoomOptions}
+      options={getCurrentRoomOptions()}
     >
       <ChatWindow roomId={currentRoomId} />
     </ChatRoomProvider>

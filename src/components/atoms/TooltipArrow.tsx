@@ -63,7 +63,7 @@ interface TooltipArrowProps extends React.HTMLAttributes<HTMLDivElement> {
  *   className="ml-2"
  * />
  */
-export const TooltipArrow: React.FC<TooltipArrowProps> = ({ 
+const TooltipArrow: React.FC<TooltipArrowProps> = ({ 
   position, 
   className, 
   size = 'md',
@@ -127,3 +127,5 @@ export const TooltipArrow: React.FC<TooltipArrowProps> = ({
     />
   );
 };
+
+export default TooltipArrow;

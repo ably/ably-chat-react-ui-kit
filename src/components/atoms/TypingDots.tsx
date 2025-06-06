@@ -65,7 +65,7 @@ const ANIMATION_DELAYS = ['0ms', '200ms', '400ms'] as const;
  * // With custom animation
  * <TypingDots animationDuration="0.8s" />
  */
-export const TypingDots: React.FC<TypingDotsProps> = ({
+const TypingDots: React.FC<TypingDotsProps> = ({
   dotSizeClassName = 'w-1.5 h-1.5',
   className,
   dotClassName,
@@ -104,3 +104,5 @@ export const TypingDots: React.FC<TypingDotsProps> = ({
     ))}
   </div>
 );
+
+export default TypingDots;
