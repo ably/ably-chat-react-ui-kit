@@ -11,7 +11,7 @@ import React, { ReactNode, useMemo } from 'react';
  * - `children`: Defines the content to be rendered within the layout.
  * - `width`: Specifies the width of the layout. Accepts a string (e.g., "100%") or a number (e.g., 300).
  * - `height`: Specifies the height of the layout. Accepts a string (e.g., "100%") or a number (e.g., 400).
- * - `className`: Optional CSS class name for custom styling.
+ * - `className`: Optional CSS class name for custom styling of the container.
  */
 interface AppLayoutProps {
   children: ReactNode;
