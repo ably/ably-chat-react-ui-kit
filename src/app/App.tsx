@@ -41,7 +41,7 @@ const ChatApp: React.FC = () => {
     <ThemeProvider>
       <AppStateProvider initialGlobalOptions={chatRoomOptions}>
         <AppLayout width="70vw" height="70vh">
-          <Sidebar />
+          <Sidebar initialRoomIds={['my-first-room']} />
           <ChatArea />
         </AppLayout>
       </AppStateProvider>

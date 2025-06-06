@@ -16,7 +16,7 @@ interface TypingIndicatorsProps extends React.HTMLAttributes<HTMLDivElement> {
   /** CSS classes to apply to the text element */
   textClassName?: string;
 
-  /** Whether typing indicators are enabled (default: false) */
+  /** Whether typing indicators are enabled (default: true) */
   enabled?: boolean;
 }
 
@@ -34,7 +34,7 @@ const TypingIndicators: React.FC<TypingIndicatorsProps> = ({
   maxClients,
   className,
   textClassName,
-  enabled = false,
+  enabled = true,
 }) => {
   const { currentlyTyping } = useTyping();
   const { clientId } = useChatClient();

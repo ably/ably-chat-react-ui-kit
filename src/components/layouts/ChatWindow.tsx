@@ -12,18 +12,27 @@ import {
   MessageReactionSummaryEvent,
 } from '@ably/chat';
 import MessageInput from '../molecules/MessageInput.tsx';
-import RoomReaction from '../molecules/RoomReaction.tsx';
-import RoomInfo from '../molecules/RoomInfo.tsx';
-import PresenceIndicators from '../molecules/PresenceIndicators.tsx';
 
+/**
+ * Interface representing the props for the ChatWindow component.
+ *
+ * @property roomId - A unique identifier for the chat room. This is a required property.
+ * @property customHeaderContent - Optional custom content to render in the header of the chat window. Accepts a ReactNode.
+ * @property customFooterContent - Optional custom content to render in the footer of the chat window. Accepts a ReactNode.
+ */
 interface ChatWindowProps {
   roomId: string;
+  customHeaderContent?: React.ReactNode;
+  customFooterContent?: React.ReactNode;
 }
 
-export const ChatWindow: React.FC<ChatWindowProps> = ({ roomId }) => {
+export const ChatWindow: React.FC<ChatWindowProps> = ({
+  roomId,
+  customHeaderContent,
+  customFooterContent,
+}) => {
   const [messages, setMessages] = useState<Message[]>([]);
-  const chatClient = useChatClient();
-  const currentUserId = chatClient.clientId;
+  const { clientId } = useChatClient();
   const { room } = useRoom();
   usePresence();
 
@@ -215,32 +224,14 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ roomId }) => {
     [send]
   );
 
-  // TODO: Handle state before room is attached
-
   return (
     <div className="flex flex-col h-full bg-white dark:bg-gray-900 flex-1">
       {/* Chat Window Header */}
-      <ChatWindowHeader>
-        <div className="flex items-center gap-3">
-          {/* Room info component */}
-          <RoomInfo roomId={roomId} />
-
-          <div className="flex-1">
-            <h2 className="font-semibold text-gray-900 dark:text-gray-100">{roomId}</h2>
-            <div className="flex items-center gap-2">
-              <PresenceIndicators />
-
-              {/* Typing Indicators in Header */}
-              <TypingIndicators className="text-xs" />
-            </div>
-          </div>
-        </div>
-      </ChatWindowHeader>
-
+      <ChatWindowHeader>{customHeaderContent}</ChatWindowHeader>
       {/* Messages Area */}
       <ChatMessageList
         messages={messages}
-        currentUserId={currentUserId}
+        currentClientId={clientId}
         onEdit={handleMessageEdit}
         onDelete={handleMessageDelete}
         onReactionAdd={handleReactionAdd}
@@ -255,9 +246,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ roomId }) => {
         <div className="flex-1">
           <MessageInput onSend={handleSendMessage} placeholder={`Message ${roomId}...`} />
         </div>
-        <div className="px-4 py-4">
-          <RoomReaction />
-        </div>
+        {customFooterContent}
       </ChatWindowFooter>
     </div>
   );

@@ -2,6 +2,8 @@ import React from 'react';
 import { ChatRoomProvider } from '@ably/chat/react';
 import { useAppState } from '../../context/AppStateContext';
 import { ChatWindow } from './ChatWindow';
+import RoomInfo from '../molecules/RoomInfo';
+import RoomReaction from '../molecules/RoomReaction.tsx';
 
 interface ChatAreaProps {}
 
@@ -29,7 +31,11 @@ export const ChatArea: React.FC<ChatAreaProps> = () => {
       release={false}
       options={getCurrentRoomOptions()}
     >
-      <ChatWindow roomId={currentRoomId} />
+      <ChatWindow
+        roomId={currentRoomId}
+        customHeaderContent={<RoomInfo roomId={currentRoomId} />}
+        customFooterContent={<RoomReaction />}
+      />
     </ChatRoomProvider>
   );
 };

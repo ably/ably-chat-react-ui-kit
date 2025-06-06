@@ -21,7 +21,7 @@ interface RoomListItemProps {
   avatar?: AvatarData;
   /** Whether the component should render in collapsed mode (avatar only) */
   isCollapsed?: boolean;
-  /** Whether typing indicators are enabled (default: false) */
+  /** Whether typing indicators are enabled (default: true) */
   typingIndicatorsEnabled?: boolean;
 }
 
@@ -43,7 +43,7 @@ const RoomListItem: React.FC<RoomListItemProps> = React.memo(
     onLeave,
     avatar: propAvatar,
     isCollapsed = false,
-    typingIndicatorsEnabled = false,
+    typingIndicatorsEnabled = true,
   }) => {
     const [roomAvatarData, setRoomAvatarData] = React.useState<AvatarData | undefined>(undefined);
     const { getAvatarForRoom } = useAvatar();
@@ -63,9 +63,6 @@ const RoomListItem: React.FC<RoomListItemProps> = React.memo(
       const avatar = propAvatar || getAvatarForRoom(roomId);
       setRoomAvatarData(avatar);
     }, [getAvatarForRoom, propAvatar, roomId]);
-
-    // Get the room avatar from props or from the AvatarProvider
-    const roomAvatar = propAvatar || getAvatarForRoom(roomId);
 
     const isSelected = roomId === currentRoomId;
 
@@ -90,9 +87,9 @@ const RoomListItem: React.FC<RoomListItemProps> = React.memo(
               isSelected ? 'ring-2 ring-blue-500 rounded-full' : ''
             }`}
             onClick={onClick}
-            title={roomAvatar.displayName}
+            title={roomAvatarData?.displayName}
             role="button"
-            aria-label={`${roomAvatar.displayName} room${isSelected ? ' (selected)' : ''}`}
+            aria-label={`${roomAvatarData?.displayName} room${isSelected ? ' (selected)' : ''}`}
             aria-pressed={isSelected}
             tabIndex={0}
             onKeyDown={(e) => {
@@ -125,7 +122,7 @@ const RoomListItem: React.FC<RoomListItemProps> = React.memo(
                     ${isSelected ? 'bg-gray-100 dark:bg-gray-800 border-r-2 border-blue-500' : ''}`}
         onClick={onClick}
         role="button"
-        aria-label={`${roomAvatar.displayName} room${isSelected ? ' (selected)' : ''}${isActive ? `, ${presenceMembers} online` : ''}`}
+        aria-label={`${roomAvatarData?.displayName} room${isSelected ? ' (selected)' : ''}${isActive ? `, ${presenceMembers} online` : ''}`}
         aria-pressed={isSelected}
         tabIndex={0}
         onKeyDown={(e) => {
@@ -137,11 +134,11 @@ const RoomListItem: React.FC<RoomListItemProps> = React.memo(
       >
         <div className="relative">
           <Avatar
-            alt={roomAvatar.displayName}
-            src={roomAvatar.src}
-            color={roomAvatar.color}
+            alt={roomAvatarData?.displayName}
+            src={roomAvatarData?.src}
+            color={roomAvatarData?.color}
             size="md"
-            initials={roomAvatar.initials}
+            initials={roomAvatarData?.initials}
           />
 
           {/* Present indicator */}
@@ -168,7 +165,7 @@ const RoomListItem: React.FC<RoomListItemProps> = React.memo(
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between">
             <h3 className="font-medium text-gray-900 dark:text-gray-100 truncate">
-              {roomAvatar.displayName}
+              {roomAvatarData?.displayName}
             </h3>
             <div className="flex items-center gap-2 flex-shrink-0">
               {/* Leave button - only visible on hover */}
@@ -180,8 +177,8 @@ const RoomListItem: React.FC<RoomListItemProps> = React.memo(
                   onLeave();
                 }}
                 className="opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-red-500 p-1"
-                aria-label={`Leave ${roomAvatar.displayName} room`}
-                title={`Leave ${roomAvatar.displayName}`}
+                aria-label={`Leave ${roomAvatarData?.displayName} room`}
+                title={`Leave ${roomAvatarData?.displayName}`}
               >
                 <Icon name="close" size="sm" />
               </Button>
@@ -195,7 +192,7 @@ const RoomListItem: React.FC<RoomListItemProps> = React.memo(
             </div>
           </div>
           <div aria-live="polite">
-            <TypingIndicators enabled={typingIndicatorsEnabled} />
+            <TypingIndicators enabled={typingIndicatorsEnabled} maxClients={1} />
           </div>
         </div>
       </div>

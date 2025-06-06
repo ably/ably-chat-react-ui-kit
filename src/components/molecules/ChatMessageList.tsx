@@ -7,7 +7,7 @@ interface ChatMessageListProps extends Omit<React.HTMLAttributes<HTMLDivElement>
   /** Array of messages to render */
   messages: Message[];
   /** Current user ID for determining message ownership */
-  currentUserId: string;
+  currentClientId: string;
   /** Handler for editing messages */
   onEdit: (messageSerial: string, newText: string) => void;
   /** Handler for deleting messages */
@@ -39,7 +39,7 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
   (
     {
       messages,
-      currentUserId,
+      currentClientId,
       onEdit,
       onDelete,
       onReactionAdd,
@@ -130,8 +130,7 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
           <ChatMessage
             key={msg.serial}
             message={msg}
-            isOwn={msg.clientId === currentUserId}
-            currentUserId={currentUserId}
+            currentUserId={currentClientId}
             onEdit={onEdit}
             onDelete={onDelete}
             onReactionAdd={onReactionAdd}

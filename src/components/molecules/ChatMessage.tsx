@@ -18,8 +18,6 @@ import { AvatarData } from '../atoms';
 interface ChatMessageProps {
   /** The message object from Ably */
   message: Message;
-  /** Whether the current user is the author of the message */
-  isOwn: boolean;
   /** ID of the current user */
   currentUserId: string;
   /** Callback when a message is edited */
@@ -44,7 +42,6 @@ interface ChatMessageProps {
  */
 const ChatMessage: React.FC<ChatMessageProps> = ({
   message,
-  isOwn,
   currentUserId,
   onEdit,
   onDelete,
@@ -68,6 +65,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
   const messageRef = useRef<HTMLDivElement>(null);
   const messageBubbleRef = useRef<HTMLDivElement>(null);
   const avatarRef = useRef<HTMLDivElement>(null);
+  const isOwn = message.clientId === currentUserId;
 
   // Get avatar data from context
   const { getAvatarForUser, setUserAvatar } = useAvatar();

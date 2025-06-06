@@ -5,7 +5,7 @@ import React from 'react';
  */
 interface ChatWindowHeaderProps {
   /** Content to display in the header */
-  children: React.ReactNode;
+  children?: React.ReactNode;
 }
 
 /**
@@ -13,11 +13,15 @@ interface ChatWindowHeaderProps {
  *
  * Features:
  * - Consistent header styling and layout
- * - Accepts children for flexible content composition
  * - Proper border and background theming
- * - Positioned at the top of the chat area
+ * - Conditionally renders based on whether children are provided
  */
 const ChatWindowHeader: React.FC<ChatWindowHeaderProps> = ({ children }) => {
+  // Don't render anything if no children are provided
+  if (!children) {
+    return null;
+  }
+
   return (
     <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
       {children}
