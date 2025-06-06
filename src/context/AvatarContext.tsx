@@ -3,7 +3,6 @@ import React, {
   useContext,
   useState,
   useCallback,
-  ReactNode,
   useMemo,
   useEffect,
   useRef,
@@ -178,55 +177,59 @@ const DEFAULT_AVATAR_COLORS = [
 const AVATAR_DATA_VERSION = 1;
 
 /**
- * Props for the AvatarProvider component
+ * Hook for avatar generation logic
+ * Handles color generation and initials extraction
  */
-interface AvatarProviderProps {
-  children: React.ReactNode;
-  options?: AvatarOptions;
-}
-
-/**
- * AvatarProvider manages avatar state, caching, and persistence across the application
- *
- * Features:
- * - Automatic avatar generation with deterministic colors and initials
- * - Persistent caching in localStorage (configurable)
- * - Change notifications for avatar updates
- * - Import/export functionality for data migration
- * - Memory management with configurable cache limits
- * - Type-safe avatar operations
- *
- * TODO: Consider breaking this provider into smaller hooks:
- * - useAvatarCache: Handle caching and persistence
- * - useAvatarGeneration: Handle color and initial generation
- * - useAvatarNotifications: Handle change callbacks
- *
- * @example
- * // Basic usage
- * <AvatarProvider>
- *   <ChatApplication />
- * </AvatarProvider>
- *
- * @example
- * // With custom configuration
- * <AvatarProvider
- *   options={{
- *     persist: true,
- *     maxCacheSize: 50,
- *     customColors: ['bg-brand-500', 'bg-brand-600']
- *   }}
- * >
- *   <ChatApplication />
- * </AvatarProvider>
- */
-export const AvatarProvider: React.FC<AvatarProviderProps> = ({ children, options = {} }) => {
-  const { persist = true, customColors, maxCacheSize = 100, onError } = options;
-
-  // Use custom colors or default palette
+const useAvatarGeneration = (customColors?: string[]) => {
   const avatarColors = customColors || DEFAULT_AVATAR_COLORS;
 
   /**
-   * Error handling helper that reports errors via onError callback or console in dev mode
+   * Generates a deterministic color based on a string using a hash function
+   */
+  const generateColor = useCallback(
+    (text: string): string => {
+      let hash = 0;
+      for (let i = 0; i < text.length; i++) {
+        hash = ((hash << 5) - hash + text.charCodeAt(i)) & 0xffffffff;
+      }
+      return avatarColors[Math.abs(hash) % avatarColors.length];
+    },
+    [avatarColors]
+  );
+
+  /**
+   * Generates initials from a display name with intelligent word parsing
+   */
+  const generateInitials = useCallback((displayName: string): string => {
+    if (!displayName.trim()) return '??';
+
+    // Remove common prefixes and clean the name
+    const cleanName = displayName
+      .trim()
+      .replace(/^(mr|mrs|ms|dr|prof)\.?\s+/i, '')
+      .replace(/[^\w\s]/g, ' ')
+      .replace(/\s+/g, ' ');
+
+    const words = cleanName.split(' ').filter((word) => word.length > 0);
+
+    if (words.length >= 2) {
+      return (words[0][0] + words[1][0]).toUpperCase();
+    }
+    return cleanName.substring(0, 2).toUpperCase();
+  }, []);
+
+  return { generateColor, generateInitials };
+};
+
+/**
+ * Hook for avatar change notifications
+ * Manages callback registration and notification dispatching
+ */
+const useAvatarNotifications = (onError?: (error: unknown) => void) => {
+  const [changeCallbacks, setChangeCallbacks] = useState<Set<AvatarChangeCallback>>(new Set());
+
+  /**
+   * Error handling helper
    */
   const handleError = useCallback(
     (error: unknown, context?: string) => {
@@ -239,12 +242,51 @@ export const AvatarProvider: React.FC<AvatarProviderProps> = ({ children, option
     [onError]
   );
 
-  // State for avatar storage
+  /**
+   * Notifies all registered callbacks about avatar changes
+   */
+  const notifyAvatarChange = useCallback(
+    (type: 'user' | 'room', id: string, avatar: AvatarData, previousAvatar?: AvatarData) => {
+      changeCallbacks.forEach((callback) => {
+        try {
+          callback(type, id, avatar, previousAvatar);
+        } catch (error) {
+          handleError(error, 'Avatar change callback');
+        }
+      });
+    },
+    [changeCallbacks, handleError]
+  );
+
+  /**
+   * Registers a callback for avatar change events
+   */
+  const onAvatarChange = useCallback((callback: AvatarChangeCallback) => {
+    setChangeCallbacks((prev) => new Set(prev).add(callback));
+
+    return () => {
+      setChangeCallbacks((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(callback);
+        return newSet;
+      });
+    };
+  }, []);
+
+  return { notifyAvatarChange, onAvatarChange, handleError };
+};
+
+/**
+ * Hook for avatar caching and persistence
+ * Manages localStorage operations, cache size limits, and state management
+ */
+const useAvatarCache = (
+  persist: boolean,
+  maxCacheSize: number,
+  handleError: (error: unknown, context?: string) => void
+) => {
   const [userAvatars, setUserAvatars] = useState<Record<string, AvatarData>>({});
   const [roomAvatars, setRoomAvatars] = useState<Record<string, AvatarData>>({});
-  const [changeCallbacks, setChangeCallbacks] = useState<Set<AvatarChangeCallback>>(new Set());
-
-  // Refs for performance optimization
   const isInitialized = useRef(false);
 
   // Load persisted data on mount
@@ -289,49 +331,10 @@ export const AvatarProvider: React.FC<AvatarProviderProps> = ({ children, option
   }, [userAvatars, roomAvatars, persist, handleError]);
 
   /**
-   * Generates a deterministic color based on a string using a hash function
-   * @param text - The text to generate a color from
-   * @returns A Tailwind CSS color class
-   */
-  const generateColor = useCallback(
-    (text: string): string => {
-      let hash = 0;
-      for (let i = 0; i < text.length; i++) {
-        hash = ((hash << 5) - hash + text.charCodeAt(i)) & 0xffffffff;
-      }
-      return avatarColors[Math.abs(hash) % avatarColors.length];
-    },
-    [avatarColors]
-  );
-
-  /**
-   * Generates initials from a display name with intelligent word parsing
-   * @param displayName - The name to generate initials from
-   * @returns Up to 2 characters of initials
-   */
-  const generateInitials = useCallback((displayName: string): string => {
-    if (!displayName.trim()) return '??';
-
-    // Remove common prefixes and clean the name
-    const cleanName = displayName
-      .trim()
-      .replace(/^(mr|mrs|ms|dr|prof)\.?\s+/i, '')
-      .replace(/[^\w\s]/g, ' ')
-      .replace(/\s+/g, ' ');
-
-    const words = cleanName.split(' ').filter((word) => word.length > 0);
-
-    if (words.length >= 2) {
-      return (words[0][0] + words[1][0]).toUpperCase();
-    }
-    return cleanName.substring(0, 2).toUpperCase();
-  }, []);
-
-  /**
    * Manages cache size to prevent memory issues
    */
   const manageCacheSize = useCallback(
-    (currentCache: Record<string, AvatarData>, newKey: string): Record<string, AvatarData> => {
+    (currentCache: Record<string, AvatarData>): Record<string, AvatarData> => {
       if (maxCacheSize === 0 || Object.keys(currentCache).length < maxCacheSize) {
         return currentCache;
       }
@@ -344,147 +347,7 @@ export const AvatarProvider: React.FC<AvatarProviderProps> = ({ children, option
     [maxCacheSize]
   );
 
-  /**
-   * Notifies all registered callbacks about avatar changes
-   */
-  const notifyAvatarChange = useCallback(
-    (type: 'user' | 'room', id: string, avatar: AvatarData, previousAvatar?: AvatarData) => {
-      changeCallbacks.forEach((callback) => {
-        try {
-          callback(type, id, avatar, previousAvatar);
-        } catch (error) {
-          handleError(error, 'Avatar change callback');
-        }
-      });
-    },
-    [changeCallbacks, handleError]
-  );
-
-  /**
-   * Gets or creates an avatar for a user with caching and notifications
-   */
-  const getAvatarForUser = useCallback(
-    (userId: string, displayName?: string): AvatarData => {
-      // Return cached avatar if it exists
-      if (userAvatars[userId]) {
-        return userAvatars[userId];
-      }
-
-      // Create new avatar
-      const name = displayName || userId;
-      const newAvatar: AvatarData = {
-        displayName: name,
-        color: generateColor(userId),
-        initials: generateInitials(name),
-      };
-
-      // Update cache with size management
-      setUserAvatars((prev) => {
-        const managed = manageCacheSize(prev, userId);
-        const updated = { ...managed, [userId]: newAvatar };
-
-        // Notify change in next tick to avoid state update during render
-        setTimeout(() => notifyAvatarChange('user', userId, newAvatar), 0);
-
-        return updated;
-      });
-
-      return newAvatar;
-    },
-    [userAvatars, generateColor, generateInitials, manageCacheSize, notifyAvatarChange]
-  );
-
-  /**
-   * Gets or creates an avatar for a room using the roomName directly as displayName
-   */
-  const getAvatarForRoom = useCallback(
-    (roomId: string, roomName?: string): AvatarData => {
-      // Return cached avatar if it exists
-      if (roomAvatars[roomId]) {
-        return roomAvatars[roomId];
-      }
-
-      // Use roomName or roomId directly
-      const name = roomName || roomId;
-
-      const newAvatar: AvatarData = {
-        displayName: name,
-        color: generateColor(roomId),
-        initials: generateInitials(name),
-      };
-
-      // Update cache with size management
-      setRoomAvatars((prev) => {
-        const managed = manageCacheSize(prev, roomId);
-        const updated = { ...managed, [roomId]: newAvatar };
-
-        // Notify change in next tick
-        setTimeout(() => notifyAvatarChange('room', roomId, newAvatar), 0);
-
-        return updated;
-      });
-
-      return newAvatar;
-    },
-    [roomAvatars, generateColor, generateInitials, manageCacheSize, notifyAvatarChange]
-  );
-
-  /**
-   * Updates or creates a user avatar with change notifications
-   */
-  const setUserAvatar = useCallback(
-    (userId: string, avatar: Partial<AvatarData>) => {
-      setUserAvatars((prev) => {
-        const existing = prev[userId];
-        const name = avatar.displayName || existing?.displayName || userId;
-
-        const updatedAvatar: AvatarData = {
-          displayName: name,
-          color: avatar.color || existing?.color || generateColor(userId),
-          initials: avatar.initials || existing?.initials || generateInitials(name),
-          src: avatar.src || existing?.src,
-        };
-
-        // Notify change
-        setTimeout(() => notifyAvatarChange('user', userId, updatedAvatar, existing), 0);
-
-        return { ...prev, [userId]: updatedAvatar };
-      });
-    },
-    [generateColor, generateInitials, notifyAvatarChange]
-  );
-
-  /**
-   * Updates or creates a room avatar with change notifications
-   */
-  const setRoomAvatar = useCallback(
-    (roomId: string, avatar: Partial<AvatarData>) => {
-      setRoomAvatars((prev) => {
-        const existing = prev[roomId];
-        // Use roomId directly without processing
-        const name = avatar.displayName || existing?.displayName || roomId;
-
-        const updatedAvatar: AvatarData = {
-          displayName: name,
-          color: avatar.color || existing?.color || generateColor(roomId),
-          initials: avatar.initials || existing?.initials || generateInitials(name),
-          src: avatar.src || existing?.src,
-        };
-
-        // Notify change
-        setTimeout(() => notifyAvatarChange('room', roomId, updatedAvatar, existing), 0);
-
-        return { ...prev, [roomId]: updatedAvatar };
-      });
-    },
-    [generateColor, generateInitials, notifyAvatarChange]
-  );
-
-  // Simple getter methods
-  const getUserAvatars = useCallback(() => userAvatars, [userAvatars]);
-  const getRoomAvatars = useCallback(() => roomAvatars, [roomAvatars]);
-
-  // Clear methods
+  // Cache management methods
   const clearUserAvatars = useCallback(() => setUserAvatars({}), []);
   const clearRoomAvatars = useCallback(() => setRoomAvatars({}), []);
   const clearAllAvatars = useCallback(() => {
@@ -492,18 +355,9 @@ export const AvatarProvider: React.FC<AvatarProviderProps> = ({ children, option
     setRoomAvatars({});
   }, []);
 
-  // Change notification management
-  const onAvatarChange = useCallback((callback: AvatarChangeCallback) => {
-    setChangeCallbacks((prev) => new Set(prev).add(callback));
-
-    return () => {
-      setChangeCallbacks((prev) => {
-        const newSet = new Set(prev);
-        newSet.delete(callback);
-        return newSet;
-      });
-    };
-  }, []);
+  // Getter methods
+  const getUserAvatars = useCallback(() => userAvatars, [userAvatars]);
+  const getRoomAvatars = useCallback(() => roomAvatars, [roomAvatars]);
 
   // Import/export functionality
   const exportAvatars = useCallback(
@@ -532,6 +386,204 @@ export const AvatarProvider: React.FC<AvatarProviderProps> = ({ children, option
       }
     },
     [handleError]
+  );
+
+  return {
+    userAvatars,
+    roomAvatars,
+    setUserAvatars,
+    setRoomAvatars,
+    manageCacheSize,
+    clearUserAvatars,
+    clearRoomAvatars,
+    clearAllAvatars,
+    getUserAvatars,
+    getRoomAvatars,
+    exportAvatars,
+    importAvatars,
+  };
+};
+
+/**
+ * Props for the AvatarProvider component
+ */
+interface AvatarProviderProps {
+  children: React.ReactNode;
+  options?: AvatarOptions;
+}
+
+/**
+ * AvatarProvider manages avatar state, caching, and persistence.
+ *
+ * Features:
+ * - Automatic avatar generation with deterministic colors and initials
+ * - Persistent caching in localStorage (configurable)
+ * - Change notifications for avatar updates
+ * - Import/export functionality to backup/restore avatars
+ * - Memory management with configurable cache limits
+ *
+ * This provider uses the following hooks:
+ * - useAvatarCache: Handles caching and persistence
+ * - useAvatarGeneration: Handles color and initial generation
+ * - useAvatarNotifications: Handles change callbacks
+ *
+ * @example
+ * // Basic usage
+ * <AvatarProvider>
+ *   <ChatApplication />
+ * </AvatarProvider>
+ *
+ * @example
+ * // With custom configuration
+ * <AvatarProvider
+ *   options={{
+ *     persist: true,
+ *     maxCacheSize: 50,
+ *     customColors: ['bg-brand-500', 'bg-brand-600']
+ *   }}
+ * >
+ *   <ChatApplication />
+ * </AvatarProvider>
+ */
+export const AvatarProvider: React.FC<AvatarProviderProps> = ({ children, options = {} }) => {
+  const { persist = true, customColors, maxCacheSize = 100, onError } = options;
+
+  // Use focused hooks for different concerns
+  const { generateColor, generateInitials } = useAvatarGeneration(customColors);
+  const { notifyAvatarChange, onAvatarChange, handleError } = useAvatarNotifications(onError);
+  const {
+    userAvatars,
+    roomAvatars,
+    setUserAvatars,
+    setRoomAvatars,
+    manageCacheSize,
+    clearUserAvatars,
+    clearRoomAvatars,
+    clearAllAvatars,
+    getUserAvatars,
+    getRoomAvatars,
+    exportAvatars,
+    importAvatars,
+  } = useAvatarCache(persist, maxCacheSize, handleError);
+
+  /**
+   * Gets or creates an avatar for a user with caching and notifications
+   */
+  const getAvatarForUser = useCallback(
+    (userId: string, displayName?: string): AvatarData => {
+      // Return cached avatar if it exists
+      if (userAvatars[userId]) {
+        return userAvatars[userId];
+      }
+
+      // Create new avatar
+      const name = displayName || userId;
+      const newAvatar: AvatarData = {
+        displayName: name,
+        color: generateColor(userId),
+        initials: generateInitials(name),
+      };
+
+      // Update cache with size management
+      setUserAvatars((prev) => {
+        const managed = manageCacheSize(prev);
+        const updated = { ...managed, [userId]: newAvatar };
+
+        // Notify change in next tick to avoid state update during render
+        setTimeout(() => notifyAvatarChange('user', userId, newAvatar), 0);
+
+        return updated;
+      });
+
+      return newAvatar;
+    },
+    [userAvatars, generateColor, generateInitials, manageCacheSize, notifyAvatarChange, setUserAvatars]
+  );
+
+  /**
+   * Gets or creates an avatar for a room using the roomName directly as displayName
+   */
+  const getAvatarForRoom = useCallback(
+    (roomId: string, roomName?: string): AvatarData => {
+      // Return cached avatar if it exists
+      if (roomAvatars[roomId]) {
+        return roomAvatars[roomId];
+      }
+
+      // Use roomName or roomId directly
+      const name = roomName || roomId;
+
+      const newAvatar: AvatarData = {
+        displayName: name,
+        color: generateColor(roomId),
+        initials: generateInitials(name),
+      };
+
+      // Update cache with size management
+      setRoomAvatars((prev) => {
+        const managed = manageCacheSize(prev);
+        const updated = { ...managed, [roomId]: newAvatar };
+
+        // Notify change in next tick
+        setTimeout(() => notifyAvatarChange('room', roomId, newAvatar), 0);
+
+        return updated;
+      });
+
+      return newAvatar;
+    },
+    [roomAvatars, generateColor, generateInitials, manageCacheSize, notifyAvatarChange, setRoomAvatars]
+  );
+
+  /**
+   * Updates or creates a user avatar with change notifications
+   */
+  const setUserAvatar = useCallback(
+    (userId: string, avatar: Partial<AvatarData>) => {
+      setUserAvatars((prev) => {
+        const existing = prev[userId];
+        const name = avatar.displayName || existing?.displayName || userId;
+
+        const updatedAvatar: AvatarData = {
+          displayName: name,
+          color: avatar.color || existing?.color || generateColor(userId),
+          initials: avatar.initials || existing?.initials || generateInitials(name),
+          src: avatar.src || existing?.src,
+        };
+
+        // Notify change
+        setTimeout(() => notifyAvatarChange('user', userId, updatedAvatar, existing), 0);
+
+        return { ...prev, [userId]: updatedAvatar };
+      });
+    },
+    [generateColor, generateInitials, notifyAvatarChange, setUserAvatars]
+  );
+
+  /**
+   * Updates or creates a room avatar with change notifications
+   */
+  const setRoomAvatar = useCallback(
+    (roomId: string, avatar: Partial<AvatarData>) => {
+      setRoomAvatars((prev) => {
+        const existing = prev[roomId];
+        // Use roomId directly without processing
+        const name = avatar.displayName || existing?.displayName || roomId;
+
+        const updatedAvatar: AvatarData = {
+          displayName: name,
+          color: avatar.color || existing?.color || generateColor(roomId),
+          initials: avatar.initials || existing?.initials || generateInitials(name),
+          src: avatar.src || existing?.src,
+        };
+
+        // Notify change
+        setTimeout(() => notifyAvatarChange('room', roomId, updatedAvatar, existing), 0);
+
+        return { ...prev, [roomId]: updatedAvatar };
+      });
+    },
+    [generateColor, generateInitials, notifyAvatarChange, setRoomAvatars]
   );
 
   // Memoize context value to prevent unnecessary re-renders

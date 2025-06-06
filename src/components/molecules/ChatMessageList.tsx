@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, forwardRef } from 'react';
+import React, { useEffect, useRef, forwardRef, useState } from 'react';
 import ChatMessage from './ChatMessage';
 import { Message } from '@ably/chat';
 import clsx from 'clsx';
@@ -53,24 +53,72 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
   ) => {
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const messagesRef = useRef(messages);
+    const containerRef = useRef<HTMLDivElement | null>(null);
+    const [isAtBottom, setIsAtBottom] = useState(true);
 
-    // TODO: Auto scroll with each new message, only if user is at the bottom
-    // Track messages changes for auto-scroll
+    // Check if user is at the bottom of the chat
+    const checkIfAtBottom = () => {
+      if (!containerRef.current) return;
+
+      const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
+      // Consider "at bottom" if within 10px of the bottom
+      const isBottom = scrollHeight - scrollTop - clientHeight < 10;
+      setIsAtBottom(isBottom);
+    };
+
+    // Add scroll event listener to track if user is at bottom
     useEffect(() => {
-      if (autoScroll && messages !== messagesRef.current) {
+      const container = containerRef.current;
+      if (!container) return;
+
+      const handleScroll = () => {
+        checkIfAtBottom();
+      };
+
+      // Check initial position
+      checkIfAtBottom();
+
+      container.addEventListener('scroll', handleScroll);
+      return () => {
+        container.removeEventListener('scroll', handleScroll);
+      };
+    }, []);
+
+    // Check scroll position when messages change
+    useEffect(() => {
+      checkIfAtBottom();
+    }, [messages]);
+
+    // Auto scroll with each new message, only if user is at the bottom
+    useEffect(() => {
+      if (autoScroll && messages !== messagesRef.current && isAtBottom) {
         messagesRef.current = messages;
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        messagesRef.current = messages;
       }
-    }, [messages, autoScroll]);
+    }, [messages, autoScroll, isAtBottom]);
 
     const combinedClassName = clsx(
       'flex-1 overflow-y-auto pt-10 px-6 pb-6 space-y-6 bg-gray-50 dark:bg-gray-950',
       className
     );
 
+    // Combine refs to use both the forwarded ref and our container ref
+    const setRefs = (element: HTMLDivElement | null) => {
+      // Set the forwarded ref
+      if (typeof ref === 'function') {
+        ref(element);
+      } else if (ref) {
+        ref.current = element;
+      }
+      // Set our container ref
+      containerRef.current = element;
+    };
+
     return (
       <div
-        ref={ref}
+        ref={setRefs}
         className={combinedClassName}
         role="log"
         aria-label="Chat messages"
