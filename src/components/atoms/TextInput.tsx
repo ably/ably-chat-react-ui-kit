@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 
 /**
  * Visual variants for the TextInput component
@@ -14,7 +14,10 @@ type TextInputSize = 'sm' | 'md' | 'lg';
  * Props for the TextInput component
  */
 interface TextInputProps
-  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size' | 'prefix' | 'suffix'> {
+  extends Omit<
+    React.InputHTMLAttributes<HTMLInputElement> & React.TextareaHTMLAttributes<HTMLTextAreaElement>,
+    'size' | 'prefix' | 'suffix'
+  > {
   /**
    * Visual variant of the input field
    * - 'default': Standard form input with rectangular borders
@@ -58,6 +61,19 @@ interface TextInputProps
    * Suffix icon or element to display after the input text
    */
   suffix?: React.ReactNode;
+
+  /**
+   * Whether to use a multi-line textarea instead of a single-line input
+   * @default false
+   */
+  multiline?: boolean;
+
+  /**
+   * Maximum height for the textarea when multiline is true
+   * After this height is reached, the textarea becomes scrollable
+   * @default '150px'
+   */
+  maxHeight?: string;
 }
 
 /**
@@ -71,6 +87,8 @@ interface TextInputProps
  * - Accessibility compliant with proper focus management
  * - Forward ref support for form libraries
  * - Prefix/suffix support for icons and buttons
+ * - Support for multi-line input with auto-expansion
+ * - Auto-scrolling to bottom when typing in multi-line mode
  *
  * @example
  * // Basic usage
@@ -82,6 +100,14 @@ interface TextInputProps
  *   variant="message"
  *   placeholder="Type a message..."
  *   size="lg"
+ * />
+ *
+ * @example
+ * // Multi-line input for longer messages
+ * <TextInput
+ *   multiline
+ *   maxHeight="150px"
+ *   placeholder="Type a longer message..."
  * />
  *
  * @example
@@ -100,7 +126,7 @@ interface TextInputProps
  *   placeholder="Search..."
  * />
  */
-const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(
+const TextInput = React.forwardRef<HTMLInputElement | HTMLTextAreaElement, TextInputProps>(
   (
     {
       variant = 'default',
@@ -111,17 +137,25 @@ const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(
       prefix,
       suffix,
       disabled,
+      multiline = false,
+      maxHeight = '150px',
+      value,
+      onChange,
       'aria-invalid': ariaInvalid,
       ...props
     },
     ref
   ) => {
+    // Create a local ref for the textarea to handle auto-resize
+    const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+
     // Base classes applied to all variants
     const baseClasses = [
       'transition-colors duration-200 ease-in-out',
       'focus:outline-none',
       'disabled:opacity-50 disabled:pointer-events-none disabled:cursor-not-allowed',
       'placeholder:text-gray-400 dark:placeholder:text-gray-500',
+      'w-full',
     ].join(' ');
 
     // Size-specific classes
@@ -134,7 +168,7 @@ const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(
     // Variant-specific classes
     const variantClasses = {
       default: [
-        'w-full rounded-lg border',
+        'rounded-lg border',
         'bg-white dark:bg-gray-800',
         'text-gray-900 dark:text-gray-100',
         // State-specific border colors
@@ -152,7 +186,7 @@ const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(
       ].join(' '),
 
       message: [
-        'flex-1 rounded-full border',
+        'rounded-full border',
         'bg-gray-50 dark:bg-gray-700',
         'text-gray-900 dark:text-gray-100',
         // State-specific border colors
@@ -170,8 +204,115 @@ const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(
       ].join(' '),
     };
 
+    // Additional classes for multiline textarea
+    const multilineClasses = multiline
+      ? [
+          'resize-none',
+          'overflow-y-hidden', // Hide scrollbar by default
+          variant === 'message' ? 'rounded-full' : 'rounded-lg', // Use rounded-full for message variant to match single-line input
+        ].join(' ')
+      : '';
+
     // Determine aria-invalid based on error state
     const computedAriaInvalid = ariaInvalid ?? (error ? 'true' : undefined);
+
+    // Auto-resize textarea function
+    const autoResizeTextarea = () => {
+      const textarea = textareaRef.current;
+      if (!textarea) return;
+
+      // Reset height to auto to get the correct scrollHeight
+      textarea.style.height = 'auto';
+
+      // Set the height to scrollHeight, but cap it at maxHeight
+      const newHeight = Math.min(textarea.scrollHeight, parseInt(maxHeight));
+      textarea.style.height = `${newHeight}px`;
+
+      // Check if content exceeds max height and show/hide scrollbar accordingly
+      if (textarea.scrollHeight > parseInt(maxHeight)) {
+        // Show scrollbar only when content exceeds max height
+        textarea.classList.remove('overflow-y-hidden');
+        textarea.classList.add('overflow-y-auto');
+
+        // If we're at max height, ensure we're scrolled to the bottom when typing
+        if (textarea.value === value && typeof value === 'string') {
+          textarea.scrollTop = textarea.scrollHeight;
+        }
+      } else {
+        // Hide scrollbar when content fits within max height
+        textarea.classList.remove('overflow-y-auto');
+        textarea.classList.add('overflow-y-hidden');
+      }
+    };
+
+    // Auto-resize on value change
+    useEffect(() => {
+      if (multiline) {
+        autoResizeTextarea();
+      }
+    }, [value, multiline]);
+
+    // Render a textarea for multiline input
+    const renderTextarea = () => {
+      return (
+        <textarea
+          ref={(element) => {
+            // Set the forwarded ref
+            if (typeof ref === 'function') {
+              ref(element);
+            } else if (ref) {
+              (ref as React.MutableRefObject<HTMLTextAreaElement | null>).current = element;
+            }
+            // Set our local ref
+            textareaRef.current = element;
+          }}
+          className={`
+            ${baseClasses} 
+            ${variantClasses[variant === 'message' ? 'default' : variant]} 
+            ${sizeClasses[size]}
+            ${multilineClasses}
+            ${prefix ? 'pl-10' : ''}
+            ${suffix ? 'pr-10' : ''}
+            ${className}
+          `.trim()}
+          style={{ maxHeight }}
+          disabled={disabled}
+          aria-invalid={computedAriaInvalid}
+          rows={1}
+          value={value}
+          onChange={(e) => {
+            if (onChange) {
+              onChange(e as any);
+            }
+            // Auto-resize after onChange is called
+            setTimeout(autoResizeTextarea, 0);
+          }}
+          {...props}
+        />
+      );
+    };
+
+    // Render a standard input for single-line input
+    const renderInput = () => {
+      return (
+        <input
+          ref={ref as React.Ref<HTMLInputElement>}
+          className={`
+            ${baseClasses} 
+            ${variantClasses[variant]} 
+            ${sizeClasses[size]}
+            ${prefix ? 'pl-10' : ''}
+            ${suffix ? 'pr-10' : ''}
+            ${className}
+          `.trim()}
+          disabled={disabled}
+          aria-invalid={computedAriaInvalid}
+          value={value}
+          onChange={onChange as any}
+          {...props}
+        />
+      );
+    };
 
     // If we have prefix or suffix, wrap in a container
     if (prefix || suffix) {
@@ -184,34 +325,13 @@ const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(
               {prefix}
             </div>
           )}
-          <input
-            ref={ref}
-            className={`
-              ${baseClasses} 
-              ${variantClasses[variant]} 
-              ${sizeClasses[size]}
-              ${prefix ? 'pl-10' : ''}
-              ${suffix ? 'pr-10' : ''}
-              ${className}
-            `.trim()}
-            disabled={disabled}
-            aria-invalid={computedAriaInvalid}
-            {...props}
-          />
+          {multiline ? renderTextarea() : renderInput()}
           {suffix && <div className="absolute right-3 z-10 flex items-center">{suffix}</div>}
         </div>
       );
     }
 
-    return (
-      <input
-        ref={ref}
-        className={`${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${className}`.trim()}
-        disabled={disabled}
-        aria-invalid={computedAriaInvalid}
-        {...props}
-      />
-    );
+    return multiline ? renderTextarea() : renderInput();
   }
 );
 

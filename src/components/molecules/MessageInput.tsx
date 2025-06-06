@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, ChangeEvent, KeyboardEvent } from 'react';
 import { useTyping } from '@ably/chat/react';
 import Icon from '../atoms/Icon';
 import TextInput from '../atoms/TextInput';
@@ -32,7 +32,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
   const [message, setMessage] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [emojiPickerPosition, setEmojiPickerPosition] = useState({ top: 0, left: 0 });
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   // Use typing hook with keystroke and stop methods
   const { keystroke, stop } = useTyping();
@@ -56,7 +56,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
    *
    * @param e - The input change event
    */
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const newValue = e.target.value;
     setMessage(newValue);
 
@@ -75,7 +75,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
    *
    * @param e - The keyboard event
    */
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyPress = (e: KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSend();
@@ -136,37 +136,37 @@ const MessageInput: React.FC<MessageInputProps> = ({
   };
 
   return (
-    <div
-      className="p-4 bg-white dark:bg-gray-900"
-      role="form"
-      aria-label="Message input"
-    >
-      <div className="flex items-center gap-3">
-        {/* Text Input */}
-        <TextInput
-          ref={inputRef}
-          variant="message"
-          value={message}
-          onChange={handleInputChange}
-          onKeyPress={handleKeyPress}
-          placeholder={placeholder}
-          className="flex-1"
-          aria-label="Message text"
-        />
+    <div className="p-4 bg-white dark:bg-gray-900" role="form" aria-label="Message input">
+      <div className="border border-gray-300 dark:border-gray-600 rounded-2xl p-2">
+        <div className="flex items-end gap-3">
+          {/* Text Input */}
+          <TextInput
+            ref={inputRef as React.Ref<HTMLTextAreaElement>}
+            variant="message"
+            multiline={true}
+            maxHeight="150px"
+            value={message}
+            onChange={handleInputChange}
+            onKeyPress={handleKeyPress}
+            placeholder={placeholder}
+            className="flex-1"
+            aria-label="Message text"
+          />
 
-        {/* Emoji Button */}
-        <Button
-          variant="ghost"
-          size="sm"
-          className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-          onClick={handleEmojiButtonClick}
-          data-emoji-button
-          aria-label="Open emoji picker"
-          aria-haspopup="dialog"
-          aria-expanded={showEmojiPicker}
-        >
-          <Icon name="emoji" size="md" aria-hidden={true} />
-        </Button>
+          {/* Emoji Button */}
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 self-end mb-1"
+            onClick={handleEmojiButtonClick}
+            data-emoji-button
+            aria-label="Open emoji picker"
+            aria-haspopup="dialog"
+            aria-expanded={showEmojiPicker}
+          >
+            <Icon name="emoji" size="md" aria-hidden={true} />
+          </Button>
+        </div>
       </div>
 
       {/* Emoji Picker */}
