@@ -1,12 +1,6 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
-import ChatMessage from '../molecules/ChatMessage';
+import React, { useEffect, useState, useCallback } from 'react';
 import TypingIndicators from '../molecules/TypingIndicators';
-import RoomInfo from '../molecules/RoomInfo';
-import PresenceIndicators from '../molecules/PresenceIndicators';
-import MessageInput from '../molecules/MessageInput';
-import RoomReaction from '../molecules/RoomReaction';
-import Button from '../atoms/Button';
-import Icon from '../atoms/Icon';
+import { ChatMessageList } from '../molecules/ChatMessageList';
 import ChatWindowHeader from './ChatWindowHeader';
 import ChatWindowFooter from './ChatWindowFooter';
 import { useMessages, useChatClient, usePresence, useRoom } from '@ably/chat/react';
@@ -17,6 +11,10 @@ import {
   MessageReactionType,
   MessageReactionSummaryEvent,
 } from '@ably/chat';
+import MessageInput from '../molecules/MessageInput.tsx';
+import RoomReaction from '../molecules/RoomReaction.tsx';
+import RoomInfo from '../molecules/RoomInfo.tsx';
+import PresenceIndicators from '../molecules/PresenceIndicators.tsx';
 
 interface ChatWindowProps {
   roomId: string;
@@ -24,7 +22,6 @@ interface ChatWindowProps {
 
 export const ChatWindow: React.FC<ChatWindowProps> = ({ roomId }) => {
   console.log('[RENDER] ChatWindow', { roomId });
-  const messagesEndRef = useRef<HTMLDivElement>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const chatClient = useChatClient();
   const currentUserId = chatClient.clientId;
@@ -115,11 +112,6 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ roomId }) => {
       setMessages([]);
     },
   });
-
-  // Scroll to bottom when new messages arrive
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
 
   // Handle REST message updates for optimistic UI updates
   const handleRESTMessageUpdate = useCallback((updatedMessage: Message) => {
@@ -224,27 +216,14 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ roomId }) => {
     [send]
   );
 
-  if (!roomId) {
-    return (
-      <div className="flex items-center justify-center h-full bg-gray-50 dark:bg-gray-950 flex-1">
-        <div className="text-center">
-          <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-            Select a room to start chatting
-          </h3>
-          <p className="text-gray-500 dark:text-gray-400">
-            Choose a room from the sidebar to begin the conversation
-          </p>
-        </div>
-      </div>
-    );
-  }
+  // TODO: Handle state before room is attached
 
   return (
     <div className="flex flex-col h-full bg-white dark:bg-gray-900 flex-1">
       {/* Chat Window Header */}
       <ChatWindowHeader>
         <div className="flex items-center gap-3">
-          {/* Room info component*/}
+          {/* Room info component */}
           <RoomInfo roomId={roomId} />
 
           <div className="flex-1">
@@ -257,39 +236,20 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ roomId }) => {
             </div>
           </div>
         </div>
-
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm">
-            <Icon name="info" size="md" />
-          </Button>
-        </div>
       </ChatWindowHeader>
 
       {/* Messages Area */}
-      <div
-        className="flex-1 overflow-y-auto pt-10 px-6 pb-6 space-y-6 bg-gray-50 dark:bg-gray-950"
-        role="log"
-        aria-label="Chat messages"
-        aria-live="polite"
+      <ChatMessageList
+        messages={messages}
+        currentUserId={currentUserId}
+        onEdit={handleMessageEdit}
+        onDelete={handleMessageDelete}
+        onReactionAdd={handleReactionAdd}
+        onReactionRemove={handleReactionRemove}
       >
-        {messages.map((msg) => (
-          <ChatMessage
-            key={msg.serial}
-            message={msg}
-            isOwn={msg.clientId === currentUserId}
-            currentUserId={currentUserId}
-            onEdit={handleMessageEdit}
-            onDelete={handleMessageDelete}
-            onReactionAdd={handleReactionAdd}
-            onReactionRemove={handleReactionRemove}
-          />
-        ))}
-
-        {/* Typing Indicators in Chat Area */}
+        {/* Additional components passed as children */}
         <TypingIndicators className="px-4 py-2" />
-
-        <div ref={messagesEndRef} />
-      </div>
+      </ChatMessageList>
 
       {/* Chat Window Footer */}
       <ChatWindowFooter>

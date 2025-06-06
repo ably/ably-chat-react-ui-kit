@@ -24,7 +24,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
    * @default 'primary'
    */
   variant?: ButtonVariant;
-  
+
   /**
    * Size of the button
    * - 'xs': Extra small (px-2 py-1 text-xs)
@@ -35,39 +35,39 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
    * @default 'md'
    */
   size?: ButtonSize;
-  
+
   /**
    * Button content - text, icons, or other React elements
    */
   children: React.ReactNode;
-  
+
   /**
    * Additional CSS classes to apply to the button
    */
   className?: string;
-  
+
   /**
    * Loading state - shows spinner and disables interaction
    * @default false
    */
   loading?: boolean;
-  
+
   /**
    * Icon to display before the button text
    */
   leftIcon?: React.ReactNode;
-  
+
   /**
    * Icon to display after the button text
    */
   rightIcon?: React.ReactNode;
-  
+
   /**
    * Whether the button should take full width of its container
    * @default false
    */
   fullWidth?: boolean;
-  
+
   /**
    * Custom loading spinner component
    * If not provided, uses default spinner
@@ -88,19 +88,8 @@ const DefaultSpinner: React.FC<{ size: ButtonSize }> = ({ size }) => {
   };
 
   return (
-    <svg
-      className={`${spinnerSizes[size]} animate-spin`}
-      fill="none"
-      viewBox="0 0 24 24"
-    >
-      <circle
-        className="opacity-25"
-        cx="12"
-        cy="12"
-        r="10"
-        stroke="currentColor"
-        strokeWidth="4"
-      />
+    <svg className={`${spinnerSizes[size]} animate-spin`} fill="none" viewBox="0 0 24 24">
+      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
       <path
         className="opacity-75"
         fill="currentColor"
@@ -112,7 +101,7 @@ const DefaultSpinner: React.FC<{ size: ButtonSize }> = ({ size }) => {
 
 /**
  * Button component provides a highly customizable button with multiple variants and states
- * 
+ *
  * Features:
  * - Multiple visual variants (primary, secondary, ghost, outline, danger)
  * - Size variations from extra small to extra large
@@ -122,33 +111,33 @@ const DefaultSpinner: React.FC<{ size: ButtonSize }> = ({ size }) => {
  * - Dark mode compatible
  * - Focus management and keyboard navigation
  * - Disabled state handling
- * 
+ *
  * @example
  * // Basic usage
  * <Button>Click me</Button>
- * 
+ *
  * @example
  * // Secondary variant with icon
  * <Button variant="secondary" leftIcon={<PlusIcon />}>
  *   Add Item
  * </Button>
- * 
+ *
  * @example
  * // Loading state
  * <Button loading onClick={handleSubmit}>
  *   {loading ? 'Submitting...' : 'Submit'}
  * </Button>
- * 
+ *
  * @example
  * // Danger variant for destructive actions
- * <Button 
- *   variant="danger" 
+ * <Button
+ *   variant="danger"
  *   size="lg"
  *   onClick={() => confirmDelete()}
  * >
  *   Delete Account
  * </Button>
- * 
+ *
  * @example
  * // Full width button
  * <Button fullWidth variant="primary">
@@ -177,7 +166,9 @@ const Button: React.FC<ButtonProps> = ({
     'disabled:opacity-50 disabled:pointer-events-none disabled:cursor-not-allowed',
     // Full width handling
     fullWidth ? 'w-full' : '',
-  ].filter(Boolean).join(' ');
+  ]
+    .filter(Boolean)
+    .join(' ');
 
   // Variant-specific styling
   const variantClasses: Record<ButtonVariant, string> = {
@@ -185,36 +176,36 @@ const Button: React.FC<ButtonProps> = ({
       'bg-blue-600 text-white',
       'hover:bg-blue-700 active:bg-blue-800',
       'focus:ring-blue-500',
-      'dark:bg-blue-500 dark:hover:bg-blue-600'
+      'dark:bg-blue-500 dark:hover:bg-blue-600',
     ].join(' '),
-    
+
     secondary: [
       'bg-gray-200 text-gray-900',
       'hover:bg-gray-300 active:bg-gray-400',
       'focus:ring-gray-500',
-      'dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600'
+      'dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600',
     ].join(' '),
-    
+
     ghost: [
       'text-gray-700 bg-transparent',
       'hover:bg-gray-100 active:bg-gray-200',
       'focus:ring-gray-500',
-      'dark:text-gray-300 dark:hover:bg-gray-800 dark:active:bg-gray-700'
+      'dark:text-gray-300 dark:hover:bg-gray-800 dark:active:bg-gray-700',
     ].join(' '),
-    
+
     outline: [
       'border border-gray-300 bg-transparent text-gray-700',
       'hover:bg-gray-50 active:bg-gray-100',
       'focus:ring-gray-500',
-      'dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800'
+      'dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800',
     ].join(' '),
-    
+
     danger: [
       'bg-red-600 text-white',
       'hover:bg-red-700 active:bg-red-800',
       'focus:ring-red-500',
-      'dark:bg-red-500 dark:hover:bg-red-600'
-    ].join(' ')
+      'dark:bg-red-500 dark:hover:bg-red-600',
+    ].join(' '),
   };
 
   // Size-specific styling
@@ -244,12 +235,10 @@ const Button: React.FC<ButtonProps> = ({
           {leftIcon}
         </span>
       ) : null}
-      
+
       {/* Button content */}
-      <span className={loading ? 'opacity-70' : ''}>
-        {children}
-      </span>
-      
+      <span className={loading ? 'opacity-70' : ''}>{children}</span>
+
       {/* Right icon (hidden during loading) */}
       {!loading && rightIcon && (
         <span className="flex-shrink-0" aria-hidden="true">
