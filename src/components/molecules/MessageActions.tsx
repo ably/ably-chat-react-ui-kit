@@ -49,9 +49,7 @@ const MessageActions: React.FC<MessageActionsProps> = ({
         onClick={onReaction}
         aria-label="Add reaction"
       >
-        <span className="text-sm" aria-hidden="true">
-          😊
-        </span>
+        <Icon name="emoji" size="md" aria-hidden={true} />
       </Button>
 
       {isOwn && (
