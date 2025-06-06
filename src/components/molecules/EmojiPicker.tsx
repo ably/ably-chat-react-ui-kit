@@ -162,27 +162,25 @@ const EmojiPicker: React.FC<EmojiPickerProps> = ({
     if (recentEmojis.length === 0) return null;
 
     return (
-      <>
-        <div className="col-span-full mb-2 pb-2 border-b border-gray-200 dark:border-gray-700">
-          <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Recent</p>
-          <div
-            className="grid gap-2"
-            style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}
-          >
-            {recentEmojis.map((emoji) => (
-              <button
-                key={`recent-${emoji}`}
-                className="w-8 h-8 flex items-center justify-center text-lg hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
-                onClick={() => handleEmojiSelect(emoji)}
-                aria-label={`Emoji ${emoji}`}
-                title={emoji}
-              >
-                {emoji}
-              </button>
-            ))}
-          </div>
+      <div className="mb-3 pb-3 border-b border-gray-200 dark:border-gray-700">
+        <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Recent</p>
+        <div
+          className="grid gap-2"
+          style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}
+        >
+          {recentEmojis.map((emoji) => (
+            <button
+              key={`recent-${emoji}`}
+              className="w-8 h-8 flex items-center justify-center text-lg hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+              onClick={() => handleEmojiSelect(emoji)}
+              aria-label={`Emoji ${emoji}`}
+              title={emoji}
+            >
+              {emoji}
+            </button>
+          ))}
         </div>
-      </>
+      </div>
     );
   }, [recentEmojis, columns, handleEmojiSelect]);
 
@@ -195,23 +193,29 @@ const EmojiPicker: React.FC<EmojiPickerProps> = ({
 
       {/* Emoji Picker */}
       <div
-        className="fixed z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg p-3"
+        className="fixed z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg overflow-hidden"
         style={{
           top: position.top,
           left: position.left,
-          minWidth: '200px',
-          maxHeight: '300px',
+          width: '240px',
+          height: '320px',
         }}
         role="dialog"
         aria-label="Emoji picker"
       >
-        {recentEmojiButtons}
-
-        <div
-          className="grid gap-2 overflow-y-auto max-h-[250px] pr-1"
-          style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}
-        >
-          {emojiButtons}
+        {/* Fixed container with proper scrolling */}
+        <div className="h-full flex flex-col">
+          {/* Content area with scrolling */}
+          <div className="flex-1 overflow-y-auto p-3">
+            {recentEmojiButtons}
+            
+            <div
+              className="grid gap-2"
+              style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}
+            >
+              {emojiButtons}
+            </div>
+          </div>
         </div>
       </div>
     </>

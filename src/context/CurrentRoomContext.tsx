@@ -18,23 +18,23 @@ interface CurrentRoomContextType {
    * The currently active room ID, null if no room is selected
    */
   currentRoomId: RoomId;
-  
+
   /**
    * Sets the current active room
    * @param roomId - The room ID to set as current, or null to clear
    */
   setCurrentRoom: (roomId: RoomId) => void;
-  
+
   /**
    * Indicates if there's a current room selected
    */
   hasCurrentRoom: boolean;
-  
+
   /**
    * Clears the current room selection
    */
   clearCurrentRoom: () => void;
-  
+
   /**
    * Registers a callback to be called when the room changes
    * @param callback - Function to call when room changes
@@ -51,12 +51,12 @@ interface CurrentRoomProviderProps {
    * Child components that will have access to the current room context
    */
   children: React.ReactNode;
-  
+
   /**
    * Initial room ID to set when the provider mounts
    */
   initialRoomId?: RoomId;
-  
+
   /**
    * Callback fired when the room changes
    */
@@ -71,23 +71,23 @@ export const CurrentRoomContext = createContext<CurrentRoomContextType | undefin
 
 /**
  * CurrentRoomProvider manages the currently active room state and provides it to child components
- * 
+ *
  * Features:
  * - Current room state management
  * - Room change notifications
  * - Utility methods for room operations
  * - Initial room support
  * - Type-safe room ID handling
- * 
+ *
  * @example
  * // Basic usage
  * <CurrentRoomProvider>
  *   <ChatApplication />
  * </CurrentRoomProvider>
- * 
+ *
  * @example
  * // With initial room and change handler
- * <CurrentRoomProvider 
+ * <CurrentRoomProvider
  *   initialRoomId="room-123"
  *   onRoomChange={(newRoom, prevRoom) => {
  *     console.log(`Room changed from ${prevRoom} to ${newRoom}`);
@@ -96,44 +96,47 @@ export const CurrentRoomContext = createContext<CurrentRoomContextType | undefin
  *   <ChatApplication />
  * </CurrentRoomProvider>
  */
-export const CurrentRoomProvider: React.FC<CurrentRoomProviderProps> = ({ 
-  children, 
+export const CurrentRoomProvider: React.FC<CurrentRoomProviderProps> = ({
+  children,
   initialRoomId = null,
-  onRoomChange: externalOnRoomChange
+  onRoomChange: externalOnRoomChange,
 }) => {
   const [currentRoomId, setCurrentRoomId] = useState<RoomId>(initialRoomId);
   const [changeCallbacks, setChangeCallbacks] = useState<Set<RoomChangeCallback>>(new Set());
 
   // Handle room changes with notifications
-  const setCurrentRoom = useCallback((roomId: RoomId) => {
-    setCurrentRoomId((prevRoomId) => {
-      if (prevRoomId !== roomId) {
-        // Notify all registered callbacks
-        changeCallbacks.forEach(callback => {
-          try {
-            callback(roomId, prevRoomId);
-          } catch (error) {
-            // TODO: Replace with proper error reporting service in production
-            if (process.env.NODE_ENV === 'development') {
-              console.error('Error in room change callback:', error);
+  const setCurrentRoom = useCallback(
+    (roomId: RoomId) => {
+      setCurrentRoomId((prevRoomId) => {
+        if (prevRoomId !== roomId) {
+          // Notify all registered callbacks
+          changeCallbacks.forEach((callback) => {
+            try {
+              callback(roomId, prevRoomId);
+            } catch (error) {
+              // TODO: Replace with proper error reporting service in production
+              if (process.env.NODE_ENV === 'development') {
+                console.error('Error in room change callback:', error);
+              }
             }
-          }
-        });
-        
-        // Notify external callback if provided
-        if (externalOnRoomChange) {
-          try {
-            externalOnRoomChange(roomId, prevRoomId);
-          } catch (error) {
-            if (process.env.NODE_ENV === 'development') {
-              console.error('Error in external room change callback:', error);
+          });
+
+          // Notify external callback if provided
+          if (externalOnRoomChange) {
+            try {
+              externalOnRoomChange(roomId, prevRoomId);
+            } catch (error) {
+              if (process.env.NODE_ENV === 'development') {
+                console.error('Error in external room change callback:', error);
+              }
             }
           }
         }
-      }
-      return roomId;
-    });
-  }, [changeCallbacks, externalOnRoomChange]);
+        return roomId;
+      });
+    },
+    [changeCallbacks, externalOnRoomChange]
+  );
 
   // Clear current room
   const clearCurrentRoom = useCallback(() => {
@@ -142,11 +145,11 @@ export const CurrentRoomProvider: React.FC<CurrentRoomProviderProps> = ({
 
   // Register room change callback
   const onRoomChange = useCallback((callback: RoomChangeCallback) => {
-    setChangeCallbacks(prev => new Set(prev).add(callback));
-    
+    setChangeCallbacks((prev) => new Set(prev).add(callback));
+
     // Return cleanup function
     return () => {
-      setChangeCallbacks(prev => {
+      setChangeCallbacks((prev) => {
         const newSet = new Set(prev);
         newSet.delete(callback);
         return newSet;
@@ -158,41 +161,40 @@ export const CurrentRoomProvider: React.FC<CurrentRoomProviderProps> = ({
   const hasCurrentRoom = useMemo(() => currentRoomId !== null, [currentRoomId]);
 
   // Context value with memoization to prevent unnecessary re-renders
-  const contextValue = useMemo(() => ({
-    currentRoomId,
-    setCurrentRoom,
-    hasCurrentRoom,
-    clearCurrentRoom,
-    onRoomChange,
-  }), [currentRoomId, setCurrentRoom, hasCurrentRoom, clearCurrentRoom, onRoomChange]);
-
-  return (
-    <CurrentRoomContext.Provider value={contextValue}>
-      {children}
-    </CurrentRoomContext.Provider>
+  const contextValue = useMemo(
+    () => ({
+      currentRoomId,
+      setCurrentRoom,
+      hasCurrentRoom,
+      clearCurrentRoom,
+      onRoomChange,
+    }),
+    [currentRoomId, setCurrentRoom, hasCurrentRoom, clearCurrentRoom, onRoomChange]
   );
+
+  return <CurrentRoomContext.Provider value={contextValue}>{children}</CurrentRoomContext.Provider>;
 };
 
 /**
  * Hook to access the current room context
- * 
+ *
  * @returns The current room context value
  * @throws Error if used outside of a CurrentRoomProvider
- * 
+ *
  * @example
  * // Basic usage
  * const { currentRoomId, setCurrentRoom } = useCurrentRoom();
- * 
+ *
  * @example
  * // Using all features
- * const { 
- *   currentRoomId, 
- *   setCurrentRoom, 
- *   hasCurrentRoom, 
+ * const {
+ *   currentRoomId,
+ *   setCurrentRoom,
+ *   hasCurrentRoom,
  *   clearCurrentRoom,
- *   onRoomChange 
+ *   onRoomChange
  * } = useCurrentRoom();
- * 
+ *
  * // Register for room change notifications
  * useEffect(() => {
  *   const cleanup = onRoomChange((newRoom, prevRoom) => {
@@ -203,13 +205,13 @@ export const CurrentRoomProvider: React.FC<CurrentRoomProviderProps> = ({
  */
 export const useCurrentRoom = (): CurrentRoomContextType => {
   const context = useContext(CurrentRoomContext);
-  
+
   if (context === undefined) {
     throw new Error(
       'useCurrentRoom must be used within a CurrentRoomProvider. ' +
-      'Make sure your component is wrapped with <CurrentRoomProvider>.'
+        'Make sure your component is wrapped with <CurrentRoomProvider>.'
     );
   }
-  
+
   return context;
 };

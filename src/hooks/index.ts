@@ -1,2 +1,2 @@
 export { useTheme } from './useTheme';
-export { useThrottle } from './useThrottle'; 
+export { useThrottle } from './useThrottle';
