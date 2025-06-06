@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import TypingIndicators from '../molecules/TypingIndicators';
-import { ChatMessageList } from '../molecules/ChatMessageList';
+import { ChatMessageList } from '../molecules';
 import ChatWindowHeader from './ChatWindowHeader';
 import ChatWindowFooter from './ChatWindowFooter';
-import { useMessages, useChatClient, usePresence, useRoom } from '@ably/chat/react';
+import { useMessages, useChatClient, useRoom, usePresence } from '@ably/chat/react';
 import {
   Message,
   ChatMessageEvent,
@@ -21,16 +21,15 @@ interface ChatWindowProps {
 }
 
 export const ChatWindow: React.FC<ChatWindowProps> = ({ roomId }) => {
-  console.log('[RENDER] ChatWindow', { roomId });
   const [messages, setMessages] = useState<Message[]>([]);
   const chatClient = useChatClient();
   const currentUserId = chatClient.clientId;
   const { room } = useRoom();
-  usePresence(); // enter presence in the room
+  usePresence();
 
   useEffect(() => {
     // attach the room when the component renders
-    // detaching and release is handled at the top app level for now
+    // detaching and release is handled in the sidebar for now.
     // TODO: Remove once the ChatClientProvider has room reference counts implemented
     room?.attach();
   }, [room]);

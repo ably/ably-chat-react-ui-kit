@@ -9,17 +9,20 @@ import { TypingDots } from '../atoms/TypingDots.tsx';
 interface TypingIndicatorsProps extends React.HTMLAttributes<HTMLDivElement> {
   /** Maximum number of distinct clients to display before collapsing */
   maxClients?: number;
-  
+
   /** Additional CSS classes to apply to the component */
   className?: string;
-  
+
   /** CSS classes to apply to the text element */
   textClassName?: string;
+
+  /** Whether typing indicators are enabled (default: false) */
+  enabled?: boolean;
 }
 
 /**
  * TypingIndicators component displays who is currently typing in a chat
- * 
+ *
  * Features:
  * - Shows animated typing dots
  * - Displays a human-readable message about who is typing
@@ -31,15 +34,18 @@ const TypingIndicators: React.FC<TypingIndicatorsProps> = ({
   maxClients,
   className,
   textClassName,
+  enabled = false,
 }) => {
   const { currentlyTyping } = useTyping();
   const { clientId } = useChatClient();
+
+  // If typing indicators are disabled, don't render anything
+  if (!enabled) return null;
 
   // Exclude yourself from the typing indicators
   const activeTypingUsers = Array.from(currentlyTyping).filter((id) => id !== clientId);
 
   if (!activeTypingUsers.length) return null;
-
   return (
     <div
       className={clsx(
@@ -59,7 +65,7 @@ export default TypingIndicators;
 
 /**
  * Builds a human-readable "is / are typing" sentence
- * 
+ *
  * Creates a grammatically correct sentence showing who is typing,
  * with special handling for different numbers of users.
  *

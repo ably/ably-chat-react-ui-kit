@@ -21,6 +21,8 @@ interface RoomListItemProps {
   avatar?: AvatarData;
   /** Whether the component should render in collapsed mode (avatar only) */
   isCollapsed?: boolean;
+  /** Whether typing indicators are enabled (default: false) */
+  typingIndicatorsEnabled?: boolean;
 }
 
 /**
@@ -35,7 +37,14 @@ interface RoomListItemProps {
  * - Supports collapsed mode (avatar only) for compact sidebar display
  */
 const RoomListItem: React.FC<RoomListItemProps> = React.memo(
-  ({ roomId, onClick, onLeave, avatar: propAvatar, isCollapsed = false }) => {
+  ({
+    roomId,
+    onClick,
+    onLeave,
+    avatar: propAvatar,
+    isCollapsed = false,
+    typingIndicatorsEnabled = false,
+  }) => {
     const [roomAvatarData, setRoomAvatarData] = React.useState<AvatarData | undefined>(undefined);
     const { getAvatarForRoom } = useAvatar();
     const { currentRoomId } = useCurrentRoom();
@@ -47,10 +56,6 @@ const RoomListItem: React.FC<RoomListItemProps> = React.memo(
       // attach the room when the component renders
       // detaching and release is handled at the top app level for now
       room?.attach();
-      return () => {
-        // Detach the room when the component unmounts
-        room?.detach();
-      };
     }, [room]);
 
     useEffect(() => {
@@ -190,7 +195,7 @@ const RoomListItem: React.FC<RoomListItemProps> = React.memo(
             </div>
           </div>
           <div aria-live="polite">
-            <TypingIndicators />
+            <TypingIndicators enabled={typingIndicatorsEnabled} />
           </div>
         </div>
       </div>

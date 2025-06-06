@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo, useRef } from 'react';
-import { ChatRoomProvider } from '@ably/chat/react';
+import { ChatRoomProvider, useChatClient } from '@ably/chat/react';
 import RoomListItem from '../molecules/RoomListItem';
 import Button from '../atoms/Button';
 import Icon from '../atoms/Icon';
@@ -28,6 +28,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const [showCreateRoomModal, setShowCreateRoomModal] = useState(false);
   const { currentRoomId, setCurrentRoom } = useCurrentRoom();
   const { getAvatarForRoom } = useAvatar();
+  const chatClient = useChatClient();
 
   // Handle room selection
   const handleSelectRoom = useCallback(
@@ -44,26 +45,32 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   // Handle leaving a room
   const handleLeaveRoom = useCallback(
-    (roomIdToLeave: string) => {
-      // Remove the room from the list
-      setRoomIds((prev) => {
-        const newRoomIds = prev.filter((id) => id !== roomIdToLeave);
+    async (roomIdToLeave: string) => {
+      try {
+        // Release and detach the room
+        await chatClient.rooms.release(roomIdToLeave);
+        // Then update the state
+        setRoomIds((prev) => {
+          const newRoomIds = prev.filter((id) => id !== roomIdToLeave);
 
-        // If the room being left is the current room, switch to another room or clear
-        if (roomIdToLeave === currentRoomId) {
-          if (newRoomIds.length > 0) {
-            // Switch to the first available room
-            setCurrentRoom(newRoomIds[0]);
-          } else {
-            // No rooms left, clear current room
-            setCurrentRoom(null);
+          // If the room being left is the current room, switch to another room or clear
+          if (roomIdToLeave === currentRoomId) {
+            if (newRoomIds.length > 0) {
+              // Switch to the first available room
+              setCurrentRoom(newRoomIds[0]);
+            } else {
+              // No rooms left, clear current room
+              setCurrentRoom(null);
+            }
           }
-        }
 
-        return newRoomIds;
-      });
+          return newRoomIds;
+        });
+      } catch (error) {
+        console.error('Failed to release room:', error);
+      }
     },
-    [currentRoomId, setCurrentRoom]
+    [currentRoomId, setCurrentRoom, chatClient]
   );
 
   // Memoize the handleCreateRoom function to prevent unnecessary re-renders
