@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useOccupancy, useRoom, useTyping } from '@ably/chat/react';
+import { useChatClient, useOccupancy, useRoom, useTyping } from '@ably/chat/react';
 import Avatar, { AvatarData } from '../atoms/Avatar';
 import TypingIndicators from './TypingIndicators.tsx';
 import { useAvatar } from '../../context/AvatarContext';
@@ -17,8 +17,6 @@ interface RoomListItemProps {
   onClick: () => void;
   /** Callback function when the leave button is clicked */
   onLeave: () => void;
-  /** ID of the current user */
-  currentUserId: string;
   /** Optional avatar data for the room (from props) */
   avatar?: AvatarData;
   /** Whether the component should render in collapsed mode (avatar only) */
@@ -37,25 +35,23 @@ interface RoomListItemProps {
  * - Supports collapsed mode (avatar only) for compact sidebar display
  */
 const RoomListItem: React.FC<RoomListItemProps> = React.memo(
-  ({ roomId, onClick, onLeave, currentUserId, avatar: propAvatar, isCollapsed = false }) => {
+  ({ roomId, onClick, onLeave, avatar: propAvatar, isCollapsed = false }) => {
     const [roomAvatarData, setRoomAvatarData] = React.useState<AvatarData | undefined>(undefined);
     const { getAvatarForRoom } = useAvatar();
     const { currentRoomId } = useCurrentRoom();
     const { room } = useRoom();
     // Get occupancy data
     const { connections, presenceMembers } = useOccupancy();
-    // Get typing data
-    const { currentlyTyping } = useTyping();
 
-    // useEffect(() => {
-    //   // attach the room when the component renders
-    //   // detaching and release is handled at the top app level for now
-    //   room?.attach();
-    //   return () => {
-    //     // Detach the room when the component unmounts
-    //     room?.detach();
-    //   };
-    // }, [room]);
+    useEffect(() => {
+      // attach the room when the component renders
+      // detaching and release is handled at the top app level for now
+      room?.attach();
+      return () => {
+        // Detach the room when the component unmounts
+        room?.detach();
+      };
+    }, [room]);
 
     useEffect(() => {
       // Get the avatar for the room, either from props or AvatarProvider
@@ -75,53 +71,9 @@ const RoomListItem: React.FC<RoomListItemProps> = React.memo(
      */
     const isRoomActive = () => {
       // Check if anyone is present in the room
-      return (presenceMembers || 0) > 0;
+      return presenceMembers > 0;
     };
 
-    /**
-     * Gets the count of users present in the room
-     *
-     * @returns Number of present users
-     */
-    const getPresentCount = () => {
-      return presenceMembers || 0;
-    };
-
-    /**
-     * Gets the total count of connections to the room
-     *
-     * @returns Total number of connections
-     */
-    const getTotalCount = () => {
-      // Use connections that include both presence and other connections
-      return connections || 0;
-    };
-
-    /**
-     * Generates a human-readable string about who is typing
-     *
-     * @returns A formatted string or null if no one is typing
-     */
-    const getTypingUsers = () => {
-      // Filter out current user from typing set
-      const typingUserIds = Array.from(currentlyTyping).filter(
-        (clientId) => clientId !== currentUserId
-      );
-
-      if (typingUserIds.length === 0) return null;
-
-      if (typingUserIds.length === 1) {
-        return `${typingUserIds[0]} is typing...`;
-      } else if (typingUserIds.length === 2) {
-        return `${typingUserIds[0]} and ${typingUserIds[1]} are typing...`;
-      } else {
-        return `${typingUserIds[0]} and ${typingUserIds.length - 1} others are typing...`;
-      }
-    };
-
-    const typingText = getTypingUsers();
-    const presentCount = getPresentCount();
-    const totalCount = getTotalCount();
     const isActive = isRoomActive();
 
     // If collapsed, render just the avatar with selection indicator
@@ -168,7 +120,7 @@ const RoomListItem: React.FC<RoomListItemProps> = React.memo(
                     ${isSelected ? 'bg-gray-100 dark:bg-gray-800 border-r-2 border-blue-500' : ''}`}
         onClick={onClick}
         role="button"
-        aria-label={`${roomAvatar.displayName} room${isSelected ? ' (selected)' : ''}${isActive ? `, ${presentCount} online` : ''}`}
+        aria-label={`${roomAvatar.displayName} room${isSelected ? ' (selected)' : ''}${isActive ? `, ${presenceMembers} online` : ''}`}
         aria-pressed={isSelected}
         tabIndex={0}
         onKeyDown={(e) => {
@@ -197,13 +149,13 @@ const RoomListItem: React.FC<RoomListItemProps> = React.memo(
           )}
 
           {/* Present count badge */}
-          {presentCount > 0 && (
+          {presenceMembers > 0 && (
             <div
               className="absolute -top-1 -right-1 bg-green-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-medium"
               aria-hidden="true"
-              title={`${presentCount} ${presentCount === 1 ? 'person' : 'people'} online`}
+              title={`${presenceMembers} ${presenceMembers === 1 ? 'person' : 'people'} online`}
             >
-              {presentCount > 9 ? '9+' : presentCount}
+              {presenceMembers > 9 ? '9+' : presenceMembers}
             </div>
           )}
         </div>
@@ -231,18 +183,15 @@ const RoomListItem: React.FC<RoomListItemProps> = React.memo(
               {/* Room participant count */}
               <span
                 className="text-xs text-gray-400"
-                title={`${totalCount} total ${totalCount === 1 ? 'connection' : 'connections'}`}
+                title={`${connections} total ${connections === 1 ? 'connection' : 'connections'}`}
               >
-                {totalCount}
+                {connections}
               </span>
             </div>
           </div>
-
-          {typingText && (
-            <div aria-live="polite">
-              <TypingIndicators />
-            </div>
-          )}
+          <div aria-live="polite">
+            <TypingIndicators />
+          </div>
         </div>
       </div>
     );

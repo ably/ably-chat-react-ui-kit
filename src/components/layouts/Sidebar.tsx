@@ -1,27 +1,22 @@
-import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react';
-import { ChatRoomProvider, useRoom } from '@ably/chat/react';
+import React, { useState, useCallback, useMemo, useRef } from 'react';
+import { ChatRoomProvider } from '@ably/chat/react';
 import RoomListItem from '../molecules/RoomListItem';
 import Button from '../atoms/Button';
 import Icon from '../atoms/Icon';
-import Avatar from '../atoms/Avatar';
 import DropdownMenu from '../molecules/DropdownMenu';
 import CreateRoomModal from '../molecules/CreateRoomModal';
-import { useTheme } from '../../hooks/useTheme';
+import { useTheme } from '../../hooks';
 import { useAvatar } from '../../context/AvatarContext.tsx';
 import { useCurrentRoom } from '../../context/CurrentRoomContext';
-
-// CollapsedRoomAvatar functionality has been moved into RoomListItem component
 
 // Sidebar component props definition
 interface SidebarProps {
   initialRoomIds?: string[];
-  currentUserId: string;
   width?: string | number;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
   initialRoomIds = [], // Default to empty array
-  currentUserId,
   width = '20rem', // 320px default
 }) => {
   // Local state for room IDs
@@ -29,7 +24,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
   // ref to store the room IDs to avoid unnecessary re-renders
   const roomIdsRef = useRef<string[]>(initialRoomIds);
   const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
-  console.log('[RENDER] Sidebar', { roomIds, currentUserId, isCollapsed });
   const { theme, toggleTheme } = useTheme();
   const [showCreateRoomModal, setShowCreateRoomModal] = useState(false);
   const { currentRoomId, setCurrentRoom } = useCurrentRoom();
@@ -168,7 +162,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 roomId={roomId}
                 onClick={() => handleSelectRoom(roomId)}
                 onLeave={() => handleLeaveRoom(roomId)}
-                currentUserId={currentUserId}
                 isCollapsed={isCollapsed}
               />
             </ChatRoomProvider>
