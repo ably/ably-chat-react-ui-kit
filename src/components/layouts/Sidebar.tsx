@@ -27,7 +27,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const [roomIds, setRoomIds] = useState<string[]>(initialRoomIds);
   const [defaultRoomOptions] = useState<RoomOptions>({ occupancy: { enableEvents: true } });
   // ref to store the room IDs to avoid unnecessary re-renders
-  const roomIdsRef = useRef<string[]>(initialRoomIds);
   const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
   const { theme, toggleTheme } = useTheme();
   const [showCreateRoomModal, setShowCreateRoomModal] = useState(false);
@@ -39,23 +38,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
     setIsCollapsed((prev) => !prev);
   }, []);
 
-  // Handle leaving a room
+  // Update handleLeaveRoom (remove ref updates):
   const handleLeaveRoom = useCallback(
     async (roomIdToLeave: string) => {
       try {
-        // Release and detach the room
         await chatClient.rooms.release(roomIdToLeave);
-        // Then update the state
-        setRoomIds((prev) => {
-          const newRoomIds = prev.filter((id) => id !== roomIdToLeave);
 
-          // If the room being left is the current room, switch to another room or clear
+        setRoomIds((prevRoomIds) => {
+          const newRoomIds = prevRoomIds.filter((id) => id !== roomIdToLeave);
+
+          // Handle active room switching
           if (roomIdToLeave === activeRoomName) {
             if (newRoomIds.length > 0) {
-              // Switch to the first available room
               onChangeActiveRoom(newRoomIds[0]);
             } else {
-              // No rooms left, clear current room
               onChangeActiveRoom(undefined);
             }
           }
@@ -69,19 +65,21 @@ export const Sidebar: React.FC<SidebarProps> = ({
     [activeRoomName, onChangeActiveRoom, chatClient]
   );
 
-  // Memoize the handleCreateRoom function to prevent unnecessary re-renders
+  // Update handleCreateRoom:
   const handleCreateRoom = useCallback(
     async (roomName: string) => {
-      // Check if the room already exists, and switch to it if it does
-      if (roomIdsRef.current.includes(roomName)) {
-        onChangeActiveRoom(roomName);
-        return;
-      }
+      setRoomIds((prevRoomIds) => {
+        // Check if the room already exists using the current state
+        if (prevRoomIds.includes(roomName)) {
+          onChangeActiveRoom(roomName);
+          return prevRoomIds; // No state change needed
+        }
 
-      // Add new room and select it
-      getAvatarForRoom(roomName); // Ensure avatar is created for the new room
-      setRoomIds((prev) => [...prev, roomName]);
-      onChangeActiveRoom(roomName);
+        // Add new room
+        getAvatarForRoom(roomName);
+        onChangeActiveRoom(roomName);
+        return [...prevRoomIds, roomName];
+      });
     },
     [onChangeActiveRoom, getAvatarForRoom]
   );

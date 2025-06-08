@@ -12,6 +12,7 @@ import { RoomOptions } from '@ably/chat';
  */
 const ChatApp: React.FC = () => {
   const chatClient = useChatClient();
+  const [initialRoomIds] = useState<string[]>(['my-first-room']);
   const [activeRoomName, setActiveRoomName] = useState<string | undefined>(undefined);
 
   // Function to handle room selection change
@@ -39,7 +40,7 @@ const ChatApp: React.FC = () => {
     <ThemeProvider>
       <AppLayout width="70vw" height="70vh">
         <Sidebar
-          initialRoomIds={['my-first-room']}
+          initialRoomIds={initialRoomIds}
           onChangeActiveRoom={handleChangeSelectedRoom}
           activeRoomName={activeRoomName}
         />
