@@ -4,7 +4,7 @@ import AvatarEditor from './AvatarEditor';
 import PresenceCount from './PresenceCount';
 import { PresenceList } from './PresenceList';
 import ParticipantList from './ParticipantList';
-import { usePresenceListener, useChatClient, useTyping } from '@ably/chat/react';
+import { usePresenceListener, useChatClient, useTyping, useRoom } from '@ably/chat/react';
 import { useAvatar } from '../../context/AvatarContext';
 import PresenceIndicators from './PresenceIndicators';
 import TypingIndicators from './TypingIndicators';
@@ -39,6 +39,11 @@ const RoomInfo: React.FC<RoomInfoProps> = ({
   position = { top: 0, left: 150 },
   className,
 }) => {
+  const { presenceData } = usePresenceListener();
+  const { currentlyTyping } = useTyping();
+  const chatClient = useChatClient();
+  const currentUserId = chatClient.clientId;
+
   const [showTooltip, setShowTooltip] = useState(false);
   const [tooltipPosition, setTooltipPosition] = useState<'above' | 'below'>('above');
   const [showAvatarEditor, setShowAvatarEditor] = useState(false);
@@ -48,11 +53,6 @@ const RoomInfo: React.FC<RoomInfoProps> = ({
   const onToggle = () => {
     setIsOpen(!isOpen);
   };
-
-  const { presenceData } = usePresenceListener();
-  const { currentlyTyping } = useTyping();
-  const chatClient = useChatClient();
-  const currentUserId = chatClient.clientId;
 
   // Use the AvatarProvider to get and set room avatars
   const { getAvatarForRoom, setRoomAvatar } = useAvatar();

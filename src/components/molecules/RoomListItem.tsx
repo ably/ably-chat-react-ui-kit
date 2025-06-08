@@ -13,6 +13,8 @@ import Button from '../atoms/Button';
 interface RoomListItemProps {
   /** Unique identifier for the room */
   roomId: string;
+  /** Whether this room is currently selected */
+  isSelected: boolean;
   /** Callback function when the room is clicked */
   onClick: () => void;
   /** Callback function when the leave button is clicked */
@@ -39,6 +41,7 @@ interface RoomListItemProps {
 const RoomListItem: React.FC<RoomListItemProps> = React.memo(
   ({
     roomId,
+    isSelected,
     onClick,
     onLeave,
     avatar: propAvatar,
@@ -47,7 +50,6 @@ const RoomListItem: React.FC<RoomListItemProps> = React.memo(
   }) => {
     const [roomAvatarData, setRoomAvatarData] = React.useState<AvatarData | undefined>(undefined);
     const { getAvatarForRoom } = useAvatar();
-    const { currentRoomId } = useAppState();
     const { room } = useRoom();
     // Get occupancy data
     const { connections, presenceMembers } = useOccupancy();
@@ -63,8 +65,6 @@ const RoomListItem: React.FC<RoomListItemProps> = React.memo(
       const avatar = propAvatar || getAvatarForRoom(roomId);
       setRoomAvatarData(avatar);
     }, [getAvatarForRoom, propAvatar, roomId]);
-
-    const isSelected = roomId === currentRoomId;
 
     /**
      * Checks if the room has any active users

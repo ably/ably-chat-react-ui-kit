@@ -16,18 +16,18 @@ interface TooltipArrowProps extends React.HTMLAttributes<HTMLDivElement> {
    * - 'below': Arrow points upward (tooltip is below trigger)
    */
   position: TooltipArrowPosition;
-  
+
   /**
    * Additional CSS classes to apply to the arrow element
    */
   className?: string;
-  
+
   /**
    * Size of the arrow
    * @default 'md' - 4px border width
    */
   size?: 'sm' | 'md' | 'lg';
-  
+
   /**
    * Color variant to match the tooltip surface
    * @default 'dark' - matches dark tooltip background
@@ -37,72 +37,72 @@ interface TooltipArrowProps extends React.HTMLAttributes<HTMLDivElement> {
 
 /**
  * TooltipArrow component renders a triangular arrow that points from tooltip to its trigger
- * 
+ *
  * This component is designed to be used in conjunction with TooltipSurface to create
  * a complete tooltip with visual connection to its trigger element.
- * 
+ *
  * Features:
  * - Automatic color matching with tooltip variants
  * - Customizable arrow sizes
  * - Proper positioning for above/below tooltips
  * - CSS borders-based triangle for sharp edges
- * 
+ *
  * @example
  * // Basic usage with dark tooltip
  * <TooltipArrow position="above" />
- * 
+ *
  * @example
  * // Light variant arrow for light tooltips
  * <TooltipArrow position="below" variant="light" />
- * 
+ *
  * @example
  * // Large arrow with custom styling
- * <TooltipArrow 
- *   position="above" 
+ * <TooltipArrow
+ *   position="above"
  *   size="lg"
  *   className="ml-2"
  * />
  */
-const TooltipArrow: React.FC<TooltipArrowProps> = ({ 
-  position, 
-  className, 
+const TooltipArrow: React.FC<TooltipArrowProps> = ({
+  position,
+  className,
   size = 'md',
   variant = 'dark',
-  ...rest 
+  ...rest
 }) => {
   // Size configurations for arrow border widths
   const sizeClasses = {
     sm: 'border-l-2 border-r-2',
-    md: 'border-l-4 border-r-4', 
-    lg: 'border-l-6 border-r-6'
+    md: 'border-l-4 border-r-4',
+    lg: 'border-l-6 border-r-6',
   };
 
   // Arrow border configurations for each size
   const arrowBorders = {
     sm: {
       above: 'border-t-2',
-      below: 'border-b-2'
+      below: 'border-b-2',
     },
     md: {
       above: 'border-t-4',
-      below: 'border-b-4'
+      below: 'border-b-4',
     },
     lg: {
       above: 'border-t-6',
-      below: 'border-b-6'
-    }
+      below: 'border-b-6',
+    },
   };
 
   // Color variants to match tooltip surfaces
   const variantColors = {
     dark: {
       above: 'border-t-gray-900 dark:border-t-gray-700',
-      below: 'border-b-gray-900 dark:border-b-gray-700'
+      below: 'border-b-gray-900 dark:border-b-gray-700',
     },
     light: {
       above: 'border-t-white dark:border-t-gray-100',
-      below: 'border-b-white dark:border-b-gray-100'
-    }
+      below: 'border-b-white dark:border-b-gray-100',
+    },
   };
 
   return (

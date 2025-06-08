@@ -7,36 +7,32 @@ import DropdownMenu from '../molecules/DropdownMenu';
 import CreateRoomModal from '../molecules/CreateRoomModal';
 import { useTheme } from '../../hooks';
 import { useAvatar } from '../../context/AvatarContext.tsx';
-import { useAppState } from '../../context/AppStateContext';
+import { RoomOptions } from '@ably/chat';
 
 // Sidebar component props definition
 interface SidebarProps {
   initialRoomIds?: string[];
+  activeRoomName?: string; // Optional, can be undefined if no room is selected
   width?: string | number;
+  onChangeActiveRoom: (roomId?: string) => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
   initialRoomIds = [], // Default to empty array
   width = '20rem', // 320px default
+  activeRoomName,
+  onChangeActiveRoom,
 }) => {
   // Local state for room IDs
   const [roomIds, setRoomIds] = useState<string[]>(initialRoomIds);
+  const [defaultRoomOptions] = useState<RoomOptions>({ occupancy: { enableEvents: true } });
   // ref to store the room IDs to avoid unnecessary re-renders
   const roomIdsRef = useRef<string[]>(initialRoomIds);
   const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
   const { theme, toggleTheme } = useTheme();
   const [showCreateRoomModal, setShowCreateRoomModal] = useState(false);
-  const { currentRoomId, setCurrentRoom } = useAppState();
   const { getAvatarForRoom } = useAvatar();
   const chatClient = useChatClient();
-
-  // Handle room selection
-  const handleSelectRoom = useCallback(
-    (roomId: string) => {
-      setCurrentRoom(roomId);
-    },
-    [setCurrentRoom]
-  );
 
   // Handle toggle collapse
   const handleToggleCollapse = useCallback(() => {
@@ -54,13 +50,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
           const newRoomIds = prev.filter((id) => id !== roomIdToLeave);
 
           // If the room being left is the current room, switch to another room or clear
-          if (roomIdToLeave === currentRoomId) {
+          if (roomIdToLeave === activeRoomName) {
             if (newRoomIds.length > 0) {
               // Switch to the first available room
-              setCurrentRoom(newRoomIds[0]);
+              onChangeActiveRoom(newRoomIds[0]);
             } else {
               // No rooms left, clear current room
-              setCurrentRoom(undefined);
+              onChangeActiveRoom(undefined);
             }
           }
 
@@ -70,7 +66,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         console.error('Failed to release room:', error);
       }
     },
-    [currentRoomId, setCurrentRoom, chatClient]
+    [activeRoomName, onChangeActiveRoom, chatClient]
   );
 
   // Memoize the handleCreateRoom function to prevent unnecessary re-renders
@@ -78,16 +74,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
     async (roomName: string) => {
       // Check if the room already exists, and switch to it if it does
       if (roomIdsRef.current.includes(roomName)) {
-        setCurrentRoom(roomName);
+        onChangeActiveRoom(roomName);
         return;
       }
 
       // Add new room and select it
       getAvatarForRoom(roomName); // Ensure avatar is created for the new room
       setRoomIds((prev) => [...prev, roomName]);
-      setCurrentRoom(roomName);
+      onChangeActiveRoom(roomName);
     },
-    [setCurrentRoom, getAvatarForRoom]
+    [onChangeActiveRoom, getAvatarForRoom]
   );
 
   // Memoize the dropdownItems array to prevent it from being recreated on every render
@@ -162,12 +158,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
               name={roomId}
               attach={false}
               release={false}
-              options={{ occupancy: { enableEvents: true } }}
+              options={defaultRoomOptions}
             >
               {/* Use RoomListItem for both collapsed and expanded views */}
               <RoomListItem
+                key={roomId}
                 roomId={roomId}
-                onClick={() => handleSelectRoom(roomId)}
+                isSelected={roomId === activeRoomName}
+                onClick={() => onChangeActiveRoom(roomId)}
                 onLeave={() => handleLeaveRoom(roomId)}
                 isCollapsed={isCollapsed}
               />

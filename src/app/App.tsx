@@ -1,25 +1,23 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useState } from 'react';
 import { ThemeProvider } from '../context/ThemeContext.tsx';
 import { useChatClient } from '@ably/chat/react';
 import { AppLayout } from '../components/layouts';
 import { Sidebar } from '../components/layouts';
 import { ChatArea } from '../components/layouts/ChatArea';
 import { AvatarProvider } from '../context/AvatarContext';
-import { AppStateProvider } from '../context/AppStateContext';
+import { RoomOptions } from '@ably/chat';
 
 /**
  * Main chat application component
  */
 const ChatApp: React.FC = () => {
   const chatClient = useChatClient();
+  const [activeRoomName, setActiveRoomName] = useState<string | undefined>(undefined);
 
-  // Memoize the ChatRoomProvider options to prevent recreating on every render
-  const chatRoomOptions = useMemo(
-    () => ({
-      occupancy: { enableEvents: true },
-    }),
-    []
-  );
+  // Function to handle room selection change
+  const handleChangeSelectedRoom = useCallback((roomName?: string) => {
+    setActiveRoomName(roomName);
+  }, []);
 
   // Show loading state if no chat client yet
   if (!chatClient) {
@@ -39,12 +37,14 @@ const ChatApp: React.FC = () => {
 
   return (
     <ThemeProvider>
-      <AppStateProvider initialGlobalOptions={chatRoomOptions}>
-        <AppLayout width="70vw" height="70vh">
-          <Sidebar initialRoomIds={['my-first-room']} />
-          <ChatArea />
-        </AppLayout>
-      </AppStateProvider>
+      <AppLayout width="70vw" height="70vh">
+        <Sidebar
+          initialRoomIds={['my-first-room']}
+          onChangeActiveRoom={handleChangeSelectedRoom}
+          activeRoomName={activeRoomName}
+        />
+        <ChatArea activeRoomName={activeRoomName} />
+      </AppLayout>
     </ThemeProvider>
   );
 };

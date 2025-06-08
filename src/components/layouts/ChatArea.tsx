@@ -1,16 +1,20 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ChatRoomProvider } from '@ably/chat/react';
-import { useAppState } from '../../context/AppStateContext';
 import { ChatWindow } from './ChatWindow';
 import RoomInfo from '../molecules/RoomInfo';
 import RoomReaction from '../molecules/RoomReaction.tsx';
+import { RoomOptions } from '@ably/chat';
 
-interface ChatAreaProps {}
+interface ChatAreaProps {
+  activeRoomName?: string; // Optional, can be undefined if no room is selected
+  defaultRoomOptions?: RoomOptions; // Default options for the room
+}
 
-export const ChatArea: React.FC<ChatAreaProps> = () => {
-  const { currentRoomId, getCurrentRoomOptions } = useAppState();
-
-  if (!currentRoomId) {
+export const ChatArea: React.FC<ChatAreaProps> = ({ activeRoomName, defaultRoomOptions }) => {
+  const [roomOptions] = useState<RoomOptions>(
+    defaultRoomOptions || { occupancy: { enableEvents: true } }
+  );
+  if (!activeRoomName) {
     return (
       <div className="flex-1 flex items-center justify-center">
         <div className="text-center">
@@ -25,15 +29,15 @@ export const ChatArea: React.FC<ChatAreaProps> = () => {
 
   return (
     <ChatRoomProvider
-      key={currentRoomId}
-      name={currentRoomId}
+      key={activeRoomName}
+      name={activeRoomName}
       attach={false}
       release={false}
-      options={getCurrentRoomOptions()}
+      options={roomOptions}
     >
       <ChatWindow
-        roomId={currentRoomId}
-        customHeaderContent={<RoomInfo roomId={currentRoomId} />}
+        roomId={activeRoomName}
+        customHeaderContent={<RoomInfo roomId={activeRoomName} />}
         customFooterContent={<RoomReaction />}
       />
     </ChatRoomProvider>

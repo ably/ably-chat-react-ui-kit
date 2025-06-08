@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Avatar from '../atoms/Avatar';
-import Icon from '../atoms/Icon';
 import TextInput from '../atoms/TextInput';
 import Button from '../atoms/Button';
 import { TooltipSurface, TooltipArrow } from '../atoms';
@@ -468,7 +467,6 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
               <span className="ml-1">• edited {formatTime(message.updatedAt.getTime())}</span>
             )}
           </span>
-          {/* Removed non-functional thumbs-up icon */}
         </div>
       </div>
 
