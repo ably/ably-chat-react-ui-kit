@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Avatar, AvatarData } from '../atoms/Avatar';
 import { TypingDots } from '../atoms';
+import { useAvatar } from '../../context';
 
 /**
  * Props for the Participant component
@@ -15,7 +16,7 @@ interface ParticipantProps {
   /** Whether the participant is currently typing */
   isTyping: boolean;
   /** Avatar data for the participant */
-  avatar: AvatarData;
+  avatar?: AvatarData;
 }
 
 /**
@@ -32,8 +33,21 @@ export const Participant: React.FC<ParticipantProps> = ({
   isPresent,
   isSelf,
   isTyping,
-  avatar,
+  avatar: propAvatar,
 }) => {
+  // Use the AvatarProvider to get user avatars
+  const { getAvatarForUser } = useAvatar();
+  const [avatarData, setAvatarData] = useState<AvatarData | undefined>(undefined);
+
+  useEffect(() => {
+    if (!propAvatar) {
+      const avatar = getAvatarForUser(clientId);
+      setAvatarData(avatar);
+    } else {
+      setAvatarData(propAvatar);
+    }
+  }, [getAvatarForUser, clientId, propAvatar]);
+
   // Determine the status text for screen readers
   const statusText = isTyping && !isSelf ? 'typing' : isPresent ? 'online' : 'offline';
 
@@ -45,11 +59,11 @@ export const Participant: React.FC<ParticipantProps> = ({
     >
       <div className="relative">
         <Avatar
-          alt={avatar.displayName || clientId}
-          src={avatar.src}
-          color={avatar.color}
+          alt={avatarData?.displayName}
+          src={avatarData?.src}
+          color={avatarData?.color}
           size="sm"
-          initials={avatar.initials}
+          initials={avatarData?.initials}
         />
         {/* Presence Icon */}
         <div

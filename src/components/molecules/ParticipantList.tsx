@@ -3,7 +3,6 @@ import { Button } from '../atoms/Button';
 import { Icon } from '../atoms/Icon';
 import { Participant } from './Participant';
 import { PresenceMember } from '@ably/chat';
-import { useAvatar } from '../../context/AvatarContext';
 
 /**
  * Props for the ParticipantList component
@@ -41,9 +40,6 @@ export const ParticipantList: React.FC<ParticipantListProps> = ({
   onToggle,
   position,
 }) => {
-  // Use the AvatarProvider to get user avatars
-  const { getAvatarForUser } = useAvatar();
-
   if (!isOpen) {
     return null;
   }
@@ -91,8 +87,6 @@ export const ParticipantList: React.FC<ParticipantListProps> = ({
       <div className="max-h-64 overflow-y-auto" role="list" aria-label="Room participants">
         {sortedParticipants.map((member) => {
           // Get the avatar for this user from the AvatarProvider
-          const userAvatar = getAvatarForUser(member.clientId);
-
           return (
             <Participant
               key={member.clientId}
@@ -100,7 +94,6 @@ export const ParticipantList: React.FC<ParticipantListProps> = ({
               isPresent={true}
               isSelf={member.clientId === currentUserId}
               isTyping={currentlyTyping.has(member.clientId)}
-              avatar={userAvatar}
             />
           );
         })}

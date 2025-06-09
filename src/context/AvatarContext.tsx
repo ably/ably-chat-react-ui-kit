@@ -467,6 +467,9 @@ export const AvatarProvider: React.FC<AvatarProviderProps> = ({ children, option
   /**
    * Gets or creates an avatar for a user with caching and notifications
    */
+  /**
+   * Gets an avatar for a user, creating one if it doesn't exist
+   */
   const getAvatarForUser = useCallback(
     (userId: string, displayName?: string): AvatarData => {
       // Return cached avatar if it exists
@@ -474,7 +477,7 @@ export const AvatarProvider: React.FC<AvatarProviderProps> = ({ children, option
         return userAvatars[userId];
       }
 
-      // Create new avatar
+      // Create new avatar data (but don't update state here)
       const name = displayName || userId;
       const newAvatar: AvatarData = {
         displayName: name,
@@ -487,8 +490,7 @@ export const AvatarProvider: React.FC<AvatarProviderProps> = ({ children, option
         const managed = manageCacheSize(prev);
         const updated = { ...managed, [userId]: newAvatar };
 
-        // Notify change in next tick to avoid state update during render
-        setTimeout(() => notifyAvatarChange('user', userId, newAvatar), 0);
+        notifyAvatarChange('user', userId, newAvatar);
 
         return updated;
       });
