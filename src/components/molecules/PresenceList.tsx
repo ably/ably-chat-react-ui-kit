@@ -16,7 +16,6 @@ interface PresenceListProps extends React.HTMLAttributes<HTMLDivElement> {
   showTooltip: boolean;
   /** Whether another component (like a participant list) is open */
   isOpen: boolean;
-
   /** Custom class name for the tooltip surface */
   surfaceClassName?: string;
   /** Custom class name for the tooltip arrow */
@@ -76,11 +75,12 @@ export const PresenceList: React.FC<PresenceListProps> = ({
     <TooltipSurface
       position={tooltipPosition}
       className={surfaceClassName}
+      maxWidth="max-w-96"
       role="tooltip"
       aria-live="polite"
       {...rest}
     >
-      <div className={clsx('text-center', textClassName)}>{text}</div>
+      <div className={clsx('text-center truncate', textClassName)}>{text}</div>
       <TooltipArrow position={tooltipPosition} className={arrowClassName} aria-hidden="true" />
     </TooltipSurface>
   );
