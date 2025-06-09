@@ -66,20 +66,36 @@ interface PersistedAvatarData {
  */
 export interface AvatarContextType {
   /**
-   * Gets or creates an avatar for a user with automatic caching
+   * Gets an avatar for a user if it exists in the cache
    * @param userId - The unique identifier for the user
-   * @param displayName - Optional display name (defaults to userId if not provided)
-   * @returns An AvatarData object for the user
+   * @param displayName - Optional display name (not used for lookup, only for creation)
+   * @returns The avatar data if it exists, undefined otherwise
    */
-  getAvatarForUser: (userId: string, displayName?: string) => AvatarData;
+  getAvatarForUser: (userId: string, displayName?: string) => AvatarData | undefined;
 
   /**
-   * Gets or creates an avatar for a room with automatic caching
-   * @param roomId - The unique identifier for the room
-   * @param roomName - Optional room name (defaults to processed roomId if not provided)
-   * @returns An AvatarData object for the room
+   * Creates an avatar for a user and adds it to the cache
+   * @param userId - The unique identifier for the user
+   * @param displayName - Optional display name (defaults to userId if not provided)
+   * @returns The created avatar data
    */
-  getAvatarForRoom: (roomId: string, roomName?: string) => AvatarData;
+  createAvatarForUser: (userId: string, displayName?: string) => AvatarData;
+
+  /**
+   * Gets an avatar for a room if it exists in the cache
+   * @param roomId - The unique identifier for the room
+   * @param roomName - Optional room name (not used for lookup, only for creation)
+   * @returns The avatar data if it exists, undefined otherwise
+   */
+  getAvatarForRoom: (roomId: string, roomName?: string) => AvatarData | undefined;
+
+  /**
+   * Creates an avatar for a room and adds it to the cache
+   * @param roomId - The unique identifier for the room
+   * @param roomName - Optional room name (defaults to roomId if not provided)
+   * @returns The created avatar data
+   */
+  createAvatarForRoom: (roomId: string, roomName?: string) => AvatarData;
 
   /**
    * Updates an existing user avatar or creates a new one
@@ -465,19 +481,32 @@ export const AvatarProvider: React.FC<AvatarProviderProps> = ({ children, option
   } = useAvatarCache(persist, maxCacheSize, handleError);
 
   /**
-   * Gets or creates an avatar for a user with caching and notifications
-   */
-  /**
-   * Gets an avatar for a user, creating one if it doesn't exist
+   * Gets an avatar for a user if it exists in the cache
+   * @param userId - The unique identifier for the user
+   * @param displayName - Optional display name (not used for lookup, only for creation)
+   * @returns The avatar data if it exists, undefined otherwise
    */
   const getAvatarForUser = useCallback(
-    (userId: string, displayName?: string): AvatarData => {
+    (userId: string, displayName?: string): AvatarData | undefined => {
       // Return cached avatar if it exists
       if (userAvatars[userId]) {
         return userAvatars[userId];
       }
 
-      // Create new avatar data (but don't update state here)
+      // Return undefined if avatar doesn't exist
+      return undefined;
+    },
+    [userAvatars]
+  );
+
+  /**
+   * Creates an avatar for a user and adds it to the cache
+   * @param userId - The unique identifier for the user
+   * @param displayName - Optional display name (defaults to userId if not provided)
+   * @returns The created avatar data
+   */
+  const createAvatarForUser = useCallback(
+    (userId: string, displayName?: string): AvatarData => {
       const name = displayName || userId;
       const newAvatar: AvatarData = {
         displayName: name,
@@ -497,26 +526,35 @@ export const AvatarProvider: React.FC<AvatarProviderProps> = ({ children, option
 
       return newAvatar;
     },
-    [
-      userAvatars,
-      generateColor,
-      generateInitials,
-      manageCacheSize,
-      notifyAvatarChange,
-      setUserAvatars,
-    ]
+    [generateColor, generateInitials, manageCacheSize, notifyAvatarChange, setUserAvatars]
   );
 
   /**
-   * Gets or creates an avatar for a room using the roomName directly as displayName
+   * Gets an avatar for a room if it exists in the cache
+   * @param roomId - The unique identifier for the room
+   * @returns The avatar data if it exists, undefined otherwise
    */
   const getAvatarForRoom = useCallback(
-    (roomId: string, roomName?: string): AvatarData => {
+    (roomId: string): AvatarData | undefined => {
       // Return cached avatar if it exists
       if (roomAvatars[roomId]) {
         return roomAvatars[roomId];
       }
 
+      // Return undefined if avatar doesn't exist
+      return undefined;
+    },
+    [roomAvatars]
+  );
+
+  /**
+   * Creates an avatar for a room and adds it to the cache
+   * @param roomId - The unique identifier for the room
+   * @param roomName - Optional room name (defaults to roomId if not provided)
+   * @returns The created avatar data
+   */
+  const createAvatarForRoom = useCallback(
+    (roomId: string, roomName?: string): AvatarData => {
       // Use roomName or roomId directly
       const name = roomName || roomId;
 
@@ -539,14 +577,7 @@ export const AvatarProvider: React.FC<AvatarProviderProps> = ({ children, option
 
       return newAvatar;
     },
-    [
-      roomAvatars,
-      generateColor,
-      generateInitials,
-      manageCacheSize,
-      notifyAvatarChange,
-      setRoomAvatars,
-    ]
+    [generateColor, generateInitials, manageCacheSize, notifyAvatarChange, setRoomAvatars]
   );
 
   /**
@@ -604,7 +635,9 @@ export const AvatarProvider: React.FC<AvatarProviderProps> = ({ children, option
   const contextValue = useMemo(
     () => ({
       getAvatarForUser,
+      createAvatarForUser,
       getAvatarForRoom,
+      createAvatarForRoom,
       setUserAvatar,
       setRoomAvatar,
       getUserAvatars,
@@ -618,7 +651,9 @@ export const AvatarProvider: React.FC<AvatarProviderProps> = ({ children, option
     }),
     [
       getAvatarForUser,
+      createAvatarForUser,
       getAvatarForRoom,
+      createAvatarForRoom,
       setUserAvatar,
       setRoomAvatar,
       getUserAvatars,

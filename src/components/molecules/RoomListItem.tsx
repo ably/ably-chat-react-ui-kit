@@ -2,9 +2,9 @@ import React, { useEffect } from 'react';
 import { useOccupancy, useRoom } from '@ably/chat/react';
 import { Avatar, AvatarData } from '../atoms/Avatar';
 import { TypingIndicators } from './TypingIndicators.tsx';
-import { useAvatar } from '../../context/AvatarContext';
 import { Icon } from '../atoms/Icon';
 import { Button } from '../atoms/Button';
+import { useRoomAvatar } from '../../hooks';
 
 /**
  * Props for the RoomListItem component
@@ -47,23 +47,18 @@ export const RoomListItem: React.FC<RoomListItemProps> = React.memo(
     isCollapsed = false,
     typingIndicatorsEnabled = true,
   }) => {
-    const [roomAvatarData, setRoomAvatarData] = React.useState<AvatarData | undefined>(undefined);
-    const { getAvatarForRoom } = useAvatar();
     const { room } = useRoom();
     // Get occupancy data
     const { connections, presenceMembers } = useOccupancy();
+
+    const { roomAvatar } = useRoomAvatar({ roomId });
+    const roomAvatarData = propAvatar || roomAvatar;
 
     useEffect(() => {
       // attach the room when the component renders
       // detaching and release is handled at the top app level for now
       room?.attach();
     }, [room]);
-
-    useEffect(() => {
-      // Get the avatar for the room, either from props or AvatarProvider
-      const avatar = propAvatar || getAvatarForRoom(roomId);
-      setRoomAvatarData(avatar);
-    }, [getAvatarForRoom, propAvatar, roomId]);
 
     /**
      * Checks if the room has any active users

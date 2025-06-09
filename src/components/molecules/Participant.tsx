@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { Avatar, AvatarData } from '../atoms/Avatar';
+import React from 'react';
+import { Avatar, AvatarData } from '../atoms';
 import { TypingDots } from '../atoms';
-import { useAvatar } from '../../context';
+import { useUserAvatar } from '../../hooks';
 
 /**
  * Props for the Participant component
@@ -35,18 +35,9 @@ export const Participant: React.FC<ParticipantProps> = ({
   isTyping,
   avatar: propAvatar,
 }) => {
-  // Use the AvatarProvider to get user avatars
-  const { getAvatarForUser } = useAvatar();
-  const [avatarData, setAvatarData] = useState<AvatarData | undefined>(undefined);
-
-  useEffect(() => {
-    if (!propAvatar) {
-      const avatar = getAvatarForUser(clientId);
-      setAvatarData(avatar);
-    } else {
-      setAvatarData(propAvatar);
-    }
-  }, [getAvatarForUser, clientId, propAvatar]);
+  // Use the custom hook to get or create user avatar
+  const { userAvatar } = useUserAvatar({ clientId });
+  const avatarData = propAvatar || userAvatar;
 
   // Determine the status text for screen readers
   const statusText = isTyping && !isSelf ? 'typing' : isPresent ? 'online' : 'offline';

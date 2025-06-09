@@ -5,9 +5,9 @@ import { PresenceCount } from './PresenceCount';
 import { PresenceList } from './PresenceList';
 import { ParticipantList } from './ParticipantList';
 import { usePresenceListener, useChatClient, useTyping } from '@ably/chat/react';
-import { useAvatar } from '../../context/AvatarContext';
 import { PresenceIndicators } from './PresenceIndicators';
 import { TypingIndicators } from './TypingIndicators';
+import { useRoomAvatar } from '../../hooks';
 
 /**
  * Props for the RoomInfo component
@@ -48,21 +48,12 @@ export const RoomInfo: React.FC<RoomInfoProps> = ({
   const [tooltipPosition, setTooltipPosition] = useState<'above' | 'below'>('above');
   const [showAvatarEditor, setShowAvatarEditor] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const [roomAvatarData, setRoomAvatarData] = useState<AvatarData | null>(propRoomAvatar || null);
+  const { roomAvatar, setRoomAvatar } = useRoomAvatar({ roomId });
+  const roomAvatarData = propRoomAvatar || roomAvatar;
 
   const onToggle = () => {
     setIsOpen(!isOpen);
   };
-
-  // Use the AvatarProvider to get and set room avatars
-  const { getAvatarForRoom, setRoomAvatar } = useAvatar();
-
-  useEffect(() => {
-    // Get the avatar for the room, either from props or AvatarProvider
-    const avatar = propRoomAvatar || getAvatarForRoom(roomId);
-    setRoomAvatarData(avatar);
-  }, [getAvatarForRoom, propRoomAvatar, roomId]);
-
   /**
    * Handles mouse enter event on the room avatar
    * Calculates optimal tooltip position based on available space
@@ -107,7 +98,7 @@ export const RoomInfo: React.FC<RoomInfoProps> = ({
    */
   const handleAvatarSave = (avatarData: Partial<AvatarData>) => {
     // Update the room avatar in the AvatarProvider
-    setRoomAvatar(roomId, avatarData);
+    setRoomAvatar(avatarData);
   };
 
   return (
