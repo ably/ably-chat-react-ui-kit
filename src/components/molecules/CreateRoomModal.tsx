@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { Button } from '../atoms/Button';
-import { TextInput } from '../atoms/TextInput';
-import { Icon } from '../atoms/Icon';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Button } from '../atoms';
+import { TextInput } from '../atoms';
+import { Icon } from '../atoms';
 
 /**
  * Props for the CreateRoomModal component
@@ -27,19 +27,27 @@ export const CreateRoomModal: React.FC<CreateRoomModalProps> = ({
 }) => {
   const [roomName, setRoomName] = useState('');
 
+  /**
+   * Handles closing the modal
+   * Resets the room name input and calls the onClose callback
+   */
+  const handleClose = useCallback(() => {
+    setRoomName('');
+    onClose();
+  }, [onClose]);
+
   // Handle escape key press to close the modal
-  React.useEffect(() => {
+  useEffect(() => {
     const handleEscapeKey = (e: KeyboardEvent) => {
       if (isOpen && e.key === 'Escape') {
         handleClose();
       }
     };
-
     document.addEventListener('keydown', handleEscapeKey);
     return () => {
       document.removeEventListener('keydown', handleEscapeKey);
     };
-  }, [isOpen]);
+  }, [handleClose, isOpen]);
 
   if (!isOpen) return null;
 
@@ -53,15 +61,6 @@ export const CreateRoomModal: React.FC<CreateRoomModalProps> = ({
     e.preventDefault();
     if (!roomName.trim()) return;
     onCreateRoom(roomName.trim());
-    setRoomName('');
-    onClose();
-  };
-
-  /**
-   * Handles closing the modal
-   * Resets the room name input and calls the onClose callback
-   */
-  const handleClose = () => {
     setRoomName('');
     onClose();
   };

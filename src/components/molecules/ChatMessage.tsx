@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { Avatar } from '../atoms/Avatar';
 import { TextInput } from '../atoms/TextInput';
 import { Button } from '../atoms/Button';
@@ -8,8 +8,8 @@ import { MessageReactions } from './MessageReactions';
 import { EmojiPicker } from './EmojiPicker';
 import { AvatarEditor } from './AvatarEditor';
 import { Message } from '@ably/chat';
-import { useAvatar } from '../../context/AvatarContext';
 import { AvatarData } from '../atoms';
+import { useUserAvatar } from '../../hooks';
 
 /**
  * Props for the ChatMessage component
@@ -18,7 +18,7 @@ export interface ChatMessageProps {
   /** The message object from Ably */
   message: Message;
   /** ID of the current user */
-  currentUserId: string;
+  currentClientId: string;
   /** Callback when a message is edited */
   onEdit?: (message: Message, newText: string) => void;
   /** Callback when a message is deleted */
@@ -41,7 +41,7 @@ export interface ChatMessageProps {
  */
 export const ChatMessage: React.FC<ChatMessageProps> = ({
   message,
-  currentUserId,
+  currentClientId,
   onEdit,
   onDelete,
   onReactionAdd,
@@ -50,7 +50,6 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
   const [isHovered, setIsHovered] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(message.text || '');
-  const [avatarData, setAvatarData] = useState<AvatarData | undefined>(undefined);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [emojiPickerPosition, setEmojiPickerPosition] = useState({ top: 0, left: 0 });
 
@@ -64,14 +63,9 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
   const messageRef = useRef<HTMLDivElement>(null);
   const messageBubbleRef = useRef<HTMLDivElement>(null);
   const avatarRef = useRef<HTMLDivElement>(null);
-  const isOwn = message.clientId === currentUserId;
+  const isOwn = message.clientId === currentClientId;
 
-  // Get avatar data from context
-  const { getAvatarForUser, setUserAvatar } = useAvatar();
-  useEffect(() => {
-    const avatarData = getAvatarForUser(message.clientId);
-    setAvatarData(avatarData);
-  }, [getAvatarForUser, message]);
+  const { userAvatar, setUserAvatar } = useUserAvatar({ clientId: message.clientId });
 
   /**
    * Formats a timestamp into a readable time string (HH:MM)
@@ -185,7 +179,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
    */
   const handleReactionClick = (emoji: string) => {
     const distinct = message.reactions?.distinct ?? {};
-    const hasUserReacted = distinct[emoji]?.clientIds.includes(currentUserId) ?? false;
+    const hasUserReacted = distinct[emoji]?.clientIds.includes(currentClientId) ?? false;
 
     if (hasUserReacted) {
       onReactionRemove?.(message, emoji);
@@ -263,7 +257,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
    * @param avatarData - Partial avatar data to update
    */
   const handleAvatarSave = (avatarData: Partial<AvatarData>) => {
-    setUserAvatar(message.clientId, avatarData);
+    setUserAvatar(avatarData);
     setShowAvatarEditor(false);
   };
 
@@ -330,11 +324,11 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
           }
         >
           <Avatar
-            alt={avatarData?.displayName}
-            src={avatarData?.src}
-            color={avatarData?.color}
+            alt={userAvatar?.displayName}
+            src={userAvatar?.src}
+            color={userAvatar?.color}
             size="sm"
-            initials={avatarData?.initials}
+            initials={userAvatar?.initials}
           />
 
           {/* Edit overlay for own avatar */}
@@ -456,7 +450,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
             <MessageReactions
               message={message}
               onReactionClick={handleReactionClick}
-              currentUserId={currentUserId}
+              currentClientId={currentClientId}
             />
           )}
 
@@ -481,14 +475,14 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
       )}
 
       {/* Avatar Editor Modal (only for own messages) */}
-      {isOwn && showAvatarEditor && avatarData && (
+      {isOwn && showAvatarEditor && userAvatar && (
         <AvatarEditor
           isOpen={showAvatarEditor}
           onClose={() => setShowAvatarEditor(false)}
           onSave={handleAvatarSave}
-          currentAvatar={avatarData.src}
-          currentColor={avatarData.color}
-          displayName={avatarData.displayName}
+          currentAvatar={userAvatar.src}
+          currentColor={userAvatar.color}
+          displayName={userAvatar.displayName}
         />
       )}
     </div>

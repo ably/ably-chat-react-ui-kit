@@ -189,7 +189,7 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
           <ChatMessage
             key={msg.serial}
             message={msg}
-            currentUserId={currentClientId}
+            currentClientId={currentClientId}
             onEdit={onEdit}
             onDelete={onDelete}
             onReactionAdd={onReactionAdd}

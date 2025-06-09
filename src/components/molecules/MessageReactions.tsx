@@ -10,7 +10,7 @@ export interface MessageReactionsProps {
   /** Callback function when a reaction is clicked, receives the emoji character */
   onReactionClick?: (emoji: string) => void;
   /** ID of the current user to determine if they've reacted */
-  currentUserId: string;
+  currentClientId: string;
 }
 
 /**
@@ -25,7 +25,7 @@ export interface MessageReactionsProps {
 export const MessageReactions: React.FC<MessageReactionsProps> = ({
   message,
   onReactionClick,
-  currentUserId,
+  currentClientId,
 }) => {
   const distinct = message.reactions?.distinct ?? {};
 
@@ -38,7 +38,7 @@ export const MessageReactions: React.FC<MessageReactionsProps> = ({
     <div className="flex flex-wrap gap-1 mt-2" role="group" aria-label="Message reactions">
       {emojiNames.map((emoji) => {
         const reaction = distinct[emoji];
-        const hasUserReacted = reaction?.clientIds.includes(currentUserId) ?? false;
+        const hasUserReacted = reaction?.clientIds.includes(currentClientId) ?? false;
         const count = reaction?.total ?? 0;
 
         return (
