@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
 import TypingIndicators from '../molecules/TypingIndicators';
 import { ChatMessageList } from '../molecules';
 import ChatWindowHeader from './ChatWindowHeader';
@@ -27,107 +27,223 @@ interface ChatWindowProps {
   roomId: string;
   customHeaderContent?: React.ReactNode;
   customFooterContent?: React.ReactNode;
-  initialHistoryLimit?: number; // Default to 20 messages
+  initialHistoryLimit?: number;
 }
 
 export const ChatWindow: React.FC<ChatWindowProps> = ({
   roomId,
   customHeaderContent,
   customFooterContent,
-  initialHistoryLimit = 20,
+  initialHistoryLimit = 10,
 }) => {
   const [messages, setMessages] = useState<Message[]>([]);
+  const [hasBackfilled, setHasBackfilled] = useState(false);
   const [loading, setLoading] = useState(true);
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [hasMoreHistory, setHasMoreHistory] = useState(true);
+  const messageSerialsRef = useRef<Set<string>>(new Set());
   const { clientId } = useChatClient();
   const { room } = useRoom();
   usePresence();
 
-  useEffect(() => {
-    // attach the room when the component renders
-    // detaching and release is handled in the sidebar for now.
-    // TODO: Remove once the ChatClientProvider has room reference counts implemented
-    room?.attach();
-  }, [room]);
+  // Binary search to find message index by serial (since messages are sorted)
+  const findMessageIndex = useCallback((messages: Message[], targetSerial: string): number => {
+    let left = 0;
+    let right = messages.length - 1;
 
-  // Handle messages using the useMessages hook with proper event handling
+    while (left <= right) {
+      const mid = Math.floor((left + right) / 2);
+      const midSerial = messages[mid].serial;
+
+      if (midSerial === targetSerial) {
+        return mid;
+      } else if (midSerial < targetSerial) {
+        left = mid + 1;
+      } else {
+        right = mid - 1;
+      }
+    }
+
+    return -1; // Not found
+  }, []);
+
+  // Binary search to find insertion position for a new message
+  const findInsertionIndex = useCallback((messages: Message[], newMessage: Message): number => {
+    let left = 0;
+    let right = messages.length;
+
+    while (left < right) {
+      const mid = Math.floor((left + right) / 2);
+
+      if (newMessage.before(messages[mid])) {
+        right = mid;
+      } else {
+        left = mid + 1;
+      }
+    }
+
+    return left;
+  }, []);
+
+  // Handle adding/updating a single message
+  const handleMessageUpdate = useCallback(
+    (newMessage: Message) => {
+      setMessages((prevMessages) => {
+        // Auto-clear detection: if messages array is empty, clear the Set
+        if (prevMessages.length === 0 && messageSerialsRef.current.size > 0) {
+          console.log('Messages array is empty but Set has data, clearing Set');
+          messageSerialsRef.current.clear();
+        }
+
+        // Fast existence check with Set
+        const exists = messageSerialsRef.current.has(newMessage.serial);
+
+        if (!exists) {
+          // Case 1: New message - find insertion position with binary search
+          const insertIndex = findInsertionIndex(prevMessages, newMessage);
+
+          console.log('Adding new message', newMessage.serial, 'at index', insertIndex);
+
+          const updatedMessages = [
+            ...prevMessages.slice(0, insertIndex),
+            newMessage,
+            ...prevMessages.slice(insertIndex),
+          ];
+
+          // Add to set after successful state creation
+          messageSerialsRef.current.add(newMessage.serial);
+
+          return updatedMessages;
+        }
+
+        // Case 2: Message exists - find it with binary search
+        const existingIndex = findMessageIndex(prevMessages, newMessage.serial);
+
+        if (existingIndex === -1) {
+          console.warn('Message exists in set but not in array:', newMessage.serial);
+          return prevMessages;
+        }
+
+        const existingMessage = prevMessages[existingIndex];
+        const updatedMessage = existingMessage.with(newMessage);
+
+        if (updatedMessage === existingMessage) {
+          return prevMessages;
+        }
+
+        const updatedMessages = [...prevMessages];
+        updatedMessages[existingIndex] = updatedMessage;
+        return updatedMessages;
+      });
+    },
+    [findMessageIndex, findInsertionIndex]
+  );
+
+  // Handle adding multiple messages (for history loading)
+  const handleBulkMessagesUpdate = useCallback((newMessages: Message[], prepend = false) => {
+    setMessages((prevMessages) => {
+      // Auto-clear detection: if messages array is empty, clear the Set
+      if (prevMessages.length === 0 && messageSerialsRef.current.size > 0) {
+        console.log('Messages array is empty but Set has data, clearing Set');
+        messageSerialsRef.current.clear();
+      }
+
+      // Filter using Set for O(1) lookups
+      const filteredNewMessages = newMessages.filter((newMsg) => {
+        const exists = messageSerialsRef.current.has(newMsg.serial);
+        if (exists) {
+          console.log('Message already exists:', newMsg.serial);
+        }
+        return !exists;
+      });
+
+      if (filteredNewMessages.length === 0) {
+        return prevMessages;
+      }
+
+      let updatedMessages: Message[];
+
+      if (prepend) {
+        updatedMessages = [...filteredNewMessages, ...prevMessages];
+      } else {
+        updatedMessages = [...prevMessages, ...filteredNewMessages];
+        updatedMessages.sort((a, b) => (a.before(b) ? -1 : 1));
+      }
+
+      // Add new serials to set
+      filteredNewMessages.forEach((msg) => {
+        messageSerialsRef.current.add(msg.serial);
+      });
+
+      return updatedMessages;
+    });
+  }, []);
+
+  // Handle reaction updates
+  // TODO: Add existence check for reaction summary
+  const handleReactionUpdate = useCallback(
+    (reaction: MessageReactionSummaryEvent) => {
+      setMessages((prevMessages) => {
+        const messageSerial = reaction.summary.messageSerial;
+
+        // Use binary search to find the message
+        const existingIndex = findMessageIndex(prevMessages, messageSerial);
+
+        if (existingIndex === -1) {
+          console.warn('Reaction update for non-existent message:', messageSerial);
+          return prevMessages; // Message not found, no-op
+        }
+
+        const existingMessage = prevMessages[existingIndex];
+        const updatedMessage = existingMessage.with(reaction);
+
+        if (updatedMessage === existingMessage) {
+          return prevMessages; // No change
+        }
+
+        const updatedArray = [...prevMessages];
+        updatedArray[existingIndex] = updatedMessage;
+        return updatedArray;
+      });
+    },
+    [findMessageIndex]
+  );
+
   const { send, deleteMessage, update, sendReaction, deleteReaction, historyBeforeSubscribe } =
     useMessages({
       listener: (event: ChatMessageEvent) => {
         const message = event.message;
         switch (event.type) {
-          case ChatMessageEventType.Created: {
-            setMessages((prevMessages) => {
-              // if already exists do nothing
-              const index = prevMessages.findIndex((other) => message.isSameAs(other));
-              if (index !== -1) {
-                return prevMessages;
-              }
-
-              // if the message is not in the list, make a new list that contains it
-              const newArray = [...prevMessages, message];
-
-              // and put it at the right place
-              newArray.sort((a, b) => (a.before(b) ? -1 : 1));
-
-              return newArray;
-            });
-            break;
-          }
+          case ChatMessageEventType.Created:
           case ChatMessageEventType.Updated:
-          case ChatMessageEventType.Deleted: {
-            setMessages((prevMessages) => {
-              const index = prevMessages.findIndex((other) => message.isSameAs(other));
-              if (index === -1) {
-                return prevMessages;
-              }
-
-              const newMessage = prevMessages[index].with(event);
-
-              // if no change, do nothing
-              if (newMessage === prevMessages[index]) {
-                return prevMessages;
-              }
-
-              // copy array and replace the message
-              const updatedArray = prevMessages.slice();
-              updatedArray[index] = newMessage;
-              return updatedArray;
-            });
+          case ChatMessageEventType.Deleted:
+            handleMessageUpdate(message);
             break;
-          }
-          default: {
+          default:
             console.error('Unknown message event', event);
-          }
         }
       },
-      reactionsListener: (reaction: MessageReactionSummaryEvent) => {
-        const messageSerial = reaction.summary.messageSerial;
-        setMessages((prevMessages) => {
-          const index = prevMessages.findIndex((m) => m.serial === messageSerial);
-          if (index === -1) {
-            return prevMessages;
-          }
-
-          const newMessage = prevMessages[index].with(reaction);
-
-          // if no change, do nothing
-          if (newMessage === prevMessages[index]) {
-            return prevMessages;
-          }
-
-          // copy array and replace the message
-          const updatedArray = prevMessages.slice();
-          updatedArray[index] = newMessage;
-          return updatedArray;
-        });
-      },
+      reactionsListener: handleReactionUpdate,
       onDiscontinuity: () => {
         console.log('Discontinuity detected');
         handleDiscontinuity();
       },
     });
+
+  useEffect(() => {
+    room?.attach();
+  }, [room]);
+
+  // If you want the logging, add it to the first effect:
+  useEffect(() => {
+    console.log('ChatWindow: Room ID changed to', roomId);
+    // Clear messages and reset state when roomId changes
+    setMessages([]);
+    setLoading(true);
+    setLoadingHistory(false);
+    setHasMoreHistory(true);
+    setHasBackfilled(false);
+  }, [roomId]); // Only roomId dependency
 
   const backfillPreviousMessages = useCallback(
     (
@@ -137,7 +253,11 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
       if (historyBeforeSubscribe) {
         historyBeforeSubscribe({ limit })
           .then((result: PaginatedResult<Message>) => {
-            setMessages(result.items.reverse());
+            console.log('Backfilling previous messages:', result.items.length);
+            console.log('Has next:', result.hasNext());
+            const reversedMessages = result.items.reverse();
+            handleBulkMessagesUpdate(reversedMessages, false);
+            setHasMoreHistory(result.hasNext());
             setLoading(false);
           })
           .catch((error: ErrorInfo) => {
@@ -146,7 +266,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
           });
       }
     },
-    [initialHistoryLimit]
+    [initialHistoryLimit, handleBulkMessagesUpdate]
   );
 
   const loadMoreHistory = useCallback(async () => {
@@ -156,126 +276,128 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
 
     setLoadingHistory(true);
 
-    // get the first message in the messages array to determine the oldest message serial
-    const oldestMessage = messages.length > 0 ? messages[0] : undefined;
+    // Use current messages state safely
+    setMessages((currentMessages) => {
+      const oldestMessage = currentMessages.length > 0 ? currentMessages[0] : undefined;
 
-    try {
-      const result = await historyBeforeSubscribe({
+      console.log(oldestMessage?.timestamp?.getTime());
+      // Perform the async operation
+      historyBeforeSubscribe({
         limit: 50,
-        // If we have messages, start from the oldest one we have
-        start: oldestMessage?.timestamp?.getUTCDate(),
-      });
-
-      if (result.items.length === 0) {
-        setHasMoreHistory(false);
-      } else {
-        const newMessages = result.items.reverse();
-
-        setMessages((prevMessages) => {
-          // Prepend new messages to the beginning
-          return [...newMessages, ...prevMessages];
+        end: oldestMessage?.timestamp?.getTime(),
+      })
+        .then((result: PaginatedResult<Message>) => {
+          if (result.items.length === 0) {
+            console.log('No more history to load');
+            setHasMoreHistory(false);
+            return currentMessages; // Return unchanged messages
+          } else {
+            const reversedMessages = result.items.reverse();
+            console.log('Has next:', result.hasNext());
+            handleBulkMessagesUpdate(reversedMessages, true);
+          }
+        })
+        .catch((error) => {
+          console.error('Failed to load more history:', error);
+        })
+        .finally(() => {
+          setLoadingHistory(false);
         });
 
-        // Check if there are more pages
-        setHasMoreHistory(result.hasNext());
-      }
-    } catch (error) {
-      console.error('Failed to load more history:', error);
-    } finally {
-      setLoadingHistory(false);
-    }
-  }, [historyBeforeSubscribe, loadingHistory, hasMoreHistory, messages]);
+      // Return unchanged messages
+      return currentMessages;
+    });
+  }, [historyBeforeSubscribe, loadingHistory, hasMoreHistory, handleBulkMessagesUpdate]);
 
+  // TODO: We have to load all messages and check their versions, as history will return the latest version,
+  // so it's not enough to just check the serials.
   const handleDiscontinuity = useCallback(async () => {
-    if (!historyBeforeSubscribe || messages.length === 0) {
-      // If no previous messages or no history function, just clear and reload
+    if (!historyBeforeSubscribe) {
       setMessages([]);
       backfillPreviousMessages(historyBeforeSubscribe);
       return;
     }
 
-    try {
-      // Get the latest message we have
-      const latestMessage = messages[messages.length - 1];
+    setMessages((currentMessages) => {
+      if (currentMessages.length === 0) {
+        backfillPreviousMessages(historyBeforeSubscribe);
+        return currentMessages;
+      }
+
+      // Perform async recovery
+      const latestMessage = currentMessages[currentMessages.length - 1];
       const missedMessages: Message[] = [];
 
-      // Fetch missed messages in batches
-      let hasMore = true;
-      let startFrom = latestMessage.timestamp;
+      const recoverMessages = async () => {
+        try {
+          let hasMore = true;
+          let startFrom = latestMessage.timestamp;
 
-      while (hasMore) {
-        const result = await historyBeforeSubscribe({
-          start: startFrom.getUTCDate(),
-          limit: 100,
-        });
+          while (hasMore) {
+            const result = await historyBeforeSubscribe({
+              start: startFrom?.getTime(),
+              limit: 100,
+            });
 
-        if (result.items.length === 0) {
-          hasMore = false;
-          break;
+            if (result.items.length === 0) {
+              hasMore = false;
+              break;
+            }
+
+            // Filter out messages we already have using Set
+            const newMessages = result.items.filter(
+              (msg) => !messageSerialsRef.current.has(msg.serial)
+            );
+
+            missedMessages.unshift(...newMessages);
+            hasMore = result.hasNext();
+
+            if (hasMore && result.items.length > 0) {
+              startFrom = result.items[0].timestamp;
+            }
+          }
+
+          if (missedMessages.length > 0) {
+            handleBulkMessagesUpdate(missedMessages, false);
+          }
+        } catch (error) {
+          console.error('Failed to recover missed messages:', error);
+          setMessages([]);
+          backfillPreviousMessages(historyBeforeSubscribe);
         }
+      };
 
-        // Filter out messages we already have
-        const newMessages = result.items.filter(
-          (msg) => !messages.some((existingMsg) => existingMsg.isSameAs(msg))
-        );
-
-        missedMessages.unshift(...newMessages);
-
-        // Check if we have more pages
-        hasMore = result.hasNext();
-        if (hasMore && result.items.length > 0) {
-          // Update startFrom to the earliest message in this batch
-          startFrom = result.items[0].timestamp;
-        }
-      }
-
-      if (missedMessages.length > 0) {
-        // Add missed messages to the existing messages
-        setMessages((prevMessages) => {
-          const combinedMessages = [...prevMessages, ...missedMessages];
-          // Sort to ensure proper order
-          combinedMessages.sort((a, b) => (a.before(b) ? -1 : 1));
-          return combinedMessages;
-        });
-      }
-    } catch (error) {
-      console.error('Failed to recover missed messages:', error);
-      // Fallback: clear and reload all messages
-      setMessages([]);
-      backfillPreviousMessages(historyBeforeSubscribe);
-    }
-  }, [messages, historyBeforeSubscribe, backfillPreviousMessages]);
-
-  // Initial backfill when component mounts
-  useEffect(() => {
-    if (historyBeforeSubscribe) {
-      backfillPreviousMessages(historyBeforeSubscribe);
-    }
-  }, [historyBeforeSubscribe, backfillPreviousMessages]);
-
-  // Handle REST message updates for optimistic UI updates
-  const handleRESTMessageUpdate = useCallback((updatedMessage: Message) => {
-    setMessages((prevMessages) => {
-      const index = prevMessages.findIndex((m) => m.serial === updatedMessage.serial);
-      if (index === -1) {
-        return prevMessages;
-      }
-      if (updatedMessage.version <= prevMessages[index].version) {
-        return prevMessages;
-      }
-      const updatedArray = prevMessages.slice();
-      updatedArray[index] = updatedMessage;
-      return updatedArray;
+      recoverMessages();
+      return currentMessages;
     });
-  }, []);
+  }, [historyBeforeSubscribe, backfillPreviousMessages, handleBulkMessagesUpdate]);
 
-  // Message operation handlers
+  // Update the backfill effect to be more defensive:
+  useEffect(() => {
+    // Add a small delay to ensure state has settled
+    if (historyBeforeSubscribe && !hasBackfilled && loading) {
+      console.log('Starting backfill, hasBackfilled:', hasBackfilled);
+      backfillPreviousMessages(historyBeforeSubscribe);
+      setHasBackfilled(true);
+    }
+  }, [historyBeforeSubscribe, backfillPreviousMessages, hasBackfilled, loading]);
+
+  // Rest of the handlers remain the same...
+  const handleRESTMessageUpdate = useCallback(
+    (updatedMessage: Message) => {
+      handleMessageUpdate(updatedMessage);
+    },
+    [handleMessageUpdate]
+  );
+
   const handleMessageEdit = useCallback(
     async (messageSerial: string, newText: string) => {
       try {
-        const message = messages.find((m) => m.serial === messageSerial);
-        if (!message) return;
+        // Find message using binary search
+        const existingIndex = findMessageIndex(messages, messageSerial);
+        if (existingIndex === -1) return;
 
+        const message = messages[existingIndex];
         const updatedMessage = message.copy({
           text: newText,
           metadata: message.metadata,
@@ -283,8 +405,6 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
         });
 
         const result = await update(message.serial, updatedMessage);
-
-        // Apply optimistic update
         if (result) {
           handleRESTMessageUpdate(result);
         }
@@ -292,18 +412,18 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
         console.error('Failed to edit message:', error);
       }
     },
-    [messages, update, handleRESTMessageUpdate]
+    [messages, update, handleRESTMessageUpdate, findMessageIndex]
   );
 
   const handleMessageDelete = useCallback(
     async (messageSerial: string) => {
       try {
-        const message = messages.find((m) => m.serial === messageSerial);
-        if (!message) return;
+        // Find message using binary search
+        const existingIndex = findMessageIndex(messages, messageSerial);
+        if (existingIndex === -1) return;
 
+        const message = messages[existingIndex];
         const result = await deleteMessage(message, { description: 'deleted by user' });
-
-        // Apply optimistic update
         if (result) {
           handleRESTMessageUpdate(result);
         }
@@ -311,38 +431,41 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
         console.error('Failed to delete message:', error);
       }
     },
-    [messages, deleteMessage, handleRESTMessageUpdate]
+    [messages, deleteMessage, handleRESTMessageUpdate, findMessageIndex]
   );
 
   const handleReactionAdd = useCallback(
     async (messageSerial: string, emoji: string) => {
       try {
-        const message = messages.find((m) => m.serial === messageSerial);
-        if (!message) return;
+        // Find message using binary search
+        const existingIndex = findMessageIndex(messages, messageSerial);
+        if (existingIndex === -1) return;
 
+        const message = messages[existingIndex];
         await sendReaction(message, { type: MessageReactionType.Distinct, name: emoji });
       } catch (error) {
         console.error('Failed to add reaction:', error);
       }
     },
-    [messages, sendReaction]
+    [messages, sendReaction, findMessageIndex]
   );
 
   const handleReactionRemove = useCallback(
     async (messageSerial: string, emoji: string) => {
       try {
-        const message = messages.find((m) => m.serial === messageSerial);
-        if (!message) return;
+        // Find message using binary search
+        const existingIndex = findMessageIndex(messages, messageSerial);
+        if (existingIndex === -1) return;
 
+        const message = messages[existingIndex];
         await deleteReaction(message, { type: MessageReactionType.Distinct, name: emoji });
       } catch (error) {
         console.error('Failed to remove reaction:', error);
       }
     },
-    [messages, deleteReaction]
+    [messages, deleteReaction, findMessageIndex]
   );
 
-  // Handle sending messages
   const handleSendMessage = useCallback(
     async (text: string) => {
       if (text.trim()) {
@@ -358,9 +481,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
 
   return (
     <div className="flex flex-col h-full bg-white dark:bg-gray-900 flex-1">
-      {/* Chat Window Header */}
       <ChatWindowHeader>{customHeaderContent}</ChatWindowHeader>
-      {/* Messages Area */}
       <ChatMessageList
         messages={messages}
         currentClientId={clientId}
@@ -372,11 +493,8 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
         onReactionAdd={handleReactionAdd}
         onReactionRemove={handleReactionRemove}
       >
-        {/* Additional components passed as children */}
         <TypingIndicators className="px-4 py-2" />
       </ChatMessageList>
-
-      {/* Chat Window Footer */}
       <ChatWindowFooter>
         <div className="flex-1">
           <MessageInput onSend={handleSendMessage} placeholder={`Message ${roomId}...`} />

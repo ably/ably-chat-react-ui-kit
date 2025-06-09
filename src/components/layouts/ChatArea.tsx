@@ -36,6 +36,7 @@ export const ChatArea: React.FC<ChatAreaProps> = ({ activeRoomName, defaultRoomO
       options={roomOptions}
     >
       <ChatWindow
+        key={activeRoomName}
         roomId={activeRoomName}
         customHeaderContent={<RoomInfo roomId={activeRoomName} />}
         customFooterContent={<RoomReaction />}
