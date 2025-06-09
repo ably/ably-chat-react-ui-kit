@@ -29,7 +29,7 @@ type IconSize = 'sm' | 'md' | 'lg' | 'xl';
 /**
  * Props for the Icon component
  */
-interface IconProps {
+export interface IconProps {
   /**
    * Name of the icon to display
    * Must be one of the predefined icon names in the icon library
@@ -118,7 +118,7 @@ interface IconProps {
  * // Decorative icon (hidden from screen readers)
  * <Icon name="star" aria-hidden />
  */
-const Icon: React.FC<IconProps> = ({
+export const Icon: React.FC<IconProps> = ({
   name,
   size = 'md',
   className = '',
@@ -234,5 +234,3 @@ const Icon: React.FC<IconProps> = ({
     </svg>
   );
 };
-
-export default Icon;

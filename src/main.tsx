@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { App } from './app/App.tsx';
+import { App } from './app';
 import './index.css';
 import { ChatClientProvider } from '@ably/chat/react';
 import * as Ably from 'ably';

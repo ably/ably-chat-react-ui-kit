@@ -18,7 +18,7 @@ interface PresenceIndicatorsProps {
  * - Uses green text when people are present, gray when empty
  * - Properly handles singular/plural text
  */
-const PresenceIndicators: React.FC<PresenceIndicatorsProps> = ({ className = '' }) => {
+export const PresenceIndicators: React.FC<PresenceIndicatorsProps> = ({ className = '' }) => {
   const { presenceData } = usePresenceListener();
 
   /**
@@ -47,5 +47,3 @@ const PresenceIndicators: React.FC<PresenceIndicatorsProps> = ({ className = '' 
     </p>
   );
 };
-
-export default PresenceIndicators;

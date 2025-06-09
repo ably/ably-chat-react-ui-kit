@@ -1,7 +1,6 @@
 export * from './components/atoms';
 export * from './components/layouts';
-export { ThemeContext, ThemeProvider } from './context/ThemeContext';
-export type { ThemeContextType } from './context/ThemeContext';
-export { useTheme } from './hooks/useTheme';
+export * from './context';
+export * from './hooks';
 export { App } from './app/App.tsx';
 import './index.css';

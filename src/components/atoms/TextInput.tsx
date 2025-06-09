@@ -13,7 +13,7 @@ type TextInputSize = 'sm' | 'md' | 'lg';
 /**
  * Props for the TextInput component
  */
-interface TextInputProps
+export interface TextInputProps
   extends Omit<
     React.InputHTMLAttributes<HTMLInputElement> & React.TextareaHTMLAttributes<HTMLTextAreaElement>,
     'size' | 'prefix' | 'suffix'
@@ -126,7 +126,7 @@ interface TextInputProps
  *   placeholder="Search..."
  * />
  */
-const TextInput = React.forwardRef<HTMLInputElement | HTMLTextAreaElement, TextInputProps>(
+export const TextInput = React.forwardRef<HTMLInputElement | HTMLTextAreaElement, TextInputProps>(
   (
     {
       variant = 'default',
@@ -336,5 +336,3 @@ const TextInput = React.forwardRef<HTMLInputElement | HTMLTextAreaElement, TextI
 );
 
 TextInput.displayName = 'TextInput';
-
-export default TextInput;

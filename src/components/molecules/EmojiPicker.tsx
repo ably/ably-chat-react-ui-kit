@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 /**
  * Props for the EmojiPicker component
  */
-interface EmojiPickerProps {
+export interface EmojiPickerProps {
   /** Whether the emoji picker is currently open */
   isOpen: boolean;
   /** Callback function when the picker is closed */
@@ -77,7 +77,7 @@ const emojis = [
  * - Support for custom emoji lists
  * - Accessible emoji buttons
  */
-const EmojiPicker: React.FC<EmojiPickerProps> = ({
+export const EmojiPicker: React.FC<EmojiPickerProps> = ({
   isOpen,
   onClose,
   onEmojiSelect,
@@ -208,7 +208,7 @@ const EmojiPicker: React.FC<EmojiPickerProps> = ({
           {/* Content area with scrolling */}
           <div className="flex-1 overflow-y-auto p-3">
             {recentEmojiButtons}
-            
+
             <div
               className="grid gap-2"
               style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}
@@ -221,5 +221,3 @@ const EmojiPicker: React.FC<EmojiPickerProps> = ({
     </>
   );
 };
-
-export default EmojiPicker;

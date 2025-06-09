@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import TypingIndicators from '../molecules/TypingIndicators';
+import { TypingIndicators } from '../molecules';
 import { ChatMessageList } from '../molecules';
-import ChatWindowHeader from './ChatWindowHeader';
-import ChatWindowFooter from './ChatWindowFooter';
+import { ChatWindowHeader } from './ChatWindowHeader';
+import { ChatWindowFooter } from './ChatWindowFooter';
 import { useChatClient, useMessages, usePresence, useRoom } from '@ably/chat/react';
 import {
   ChatMessageEvent,
@@ -13,7 +13,7 @@ import {
   MessageReactionType,
   PaginatedResult,
 } from '@ably/chat';
-import MessageInput from '../molecules/MessageInput.tsx';
+import { MessageInput } from '../molecules';
 
 /**
  * Interface representing the props for the ChatWindow component.
@@ -23,7 +23,7 @@ import MessageInput from '../molecules/MessageInput.tsx';
  * @property customFooterContent - Optional custom content to render in the footer of the chat window. Accepts a ReactNode.
  * @property initialHistoryLimit - Optional initial limit for the number of messages to fetch when the chat window loads. Defaults to 20 messages. Set to 0 to disable initial history loading.
  */
-interface ChatWindowProps {
+export interface ChatWindowProps {
   roomId: string;
   customHeaderContent?: React.ReactNode;
   customFooterContent?: React.ReactNode;

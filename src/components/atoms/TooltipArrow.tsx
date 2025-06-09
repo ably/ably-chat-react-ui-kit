@@ -9,7 +9,7 @@ type TooltipArrowPosition = 'above' | 'below';
 /**
  * Props for the TooltipArrow component
  */
-interface TooltipArrowProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface TooltipArrowProps extends React.HTMLAttributes<HTMLDivElement> {
   /**
    * Position of the arrow relative to the tooltip
    * - 'above': Arrow points downward (tooltip is above trigger)
@@ -63,7 +63,7 @@ interface TooltipArrowProps extends React.HTMLAttributes<HTMLDivElement> {
  *   className="ml-2"
  * />
  */
-const TooltipArrow: React.FC<TooltipArrowProps> = ({
+export const TooltipArrow: React.FC<TooltipArrowProps> = ({
   position,
   className,
   size = 'md',
@@ -127,5 +127,3 @@ const TooltipArrow: React.FC<TooltipArrowProps> = ({
     />
   );
 };
-
-export default TooltipArrow;

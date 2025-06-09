@@ -13,7 +13,7 @@ type ButtonSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 /**
  * Props for the Button component
  */
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   /**
    * Visual variant of the button
    * - 'primary': Main action button with primary brand color
@@ -144,7 +144,7 @@ const DefaultSpinner: React.FC<{ size: ButtonSize }> = ({ size }) => {
  *   Continue
  * </Button>
  */
-const Button: React.FC<ButtonProps> = ({
+export const Button: React.FC<ButtonProps> = ({
   variant = 'primary',
   size = 'md',
   children,
@@ -248,5 +248,3 @@ const Button: React.FC<ButtonProps> = ({
     </button>
   );
 };
-
-export default Button;

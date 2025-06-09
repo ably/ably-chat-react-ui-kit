@@ -1,7 +1,7 @@
 import React from 'react';
-import Button from '../atoms/Button';
-import Icon from '../atoms/Icon';
-import Participant from './Participant';
+import { Button } from '../atoms/Button';
+import { Icon } from '../atoms/Icon';
+import { Participant } from './Participant';
 import { PresenceMember } from '@ably/chat';
 import { useAvatar } from '../../context/AvatarContext';
 
@@ -33,7 +33,7 @@ interface ParticipantListProps {
  * - Shows total count of participants
  * - Positioned at specified coordinates
  */
-const ParticipantList: React.FC<ParticipantListProps> = ({
+export const ParticipantList: React.FC<ParticipantListProps> = ({
   presenceData,
   currentUserId,
   currentlyTyping,
@@ -108,5 +108,3 @@ const ParticipantList: React.FC<ParticipantListProps> = ({
     </div>
   );
 };
-
-export default ParticipantList;

@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import Icon from '../atoms/Icon';
+import { Icon } from '../atoms/Icon';
 
 /**
  * Props for the EmojiWheel component
  */
-interface EmojiWheelProps {
+export interface EmojiWheelProps {
   /** Whether the emoji wheel is currently visible */
   isOpen: boolean;
   /** Position where the wheel should appear */
@@ -25,7 +25,7 @@ interface EmojiWheelProps {
  * - Hover effects for better UX
  * - Optimized for touch and mouse interaction
  */
-const EmojiWheel: React.FC<EmojiWheelProps> = ({
+export const EmojiWheel: React.FC<EmojiWheelProps> = ({
   isOpen,
   position,
   onEmojiSelect,
@@ -46,7 +46,7 @@ const EmojiWheel: React.FC<EmojiWheelProps> = ({
           onClose();
         }
       };
-      
+
       document.addEventListener('mousedown', handleClickOutside);
       return () => document.removeEventListener('mousedown', handleClickOutside);
     } else {
@@ -75,21 +75,18 @@ const EmojiWheel: React.FC<EmojiWheelProps> = ({
       aria-label="Emoji reaction selector"
     >
       {/* Backdrop */}
-      <div 
+      <div
         className={`absolute inset-0 transition-opacity duration-200 pointer-events-auto ${
           isOpen ? 'opacity-30' : 'opacity-0'
         }`}
         style={{ backgroundColor: 'rgba(0, 0, 0, 0.2)' }}
         onClick={onClose}
       />
-      
+
       {/* Emoji Wheel Container */}
       <div
-        data-emoji-wheel
         className={`absolute pointer-events-auto transition-all duration-300 ease-out ${
-          isOpen 
-            ? 'opacity-100 scale-100' 
-            : 'opacity-0 scale-50'
+          isOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-50'
         }`}
         style={{
           left: safePosition.x - wheelSize / 2,
@@ -100,7 +97,7 @@ const EmojiWheel: React.FC<EmojiWheelProps> = ({
       >
         {/* Center background circle */}
         <div className="absolute inset-0 rounded-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-2xl border border-gray-200 dark:border-gray-600" />
-        
+
         {/* Center close button */}
         <button
           onClick={onClose}
@@ -115,7 +112,7 @@ const EmojiWheel: React.FC<EmojiWheelProps> = ({
           const angle = (index / emojis.length) * 2 * Math.PI - Math.PI / 2; // Start from top
           const x = Math.cos(angle) * radius;
           const y = Math.sin(angle) * radius;
-          
+
           return (
             <button
               key={emoji}
@@ -144,5 +141,3 @@ const EmojiWheel: React.FC<EmojiWheelProps> = ({
     </div>
   );
 };
-
-export default EmojiWheel; 

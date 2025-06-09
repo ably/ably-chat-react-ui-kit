@@ -3,7 +3,7 @@ import React from 'react';
 /**
  * Props for the ChatWindowFooter component
  */
-interface ChatWindowFooterProps {
+export interface ChatWindowFooterProps {
   /** Content to display in the footer */
   children?: React.ReactNode;
 }
@@ -17,7 +17,7 @@ interface ChatWindowFooterProps {
  * - Conditionally renders based on whether children are provided
  * - Positioned at the bottom of the chat area
  */
-const ChatWindowFooter: React.FC<ChatWindowFooterProps> = ({ children }) => {
+export const ChatWindowFooter: React.FC<ChatWindowFooterProps> = ({ children }) => {
   // Don't render anything if no children are provided
   if (!children) {
     return null;
@@ -28,5 +28,3 @@ const ChatWindowFooter: React.FC<ChatWindowFooterProps> = ({ children }) => {
     </div>
   );
 };
-
-export default ChatWindowFooter;

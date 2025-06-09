@@ -1,5 +1,5 @@
 import React from 'react';
-import Avatar, { AvatarData } from '../atoms/Avatar';
+import { Avatar, AvatarData } from '../atoms/Avatar';
 import { TypingDots } from '../atoms';
 
 /**
@@ -20,14 +20,14 @@ interface ParticipantProps {
 
 /**
  * Participant component displays information about a chat participant
- * 
+ *
  * Features:
  * - Shows participant's avatar with presence indicator
  * - Displays name and online status
  * - Shows typing indicator when participant is typing
  * - Differentiates between current user and other participants
  */
-const Participant: React.FC<ParticipantProps> = ({
+export const Participant: React.FC<ParticipantProps> = ({
   clientId,
   isPresent,
   isSelf,
@@ -35,14 +35,10 @@ const Participant: React.FC<ParticipantProps> = ({
   avatar,
 }) => {
   // Determine the status text for screen readers
-  const statusText = isTyping && !isSelf 
-    ? "typing" 
-    : isPresent 
-      ? "online" 
-      : "offline";
+  const statusText = isTyping && !isSelf ? 'typing' : isPresent ? 'online' : 'offline';
 
   return (
-    <div 
+    <div
       className="flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-700"
       role="listitem"
       aria-label={`${isSelf ? 'You' : clientId}, ${statusText}`}
@@ -61,14 +57,15 @@ const Participant: React.FC<ParticipantProps> = ({
             isPresent ? 'bg-green-500' : 'bg-gray-400'
           }`}
           aria-hidden="true"
-          title={isPresent ? "Online" : "Offline"}
+          title={isPresent ? 'Online' : 'Offline'}
         />
       </div>
 
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
           <h4 className="font-medium text-gray-900 dark:text-gray-100 truncate">
-            {clientId}{isSelf && <span className="ml-1 text-xs text-gray-500">(you)</span>}
+            {clientId}
+            {isSelf && <span className="ml-1 text-xs text-gray-500">(you)</span>}
           </h4>
         </div>
         {/* Status */}
@@ -89,5 +86,3 @@ const Participant: React.FC<ParticipantProps> = ({
     </div>
   );
 };
-
-export default Participant;

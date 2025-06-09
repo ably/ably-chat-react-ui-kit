@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import Button from '../atoms/Button';
-import TextInput from '../atoms/TextInput';
-import Icon from '../atoms/Icon';
+import { Button } from '../atoms/Button';
+import { TextInput } from '../atoms/TextInput';
+import { Icon } from '../atoms/Icon';
 
 /**
  * Props for the CreateRoomModal component
  */
-interface CreateRoomModalProps {
+export interface CreateRoomModalProps {
   /** Whether the modal is currently open */
   isOpen: boolean;
   /** Callback function when the modal is closed */
@@ -17,10 +17,14 @@ interface CreateRoomModalProps {
 
 /**
  * Modal component for creating a new chat room
- * 
+ *
  * Displays a form with a text input for the room name and buttons to create or cancel
  */
-const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose, onCreateRoom }) => {
+export const CreateRoomModal: React.FC<CreateRoomModalProps> = ({
+  isOpen,
+  onClose,
+  onCreateRoom,
+}) => {
   const [roomName, setRoomName] = useState('');
 
   // Handle escape key press to close the modal
@@ -42,7 +46,7 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose, onCr
   /**
    * Handles form submission when creating a new room
    * Validates the room name, calls the onCreateRoom callback, and closes the modal
-   * 
+   *
    * @param e - The form submission event
    */
   const handleSubmit = async (e: React.FormEvent) => {
@@ -123,5 +127,3 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose, onCr
     </>
   );
 };
-
-export default CreateRoomModal;

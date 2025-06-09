@@ -1,30 +1,30 @@
-import React, { useState, useCallback, useMemo, useRef } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { ChatRoomProvider, useChatClient } from '@ably/chat/react';
-import RoomListItem from '../molecules/RoomListItem';
-import Button from '../atoms/Button';
-import Icon from '../atoms/Icon';
-import DropdownMenu from '../molecules/DropdownMenu';
-import CreateRoomModal from '../molecules/CreateRoomModal';
+import { RoomListItem } from '../molecules/RoomListItem';
+import { Button } from '../atoms/Button';
+import { Icon } from '../atoms/Icon';
+import { DropdownMenu } from '../molecules/DropdownMenu';
+import { CreateRoomModal } from '../molecules/CreateRoomModal';
 import { useTheme } from '../../hooks';
 import { useAvatar } from '../../context/AvatarContext.tsx';
 import { RoomOptions } from '@ably/chat';
 
 // Sidebar component props definition
-interface SidebarProps {
-  initialRoomIds?: string[];
+export interface SidebarProps {
+  initialRoomNames?: string[];
   activeRoomName?: string; // Optional, can be undefined if no room is selected
   width?: string | number;
   onChangeActiveRoom: (roomId?: string) => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
-  initialRoomIds = [], // Default to empty array
+  initialRoomNames = [], // Default to empty array
   width = '20rem', // 320px default
   activeRoomName,
   onChangeActiveRoom,
 }) => {
   // Local state for room IDs
-  const [roomIds, setRoomIds] = useState<string[]>(initialRoomIds);
+  const [roomIds, setRoomIds] = useState<string[]>(initialRoomNames);
   const [defaultRoomOptions] = useState<RoomOptions>({ occupancy: { enableEvents: true } });
   // ref to store the room IDs to avoid unnecessary re-renders
   const [isCollapsed, setIsCollapsed] = useState<boolean>(false);

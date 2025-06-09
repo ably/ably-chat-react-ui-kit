@@ -4,7 +4,7 @@ import { Message } from '@ably/chat';
 /**
  * Props for the MessageReactions component
  */
-interface MessageReactionsProps {
+export interface MessageReactionsProps {
   /** The message object containing reaction data */
   message: Message;
   /** Callback function when a reaction is clicked, receives the emoji character */
@@ -22,7 +22,7 @@ interface MessageReactionsProps {
  * - Allows toggling reactions by clicking
  * - Visually distinguishes between active and inactive reactions
  */
-const MessageReactions: React.FC<MessageReactionsProps> = ({
+export const MessageReactions: React.FC<MessageReactionsProps> = ({
   message,
   onReactionClick,
   currentUserId,
@@ -64,5 +64,3 @@ const MessageReactions: React.FC<MessageReactionsProps> = ({
     </div>
   );
 };
-
-export default MessageReactions;

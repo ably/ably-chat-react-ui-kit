@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 /**
  * Props for the EmojiBurst component
  */
-interface EmojiBurstProps {
+export interface EmojiBurstProps {
   /** Whether the burst animation is currently active */
   isActive: boolean;
   /** The position where the burst should originate from */
@@ -51,7 +51,7 @@ interface FlyingEmoji {
  * - Automatically fades out and cleans up after animation completes
  * - Non-interactive visual effect (pointer-events-none)
  */
-const EmojiBurst: React.FC<EmojiBurstProps> = ({
+export const EmojiBurst: React.FC<EmojiBurstProps> = ({
   isActive,
   position,
   emoji = '👍',
@@ -150,5 +150,3 @@ const EmojiBurst: React.FC<EmojiBurstProps> = ({
     </div>
   );
 };
-
-export default EmojiBurst;

@@ -4,7 +4,7 @@ import clsx from 'clsx';
 /**
  * Props for the TypingDots component
  */
-interface TypingDotsProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface TypingDotsProps extends React.HTMLAttributes<HTMLDivElement> {
   /**
    * Tailwind size utility classes for each dot
    * @default 'w-1.5 h-1.5'
@@ -38,7 +38,7 @@ interface TypingDotsProps extends React.HTMLAttributes<HTMLDivElement> {
 /**
  * Animation delays for each of the three dots to create a wave effect
  */
-const ANIMATION_DELAYS = ['0ms', '200ms', '400ms'] as const;
+const ANIMATION_DELAYS = ['0ms', '200ms', '400ms'];
 
 /**
  * TypingDots component displays an animated three-dot indicator commonly used to show typing activity
@@ -65,7 +65,7 @@ const ANIMATION_DELAYS = ['0ms', '200ms', '400ms'] as const;
  * // With custom animation
  * <TypingDots animationDuration="0.8s" />
  */
-const TypingDots: React.FC<TypingDotsProps> = ({
+export const TypingDots: React.FC<TypingDotsProps> = ({
   dotSizeClassName = 'w-1.5 h-1.5',
   className,
   dotClassName,
@@ -81,7 +81,7 @@ const TypingDots: React.FC<TypingDotsProps> = ({
     aria-live="polite"
     {...rest}
   >
-    {ANIMATION_DELAYS.map((delay, index) => (
+    {ANIMATION_DELAYS.map((delay) => (
       <div
         key={delay}
         className={clsx(dotSizeClassName, 'rounded-full animate-bounce', dotColor, dotClassName)}
@@ -100,5 +100,3 @@ const TypingDots: React.FC<TypingDotsProps> = ({
     ))}
   </div>
 );
-
-export default TypingDots;

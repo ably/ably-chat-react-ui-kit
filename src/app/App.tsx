@@ -5,7 +5,6 @@ import { AppLayout } from '../components/layouts';
 import { Sidebar } from '../components/layouts';
 import { ChatArea } from '../components/layouts/ChatArea';
 import { AvatarProvider } from '../context/AvatarContext';
-import { RoomOptions } from '@ably/chat';
 
 /**
  * Main chat application component
@@ -37,10 +36,10 @@ const ChatApp: React.FC = () => {
   }
 
   return (
-    <ThemeProvider>
+    <ThemeProvider options={{ persist: true, defaultTheme: 'light' }}>
       <AppLayout width="70vw" height="70vh">
         <Sidebar
-          initialRoomIds={initialRoomIds}
+          initialRoomNames={initialRoomIds}
           onChangeActiveRoom={handleChangeSelectedRoom}
           activeRoomName={activeRoomName}
         />

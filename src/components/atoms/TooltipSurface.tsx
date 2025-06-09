@@ -9,7 +9,7 @@ type TooltipPosition = 'above' | 'below';
 /**
  * Props for the TooltipSurface component
  */
-interface TooltipSurfaceProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface TooltipSurfaceProps extends React.HTMLAttributes<HTMLDivElement> {
   /**
    * Position of the tooltip relative to its trigger element
    * - 'above': Tooltip appears above the trigger
@@ -78,7 +78,7 @@ interface TooltipSurfaceProps extends React.HTMLAttributes<HTMLDivElement> {
  *   High priority tooltip
  * </TooltipSurface>
  */
-const TooltipSurface: React.FC<TooltipSurfaceProps> = ({
+export const TooltipSurface: React.FC<TooltipSurfaceProps> = ({
   position,
   className,
   children,
@@ -130,5 +130,3 @@ const TooltipSurface: React.FC<TooltipSurfaceProps> = ({
     </div>
   );
 };
-
-export default TooltipSurface;

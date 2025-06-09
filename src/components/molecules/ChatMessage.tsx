@@ -1,12 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
-import Avatar from '../atoms/Avatar';
-import TextInput from '../atoms/TextInput';
-import Button from '../atoms/Button';
+import { Avatar } from '../atoms/Avatar';
+import { TextInput } from '../atoms/TextInput';
+import { Button } from '../atoms/Button';
 import { TooltipSurface, TooltipArrow } from '../atoms';
-import MessageActions from './MessageActions';
-import MessageReactions from './MessageReactions';
-import EmojiPicker from './EmojiPicker';
-import AvatarEditor from './AvatarEditor';
+import { MessageActions } from './MessageActions';
+import { MessageReactions } from './MessageReactions';
+import { EmojiPicker } from './EmojiPicker';
+import { AvatarEditor } from './AvatarEditor';
 import { Message } from '@ably/chat';
 import { useAvatar } from '../../context/AvatarContext';
 import { AvatarData } from '../atoms';
@@ -14,7 +14,7 @@ import { AvatarData } from '../atoms';
 /**
  * Props for the ChatMessage component
  */
-interface ChatMessageProps {
+export interface ChatMessageProps {
   /** The message object from Ably */
   message: Message;
   /** ID of the current user */
@@ -39,7 +39,7 @@ interface ChatMessageProps {
  * - Show message status (edited, deleted)
  * - Display timestamps
  */
-const ChatMessage: React.FC<ChatMessageProps> = ({
+export const ChatMessage: React.FC<ChatMessageProps> = ({
   message,
   currentUserId,
   onEdit,
@@ -494,5 +494,3 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
     </div>
   );
 };
-
-export default ChatMessage;

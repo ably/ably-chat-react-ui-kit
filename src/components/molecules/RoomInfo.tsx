@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import Avatar, { AvatarData } from '../atoms/Avatar';
-import AvatarEditor from './AvatarEditor';
-import PresenceCount from './PresenceCount';
+import { Avatar, AvatarData } from '../atoms/Avatar';
+import { AvatarEditor } from './AvatarEditor';
+import { PresenceCount } from './PresenceCount';
 import { PresenceList } from './PresenceList';
-import ParticipantList from './ParticipantList';
-import { usePresenceListener, useChatClient, useTyping, useRoom } from '@ably/chat/react';
+import { ParticipantList } from './ParticipantList';
+import { usePresenceListener, useChatClient, useTyping } from '@ably/chat/react';
 import { useAvatar } from '../../context/AvatarContext';
-import PresenceIndicators from './PresenceIndicators';
-import TypingIndicators from './TypingIndicators';
+import { PresenceIndicators } from './PresenceIndicators';
+import { TypingIndicators } from './TypingIndicators';
 
 /**
  * Props for the RoomInfo component
@@ -33,7 +33,7 @@ interface RoomInfoProps {
  * - Allows editing the room avatar
  * - Integrates with presence and typing indicators
  */
-const RoomInfo: React.FC<RoomInfoProps> = ({
+export const RoomInfo: React.FC<RoomInfoProps> = ({
   roomAvatar: propRoomAvatar,
   roomId,
   position = { top: 0, left: 150 },
@@ -225,5 +225,3 @@ const RoomInfo: React.FC<RoomInfoProps> = ({
     </div>
   );
 };
-
-export default RoomInfo;

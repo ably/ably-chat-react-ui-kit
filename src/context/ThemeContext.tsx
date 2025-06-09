@@ -26,12 +26,12 @@ export type ThemeType = 'light' | 'dark';
 /**
  * Callback function type for theme change events
  */
-type ThemeChangeCallback = (theme: ThemeType, previousTheme: ThemeType) => void;
+export type ThemeChangeCallback = (theme: ThemeType, previousTheme: ThemeType) => void;
 
 /**
  * Configuration options for theme management
  */
-interface ThemeOptions {
+export interface ThemeOptions {
   /**
    * Whether to persist theme preference to localStorage
    * @default true
@@ -114,7 +114,7 @@ export const ThemeContext = createContext<ThemeContextType | undefined>(undefine
 /**
  * Props for the ThemeProvider component
  */
-interface ThemeProviderProps {
+export interface ThemeProviderProps {
   /**
    * Child components that will have access to the theme context
    */
@@ -142,10 +142,9 @@ interface ThemeProviderProps {
  * - Performance optimizations with memoization
  * - Accessibility support with proper DOM updates
  *
- * TODO: Consider adding more themes:
+ * TODO: Adding more themes for:
  * - High contrast mode for accessibility
- * - Custom brand themes
- * - Automatic theme scheduling (e.g., dark mode at night)
+ * - Custom user/brand themes
  *
  * @example
  * // Basic usage

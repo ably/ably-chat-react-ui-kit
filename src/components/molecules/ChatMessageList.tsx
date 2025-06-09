@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, forwardRef, useState, useCallback } from 'react';
-import ChatMessage from './ChatMessage';
+import { ChatMessage } from './ChatMessage';
 import { Message } from '@ably/chat';
 import clsx from 'clsx';
 
-interface ChatMessageListProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'children'> {
+export interface ChatMessageListProps
+  extends Omit<React.HTMLAttributes<HTMLDivElement>, 'children'> {
   /** Array of messages to render */
   messages: Message[];
   /** Current user ID for determining message ownership */

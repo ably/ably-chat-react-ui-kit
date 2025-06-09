@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import Button from '../atoms/Button';
-import Icon from '../atoms/Icon';
-import Avatar, { AvatarData } from '../atoms/Avatar';
+import { Button } from '../atoms/Button';
+import { Icon } from '../atoms/Icon';
+import { Avatar, AvatarData } from '../atoms/Avatar';
 
 /**
  * Preset avatar options for users to choose from
@@ -31,7 +31,7 @@ const COLOR_OPTIONS = [
   { value: 'bg-cyan-500', label: 'Cyan' },
 ];
 
-interface AvatarEditorProps {
+export interface AvatarEditorProps {
   /**
    * Current avatar URL
    */
@@ -74,13 +74,13 @@ interface AvatarEditorProps {
  * - Select background colors
  * - Remove avatar
  *
- * TODO: Consider breaking this component into smaller subcomponents:
+ * TODO: Break up into smaller subcomponents:
  * - AvatarUploadTab
  * - AvatarPresetsTab
  * - AvatarCustomizeTab
  * - AvatarPreview
  */
-const AvatarEditor: React.FC<AvatarEditorProps> = ({
+export const AvatarEditor: React.FC<AvatarEditorProps> = ({
   currentAvatar,
   currentColor,
   displayName,
@@ -443,5 +443,3 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({
     </div>
   );
 };
-
-export default AvatarEditor;

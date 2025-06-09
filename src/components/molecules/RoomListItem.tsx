@@ -1,11 +1,10 @@
 import React, { useEffect } from 'react';
 import { useOccupancy, useRoom } from '@ably/chat/react';
-import Avatar, { AvatarData } from '../atoms/Avatar';
-import TypingIndicators from './TypingIndicators.tsx';
+import { Avatar, AvatarData } from '../atoms/Avatar';
+import { TypingIndicators } from './TypingIndicators.tsx';
 import { useAvatar } from '../../context/AvatarContext';
-import { useAppState } from '../../context/AppStateContext.tsx';
-import Icon from '../atoms/Icon';
-import Button from '../atoms/Button';
+import { Icon } from '../atoms/Icon';
+import { Button } from '../atoms/Button';
 
 /**
  * Props for the RoomListItem component
@@ -38,7 +37,7 @@ interface RoomListItemProps {
  * - Integrates with Ably's occupancy and typing data
  * - Supports collapsed mode (avatar only) for compact sidebar display
  */
-const RoomListItem: React.FC<RoomListItemProps> = React.memo(
+export const RoomListItem: React.FC<RoomListItemProps> = React.memo(
   ({
     roomId,
     isSelected,
@@ -199,5 +198,3 @@ const RoomListItem: React.FC<RoomListItemProps> = React.memo(
     );
   }
 );
-
-export default RoomListItem;

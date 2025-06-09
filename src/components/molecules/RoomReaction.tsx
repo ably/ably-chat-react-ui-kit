@@ -1,7 +1,7 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { useRoomReactions } from '@ably/chat/react';
-import EmojiBurst from './EmojiBurst';
-import EmojiWheel from './EmojiWheel';
+import { EmojiBurst } from './EmojiBurst';
+import { EmojiWheel } from './EmojiWheel';
 import { RoomReactionEvent } from '@ably/chat';
 import { useThrottle } from '../../hooks/useThrottle';
 
@@ -29,7 +29,7 @@ interface RoomReactionProps {
  * Room reactions are ephemeral and similar to typing indicators - they provide
  * momentary feedback without being persisted in the chat history.
  */
-const RoomReaction: React.FC<RoomReactionProps> = ({
+export const RoomReaction: React.FC<RoomReactionProps> = ({
   emojiBurstDuration,
   emojiBurstPosition: initialEmojiBurstPosition,
 }) => {
@@ -247,5 +247,3 @@ const RoomReaction: React.FC<RoomReactionProps> = ({
     </div>
   );
 };
-
-export default RoomReaction;

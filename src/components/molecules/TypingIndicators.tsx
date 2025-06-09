@@ -30,7 +30,7 @@ interface TypingIndicatorsProps extends React.HTMLAttributes<HTMLDivElement> {
  * - Limits the number of displayed names to avoid long messages
  * - Collapses additional typing users into a count
  */
-const TypingIndicators: React.FC<TypingIndicatorsProps> = ({
+export const TypingIndicators: React.FC<TypingIndicatorsProps> = ({
   maxClients,
   className,
   textClassName,
@@ -60,8 +60,6 @@ const TypingIndicators: React.FC<TypingIndicatorsProps> = ({
     </div>
   );
 };
-
-export default TypingIndicators;
 
 /**
  * Builds a human-readable "is / are typing" sentence

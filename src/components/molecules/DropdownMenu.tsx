@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 /**
  * Interface for dropdown menu items
  */
-interface DropdownMenuItem {
+export interface DropdownMenuItem {
   /** Unique identifier for the menu item */
   id: string;
   /** Display text for the menu item */
@@ -17,7 +17,7 @@ interface DropdownMenuItem {
 /**
  * Props for the DropdownMenu component
  */
-interface DropdownMenuProps {
+export interface DropdownMenuProps {
   /** React node that will trigger the dropdown when clicked */
   trigger: React.ReactNode;
   /** Array of menu items to display in the dropdown */
@@ -36,7 +36,7 @@ interface DropdownMenuProps {
  * - Automatically closes when clicking outside
  * - Accessible keyboard navigation
  */
-const DropdownMenu: React.FC<DropdownMenuProps> = ({ trigger, items, align = 'right' }) => {
+export const DropdownMenu: React.FC<DropdownMenuProps> = ({ trigger, items, align = 'right' }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -113,5 +113,3 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({ trigger, items, align = 'ri
     </div>
   );
 };
-
-export default DropdownMenu;

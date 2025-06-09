@@ -21,7 +21,7 @@ export interface AvatarData {
  * Supported formats: JPG, PNG, WebP, SVG
  * Maximum file size: 5MB
  */
-interface AvatarProps {
+export interface AvatarProps {
   /**
    * URL to the avatar image
    */
@@ -68,7 +68,7 @@ interface AvatarProps {
  * - AvatarInitials: Handles initials generation and display
  * - AvatarContainer: Handles sizing and common styling
  *
- * TODO: Add support for:
+ * TODO:
  * - Status indicators (online/offline/away)
  * - Avatar groups/stacks for multiple users
  * - Upload functionality for editable avatars
@@ -91,7 +91,14 @@ interface AvatarProps {
  * const avatarData = { displayName: "John Doe", src: "https://example.com/avatar.jpg" };
  * <Avatar alt={avatarData.displayName} src={avatarData.src} color={avatarData.color} initials={avatarData.initials} />
  */
-const Avatar: React.FC<AvatarProps> = ({ src, alt, color, size = 'md', initials, onClick }) => {
+export const Avatar: React.FC<AvatarProps> = ({
+  src,
+  alt,
+  color,
+  size = 'md',
+  initials,
+  onClick,
+}) => {
   const [imgError, setImgError] = useState(false);
 
   // Reset image error state if src changes
@@ -206,5 +213,3 @@ const Avatar: React.FC<AvatarProps> = ({ src, alt, color, size = 'md', initials,
     </div>
   );
 };
-
-export default Avatar;

@@ -17,7 +17,7 @@ const STORAGE_KEY = 'chat-ui-avatars';
 /**
  * Callback function type for avatar change events
  */
-type AvatarChangeCallback = (
+export type AvatarChangeCallback = (
   type: 'user' | 'room',
   id: string,
   avatar: AvatarData,
@@ -27,7 +27,7 @@ type AvatarChangeCallback = (
 /**
  * Options for avatar generation and management
  */
-interface AvatarOptions {
+export interface AvatarOptions {
   /**
    * Whether to persist avatars to localStorage
    * @default true
@@ -64,7 +64,7 @@ interface PersistedAvatarData {
 /**
  * Shape of the AvatarContext value providing comprehensive avatar management
  */
-interface AvatarContextType {
+export interface AvatarContextType {
   /**
    * Gets or creates an avatar for a user with automatic caching
    * @param userId - The unique identifier for the user
@@ -447,8 +447,6 @@ interface AvatarProviderProps {
  */
 export const AvatarProvider: React.FC<AvatarProviderProps> = ({ children, options = {} }) => {
   const { persist = true, customColors, maxCacheSize = 100, onError } = options;
-
-  // Use focused hooks for different concerns
   const { generateColor, generateInitials } = useAvatarGeneration(customColors);
   const { notifyAvatarChange, onAvatarChange, handleError } = useAvatarNotifications(onError);
   const {
@@ -497,7 +495,14 @@ export const AvatarProvider: React.FC<AvatarProviderProps> = ({ children, option
 
       return newAvatar;
     },
-    [userAvatars, generateColor, generateInitials, manageCacheSize, notifyAvatarChange, setUserAvatars]
+    [
+      userAvatars,
+      generateColor,
+      generateInitials,
+      manageCacheSize,
+      notifyAvatarChange,
+      setUserAvatars,
+    ]
   );
 
   /**
@@ -532,7 +537,14 @@ export const AvatarProvider: React.FC<AvatarProviderProps> = ({ children, option
 
       return newAvatar;
     },
-    [roomAvatars, generateColor, generateInitials, manageCacheSize, notifyAvatarChange, setRoomAvatars]
+    [
+      roomAvatars,
+      generateColor,
+      generateInitials,
+      manageCacheSize,
+      notifyAvatarChange,
+      setRoomAvatars,
+    ]
   );
 
   /**

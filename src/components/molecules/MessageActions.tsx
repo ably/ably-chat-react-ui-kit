@@ -1,11 +1,11 @@
 import React from 'react';
-import Button from '../atoms/Button';
-import Icon from '../atoms/Icon';
+import { Button } from '../atoms/Button';
+import { Icon } from '../atoms/Icon';
 
 /**
  * Props for the MessageActions component
  */
-interface MessageActionsProps {
+export interface MessageActionsProps {
   /** Callback function when the reaction button is clicked */
   onReaction: () => void;
   /** Callback function when the edit button is clicked */
@@ -27,7 +27,7 @@ interface MessageActionsProps {
  * - Positioned relative to the message bubble
  * - Conditionally rendered based on hover state
  */
-const MessageActions: React.FC<MessageActionsProps> = ({
+export const MessageActions: React.FC<MessageActionsProps> = ({
   onReaction,
   onEdit,
   onDelete,
@@ -78,5 +78,3 @@ const MessageActions: React.FC<MessageActionsProps> = ({
     </div>
   );
 };
-
-export default MessageActions;

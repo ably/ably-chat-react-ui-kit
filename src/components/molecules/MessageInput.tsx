@@ -1,14 +1,14 @@
 import React, { useState, useRef, ChangeEvent, KeyboardEvent } from 'react';
 import { useTyping } from '@ably/chat/react';
-import Icon from '../atoms/Icon';
-import TextInput from '../atoms/TextInput';
-import Button from '../atoms/Button';
-import EmojiPicker from './EmojiPicker';
+import { Icon } from '../atoms/Icon';
+import { TextInput } from '../atoms/TextInput';
+import { Button } from '../atoms/Button';
+import { EmojiPicker } from './EmojiPicker';
 
 /**
  * Props for the MessageInput component
  */
-interface MessageInputProps {
+export interface MessageInputProps {
   /** Callback function when a message is sent, receives the message text */
   onSend: (message: string) => void;
   /** Placeholder text for the input field */
@@ -25,7 +25,7 @@ interface MessageInputProps {
  * - Attachment button (currently non-functional)
  * - Enter key to send messages
  */
-const MessageInput: React.FC<MessageInputProps> = ({
+export const MessageInput: React.FC<MessageInputProps> = ({
   onSend,
   placeholder = 'Type a message...',
 }) => {
@@ -179,5 +179,3 @@ const MessageInput: React.FC<MessageInputProps> = ({
     </div>
   );
 };
-
-export default MessageInput;
