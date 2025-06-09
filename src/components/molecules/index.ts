@@ -1,6 +1,7 @@
 export { AvatarEditor } from './AvatarEditor';
 export { ChatMessage } from './ChatMessage';
 export { ChatMessageList } from './ChatMessageList';
+export { ConfirmDialog } from './ConfirmDialog';
 export { CreateRoomModal } from './CreateRoomModal';
 export { DropdownMenu } from './DropdownMenu';
 export { EmojiBurst } from './EmojiBurst';

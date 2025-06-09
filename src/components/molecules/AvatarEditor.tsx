@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Button } from '../atoms/Button';
-import { Icon } from '../atoms/Icon';
-import { Avatar, AvatarData } from '../atoms/Avatar';
+import { Button } from '../atoms';
+import { Icon } from '../atoms';
+import { Avatar, AvatarData } from '../atoms';
 
 /**
  * Preset avatar options for users to choose from

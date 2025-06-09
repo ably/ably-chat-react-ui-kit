@@ -7,6 +7,7 @@ import { MessageActions } from './MessageActions';
 import { MessageReactions } from './MessageReactions';
 import { EmojiPicker } from './EmojiPicker';
 import { AvatarEditor } from './AvatarEditor';
+import { ConfirmDialog } from './ConfirmDialog';
 import { Message } from '@ably/chat';
 import { AvatarData } from '../atoms';
 import { useUserAvatar } from '../../hooks';
@@ -15,30 +16,64 @@ import { useUserAvatar } from '../../hooks';
  * Props for the ChatMessage component
  */
 export interface ChatMessageProps {
-  /** The message object from Ably */
+  /**
+   * The Ably Chat message object used to display the message content.
+   */
   message: Message;
-  /** ID of the current user */
+
+  /**
+   * Client ID of the currently active user.
+   * Used to determine message ownership for edit/delete permissions and UI styling.
+   */
   currentClientId: string;
-  /** Callback when a message is edited */
+
+  /**
+   * Optional callback triggered when the user saves an edited message.
+   * Only called for messages owned by the current user.
+   * @param message - The original message object being edited
+   * @param newText - The updated message text after editing
+   */
   onEdit?: (message: Message, newText: string) => void;
-  /** Callback when a message is deleted */
+
+  /**
+   * Optional callback triggered when the user confirms message deletion.
+   * Only called for messages owned by the current user after confirmation dialog.
+   * @param message - The message object to be deleted
+   */
   onDelete?: (message: Message) => void;
-  /** Callback when a reaction is added to a message */
+
+  /**
+   * Optional callback triggered when a user adds an emoji reaction to the message.
+   * Can be called by any user, not just the message owner.
+   * @param message - The message object receiving the reaction
+   * @param emoji - The emoji character being added as a reaction
+   */
   onReactionAdd?: (message: Message, emoji: string) => void;
-  /** Callback when a reaction is removed from a message */
+
+  /**
+   * Optional callback triggered when a user removes their emoji reaction from the message.
+   * Called when clicking an existing reaction the user has already added.
+   * @param message - The message object losing the reaction
+   * @param emoji - The emoji character being removed from reactions
+   */
   onReactionRemove?: (message: Message, emoji: string) => void;
 }
 
 /**
- * ChatMessage component displays a single chat message with various interactive features
+ * ChatMessage component displays an individual chat message with interactive capabilities
  *
- * Features:
- * - Display message content with sender information
- * - Edit and delete messages (for own messages)
- * - Add and remove reactions
- * - Show message status (edited, deleted)
- * - Display timestamps
+ * Core Features:
+ * • Message content display with sender avatar and timestamp
+ * • Edit/delete functionality for own messages with confirmation dialogs
+ * • Emoji reactions system with picker and toggle functionality
+ * • Avatar editing for message senders (own messages only)
+ * • Status indicators (edited, deleted)
+ * • Responsive layout with proper message bubble alignment
+ * • Full keyboard navigation and screen reader support
+ * • Hover tooltips showing sender information
+ * • Auto-positioning of modals to stay within viewport bounds
  */
+
 export const ChatMessage: React.FC<ChatMessageProps> = ({
   message,
   currentClientId,
@@ -59,6 +94,9 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
 
   // Avatar editor state
   const [showAvatarEditor, setShowAvatarEditor] = useState(false);
+
+  // Confirm dialog state
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const messageRef = useRef<HTMLDivElement>(null);
   const messageBubbleRef = useRef<HTMLDivElement>(null);
@@ -106,15 +144,17 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
   };
 
   /**
-   * Handles message deletion after confirmation
-   *
-   * TODO: Consider replacing the browser's confirm dialog with a custom modal
-   * for better UX and styling consistency
+   * Shows the delete confirmation dialog
    */
   const handleDelete = () => {
-    if (confirm('Are you sure you want to delete this message?')) {
-      onDelete?.(message);
-    }
+    setShowDeleteConfirm(true);
+  };
+
+  /**
+   * Handles confirmed message deletion
+   */
+  const handleConfirmDelete = () => {
+    onDelete?.(message);
   };
 
   /**
@@ -485,6 +525,28 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
           displayName={userAvatar.displayName}
         />
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={handleConfirmDelete}
+        title="Delete Message"
+        message="Are you sure you want to delete this message? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        confirmVariant="danger"
+        icon={
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+            />
+          </svg>
+        }
+      />
     </div>
   );
 };

@@ -5,45 +5,111 @@ import clsx from 'clsx';
 
 export interface ChatMessageListProps
   extends Omit<React.HTMLAttributes<HTMLDivElement>, 'children'> {
-  /** Array of messages to render */
+  /**
+   * Array of Ably Chat Message objects to render in chronological order.
+   * Each message contains content, metadata, reactions, and status information.
+   */
   messages: Message[];
-  /** Current user ID for determining message ownership */
+
+  /**
+   * Client ID of the currently authenticated user.
+   * Used by individual ChatMessage components to determine ownership and permissions.
+   */
   currentClientId: string;
-  /** Callback to load more history when scrolling to top */
+
+  /**
+   * Optional callback triggered when user scrolls near the top of the message list.
+   * Called automatically when scroll position is within loadMoreThreshold pixels from top.
+   * Use this to fetch and prepend older messages to the messages array.
+   */
   onLoadMoreHistory?: () => void;
-  /** Whether history is currently being loaded and we should display a loading screen */
+
+  /**
+   * Whether a history loading operation is currently in progress.
+   * When true, displays a "Loading messages..." indicator at the top of the list.
+   */
   isLoading?: boolean;
-  /** Whether there is more history available to load */
+
+  /**
+   * Whether there are more historical messages available to load.
+   * When false, displays "No more messages to load" indicator instead of loading spinner.
+   */
   hasMoreHistory?: boolean;
-  /** Handler for editing messages */
+
+  /**
+   * Callback triggered when a user saves an edited message.
+   * Passed through to individual ChatMessage components.
+   * @param message - The original message being edited
+   * @param newText - The updated message content
+   */
   onEdit: (message: Message, newText: string) => void;
-  /** Handler for deleting messages */
+
+  /**
+   * Callback triggered when a user confirms deletion of their message.
+   * Passed through to individual ChatMessage components.
+   * @param message - The message to be deleted
+   */
   onDelete: (message: Message) => void;
-  /** Handler for adding reactions */
+
+  /**
+   * Callback triggered when a user adds an emoji reaction to any message.
+   * Passed through to individual ChatMessage components.
+   * @param message - The message receiving the reaction
+   * @param emoji - The emoji character being added
+   */
   onReactionAdd: (message: Message, emoji: string) => void;
-  /** Handler for removing reactions */
+
+  /**
+   * Callback triggered when a user removes their emoji reaction from a message.
+   * Passed through to individual ChatMessage components.
+   * @param message - The message losing the reaction
+   * @param emoji - The emoji character being removed
+   */
   onReactionRemove: (message: Message, emoji: string) => void;
-  /** Additional components to render after messages (e.g., TypingIndicators) */
+
+  /**
+   * Optional React elements to render after all messages (e.g., TypingIndicators).
+   * Commonly used for typing indicators, system messages, or loading states.
+   */
   children?: React.ReactNode;
-  /** Whether to automatically scroll to bottom when messages change */
+
+  /**
+   * Whether to automatically scroll to bottom when new messages arrive.
+   * Only scrolls if user is already at/near the bottom to avoid interrupting reading.
+   * @default true
+   */
   autoScroll?: boolean;
-  /** Distance from top in pixels to trigger history loading */
+
+  /**
+   * Distance in pixels from the top edge that triggers onLoadMoreHistory callback.
+   * Lower values require more precise scrolling, higher values load history earlier.
+   * @default 100
+   */
   loadMoreThreshold?: number;
-  /** Additional CSS classes to apply */
+
+  /**
+   * Additional CSS classes to apply to the message list container.
+   * Merged with default styling classes using clsx.
+   */
   className?: string;
 }
 
 /**
- * ChatMessageList component provides a scrollable container for chat messages
+ * ChatMessageList component provides a scrollable, virtualized container for chat messages
  *
- * Features:
- * - Renders ChatMessage components automatically from messages array
- * - Scrollable message container with proper styling
- * - Accessibility attributes for screen readers
- * - Auto-scroll to bottom functionality
- * - Accepts additional components as children (e.g., TypingIndicators)
- * - Rest props support for additional customization
+ * Core Features:
+ * • Infinite scroll with lazy loading of message history from the top
+ * • Smart auto-scroll behavior that respects user's current scroll position
+ * • Loading states and indicators for history fetching operations
+ * • Maintains scroll position when prepending historical messages
+ * • Full accessibility support with ARIA labels
+ * • Optimized scroll event handling with throttling and memoization
+ * • Flexible children support for typing indicators and system messages
+ * • Responsive design with proper touch scrolling on mobile devices
+ * • Forward ref support for external scroll control and position tracking
+ * • Seamless integration with Ably Chat message lifecycle and reactions
  */
+
 export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
   (
     {
@@ -168,19 +234,28 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
         role="log"
         aria-label="Chat messages"
         aria-live="polite"
+        aria-busy={isLoading}
+        aria-describedby={isLoading ? 'loading-status' : undefined}
         {...rest}
       >
-        {/* Loading indicator for history */}
         {isLoading && (
-          <div className="flex justify-center py-4">
-            <div className="text-sm text-gray-500 dark:text-gray-400">Loading messages...</div>
+          <div className="flex justify-center py-4" role="status" aria-live="polite">
+            <div
+              className="text-sm text-gray-500 dark:text-gray-400"
+              aria-label="Loading older messages"
+            >
+              Loading messages...
+            </div>
           </div>
         )}
-
-        {/* No more history indicator */}
         {!hasMoreHistory && messages.length > 0 && (
-          <div className="flex justify-center py-4">
-            <div className="text-sm text-gray-500 dark:text-gray-400">No more messages to load</div>
+          <div className="flex justify-center py-4" role="status">
+            <div
+              className="text-sm text-gray-500 dark:text-gray-400"
+              aria-label="End of message history"
+            >
+              No more messages to load
+            </div>
           </div>
         )}
 
@@ -205,3 +280,5 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
     );
   }
 );
+
+ChatMessageList.displayName = 'ChatMessageList';
