@@ -6,23 +6,64 @@ import { Icon } from '../atoms';
  * Props for the ConfirmDialog component
  */
 export interface ConfirmDialogProps {
-  /** Whether the dialog is currently open */
+  /**
+   * Whether the dialog is currently open and visible to the user.
+   * Controls the dialog's visibility state.
+   */
   isOpen: boolean;
-  /** Callback function when the dialog is closed */
+
+  /**
+   * Callback function triggered when the dialog should be closed.
+   * Called on backdrop click, escape key press, or cancel button click.
+   */
   onClose: () => void;
-  /** Callback function when the user confirms the action */
+
+  /**
+   * Callback function triggered when the user confirms the action.
+   * The dialog will automatically close after this callback is executed.
+   */
   onConfirm: () => void;
-  /** Title of the dialog */
+
+  /**
+   * Title displayed in the dialog header.
+   * Should be concise and clearly indicate the action being confirmed.
+   */
   title: string;
-  /** Message content of the dialog */
+
+  /**
+   * Main message content explaining the action and its consequences.
+   * Can include warnings or additional context for the user.
+   */
   message: string;
-  /** Text for the confirm button (default: "Confirm") */
+
+  /**
+   * Custom text for the confirm button.
+   * Should be action-oriented (e.g., "Delete", "Save", "Continue").
+   * @default "Confirm"
+   */
   confirmText?: string;
-  /** Text for the cancel button (default: "Cancel") */
+
+  /**
+   * Custom text for the cancel button.
+   * Should indicate the safe/default action.
+   * @default "Cancel"
+   */
   cancelText?: string;
-  /** Variant of the confirm button (default: "danger") */
+
+  /**
+   * Visual variant of the confirm button indicating action severity.
+   * - `primary`: Standard confirmation (blue)
+   * - `secondary`: Neutral action (gray)
+   * - `danger`: Destructive action (red)
+   * @default "danger"
+   */
   confirmVariant?: 'primary' | 'secondary' | 'danger';
-  /** Icon to display in the dialog header (optional) */
+
+  /**
+   * Optional icon to display in the dialog header.
+   * Typically used for warning, error, or information icons.
+   * Icon will be colored red for visual emphasis.
+   */
   icon?: React.ReactNode;
 }
 
@@ -35,8 +76,48 @@ export interface ConfirmDialogProps {
  * - Customizable buttons and text
  * - Escape key handling to close
  * - Backdrop click to close
- * - Proper accessibility attributes
+ * - Basic accessibility attributes
  * - Focus management
+ *
+ * @example
+ * // Basic deletion confirmation
+ * <ConfirmDialog
+ *   isOpen={showDeleteDialog}
+ *   onClose={() => setShowDeleteDialog(false)}
+ *   onConfirm={handleDeleteMessage}
+ *   title="Delete Message"
+ *   message="Are you sure you want to delete this message? This action cannot be undone."
+ * />
+ *
+ * @example
+ * // Custom styling with icon
+ * <ConfirmDialog
+ *   isOpen={showLogoutDialog}
+ *   onClose={() => setShowLogoutDialog(false)}
+ *   onConfirm={handleLogout}
+ *   title="Sign Out"
+ *   message="Are you sure you want to sign out of your account?"
+ *   confirmText="Sign Out"
+ *   cancelText="Stay Signed In"
+ *   confirmVariant="primary"
+ *   icon={<Icon name="logout" />}
+ * />
+ *
+ * @example
+ * // Warning dialog
+ * <ConfirmDialog
+ *   isOpen={showWarning}
+ *   onClose={() => setShowWarning(false)}
+ *   onConfirm={handleProceed}
+ *   title="Unsaved Changes"
+ *   message="You have unsaved changes. Are you sure you want to leave this page?"
+ *   confirmText="Leave Page"
+ *   cancelText="Stay Here"
+ *   confirmVariant="danger"
+ *   icon={<Icon name="warning" />}
+ * />
+ * @see {@link Button} - For button styling variants
+ * @see {@link Icon} - For available icon options
  */
 export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   isOpen,

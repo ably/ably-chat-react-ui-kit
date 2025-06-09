@@ -97,19 +97,41 @@ export interface ChatMessageListProps
 /**
  * ChatMessageList component provides a scrollable, virtualized container for chat messages
  *
- * Core Features:
- * • Infinite scroll with lazy loading of message history from the top
- * • Smart auto-scroll behavior that respects user's current scroll position
- * • Loading states and indicators for history fetching operations
- * • Maintains scroll position when prepending historical messages
- * • Full accessibility support with ARIA labels
- * • Optimized scroll event handling with throttling and memoization
- * • Flexible children support for typing indicators and system messages
- * • Responsive design with proper touch scrolling on mobile devices
- * • Forward ref support for external scroll control and position tracking
- * • Seamless integration with Ably Chat message lifecycle and reactions
+ * Features:
+ * - Infinite scroll with lazy loading of message history
+ * - Smart auto-scroll that respects user's current position
+ * - Loading states and indicators for history fetching
+ * - Maintains scroll position when prepending historical messages
+ * - Full accessibility support with ARIA labels
+ * - Forward ref support for external scroll control
+ *
+ * @example
+ * // Basic usage
+ * <ChatMessageList
+ *   messages={messages}
+ *   currentClientId="user123"
+ *   onEdit={handleEdit}
+ *   onDelete={handleDelete}
+ *   onReactionAdd={handleReactionAdd}
+ *   onReactionRemove={handleReactionRemove}
+ * />
+ *
+ * @example
+ * // With history loading
+ * <ChatMessageList
+ *   messages={messages}
+ *   currentClientId="user123"
+ *   onLoadMoreHistory={loadMoreHistory}
+ *   isLoading={isLoadingHistory}
+ *   hasMoreHistory={hasMore}
+ *   onEdit={handleEdit}
+ *   onDelete={handleDelete}
+ *   onReactionAdd={handleReactionAdd}
+ *   onReactionRemove={handleReactionRemove}
+ * >
+ *   <TypingIndicator />
+ * </ChatMessageList>
  */
-
 export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
   (
     {
@@ -210,11 +232,6 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
       }
     }, [messages, autoScroll, isAtBottom]);
 
-    const combinedClassName = clsx(
-      'flex-1 overflow-y-auto pt-10 px-6 pb-6 space-y-6 bg-gray-50 dark:bg-gray-950',
-      className
-    );
-
     // Combine refs to use both the forwarded ref and our container ref
     const setRefs = (element: HTMLDivElement | null) => {
       // Set the forwarded ref
@@ -230,7 +247,10 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
     return (
       <div
         ref={setRefs}
-        className={combinedClassName}
+        className={clsx(
+          'flex-1 overflow-y-auto pt-10 px-6 pb-6 space-y-6 bg-gray-50 dark:bg-gray-950',
+          className
+        )}
         role="log"
         aria-label="Chat messages"
         aria-live="polite"

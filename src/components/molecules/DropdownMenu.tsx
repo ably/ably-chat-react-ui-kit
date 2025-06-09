@@ -4,13 +4,33 @@ import React, { useState, useRef, useEffect } from 'react';
  * Interface for dropdown menu items
  */
 export interface DropdownMenuItem {
-  /** Unique identifier for the menu item */
+  /**
+   * Unique identifier for the menu item.
+   * Used as the React key and for accessibility purposes.
+   */
   id: string;
-  /** Display text for the menu item */
+
+  /**
+   * Display text for the menu item.
+   * Should be descriptive and action-oriented (e.g., "Edit Message", "Delete").
+   */
   label: string;
-  /** Optional icon to display before the label */
+
+  /**
+   * Optional icon to display before the label.
+   * Can be an emoji, Unicode character, or React component.
+   * Will be rendered with gray color styling.
+   */
   icon?: string;
-  /** Callback function when the item is clicked */
+
+  /**
+   * Callback function triggered when the menu item is clicked.
+   * The dropdown will automatically close after this function is called.
+   *
+   * @remarks
+   * This function should handle the specific action for the menu item.
+   * Any async operations should be handled within this callback.
+   */
   onClick: () => void;
 }
 
@@ -18,11 +38,39 @@ export interface DropdownMenuItem {
  * Props for the DropdownMenu component
  */
 export interface DropdownMenuProps {
-  /** React node that will trigger the dropdown when clicked */
+  /**
+   * React node that will trigger the dropdown when clicked.
+   * Can be any clickable element like buttons, icons, text, or custom components.
+   * Will automatically receive click and keyboard event handlers.
+   *
+   * @example
+   * ```tsx
+   * // Button trigger
+   * trigger={<Button>Options</Button>}
+   *
+   * // Icon trigger
+   * trigger={<Icon name="more-vertical" />}
+   *
+   * // Custom trigger
+   * trigger={<div className="cursor-pointer">⋮</div>}
+   * ```
+   */
   trigger: React.ReactNode;
-  /** Array of menu items to display in the dropdown */
+
+  /**
+   * Array of menu items to display in the dropdown.
+   * Items will be rendered in the order provided.
+   * Each item must have a unique ID within the dropdown.
+   */
   items: DropdownMenuItem[];
-  /** Horizontal alignment of the dropdown relative to the trigger */
+
+  /**
+   * Horizontal alignment of the dropdown relative to the trigger element.
+   * - `left`: Dropdown aligns to the left edge of the trigger
+   * - `right`: Dropdown aligns to the right edge of the trigger
+   *
+   * @default "right"
+   */
   align?: 'left' | 'right';
 }
 
@@ -35,6 +83,70 @@ export interface DropdownMenuProps {
  * - Support for icons in menu items
  * - Automatically closes when clicking outside
  * - Accessible keyboard navigation
+ * - Escape key support
+ * - Focus management
+ *
+ * Behavior:
+ * - Clicking outside the dropdown closes it automatically
+ * - Clicking any menu item closes the dropdown after executing the onClick handler
+ * - Dropdown is positioned absolutely relative to the trigger
+ * - Uses z-index of 50 for the dropdown and 40 for the backdrop
+ * - Supports both light and dark themes
+ *
+ *
+ * @example
+ * // Basic dropdown with button trigger
+ * <DropdownMenu
+ *   trigger={<Button variant="secondary">Options</Button>}
+ *   items={[
+ *     { id: 'edit', label: 'Edit', onClick: () => handleEdit() },
+ *     { id: 'delete', label: 'Delete', onClick: () => handleDelete() },
+ *   ]}
+ * />
+ *
+ * @example
+ * // Dropdown with icon trigger and icons in items
+ * <DropdownMenu
+ *   trigger={<Icon name="more" />}
+ *   align="left"
+ *   items={[
+ *     {
+ *       id: 'share',
+ *       label: 'Share',
+ *       icon: '🔗',
+ *       onClick: () => handleShare()
+ *     },
+ *     {
+ *       id: 'copy',
+ *       label: 'Copy Link',
+ *       icon: '📋',
+ *       onClick: () => handleCopy()
+ *     },
+ *     {
+ *       id: 'report',
+ *       label: 'Report',
+ *       icon: '⚠️',
+ *       onClick: () => handleReport()
+ *     },
+ *   ]}
+ * />
+ *
+ * @example
+ * // User profile dropdown
+ * <DropdownMenu
+ *   trigger={
+ *     <div className="flex items-center gap-2 cursor-pointer">
+ *       <Avatar src={user.avatar} />
+ *       <span>{user.name}</span>
+ *     </div>
+ *   }
+ *   align="right"
+ *   items={[
+ *     { id: 'profile', label: 'Profile', onClick: () => navigate('/profile') },
+ *     { id: 'settings', label: 'Settings', onClick: () => navigate('/settings') },
+ *     { id: 'logout', label: 'Sign Out', onClick: () => handleLogout() },
+ *   ]}
+ * />
  */
 export const DropdownMenu: React.FC<DropdownMenuProps> = ({ trigger, items, align = 'right' }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -47,9 +159,20 @@ export const DropdownMenu: React.FC<DropdownMenuProps> = ({ trigger, items, alig
       }
     };
 
+    const handleEscapeKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && isOpen) {
+        setIsOpen(false);
+      }
+    };
+
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+    document.addEventListener('keydown', handleEscapeKey);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscapeKey);
+    };
+  }, [isOpen]);
 
   const handleItemClick = (item: DropdownMenuItem) => {
     item.onClick();

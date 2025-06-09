@@ -4,17 +4,103 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
  * Props for the EmojiPicker component
  */
 export interface EmojiPickerProps {
-  /** Whether the emoji picker is currently open */
+  /**
+   * Whether the emoji picker is currently open and visible.
+   * Controls the visibility state and enables keyboard event handling.
+   * When false, the component returns null for optimal performance.
+   */
   isOpen: boolean;
-  /** Callback function when the picker is closed */
+
+  /**
+   * Callback function triggered when the picker should be closed.
+   * Called on backdrop click, escape key press, or programmatic close.
+   * Should update the parent component's state to hide the picker.
+   *
+   * This callback does not automatically close the picker after emoji selection.
+   * Use onEmojiSelect to handle post-selection behavior.
+   */
   onClose: () => void;
-  /** Callback function when an emoji is selected, receives the emoji character */
+
+  /**
+   * Callback function triggered when an emoji is selected.
+   * Receives the selected emoji character as a string parameter.
+   * The selected emoji is automatically added to recent emojis list.
+   *
+   * @param emoji - The selected emoji character (e.g., "😀", "❤️")
+   *
+   * - Recent emojis are persisted to localStorage
+   * - Maximum of 10 recent emojis are maintained
+   *
+   * @example
+   * ```tsx
+   * onEmojiSelect={(emoji) => {
+   *   addEmojiToInput(emoji);
+   *   setPickerOpen(false); // Close picker after selection
+   * }}
+   * ```
+   */
   onEmojiSelect: (emoji: string) => void;
-  /** Position coordinates for rendering the picker */
+
+  /**
+   * Position coordinates for rendering the picker in viewport coordinates.
+   * Should account for picker dimensions (240px × 320px) to prevent overflow.
+   *
+   * - Consider viewport boundaries to prevent edge overflow
+   * - Add margins for visual spacing from trigger element
+   *
+   * @example
+   * ```tsx
+   * // Position below button with spacing
+   * const rect = buttonRef.current.getBoundingClientRect();
+   * const position = {
+   *   top: rect.bottom + 8,
+   *   left: rect.left
+   * };
+   *
+   * // Position above with overflow protection
+   * const position = {
+   *   top: Math.max(10, rect.top - 330),
+   *   left: Math.min(rect.left, window.innerWidth - 250)
+   * };
+   * ```
+   */
   position: { top: number; left: number };
-  /** Number of columns to display (default: 4) */
+
+  /**
+   * Number of columns to display in the emoji grid.
+   * Affects both main emoji grid and recent emojis section.
+   * Must be a positive integer; decimal values may cause layout issues.
+   *
+   * @default 4
+   *
+   * - Higher values create wider, shorter grids
+   * - Lower values create narrower, taller grids
+   * - Consider emoji button size (32px) when choosing columns
+   * - Recommended range: 3-6 columns for optimal usability
+   */
   columns?: number;
-  /** Optional custom list of emojis to display */
+
+  /**
+   * Optional custom list of emojis to display instead of the default set.
+   * Useful for creating themed emoji pickers or limiting choices.
+   *
+   * Custom List Behavior:
+   * - Completely replaces the default emoji set
+   * - Recent emojis will only show emojis from this custom list
+   * - Order in array determines display order in picker
+   *
+   * @example
+   * ```tsx
+   * // Reaction-only emojis
+   * emojiList={['👍', '👎', '❤️', '😂', '😮', '😢']}
+   *
+   * // Status emojis
+   * emojiList={['🟢', '🟡', '🔴', '⚫', '🔵']}
+   *
+   * // Celebration emojis
+   * emojiList={['🎉', '🥳', '🎊', '🍾', '🎈', '🎁']}
+   * ```
+   */
   emojiList?: string[];
 }
 
@@ -76,6 +162,65 @@ const emojis = [
  * - Keyboard navigation (Escape to close)
  * - Support for custom emoji lists
  * - Accessible emoji buttons
+ * - Persistent recent emojis via localStorage
+ * - Optimized rendering with memoization
+ *
+ * @example
+ * // Basic emoji picker triggered by button
+ * const [pickerOpen, setPickerOpen] = useState(false);
+ * const [pickerPosition, setPickerPosition] = useState({ top: 0, left: 0 });
+ *
+ * const handleShowPicker = (event: React.MouseEvent) => {
+ *   const rect = event.currentTarget.getBoundingClientRect();
+ *   setPickerPosition({
+ *     top: rect.bottom + 8,
+ *     left: rect.left
+ *   });
+ *   setPickerOpen(true);
+ * };
+ *
+ * return (
+ *   <>
+ *     <button onClick={handleShowPicker}>😀 Add Emoji</button>
+ *     <EmojiPicker
+ *       isOpen={pickerOpen}
+ *       position={pickerPosition}
+ *       onClose={() => setPickerOpen(false)}
+ *       onEmojiSelect={(emoji) => {
+ *         addEmojiToMessage(emoji);
+ *         setPickerOpen(false);
+ *       }}
+ *     />
+ *   </>
+ * );
+ *
+ * @example
+ * // Custom emoji list with reaction-specific emojis
+ * const reactionEmojis = ['👍', '❤️', '😂', '😮', '😢', '😡'];
+ *
+ * <EmojiPicker
+ *   isOpen={showReactionPicker}
+ *   position={reactionPosition}
+ *   emojiList={reactionEmojis}
+ *   columns={3}
+ *   onClose={() => setShowReactionPicker(false)}
+ *   onEmojiSelect={handleReaction}
+ * />
+ *
+ * @example
+ * // Chat message emoji picker with positioning
+ * const handleEmojiButton = (event: React.MouseEvent, messageId: string) => {
+ *   event.stopPropagation();
+ *   const rect = event.currentTarget.getBoundingClientRect();
+ *
+ *   // Position above the button with some spacing
+ *   setPickerPosition({
+ *     top: rect.top - 330, // picker height + margin
+ *     left: Math.max(10, rect.left - 100) // prevent edge overflow
+ *   });
+ *   setActiveMessageId(messageId);
+ *   setPickerOpen(true);
+ * };
  */
 export const EmojiPicker: React.FC<EmojiPickerProps> = ({
   isOpen,

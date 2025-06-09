@@ -4,15 +4,73 @@ import React, { useEffect, useState } from 'react';
  * Props for the EmojiBurst component
  */
 export interface EmojiBurstProps {
-  /** Whether the burst animation is currently active */
+  /**
+   * Whether the burst animation is currently active.
+   * When set to true, starts a new burst animation from the specified position.
+   * Setting to false will not stop an ongoing animation - use onComplete for cleanup.
+   */
   isActive: boolean;
-  /** The position where the burst should originate from */
+
+  /**
+   * The position where the burst should originate from, in viewport coordinates.
+   * Typically obtained from element.getBoundingClientRect() or mouse event coordinates.
+   *
+   * @example
+   * ```tsx
+   * // From button center
+   * const rect = buttonRef.current.getBoundingClientRect();
+   * const position = {
+   *   x: rect.left + rect.width / 2,
+   *   y: rect.top + rect.height / 2
+   * };
+   *
+   * // From mouse click
+   * const position = { x: event.clientX, y: event.clientY };
+   * ```
+   */
   position: { x: number; y: number };
-  /** The emoji to display in the burst animation */
+
+  /**
+   * The emoji to display in the burst animation.
+   * Special behavior: When set to '👍', automatically uses diverse skin tone variants.
+   *
+   * @default "👍"
+   *
+   * @example
+   * ```tsx
+   * emoji="🎉"  // Party celebration
+   * emoji="❤️"  // Love reaction
+   * emoji="😂"  // Laughter
+   * emoji="👍"  // Uses skin tone variants: 👍, 👍🏻, 👍🏽, 👍🏿
+   * ```
+   */
   emoji?: string;
-  /** Duration of the burst animation in milliseconds */
+
+  /**
+   * Duration of the burst animation in milliseconds.
+   * Controls how long emojis remain visible before fading out completely.
+   * Longer durations allow emojis to travel further and fade more gradually.
+   *
+   * @default 2000
+   *
+   * - Animation uses requestAnimationFrame for smooth 60fps performance
+   * - Emojis begin fading after 2/3 of the duration
+   */
   duration?: number;
-  /** Callback function called when the animation completes */
+
+  /**
+   * Callback function called when the animation completes and all emojis have faded out.
+   * Use this to clean up state, typically by setting isActive to false.
+   *
+   * @example
+   * ```tsx
+   * onComplete={() => {
+   *   setBurstActive(false);
+   *   // Optional: trigger other effects
+   *   playSound('burst-complete');
+   * }}
+   * ```
+   */
   onComplete: () => void;
 }
 
@@ -50,6 +108,58 @@ interface FlyingEmoji {
  * - Animates emojis with physics-based motion (velocity, gravity, rotation)
  * - Automatically fades out and cleans up after animation completes
  * - Non-interactive visual effect (pointer-events-none)
+ * - Randomized trajectories and rotation for natural movement
+ * - Adaptive emoji variants for inclusive representation
+ *
+ * @example
+ * // Basic reaction burst on button click
+ * const [burstActive, setBurstActive] = useState(false);
+ * const [burstPosition, setBurstPosition] = useState({ x: 0, y: 0 });
+ *
+ * const handleReaction = (event: React.MouseEvent) => {
+ *   const rect = event.currentTarget.getBoundingClientRect();
+ *   setBurstPosition({
+ *     x: rect.left + rect.width / 2,
+ *     y: rect.top + rect.height / 2
+ *   });
+ *   setBurstActive(true);
+ * };
+ *
+ * return (
+ *   <>
+ *     <button onClick={handleReaction}>👍 Like</button>
+ *     <EmojiBurst
+ *       isActive={burstActive}
+ *       position={burstPosition}
+ *       onComplete={() => setBurstActive(false)}
+ *     />
+ *   </>
+ * );
+ *
+ * @example
+ * // Custom emoji with longer duration
+ * <EmojiBurst
+ *   isActive={showCelebration}
+ *   position={{ x: window.innerWidth / 2, y: window.innerHeight / 2 }}
+ *   emoji="🎉"
+ *   duration={3000}
+ *   onComplete={() => setShowCelebration(false)}
+ * />
+ *
+ * @example
+ * // Triggered from mouse coordinates
+ * const handleEmojiReaction = (event: MouseEvent, selectedEmoji: string) => {
+ *   setBurstPosition({ x: event.clientX, y: event.clientY });
+ *   setBurstEmoji(selectedEmoji);
+ *   setBurstActive(true);
+ * };
+ *
+ * <EmojiBurst
+ *   isActive={burstActive}
+ *   position={burstPosition}
+ *   emoji={burstEmoji}
+ *   onComplete={() => setBurstActive(false)}
+ * />
  */
 export const EmojiBurst: React.FC<EmojiBurstProps> = ({
   isActive,
