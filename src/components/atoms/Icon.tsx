@@ -53,7 +53,7 @@ export interface IconProps {
 
   /**
    * Accessible label for the icon
-   * Required for standalone icons, should describe the icon's purpose
+   * Required for interactive icons, optional for decorative icons
    */
   'aria-label'?: string;
 
@@ -72,7 +72,7 @@ export interface IconProps {
   /**
    * Click handler for interactive icons
    */
-  onClick?: (event: React.MouseEvent<SVGSVGElement>) => void;
+  onClick?: (event: React.MouseEvent<SVGSVGElement> | React.KeyboardEvent<SVGSVGElement>) => void;
 
   /**
    * Additional props to pass to the SVG element
@@ -84,13 +84,12 @@ export interface IconProps {
  * Icon component renders SVG icons from a predefined icon library
  *
  * Features:
- * - Comprehensive icon library with common UI icons
- * - Multiple size options with consistent scaling
- * - Color variants and theme support
- * - Accessibility compliant with proper ARIA attributes
- * - Interactive support with click handlers
- * - Customizable styling and CSS classes
+ * - Predefined icon library with common UI icons
+ * - Multiple size options (sm, md, lg, xl)
+ * - Accessibility support with proper ARIA attributes
+ * - Interactive support with click handlers and keyboard navigation
  * - Consistent stroke-based design
+
  *
  * @example
  * // Basic usage
@@ -199,13 +198,16 @@ export const Icon: React.FC<IconProps> = ({
       </div>
     );
   }
+  // Determine accessibility attributes
+  const isInteractive = !!onClick;
+  const shouldHideFromScreenReader = ariaHidden || (!ariaLabel && !isInteractive);
 
   return (
     <svg
       className={`
         ${sizeClasses[size]} 
+        ${isInteractive ? 'cursor-pointer' : ''} 
         ${colorClasses[color]} 
-        ${onClick ? 'cursor-pointer' : ''} 
         ${className}
       `.trim()}
       fill="none"
@@ -213,16 +215,16 @@ export const Icon: React.FC<IconProps> = ({
       viewBox="0 0 24 24"
       xmlns="http://www.w3.org/2000/svg"
       aria-label={ariaLabel}
-      aria-hidden={ariaHidden || (!ariaLabel && !onClick)}
+      aria-hidden={shouldHideFromScreenReader}
       onClick={onClick}
-      role={onClick ? 'button' : undefined}
-      tabIndex={onClick ? 0 : undefined}
+      role={isInteractive ? 'button' : 'img'}
+      tabIndex={isInteractive ? 0 : undefined}
       onKeyDown={
-        onClick
+        isInteractive
           ? (e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
-                onClick(e as any);
+                onClick(e);
               }
             }
           : undefined

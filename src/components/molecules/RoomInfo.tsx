@@ -4,7 +4,7 @@ import { AvatarEditor } from './AvatarEditor';
 import { PresenceCount } from './PresenceCount';
 import { PresenceList } from './PresenceList';
 import { ParticipantList } from './ParticipantList';
-import { usePresenceListener, useChatClient, useTyping } from '@ably/chat/react';
+import { usePresenceListener, useChatClient, useTyping, usePresence } from '@ably/chat/react';
 import { PresenceIndicators } from './PresenceIndicators';
 import { TypingIndicators } from './TypingIndicators';
 import { useRoomAvatar } from '../../hooks';

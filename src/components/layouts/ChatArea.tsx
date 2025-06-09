@@ -10,7 +10,7 @@ import { RoomInfo, RoomReaction } from '../molecules';
 export interface ChatAreaProps {
   /**
    * Name of the currently active chat room
-   * When null/undefined, displays an empty state
+   * When undefined, displays an empty state
    */
   activeRoomName?: string;
 
@@ -26,28 +26,8 @@ export interface ChatAreaProps {
  * ChatArea component serves as the main chat interface container
  *
  * Features:
- * - Manages chat room state and connection
  * - Displays empty state when no room is selected
  * - Provides ChatRoomProvider context for child components
- * - Integrates room information and reaction components
- * - Handles room lifecycle (attach/release) management
- *
- * Responsibilities:
- * - Room selection and switching
- * - Room provider configuration
- * - Empty state presentation
- * - Layout structure for chat interface
- *
- * TODO: Consider breaking into smaller subcomponents:
- * - EmptyState: Dedicated component for no-room-selected state
- * - RoomContainer: Wrapper for active room functionality
- * - ChatProvider: Enhanced room provider with additional features
- *
- * TODO: Add support for:
- * - Room loading states during connection
- * - Error boundaries for room connection failures
- * - Optimistic UI updates during room switching
- * - Room history/recent rooms functionality
  *
  * @example
  * // Basic usage with room selection
@@ -102,7 +82,7 @@ export const ChatArea: React.FC<ChatAreaProps> = ({ activeRoomName, defaultRoomO
             Select a room to start chatting
           </h3>
           <p className="text-gray-500 dark:text-gray-400">
-            Choose a room from the sidebar or create a new one to begin your conversation
+            Choose a room or create a new one to begin your conversation
           </p>
         </div>
       </div>
@@ -120,7 +100,7 @@ export const ChatArea: React.FC<ChatAreaProps> = ({ activeRoomName, defaultRoomO
     >
       <ChatWindow
         key={activeRoomName}
-        roomId={activeRoomName}
+        roomName={activeRoomName}
         customHeaderContent={<RoomInfo roomId={activeRoomName} />}
         customFooterContent={<RoomReaction />}
       />

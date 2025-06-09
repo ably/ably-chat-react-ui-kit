@@ -1,24 +1,15 @@
 import React from 'react';
+import clsx from 'clsx';
 
 /**
  * Props for the ChatWindowHeader component
  */
 export interface ChatWindowHeaderProps {
-  /**
-   * Content to be rendered within the header
-   * Typically includes room information, participant count, or custom actions
-   */
+  /** Content to be rendered within the header */
   children?: React.ReactNode;
-
-  /**
-   * Additional CSS classes to apply to the header container
-   */
+  /** Additional CSS classes to apply to the header container */
   className?: string;
-
-  /**
-   * Optional ARIA label for the header
-   * Improves accessibility by providing semantic context
-   */
+  /** Optional ARIA label for the header */
   'aria-label'?: string;
 }
 
@@ -27,27 +18,9 @@ export interface ChatWindowHeaderProps {
  *
  * Features:
  * - Flexible content slot for custom header components
- * - Consistent styling with design system
- * - Dark mode support
+ * - Consistent styling with dark mode support
  * - Accessible design with proper semantic structure
  * - Fixed positioning to maintain header visibility during scroll
- *
- * Design System:
- * - Uses standard gray color palette for theming
- * - Consistent border styling for visual separation
- * - Proper spacing and padding for content
- * - Responsive design considerations
- *
- * TODO: Consider adding features:
- * - Header actions slot (minimize, close, settings)
- * - Sticky/floating header behavior options
- * - Animation support for header state changes
- * - Integration with breadcrumb navigation
- *
- * TODO: Accessibility improvements:
- * - Landmark roles for better screen reader navigation
- * - Focus management for header actions
- * - Keyboard navigation support
  *
  * @example
  * // Basic usage with room info
@@ -76,26 +49,27 @@ export const ChatWindowHeader: React.FC<ChatWindowHeaderProps> = ({
   className = '',
   'aria-label': ariaLabel,
 }) => {
+  if (!children) {
+    return null;
+  }
   // Combine base classes with custom className
-  const headerClasses = [
-    // Layout
-    'px-6 py-4',
-    // Borders and visual separation
-    'border-b border-gray-200 dark:border-gray-700',
-    // Theme colors
-    'bg-white dark:bg-gray-900',
-    // Custom classes
-    className,
-  ]
-    .filter(Boolean)
-    .join(' ');
-
   return (
-    <header className={headerClasses} role="banner" aria-label={ariaLabel || 'Chat window header'}>
+    <div
+      className={clsx(
+        // Layout
+        'px-6 py-4',
+        // Borders and theme
+        'border-b border-gray-200 dark:border-gray-700',
+        'bg-white dark:bg-gray-900',
+        // Custom classes
+        className
+      )}
+      role="banner"
+      aria-label={ariaLabel || 'Chat window header'}
+    >
       {children}
-    </header>
+    </div>
   );
 };
 
-// Set display name for better debugging experience
 ChatWindowHeader.displayName = 'ChatWindowHeader';

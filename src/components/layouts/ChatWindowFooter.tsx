@@ -1,4 +1,5 @@
 import React from 'react';
+import clsx from 'clsx';
 
 /**
  * Props for the ChatWindowFooter component
@@ -6,25 +7,57 @@ import React from 'react';
 export interface ChatWindowFooterProps {
   /** Content to display in the footer */
   children?: React.ReactNode;
+  /** Additional CSS classes to apply to the footer container */
+  className?: string;
+  /** Optional ARIA label for the footer */
+  'aria-label'?: string;
 }
 
 /**
  * ChatWindowFooter component provides the footer layout for the chat window
- *
  * Features:
- * - Consistent footer styling and layout
- * - Proper border and background theming
- * - Conditionally renders based on whether children are provided
+ * - Consistent footer styling with dark mode support
+ * - Conditionally renders based on children
  * - Positioned at the bottom of the chat area
+ *
+ * @example
+ * // Basic usage with message input
+ * <ChatWindowFooter>
+ *   <MessageInput onSend={handleSend} />
+ * </ChatWindowFooter>
+ *
+ * @example
+ * // With custom styling
+ * <ChatWindowFooter className="p-6">
+ *   <CustomFooterContent />
+ * </ChatWindowFooter>
  */
-export const ChatWindowFooter: React.FC<ChatWindowFooterProps> = ({ children }) => {
+export const ChatWindowFooter: React.FC<ChatWindowFooterProps> = ({
+  children,
+  className,
+  'aria-label': ariaLabel,
+}) => {
   // Don't render anything if no children are provided
   if (!children) {
     return null;
   }
   return (
-    <div className="flex items-center bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
+    <div
+      className={clsx(
+        // Layout
+        'flex items-center',
+        // Theme and borders
+        'bg-white dark:bg-gray-900',
+        'border-t border-gray-200 dark:border-gray-700',
+        // Custom classes
+        className
+      )}
+      role="contentinfo"
+      aria-label={ariaLabel || 'Chat window footer'}
+    >
       {children}
     </div>
   );
 };
+
+ChatWindowFooter.displayName = 'ChatWindowFooter';

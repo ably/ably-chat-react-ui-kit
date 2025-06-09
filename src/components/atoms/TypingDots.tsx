@@ -46,8 +46,8 @@ const ANIMATION_DELAYS = ['0ms', '200ms', '400ms'];
  * Features:
  * - Three dots with staggered bounce animation
  * - Customizable size, color, and animation timing
- * - Accessible with proper ARIA labels
- * - Responsive and theme-aware
+ * - Respects reduced motion preferences
+ * - Basic ARIA support (role, aria-label, aria-live)
  *
  * @example
  * // Basic usage

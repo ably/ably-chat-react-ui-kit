@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
-import { Avatar } from '../atoms/Avatar';
-import { TextInput } from '../atoms/TextInput';
-import { Button } from '../atoms/Button';
+import { Avatar } from '../atoms';
+import { TextInput } from '../atoms';
+import { Button } from '../atoms';
 import { TooltipSurface, TooltipArrow } from '../atoms';
 import { MessageActions } from './MessageActions';
 import { MessageReactions } from './MessageReactions';
@@ -11,6 +11,7 @@ import { ConfirmDialog } from './ConfirmDialog';
 import { Message } from '@ably/chat';
 import { AvatarData } from '../atoms';
 import { useUserAvatar } from '../../hooks';
+import clsx from 'clsx';
 
 /**
  * Props for the ChatMessage component
@@ -57,23 +58,35 @@ export interface ChatMessageProps {
    * @param emoji - The emoji character being removed from reactions
    */
   onReactionRemove?: (message: Message, emoji: string) => void;
+
+  /**
+   * Additional CSS class names to apply to the message container
+   * Useful for custom styling or theming
+   */
+  className?: string;
 }
 
 /**
  * ChatMessage component displays an individual chat message with interactive capabilities
  *
  * Core Features:
- * • Message content display with sender avatar and timestamp
+ * • Message content display with sender avatar
  * • Edit/delete functionality for own messages with confirmation dialogs
  * • Emoji reactions system with picker and toggle functionality
  * • Avatar editing for message senders (own messages only)
  * • Status indicators (edited, deleted)
- * • Responsive layout with proper message bubble alignment
- * • Full keyboard navigation and screen reader support
+ * • Basic ARIA support (role, aria-label)
  * • Hover tooltips showing sender information
- * • Auto-positioning of modals to stay within viewport bounds
+ * @example
+ * <ChatMessage
+ *   message={message}
+ *   currentClientId="user123"
+ *   onEdit={handleEdit}
+ *   onDelete={handleDelete}
+ *   onReactionAdd={handleReactionAdd}
+ *   onReactionRemove={handleReactionRemove}
+ * />
  */
-
 export const ChatMessage: React.FC<ChatMessageProps> = ({
   message,
   currentClientId,
@@ -81,6 +94,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
   onDelete,
   onReactionAdd,
   onReactionRemove,
+  className,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -126,7 +140,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
 
   /**
    * Saves the edited message text if it has changed
-   * Calls the onEdit callback with the message serial and new text
+   * Calls the onEdit callback with the message and new text
    */
   const handleSaveEdit = () => {
     if (editText.trim() && editText !== (message.text || '')) {
@@ -337,7 +351,11 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
   return (
     <div
       ref={messageRef}
-      className={`relative flex items-start gap-2 mb-4 ${isOwn ? 'flex-row-reverse' : 'flex-row'}`}
+      className={clsx(
+        'relative flex items-start gap-2 mb-4',
+        isOwn ? 'flex-row-reverse' : 'flex-row',
+        className
+      )}
       role="article"
       aria-label={`Message from ${message.clientId}${message.isDeleted ? ' (deleted)' : ''}${message.isUpdated ? ' (edited)' : ''}`}
     >

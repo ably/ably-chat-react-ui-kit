@@ -1,4 +1,5 @@
 import React, { ReactNode, useMemo } from 'react';
+import clsx from 'clsx';
 
 /**
  * Props for the AppLayout component
@@ -32,7 +33,6 @@ export interface AppLayoutProps {
 
   /**
    * Optional ARIA label for the layout container
-   * Improves accessibility by providing semantic context
    */
   'aria-label'?: string;
 
@@ -47,23 +47,16 @@ export interface AppLayoutProps {
  * AppLayout component provides a styled container layout for the entire application
  *
  * Features:
- * - Customizable dimensions with default responsive sizing
+ * - Customizable dimensions with responsive defaults
  * - Dark mode support with automatic theme switching
- * - Accessible design with proper ARIA attributes
  * - Memoized for performance optimization
- * - Consistent design system styling (shadows, borders, colors)
- * - Overflow handling for contained content
- *
- * Design System:
+ * - Basic ARIA support (role, aria-label)
+ * - Consistent styling with shadows and borders
  * - Uses standard gray color palette for theming
  * - Rounded corners with consistent border radius
  * - Drop shadow for visual elevation
  * - Responsive spacing with viewport-based defaults
  *
- * TODO: Consider breaking into smaller subcomponents:
- * - LayoutContainer: Core layout functionality
- * - ThemeProvider: Dark/light mode handling
- * - ResponsiveWrapper: Responsive behavior logic
  *
  * TODO: Add support for:
  * - Breakpoint-specific sizing
@@ -96,7 +89,6 @@ export interface AppLayoutProps {
  */
 export const AppLayout = React.memo<AppLayoutProps>(
   ({ children, width, height, className = '', 'aria-label': ariaLabel, role = 'main' }) => {
-    // Provide sensible defaults for responsive design
     const layoutWidth = width ?? '50vw';
     const layoutHeight = height ?? '50vh';
 
@@ -109,28 +101,28 @@ export const AppLayout = React.memo<AppLayoutProps>(
       [layoutWidth, layoutHeight]
     );
 
-    // Combine base classes with custom className
-    const containerClasses = [
-      // Layout fundamentals
-      'flex',
-      // Theme and colors
-      'bg-gray-50 dark:bg-gray-950',
-      'text-gray-900 dark:text-gray-100',
-      // Positioning and overflow
-      'overflow-hidden',
-      // Visual styling
-      'border border-gray-200 dark:border-gray-700',
-      'rounded-lg shadow-lg',
-      // Centering
-      'mx-auto my-8',
-      // Custom classes
-      className,
-    ]
-      .filter(Boolean)
-      .join(' ');
-
     return (
-      <div className={containerClasses} style={containerStyle} role={role} aria-label={ariaLabel}>
+      <div
+        className={clsx(
+          // Layout fundamentals
+          'flex',
+          // Theme and colors
+          'bg-gray-50 dark:bg-gray-950',
+          'text-gray-900 dark:text-gray-100',
+          // Positioning and overflow
+          'overflow-hidden',
+          // Visual styling
+          'border border-gray-200 dark:border-gray-700',
+          'rounded-lg shadow-lg',
+          // Centering
+          'mx-auto my-8',
+          // Custom classes
+          className
+        )}
+        style={containerStyle}
+        role={role}
+        aria-label={ariaLabel}
+      >
         {children}
       </div>
     );

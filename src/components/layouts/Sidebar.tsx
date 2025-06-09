@@ -8,25 +8,59 @@ import { CreateRoomModal } from '../molecules/CreateRoomModal';
 import { useTheme } from '../../hooks';
 import { useAvatar } from '../../context/AvatarContext.tsx';
 import { RoomOptions } from '@ably/chat';
+import clsx from 'clsx';
 
-// Sidebar component props definition
+/**
+ * Props for the Sidebar component
+ */
 export interface SidebarProps {
+  /** Initial list of room names to display */
   initialRoomNames?: string[];
-  activeRoomName?: string; // Optional, can be undefined if no room is selected
+  /** Currently active/selected room name */
+  activeRoomName?: string;
+  /** Width of the sidebar (CSS value or pixels) */
   width?: string | number;
+  /** Callback when the active room changes */
   onChangeActiveRoom: (roomId?: string) => void;
+  /** Additional CSS classes for the sidebar */
+  className?: string;
 }
 
+/**
+ * Sidebar component provides room navigation and management
+ *
+ * Features:
+ * - Collapsible interface with avatar-only mode
+ * - Room creation and management
+ * - Theme toggle integration
+ * - Active room highlighting
+ * - Room count display
+ *
+ * @example
+ * // Basic usage
+ * <Sidebar
+ *   initialRoomNames={['general', 'random']}
+ *   activeRoomName="general"
+ *   onChangeActiveRoom={handleRoomChange}
+ * />
+ *
+ * @example
+ * // With custom width and styling
+ * <Sidebar
+ *   width="300px"
+ *   className="shadow-lg"
+ *   onChangeActiveRoom={handleRoomChange}
+ * />
+ */
 export const Sidebar: React.FC<SidebarProps> = ({
   initialRoomNames = [], // Default to empty array
   width = '20rem', // 320px default
   activeRoomName,
   onChangeActiveRoom,
+  className = '',
 }) => {
-  // Local state for room IDs
   const [roomIds, setRoomIds] = useState<string[]>(initialRoomNames);
   const [defaultRoomOptions] = useState<RoomOptions>({ occupancy: { enableEvents: true } });
-  // ref to store the room IDs to avoid unnecessary re-renders
   const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
   const { theme, toggleTheme } = useTheme();
   const [showCreateRoomModal, setShowCreateRoomModal] = useState(false);
@@ -38,7 +72,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     setIsCollapsed((prev) => !prev);
   }, []);
 
-  // Update handleLeaveRoom (remove ref updates):
+  // Handle leave room
   const handleLeaveRoom = useCallback(
     async (roomIdToLeave: string) => {
       try {
@@ -65,7 +99,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     [activeRoomName, onChangeActiveRoom, chatClient]
   );
 
-  // Update handleCreateRoom:
+  // Handle creating a new room
   const handleCreateRoom = useCallback(
     async (roomName: string) => {
       setRoomIds((prevRoomIds) => {
@@ -84,31 +118,28 @@ export const Sidebar: React.FC<SidebarProps> = ({
     [onChangeActiveRoom, getAvatarForRoom]
   );
 
-  // Memoize the dropdownItems array to prevent it from being recreated on every render
-  const dropdownItems = useMemo(
-    () => [
-      {
-        id: 'create-room',
-        label: 'Create Room',
-        icon: '➕',
-        onClick: () => setShowCreateRoomModal(true),
-      },
-    ],
-    []
-  );
+  const dropdownItems = [
+    {
+      id: 'create-room',
+      label: 'Create Room',
+      icon: '➕',
+      onClick: () => setShowCreateRoomModal(true),
+    },
+  ];
 
-  // Memoize the sidebarStyle object to prevent it from being recreated on every render
-  const sidebarStyle = useMemo(
-    () => ({
-      width: isCollapsed ? '4rem' : typeof width === 'number' ? `${width}px` : width,
-      transition: 'width 0.3s ease-in-out',
-    }),
-    [isCollapsed, width]
-  );
+  const sidebarStyle = {
+    width: isCollapsed ? '4rem' : typeof width === 'number' ? `${width}px` : width,
+    transition: 'width 0.3s ease-in-out',
+  };
 
   return (
     <aside
-      className="bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex flex-col h-full"
+      className={clsx(
+        'bg-white dark:bg-gray-900',
+        'border-r border-gray-200 dark:border-gray-800',
+        'flex flex-col h-full',
+        className
+      )}
       style={sidebarStyle}
     >
       {/* Header */}
@@ -158,7 +189,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
               release={false}
               options={defaultRoomOptions}
             >
-              {/* Use RoomListItem for both collapsed and expanded views */}
               <RoomListItem
                 key={roomId}
                 roomId={roomId}

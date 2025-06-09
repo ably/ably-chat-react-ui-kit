@@ -42,10 +42,11 @@ export interface TooltipArrowProps extends React.HTMLAttributes<HTMLDivElement> 
  * a complete tooltip with visual connection to its trigger element.
  *
  * Features:
- * - Automatic color matching with tooltip variants
- * - Customizable arrow sizes
- * - Proper positioning for above/below tooltips
- * - CSS borders-based triangle for sharp edges
+ * - CSS border-based triangle rendering
+ * - Automatic positioning for above/below tooltips
+ * - Color variants to match tooltip surfaces
+ * - Multiple arrow sizes
+ * - Basic ARIA support (aria-hidden)
  *
  * @example
  * // Basic usage with dark tooltip

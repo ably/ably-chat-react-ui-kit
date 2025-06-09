@@ -16,22 +16,43 @@ import {
 import { MessageInput } from '../molecules';
 
 /**
- * Interface representing the props for the ChatWindow component.
- *
- * @property roomId - A unique identifier for the chat room. This is a required property.
- * @property customHeaderContent - Optional custom content to render in the header of the chat window. Accepts a ReactNode.
- * @property customFooterContent - Optional custom content to render in the footer of the chat window. Accepts a ReactNode.
- * @property initialHistoryLimit - Optional initial limit for the number of messages to fetch when the chat window loads. Defaults to 20 messages. Set to 0 to disable initial history loading.
+ * Props for the ChatWindow component
  */
 export interface ChatWindowProps {
-  roomId: string;
+  /** Unique identifier for the chat room */
+  roomName: string;
+  /** Optional custom content for the header */
   customHeaderContent?: React.ReactNode;
+  /** Optional custom content for the footer */
   customFooterContent?: React.ReactNode;
+  /** Initial number of messages to load (default: 20, set to 0 to disable) */
   initialHistoryLimit?: number;
 }
 
+/**
+ * ChatWindow component provides the main chat interface for a room.
+ *
+ * Features:
+ * - Message display with history loading
+ * - Message editing, deletion, and reactions
+ * - Typing indicators and presence
+ * - Custom header and footer content
+ * - Discontinuity recovery on reconnection
+ *
+ * @example
+ * // Basic usage
+ * <ChatWindow roomId="general" />
+ *
+ * @example
+ * // With custom header and footer
+ * <ChatWindow
+ *   roomId="support"
+ *   customHeaderContent={<RoomInfo />}
+ *   customFooterContent={<ReactionPicker />}
+ * />
+ */
 export const ChatWindow: React.FC<ChatWindowProps> = ({
-  roomId,
+  roomName,
   customHeaderContent,
   customFooterContent,
   initialHistoryLimit = 20,
@@ -45,20 +66,18 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
   const oldestMessageRef = useRef<Message | undefined>();
   const { clientId } = useChatClient();
   const { room } = useRoom();
-  usePresence();
+  usePresence(); // Enter presence on mount
 
-  // Ensure room is re-attaches if not already attached, and the state is reset when roomId changes.
+  // Reset state when room changes
   useEffect(() => {
     room?.attach();
-    // Clear messages and reset state when room changes
     setMessages([]);
     setLoading(true);
     setLoadingHistory(false);
     setHasMoreHistory(true);
     setHasBackfilled(false);
-    // Clear message serials to prevent memory leaks when room changes
     messageSerialsRef.current.clear();
-  }, [room]); // Only room dependency
+  }, [room]);
 
   // Binary search to find message index by serial (since messages are sorted)
   const findMessageIndex = useCallback((messages: Message[], targetSerial: string): number => {
@@ -100,7 +119,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
   }, []);
 
   // Handle adding/updating messages
-  // TODO: Identify further optimizations for performance at larger scales 2000+ messages
+  // TODO: Load test for performance with extra large message sets
   const handleMessageUpdates = useCallback(
     (newMessages: Message[], prepend = false) => {
       if (newMessages.length === 0) return;
@@ -396,7 +415,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
       </ChatMessageList>
       <ChatWindowFooter>
         <div className="flex-1">
-          <MessageInput onSend={handleSendMessage} placeholder={`Message ${roomId}...`} />
+          <MessageInput onSend={handleSendMessage} placeholder={`Message ${roomName}...`} />
         </div>
         {customFooterContent}
       </ChatWindowFooter>

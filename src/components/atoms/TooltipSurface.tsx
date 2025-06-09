@@ -50,11 +50,11 @@ export interface TooltipSurfaceProps extends React.HTMLAttributes<HTMLDivElement
  * TooltipSurface component renders a positioned tooltip with customizable styling
  *
  * Features:
- * - Automatic positioning (above/below trigger)
+ * - Automatic positioning above or below trigger element
  * - Dark and light theme variants
  * - Responsive sizing with max-width constraints
- * - Proper accessibility attributes
- * - Smooth animations and shadows
+ * - Smooth transitions and shadows
+ * - Basic ARIA support (role, aria-hidden)
  *
  * @example
  * // Basic usage

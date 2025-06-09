@@ -84,7 +84,7 @@ export interface TextInputProps
  * - Size variations (sm, md, lg)
  * - Error and success states with appropriate styling
  * - Dark mode support
- * - Accessibility compliant with proper focus management
+ * - Accessibility: Basic ARIA attributes for error states
  * - Forward ref support for form libraries
  * - Prefix/suffix support for icons and buttons
  * - Support for multi-line input with auto-expansion
