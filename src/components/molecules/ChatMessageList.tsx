@@ -15,13 +15,13 @@ interface ChatMessageListProps extends Omit<React.HTMLAttributes<HTMLDivElement>
   /** Whether there is more history available to load */
   hasMoreHistory?: boolean;
   /** Handler for editing messages */
-  onEdit: (messageSerial: string, newText: string) => void;
+  onEdit: (message: Message, newText: string) => void;
   /** Handler for deleting messages */
-  onDelete: (messageSerial: string) => void;
+  onDelete: (message: Message) => void;
   /** Handler for adding reactions */
-  onReactionAdd: (messageSerial: string, emoji: string) => void;
+  onReactionAdd: (message: Message, emoji: string) => void;
   /** Handler for removing reactions */
-  onReactionRemove: (messageSerial: string, emoji: string) => void;
+  onReactionRemove: (message: Message, emoji: string) => void;
   /** Additional components to render after messages (e.g., TypingIndicators) */
   children?: React.ReactNode;
   /** Whether to automatically scroll to bottom when messages change */

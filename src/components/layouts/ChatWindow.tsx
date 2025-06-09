@@ -60,13 +60,6 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
     messageSerialsRef.current.clear();
   }, [room]); // Only room dependency
 
-  // Cleanup messageSerialsRef when component unmounts to prevent memory leaks
-  useEffect(() => {
-    return () => {
-      messageSerialsRef.current.clear();
-    };
-  }, []);
-
   // Binary search to find message index by serial (since messages are sorted)
   const findMessageIndex = useCallback((messages: Message[], targetSerial: string): number => {
     let left = 0;
@@ -113,9 +106,8 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
       if (newMessages.length === 0) return;
 
       setMessages((prevMessages) => {
-        // Auto-clear detection: if messages array is empty, clear the Set
+        // Auto-clear: if messages array is empty, clear the Set
         if (prevMessages.length === 0 && messageSerialsRef.current.size > 0) {
-          console.log('Messages array is empty but Set has data, clearing Set');
           messageSerialsRef.current.clear();
         }
 
@@ -318,13 +310,8 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
   );
 
   const handleMessageEdit = useCallback(
-    async (messageSerial: string, newText: string) => {
+    async (message: Message, newText: string) => {
       try {
-        // Find message using binary search
-        const existingIndex = findMessageIndex(messages, messageSerial);
-        if (existingIndex === -1) return;
-
-        const message = messages[existingIndex];
         const updatedMessage = message.copy({
           text: newText,
           metadata: message.metadata,
@@ -339,17 +326,12 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
         console.error('Failed to edit message:', error);
       }
     },
-    [messages, update, handleRESTMessageUpdate, findMessageIndex]
+    [update, handleRESTMessageUpdate]
   );
 
   const handleMessageDelete = useCallback(
-    async (messageSerial: string) => {
+    async (message: Message) => {
       try {
-        // Find message using binary search
-        const existingIndex = findMessageIndex(messages, messageSerial);
-        if (existingIndex === -1) return;
-
-        const message = messages[existingIndex];
         const result = await deleteMessage(message, { description: 'deleted by user' });
         if (result) {
           handleRESTMessageUpdate(result);
@@ -358,39 +340,29 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
         console.error('Failed to delete message:', error);
       }
     },
-    [messages, deleteMessage, handleRESTMessageUpdate, findMessageIndex]
+    [deleteMessage, handleRESTMessageUpdate]
   );
 
   const handleReactionAdd = useCallback(
-    async (messageSerial: string, emoji: string) => {
+    async (message: Message, emoji: string) => {
       try {
-        // Find message using binary search
-        const existingIndex = findMessageIndex(messages, messageSerial);
-        if (existingIndex === -1) return;
-
-        const message = messages[existingIndex];
         await sendReaction(message, { type: MessageReactionType.Distinct, name: emoji });
       } catch (error) {
         console.error('Failed to add reaction:', error);
       }
     },
-    [messages, sendReaction, findMessageIndex]
+    [sendReaction]
   );
 
   const handleReactionRemove = useCallback(
-    async (messageSerial: string, emoji: string) => {
+    async (message: Message, emoji: string) => {
       try {
-        // Find message using binary search
-        const existingIndex = findMessageIndex(messages, messageSerial);
-        if (existingIndex === -1) return;
-
-        const message = messages[existingIndex];
         await deleteReaction(message, { type: MessageReactionType.Distinct, name: emoji });
       } catch (error) {
         console.error('Failed to remove reaction:', error);
       }
     },
-    [messages, deleteReaction, findMessageIndex]
+    [deleteReaction]
   );
 
   const handleSendMessage = useCallback(

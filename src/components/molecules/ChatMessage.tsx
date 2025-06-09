@@ -20,13 +20,13 @@ interface ChatMessageProps {
   /** ID of the current user */
   currentUserId: string;
   /** Callback when a message is edited */
-  onEdit?: (messageSerial: string, newText: string) => void;
+  onEdit?: (message: Message, newText: string) => void;
   /** Callback when a message is deleted */
-  onDelete?: (messageSerial: string) => void;
+  onDelete?: (message: Message) => void;
   /** Callback when a reaction is added to a message */
-  onReactionAdd?: (messageSerial: string, emoji: string) => void;
+  onReactionAdd?: (message: Message, emoji: string) => void;
   /** Callback when a reaction is removed from a message */
-  onReactionRemove?: (messageSerial: string, emoji: string) => void;
+  onReactionRemove?: (message: Message, emoji: string) => void;
 }
 
 /**
@@ -98,7 +98,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
    */
   const handleSaveEdit = () => {
     if (editText.trim() && editText !== (message.text || '')) {
-      onEdit?.(message.serial, editText.trim());
+      onEdit?.(message, editText.trim());
     }
     setIsEditing(false);
   };
@@ -119,7 +119,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
    */
   const handleDelete = () => {
     if (confirm('Are you sure you want to delete this message?')) {
-      onDelete?.(message.serial);
+      onDelete?.(message);
     }
   };
 
@@ -172,7 +172,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
    * @param emoji - The selected emoji
    */
   const handleEmojiSelect = (emoji: string) => {
-    onReactionAdd?.(message.serial, emoji);
+    onReactionAdd?.(message, emoji);
     setShowEmojiPicker(false);
   };
 
@@ -188,9 +188,9 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
     const hasUserReacted = distinct[emoji]?.clientIds.includes(currentUserId) ?? false;
 
     if (hasUserReacted) {
-      onReactionRemove?.(message.serial, emoji);
+      onReactionRemove?.(message, emoji);
     } else {
-      onReactionAdd?.(message.serial, emoji);
+      onReactionAdd?.(message, emoji);
     }
   };
 
