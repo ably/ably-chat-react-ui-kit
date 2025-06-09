@@ -69,7 +69,6 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
     const [isAtBottom, setIsAtBottom] = useState(true);
     const previousScrollHeight = useRef<number>(0);
     const shouldMaintainPosition = useRef<boolean>(false);
-
     // Memoize the checkIfAtBottom function
     const checkIfAtBottom = useCallback(() => {
       if (!containerRef.current) return;

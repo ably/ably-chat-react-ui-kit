@@ -12,7 +12,7 @@ import { RoomOptions } from '@ably/chat';
  */
 const ChatApp: React.FC = () => {
   const chatClient = useChatClient();
-  const [initialRoomIds] = useState<string[]>(['my-first-room-two']);
+  const [initialRoomIds] = useState<string[]>(['my-first-room']);
   const [activeRoomName, setActiveRoomName] = useState<string | undefined>(undefined);
 
   // Function to handle room selection change
