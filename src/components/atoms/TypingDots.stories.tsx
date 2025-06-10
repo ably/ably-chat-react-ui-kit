@@ -478,4 +478,4 @@ export const MultipleUsers: Story = {
       },
     },
   },
-}; 
+};

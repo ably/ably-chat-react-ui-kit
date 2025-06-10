@@ -51,7 +51,6 @@ export interface MessageInputProps {
   placeholder?: string;
 }
 
-
 /**
  * MessageInput component provides a comprehensive text input interface for composing and sending chat messages
  *

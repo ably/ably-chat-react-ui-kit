@@ -58,9 +58,7 @@ The component supports 'above' and 'below' positioning, with arrows automaticall
   decorators: [
     (Story) => (
       <div className="relative inline-block p-16">
-        <div className="bg-blue-500 text-white px-4 py-2 rounded">
-          Arrow Demo
-        </div>
+        <div className="bg-blue-500 text-white px-4 py-2 rounded">Arrow Demo</div>
         <Story />
       </div>
     ),
@@ -269,15 +267,11 @@ export const AllPositions: Story = {
   render: () => (
     <div className="flex flex-col gap-12">
       <div className="relative inline-block">
-        <div className="bg-blue-500 text-white px-4 py-2 rounded">
-          Above Arrow (points down)
-        </div>
+        <div className="bg-blue-500 text-white px-4 py-2 rounded">Above Arrow (points down)</div>
         <TooltipArrow position="above" variant="dark" size="md" />
       </div>
       <div className="relative inline-block">
-        <div className="bg-blue-500 text-white px-4 py-2 rounded">
-          Below Arrow (points up)
-        </div>
+        <div className="bg-blue-500 text-white px-4 py-2 rounded">Below Arrow (points up)</div>
         <TooltipArrow position="below" variant="dark" size="md" />
       </div>
     </div>
@@ -381,4 +375,4 @@ export const CustomStyled: Story = {
       },
     },
   },
-}; 
+};

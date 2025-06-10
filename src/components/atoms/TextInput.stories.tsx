@@ -170,7 +170,8 @@ export const MultilineWithMaxHeight: Story = {
     multiline: true,
     maxHeight: '100px',
     placeholder: 'This textarea has a maximum height of 100px',
-    value: 'This is a longer text that will demonstrate the auto-resize functionality. Keep typing to see how it expands and then becomes scrollable after reaching the maximum height.',
+    value:
+      'This is a longer text that will demonstrate the auto-resize functionality. Keep typing to see how it expands and then becomes scrollable after reaching the maximum height.',
   },
 };
 
@@ -202,7 +203,11 @@ export const WithSuffixIcon: Story = {
 export const WithPrefixAndSuffix: Story = {
   args: {
     prefix: <Icon name="info" size="sm" />,
-    suffix: <Button size="sm" variant="ghost"><Icon name="send" /></Button>,
+    suffix: (
+      <Button size="sm" variant="ghost">
+        <Icon name="send" />
+      </Button>
+    ),
     placeholder: 'Type and send...',
   },
 };
@@ -325,8 +330,8 @@ export const LoginForm: Story = {
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
           Email
         </label>
-        <TextInput 
-          type="email" 
+        <TextInput
+          type="email"
           placeholder="Enter your email"
           prefix={<Icon name="info" size="sm" />}
         />
@@ -335,10 +340,7 @@ export const LoginForm: Story = {
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
           Password
         </label>
-        <TextInput 
-          type="password" 
-          placeholder="Enter your password"
-        />
+        <TextInput type="password" placeholder="Enter your password" />
       </div>
     </div>
   ),
@@ -356,7 +358,9 @@ export const ChatInterface: Story = {
   render: () => (
     <div className="space-y-4 w-96">
       <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
-        <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Chat messages would appear here...</p>
+        <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+          Chat messages would appear here...
+        </p>
       </div>
       <div className="flex gap-2">
         <TextInput
@@ -414,7 +418,7 @@ export const FormValidation: Story = {
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
           Username
         </label>
-        <TextInput 
+        <TextInput
           error
           placeholder="Enter username"
           value="ab"
@@ -428,7 +432,7 @@ export const FormValidation: Story = {
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
           Email
         </label>
-        <TextInput 
+        <TextInput
           success
           type="email"
           placeholder="Enter email"
@@ -449,4 +453,4 @@ export const FormValidation: Story = {
       },
     },
   },
-}; 
+};
