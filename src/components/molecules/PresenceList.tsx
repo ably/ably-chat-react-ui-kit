@@ -8,27 +8,66 @@ import { TooltipSurface, TooltipArrow } from '../atoms';
  * Props for the PresenceList component
  */
 interface PresenceListProps extends React.HTMLAttributes<HTMLDivElement> {
-  /** Array of presence members in the room */
+  /**
+   * Array of presence members currently in the room.
+   * Used to generate a human-readable description of who is present.
+   * Automatically handles deduplication and formatting for display.
+   */
   presenceData: PresenceMember[];
-  /** Position of the tooltip relative to its trigger */
+
+  /**
+   * Positioning of the tooltip relative to its trigger element.
+   * - `above`: Tooltip appears above trigger with downward-pointing arrow
+   * - `below`: Tooltip appears below trigger with upward-pointing arrow
+   */
   tooltipPosition: 'above' | 'below';
-  /** Whether to show the tooltip */
+
+  /**
+   * Whether the tooltip should be visible to the user.
+   * When false, component returns null and renders nothing.
+   */
   showTooltip: boolean;
-  /** Whether another component (like a participant list) is open */
-  isOpen: boolean;
-  /** Custom class name for the tooltip surface */
+
+  /**
+   * Optional CSS classes to apply to the TooltipSurface component.
+   * Allows customization of the tooltip's background, padding, shadows, etc.
+   * Merged with default tooltip styling using clsx.
+   */
   surfaceClassName?: string;
-  /** Custom class name for the tooltip arrow */
+
+  /**
+   * Optional CSS classes to apply to the TooltipArrow component.
+   * Allows customization of the arrow's color, size, or positioning.
+   * Merged with default arrow styling using clsx.
+   */
   arrowClassName?: string;
-  /** Custom class name for the tooltip text */
+
+  /**
+   * Optional CSS classes to apply to the tooltip text content.
+   * Allows customization of font size, weight, color, alignment, etc.
+   * Merged with default text styling (centered, truncated) using clsx.
+   */
   textClassName?: string;
 }
 
 /**
  * Builds a human-readable sentence describing who is present in the room
  *
- * @param presenceData - Array of presence members
- * @returns A formatted string describing who is present
+ * - Shows first 3 participant names explicitly
+ * - For additional participants, shows count as "and N more participant(s)"
+ * - Handles proper pluralization for both names and remaining count
+ * - Uses proper grammar with "is/are" based on participant count
+ *
+ * @param presenceData - Array of Ably Chat presence members
+ * @returns A formatted string describing current room participants
+ *
+ * @example
+ * // Examples of generated text:
+ * // []                           → "No one is currently present"
+ * // ["Alice"]                    → "Alice is present"
+ * // ["Alice", "Bob"]             → "Alice, Bob are present"
+ * // ["Alice", "Bob", "Charlie"]  → "Alice, Bob, Charlie are present"
+ * // ["Alice", "Bob", "Charlie", "David", "Eve"] → "Alice, Bob, Charlie and 2 more participants are present"
  */
 const buildPresenceSentence = (presenceData: PresenceMember[]): string => {
   if (!presenceData?.length) {
@@ -49,25 +88,58 @@ const buildPresenceSentence = (presenceData: PresenceMember[]): string => {
 };
 
 /**
- * PresenceList component displays a tooltip with information about who is present
+ * PresenceList component displays a tooltip with detailed information about room participants
  *
- * Features:
- * - Shows a list of participants who are present in the room
- * - Limits display to first 3 names with a count of remaining participants
- * - Supports positioning above or below the trigger element
- * - Customizable styling through class name props
+ * Core Features:
+ * - Human-readable participant list with smart truncation and formatting
+ * - Conditional rendering based on tooltip visibility and modal states
+ * - Flexible positioning (above/below) with proper arrow orientation
+ * - Accessible tooltip with ARIA attributes and live region updates
+ * - Customizable styling through multiple className props
+ * - Theme-aware styling supporting both light and dark modes
+ * - Maximum width constraint (max-w-96) with text truncation for long lists
+ *
+ *
+ * @example
+ * // Basic usage within RoomInfo hover interaction
+ * <PresenceList
+ *   presenceData={presenceData}
+ *   tooltipPosition={tooltipPosition}
+ *   showTooltip={showTooltip}
+ *   isOpen={participantListOpen}
+ * />
+ *
+ * @example
+ * // With custom styling
+ * <PresenceList
+ *   presenceData={presenceData}
+ *   tooltipPosition="above"
+ *   showTooltip={true}
+ *   isOpen={false}
+ *   surfaceClassName="bg-blue-900 border-blue-700"
+ *   textClassName="text-blue-100 font-medium"
+ *   arrowClassName="border-blue-700"
+ * />
+ *
+ *
+ * @example
+ * // Different presence scenarios and generated text
+ * // presenceData = [] → "No one is currently present"
+ * // presenceData = [{ clientId: "Alice" }] → "Alice is present"
+ * // presenceData = [{ clientId: "Alice" }, { clientId: "Bob" }] → "Alice, Bob are present"
+ * // presenceData = [5 members] → "Alice, Bob, Charlie and 2 more participants are present"
  */
+
 export const PresenceList: React.FC<PresenceListProps> = ({
   presenceData,
   tooltipPosition,
   showTooltip,
-  isOpen,
   surfaceClassName,
   arrowClassName,
   textClassName,
   ...rest
 }) => {
-  if (!showTooltip || isOpen) return null;
+  if (!showTooltip) return null;
 
   const text = buildPresenceSentence(presenceData);
 
