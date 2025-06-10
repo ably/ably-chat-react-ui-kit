@@ -18,7 +18,7 @@ export interface ParticipantListProps {
    * Client ID of the current Ably Connection for the room.
    * Used to sort the current user to the top of the list and for self-identification.
    */
-  currentUserId: string;
+  currentClientId: string;
 
   /**
    * Set of client IDs for users who are currently typing.
@@ -66,7 +66,7 @@ export interface ParticipantListProps {
  *
  * <ParticipantList
  *   presenceData={presenceData || []}
- *   currentUserId={clientId}
+ *   currentClientId={clientId}
  *   currentlyTyping={currentlyTyping}
  *   isOpen={participantListOpen}
  *   onToggle={toggleParticipantList}
@@ -75,7 +75,7 @@ export interface ParticipantListProps {
  */
 export const ParticipantList: React.FC<ParticipantListProps> = ({
   presenceData,
-  currentUserId,
+  currentClientId,
   currentlyTyping,
   isOpen,
   onToggle,
@@ -91,8 +91,8 @@ export const ParticipantList: React.FC<ParticipantListProps> = ({
   // Sort participants: current user first, then by clientId
   const sortedParticipants = presenceData
     ? [...presenceData].sort((a, b) => {
-        if (a.clientId === currentUserId && b.clientId !== currentUserId) return -1;
-        if (a.clientId !== currentUserId && b.clientId === currentUserId) return 1;
+        if (a.clientId === currentClientId && b.clientId !== currentClientId) return -1;
+        if (a.clientId !== currentClientId && b.clientId === currentClientId) return 1;
         return a.clientId.localeCompare(b.clientId);
       })
     : [];
@@ -133,7 +133,7 @@ export const ParticipantList: React.FC<ParticipantListProps> = ({
               key={member.clientId}
               clientId={member.clientId}
               isPresent={true}
-              isSelf={member.clientId === currentUserId}
+              isSelf={member.clientId === currentClientId}
               isTyping={currentlyTyping.has(member.clientId)}
             />
           );

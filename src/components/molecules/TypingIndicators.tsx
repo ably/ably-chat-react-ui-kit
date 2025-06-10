@@ -160,7 +160,7 @@ export const TypingIndicators: React.FC<TypingIndicatorsProps> = ({
  * • Proper pluralization: "1 other" vs "2 others"
  * • Always maintains readability regardless of participant count
  *
- * @param userIds - Array of client IDs who are currently typing (excluding current user)
+ * @param clientIds - Array of client IDs who are currently typing (excluding current user)
  * @param maxClients - Maximum number of users to display by name before collapsing.
  *                     Values ≤ 0 are normalized to 1 to ensure at least one name shows.
  * @returns A formatted string describing who is typing, or empty string if no users
@@ -191,8 +191,8 @@ export const TypingIndicators: React.FC<TypingIndicatorsProps> = ({
  * // → "Alice is typing"
  */
 
-function buildTypingSentence(userIds: string[], maxClients: number = 1): string {
-  const count = userIds.length;
+function buildTypingSentence(clientIds: string[], maxClients: number = 1): string {
+  const count = clientIds.length;
   const safeMax = Math.max(1, maxClients); // never smaller than 1
 
   // No users
@@ -200,17 +200,17 @@ function buildTypingSentence(userIds: string[], maxClients: number = 1): string 
 
   // All users fit into the limit → list them, nothing to collapse
   if (count <= safeMax) {
-    if (count === 1) return `${userIds[0]} is typing`;
-    if (count === 2) return `${userIds[0]} and ${userIds[1]} are typing`;
-    if (count === 3) return `${userIds[0]}, ${userIds[1]} and ${userIds[2]} are typing`;
+    if (count === 1) return `${clientIds[0]} is typing`;
+    if (count === 2) return `${clientIds[0]} and ${clientIds[1]} are typing`;
+    if (count === 3) return `${clientIds[0]}, ${clientIds[1]} and ${clientIds[2]} are typing`;
 
     // >3 but still within the limit – generic join
-    const names = userIds.slice(0, -1).join(', ');
-    return `${names} and ${userIds[count - 1]} are typing`;
+    const names = clientIds.slice(0, -1).join(', ');
+    return `${names} and ${clientIds[count - 1]} are typing`;
   }
 
   // Need to collapse the tail into "…n others"
-  const displayNames = userIds.slice(0, safeMax).join(', ');
+  const displayNames = clientIds.slice(0, safeMax).join(', ');
   const remaining = count - safeMax;
 
   return `${displayNames} and ${remaining} other${remaining > 1 ? 's' : ''} are typing`;

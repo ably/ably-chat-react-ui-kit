@@ -40,12 +40,12 @@ export interface ChatWindowProps {
  *
  * @example
  * // Basic usage
- * <ChatWindow roomId="general" />
+ * <ChatWindow roomName="general" />
  *
  * @example
  * // With custom header and footer
  * <ChatWindow
- *   roomId="support"
+ *   roomName="support"
  *   customHeaderContent={<RoomInfo />}
  *   customFooterContent={<ReactionPicker />}
  * />

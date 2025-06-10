@@ -64,44 +64,20 @@ export interface RoomListItemProps {
  * RoomListItem component displays a room entry in the sidebar with activity indicators and controls
  *
  * Core Features:
- * • Room avatar with automatic fallback to generated avatars via useRoomAvatar hook
- * • Real-time activity indicators (presence count, activity status)
- * • Interactive room selection with visual feedback and hover states
- * • Typing indicators showing who is currently typing (when enabled)
- * • Leave room functionality with hover-revealed action button
- * • Collapsed mode for compact sidebar display (avatar-only)
- * • Connection count display for total room occupancy
- * • Accessible design with proper ARIA attributes and keyboard navigation
- * • Theme-aware styling supporting both light and dark modes
- *
- * Visual States:
- * • Selected: Blue border accent, highlighted background
- * • Active (has participants): Green presence dot and participant count badge
- * • Hover: Background color change, leave button appears
- * • Collapsed: Avatar-only with selection ring
- *
- * Data Integration:
- * • useOccupancy hook for real-time connection and presence data
- * • useRoomAvatar hook for consistent room visual identity
- * • TypingIndicators component for real-time typing status
- * • Automatic presence badge display with smart count formatting (9+ cap)
- *
- * Behavior:
- * • Click anywhere on item (except leave button) to select room
- * • Leave button only visible on hover for clean UI
- * • Keyboard navigation support with Enter/Space activation
- * • Prevents action button clicks from triggering room selection
- * • Smart presence detection using occupancy data
- *
- * Layout Modes:
- * • Full Mode: Avatar, name, counts, typing indicators, actions
- * • Collapsed Mode: Avatar only with selection indicator
- * • Responsive design adapts to different sidebar widths
+ * - Room avatar with automatic fallback to generated avatars via useRoomAvatar hook
+ * - Activity indicators (presence count, activity status)
+ * - Room selection with visual feedback and hover states
+ * - Typing indicators showing who is currently typing (when enabled)
+ * - Leave room functionality with hover-revealed action button
+ * - Collapsed mode for compact sidebar display (avatar-only)
+ * - Connection count display for total room occupancy (connections)
+ * - Accessible design with proper ARIA attributes and keyboard navigation
+ * - Theme-aware styling supporting both light and dark modes
  *
  * @example
  * // Basic usage in sidebar room list
  * <RoomListItem
- *   roomId="general"
+ *   roomName="general"
  *   isSelected={currentRoom === "general"}
  *   onClick={() => setCurrentRoom("general")}
  *   onLeave={() => leaveRoom("general")}
@@ -110,7 +86,7 @@ export interface RoomListItemProps {
  * @example
  * // With custom avatar and collapsed mode
  * <RoomListItem
- *   roomId="design-team"
+ *   roomName="design-team"
  *   isSelected={false}
  *   onClick={handleRoomSelect}
  *   onLeave={handleRoomLeave}
@@ -123,26 +99,7 @@ export interface RoomListItemProps {
  *   typingIndicatorsEnabled={true}
  * />
  *
- * @example
- * // Integration with room management hooks
- * const roomItems = rooms.map(room => (
- *   <RoomListItem
- *     key={room.id}
- *     roomId={room.id}
- *     isSelected={room.id === activeRoom}
- *     onClick={() => joinRoom(room.id)}
- *     onLeave={() => leaveRoom(room.id)}
- *     isCollapsed={sidebarMode === 'compact'}
- *   />
- * ));
  *
- * @example
- * // Different activity states and visual feedback
- * // No activity: Gray presence dot, no badge
- * // Active room: Green presence dot, participant count badge
- * // Selected room: Blue border accent, highlighted background
- * // Typing activity: Animated typing indicators below room name
- * // Hover state: Leave button appears, background highlights
  */
 
 export const RoomListItem: React.FC<RoomListItemProps> = React.memo(

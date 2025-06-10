@@ -55,9 +55,14 @@ export interface AvatarOptions {
 /**
  * Persisted avatar data structure for localStorage
  */
-interface PersistedAvatarData {
+export interface PersistedAvatarData {
+  /** Cached avatars keyed by user `clientId` */
   userAvatars: Record<string, AvatarData>;
+
+  /** Cached avatars keyed by room name */
   roomAvatars: Record<string, AvatarData>;
+
+  /** Schema version of the persisted object */
   version: number;
 }
 
@@ -67,49 +72,49 @@ interface PersistedAvatarData {
 export interface AvatarContextType {
   /**
    * Gets an avatar for a user if it exists in the cache
-   * @param userId - The unique identifier for the user
+   * @param clientId - The unique identifier for the user
    * @param displayName - Optional display name (not used for lookup, only for creation)
    * @returns The avatar data if it exists, undefined otherwise
    */
-  getAvatarForUser: (userId: string, displayName?: string) => AvatarData | undefined;
+  getAvatarForUser: (clientId: string, displayName?: string) => AvatarData | undefined;
 
   /**
    * Creates an avatar for a user and adds it to the cache
-   * @param userId - The unique identifier for the user
-   * @param displayName - Optional display name (defaults to userId if not provided)
+   * @param clientId - The unique identifier for the user
+   * @param displayName - Optional display name (defaults to clientId if not provided)
    * @returns The created avatar data
    */
-  createAvatarForUser: (userId: string, displayName?: string) => AvatarData;
+  createAvatarForUser: (clientId: string, displayName?: string) => AvatarData;
 
   /**
    * Gets an avatar for a room if it exists in the cache
-   * @param roomId - The unique identifier for the room
-   * @param roomName - Optional room name (not used for lookup, only for creation)
+   * @param roomName - The unique identifier for the room
+   * @param displayName - Optional display name (not used for lookup, only for creation)
    * @returns The avatar data if it exists, undefined otherwise
    */
-  getAvatarForRoom: (roomId: string, roomName?: string) => AvatarData | undefined;
+  getAvatarForRoom: (roomName: string, displayName?: string) => AvatarData | undefined;
 
   /**
    * Creates an avatar for a room and adds it to the cache
-   * @param roomId - The unique identifier for the room
-   * @param roomName - Optional room name (defaults to roomId if not provided)
+   * @param roomName - The unique identifier for the room
+   * @param displayName - Optional display name (defaults to roomName if not provided)
    * @returns The created avatar data
    */
-  createAvatarForRoom: (roomId: string, roomName?: string) => AvatarData;
+  createAvatarForRoom: (roomName: string, displayName?: string) => AvatarData;
 
   /**
    * Updates an existing user avatar or creates a new one
-   * @param userId - The unique identifier for the user
+   * @param clientId - The unique identifier for the user
    * @param avatar - Partial avatar data to update
    */
-  setUserAvatar: (userId: string, avatar: Partial<AvatarData>) => void;
+  setUserAvatar: (clientId: string, avatar: Partial<AvatarData>) => void;
 
   /**
    * Updates an existing room avatar or creates a new one
-   * @param roomId - The unique identifier for the room
+   * @param roomName - The unique identifier for the room
    * @param avatar - Partial avatar data to update
    */
-  setRoomAvatar: (roomId: string, avatar: Partial<AvatarData>) => void;
+  setRoomAvatar: (roomName: string, avatar: Partial<AvatarData>) => void;
 
   /**
    * Returns all cached user avatars
@@ -185,7 +190,7 @@ const DEFAULT_AVATAR_COLORS = [
   'bg-rose-500',
   'bg-fuchsia-500',
   'bg-sky-500',
-] as const;
+];
 
 /**
  * Current version for avatar data persistence schema
@@ -465,6 +470,10 @@ export const AvatarProvider: React.FC<AvatarProviderProps> = ({ children, option
   const { persist = true, customColors, maxCacheSize = 100, onError } = options;
   const { generateColor, generateInitials } = useAvatarGeneration(customColors);
   const { notifyAvatarChange, onAvatarChange, handleError } = useAvatarNotifications(onError);
+
+  // Guard against server-side rendering where window is undefined
+  const isClient = typeof window !== 'undefined';
+
   const {
     userAvatars,
     roomAvatars,
@@ -478,19 +487,18 @@ export const AvatarProvider: React.FC<AvatarProviderProps> = ({ children, option
     getRoomAvatars,
     exportAvatars,
     importAvatars,
-  } = useAvatarCache(persist, maxCacheSize, handleError);
+  } = useAvatarCache(isClient && persist, maxCacheSize, handleError);
 
   /**
    * Gets an avatar for a user if it exists in the cache
-   * @param userId - The unique identifier for the user
-   * @param displayName - Optional display name (not used for lookup, only for creation)
+   * @param clientId - The unique identifier for the user
    * @returns The avatar data if it exists, undefined otherwise
    */
   const getAvatarForUser = useCallback(
-    (userId: string, displayName?: string): AvatarData | undefined => {
+    (clientId: string): AvatarData | undefined => {
       // Return cached avatar if it exists
-      if (userAvatars[userId]) {
-        return userAvatars[userId];
+      if (userAvatars[clientId]) {
+        return userAvatars[clientId];
       }
 
       // Return undefined if avatar doesn't exist
@@ -501,25 +509,25 @@ export const AvatarProvider: React.FC<AvatarProviderProps> = ({ children, option
 
   /**
    * Creates an avatar for a user and adds it to the cache
-   * @param userId - The unique identifier for the user
-   * @param displayName - Optional display name (defaults to userId if not provided)
+   * @param clientId - The unique identifier for the user
+   * @param displayName - Optional display name (defaults to clientId if not provided)
    * @returns The created avatar data
    */
   const createAvatarForUser = useCallback(
-    (userId: string, displayName?: string): AvatarData => {
-      const name = displayName || userId;
+    (clientId: string, displayName?: string): AvatarData => {
+      const name = displayName || clientId;
       const newAvatar: AvatarData = {
         displayName: name,
-        color: generateColor(userId),
+        color: generateColor(clientId),
         initials: generateInitials(name),
       };
 
       // Update cache with size management
       setUserAvatars((prev) => {
         const managed = manageCacheSize(prev);
-        const updated = { ...managed, [userId]: newAvatar };
+        const updated = { ...managed, [clientId]: newAvatar };
 
-        notifyAvatarChange('user', userId, newAvatar);
+        notifyAvatarChange('user', clientId, newAvatar);
 
         return updated;
       });
@@ -531,14 +539,14 @@ export const AvatarProvider: React.FC<AvatarProviderProps> = ({ children, option
 
   /**
    * Gets an avatar for a room if it exists in the cache
-   * @param roomId - The unique identifier for the room
+   * @param roomName - The unique identifier for the room
    * @returns The avatar data if it exists, undefined otherwise
    */
   const getAvatarForRoom = useCallback(
-    (roomId: string): AvatarData | undefined => {
+    (roomName: string): AvatarData | undefined => {
       // Return cached avatar if it exists
-      if (roomAvatars[roomId]) {
-        return roomAvatars[roomId];
+      if (roomAvatars[roomName]) {
+        return roomAvatars[roomName];
       }
 
       // Return undefined if avatar doesn't exist
@@ -549,28 +557,28 @@ export const AvatarProvider: React.FC<AvatarProviderProps> = ({ children, option
 
   /**
    * Creates an avatar for a room and adds it to the cache
-   * @param roomId - The unique identifier for the room
-   * @param roomName - Optional room name (defaults to roomId if not provided)
+   * @param roomName - The unique identifier for the room
+   * @param displayName - Optional display name (defaults to roomName if not provided)
    * @returns The created avatar data
    */
   const createAvatarForRoom = useCallback(
-    (roomId: string, roomName?: string): AvatarData => {
-      // Use roomName or roomId directly
-      const name = roomName || roomId;
+    (roomName: string, displayName?: string): AvatarData => {
+      // Use displayName or roomName directly
+      const name = displayName || roomName;
 
       const newAvatar: AvatarData = {
         displayName: name,
-        color: generateColor(roomId),
+        color: generateColor(roomName),
         initials: generateInitials(name),
       };
 
       // Update cache with size management
       setRoomAvatars((prev) => {
         const managed = manageCacheSize(prev);
-        const updated = { ...managed, [roomId]: newAvatar };
+        const updated = { ...managed, [roomName]: newAvatar };
 
         // Notify change in next tick
-        setTimeout(() => notifyAvatarChange('room', roomId, newAvatar), 0);
+        notifyAvatarChange('room', roomName, newAvatar);
 
         return updated;
       });
@@ -584,22 +592,22 @@ export const AvatarProvider: React.FC<AvatarProviderProps> = ({ children, option
    * Updates or creates a user avatar with change notifications
    */
   const setUserAvatar = useCallback(
-    (userId: string, avatar: Partial<AvatarData>) => {
+    (clientId: string, avatar: Partial<AvatarData>) => {
       setUserAvatars((prev) => {
-        const existing = prev[userId];
-        const name = avatar.displayName || existing?.displayName || userId;
+        const existing = prev[clientId];
+        const name = avatar.displayName || existing?.displayName || clientId;
 
         const updatedAvatar: AvatarData = {
           displayName: name,
-          color: avatar.color || existing?.color || generateColor(userId),
+          color: avatar.color || existing?.color || generateColor(clientId),
           initials: avatar.initials || existing?.initials || generateInitials(name),
           src: avatar.src || existing?.src,
         };
 
         // Notify change
-        setTimeout(() => notifyAvatarChange('user', userId, updatedAvatar, existing), 0);
+        notifyAvatarChange('user', clientId, updatedAvatar, existing);
 
-        return { ...prev, [userId]: updatedAvatar };
+        return { ...prev, [clientId]: updatedAvatar };
       });
     },
     [generateColor, generateInitials, notifyAvatarChange, setUserAvatars]
@@ -609,23 +617,23 @@ export const AvatarProvider: React.FC<AvatarProviderProps> = ({ children, option
    * Updates or creates a room avatar with change notifications
    */
   const setRoomAvatar = useCallback(
-    (roomId: string, avatar: Partial<AvatarData>) => {
+    (roomName: string, avatar: Partial<AvatarData>) => {
       setRoomAvatars((prev) => {
-        const existing = prev[roomId];
-        // Use roomId directly without processing
-        const name = avatar.displayName || existing?.displayName || roomId;
+        const existing = prev[roomName];
+        // Use roomName directly without processing
+        const name = avatar.displayName || existing?.displayName || roomName;
 
         const updatedAvatar: AvatarData = {
           displayName: name,
-          color: avatar.color || existing?.color || generateColor(roomId),
+          color: avatar.color || existing?.color || generateColor(roomName),
           initials: avatar.initials || existing?.initials || generateInitials(name),
           src: avatar.src || existing?.src,
         };
 
         // Notify change
-        setTimeout(() => notifyAvatarChange('room', roomId, updatedAvatar, existing), 0);
+        notifyAvatarChange('room', roomName, updatedAvatar, existing);
 
-        return { ...prev, [roomId]: updatedAvatar };
+        return { ...prev, [roomName]: updatedAvatar };
       });
     },
     [generateColor, generateInitials, notifyAvatarChange, setRoomAvatars]
@@ -671,7 +679,7 @@ export const AvatarProvider: React.FC<AvatarProviderProps> = ({ children, option
 };
 
 /**
- * Hook to access the avatar context with comprehensive avatar management
+ * Hook to access the avatar context with comprehensive avatar management.
  *
  * @returns The avatar context value
  * @throws Error if used outside of an AvatarProvider

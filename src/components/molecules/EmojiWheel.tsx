@@ -76,7 +76,7 @@ export interface EmojiWheelProps {
    * ```tsx
    * onEmojiSelect={(emoji) => {
    *   // Add reaction to message
-   *   addReaction(messageId, emoji, userId);
+   *   sendReaction(emoji);
    *
    *   // Close the wheel
    *   setWheelOpen(false);

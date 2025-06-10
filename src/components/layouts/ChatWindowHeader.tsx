@@ -25,7 +25,7 @@ export interface ChatWindowHeaderProps {
  * @example
  * // Basic usage with room info
  * <ChatWindowHeader>
- *   <RoomInfo roomId="general" />
+ *   <RoomInfo roomName="general" />
  * </ChatWindowHeader>
  *
  * @example

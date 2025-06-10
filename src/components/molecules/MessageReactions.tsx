@@ -76,7 +76,7 @@ export interface MessageReactionsProps {
  *   <MessageReactions
  *     message={message}
  *     onReactionClick={handleReactionToggle}
- *     currentClientId={currentUserId}
+ *     currentClientId={currentClientId}
  *   />
  * )}
  *

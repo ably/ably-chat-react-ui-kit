@@ -29,7 +29,7 @@ export interface PresenceCountProps {
  * const { presenceData } = usePresenceListener();
  *
  * <div className="relative">
- *   <RoomIcon roomId={roomId} />
+ *   <RoomIcon roomName={roomName} />
  *   <PresenceCount presenceData={presenceData || []} />
  * </div>
  *

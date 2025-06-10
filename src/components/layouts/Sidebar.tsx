@@ -21,7 +21,7 @@ export interface SidebarProps {
   /** Width of the sidebar (CSS value or pixels) */
   width?: string | number;
   /** Callback when the active room changes */
-  onChangeActiveRoom: (roomId?: string) => void;
+  onChangeActiveRoom: (roomName?: string) => void;
   /** Additional CSS classes for the sidebar */
   className?: string;
 }
@@ -59,7 +59,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onChangeActiveRoom,
   className = '',
 }) => {
-  const [roomIds, setRoomIds] = useState<string[]>(initialRoomNames);
+  const [roomNames, setRoomNames] = useState<string[]>(initialRoomNames);
   const [defaultRoomOptions] = useState<RoomOptions>({ occupancy: { enableEvents: true } });
   const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
   const { theme, toggleTheme } = useTheme();
@@ -74,23 +74,23 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   // Handle leave room
   const handleLeaveRoom = useCallback(
-    async (roomIdToLeave: string) => {
+    async (roomNameToLeave: string) => {
       try {
-        await chatClient.rooms.release(roomIdToLeave);
+        await chatClient.rooms.release(roomNameToLeave);
 
-        setRoomIds((prevRoomIds) => {
-          const newRoomIds = prevRoomIds.filter((id) => id !== roomIdToLeave);
+        setRoomNames((prevRoomNames) => {
+          const newRoomNames = prevRoomNames.filter((id) => id !== roomNameToLeave);
 
           // Handle active room switching
-          if (roomIdToLeave === activeRoomName) {
-            if (newRoomIds.length > 0) {
-              onChangeActiveRoom(newRoomIds[0]);
+          if (roomNameToLeave === activeRoomName) {
+            if (newRoomNames.length > 0) {
+              onChangeActiveRoom(newRoomNames[0]);
             } else {
               onChangeActiveRoom(undefined);
             }
           }
 
-          return newRoomIds;
+          return newRoomNames;
         });
       } catch (error) {
         console.error('Failed to release room:', error);
@@ -102,17 +102,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
   // Handle creating a new room
   const handleCreateRoom = useCallback(
     async (roomName: string) => {
-      setRoomIds((prevRoomIds) => {
+      setRoomNames((prevRoomNames) => {
         // Check if the room already exists using the current state
-        if (prevRoomIds.includes(roomName)) {
+        if (prevRoomNames.includes(roomName)) {
           onChangeActiveRoom(roomName);
-          return prevRoomIds; // No state change needed
+          return prevRoomNames; // No state change needed
         }
 
         // Add new room
         getAvatarForRoom(roomName);
         onChangeActiveRoom(roomName);
-        return [...prevRoomIds, roomName];
+        return [...prevRoomNames, roomName];
       });
     },
     [onChangeActiveRoom, getAvatarForRoom]
@@ -147,7 +147,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {!isCollapsed ? (
           <>
             <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
-              Chats <span className="text-sm font-normal text-gray-500">({roomIds.length})</span>
+              Chats <span className="text-sm font-normal text-gray-500">({roomNames.length})</span>
             </h1>
             <div className="flex items-center gap-2">
               <Button variant="ghost" size="sm" onClick={toggleTheme}>
@@ -181,20 +181,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* Room List */}
       <div className="flex-1 overflow-y-auto">
         <div>
-          {roomIds.map((roomId) => (
+          {roomNames.map((roomName) => (
             <ChatRoomProvider
-              key={roomId}
-              name={roomId}
+              key={roomName}
+              name={roomName}
               attach={true}
               release={true}
               options={defaultRoomOptions}
             >
               <RoomListItem
-                key={roomId}
-                roomName={roomId}
-                isSelected={roomId === activeRoomName}
-                onClick={() => onChangeActiveRoom(roomId)}
-                onLeave={() => handleLeaveRoom(roomId)}
+                key={roomName}
+                roomName={roomName}
+                isSelected={roomName === activeRoomName}
+                onClick={() => onChangeActiveRoom(roomName)}
+                onLeave={() => handleLeaveRoom(roomName)}
                 isCollapsed={isCollapsed}
               />
             </ChatRoomProvider>

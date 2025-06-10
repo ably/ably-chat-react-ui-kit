@@ -22,12 +22,12 @@ export interface RoomInfoProps {
    *
    * @example
    * // Using context-managed avatar (recommended)
-   * <RoomInfo roomId="general-chat" />
+   * <RoomInfo roomName="general-chat" />
    *
    * @example
    * // Providing custom avatar data
    * <RoomInfo
-   *   roomId="special-room"
+   *   roomName="special-room"
    *   roomAvatar={{
    *     displayName: "VIP Lounge",
    *     color: "#FFD700",
@@ -61,7 +61,7 @@ export interface RoomInfoProps {
    * @example
    * // Position for sidebar placement
    * <RoomInfo
-   *   roomId="room_123"
+   *   roomName="room_123"
    *   position={{ top: 60, left: 250 }}
    * />
    *
@@ -169,7 +169,7 @@ export const RoomInfo: React.FC<RoomInfoProps> = ({
   const { presenceData } = usePresenceListener();
   const { currentlyTyping } = useTyping();
   const chatClient = useChatClient();
-  const currentUserId = chatClient.clientId;
+  const currentClientId = chatClient.clientId;
 
   const [showTooltip, setShowTooltip] = useState(false);
   const [tooltipPosition, setTooltipPosition] = useState<'above' | 'below'>('above');
@@ -312,7 +312,7 @@ export const RoomInfo: React.FC<RoomInfoProps> = ({
         {/* Participants Dropdown */}
         <ParticipantList
           presenceData={presenceData}
-          currentUserId={currentUserId}
+          currentClientId={currentClientId}
           currentlyTyping={currentlyTyping}
           isOpen={isOpen}
           onToggle={onToggle}

@@ -128,10 +128,10 @@ export interface UseUserAvatarReturn {
  *
  * @example
  * // User profile editing with avatar customization
- * const UserProfile = ({ userId }) => {
+ * const UserProfile = ({ clientId, name }) => {
  *   const { userAvatar, setUserAvatar } = useUserAvatar({
- *     clientId: userId,
- *     displayName: currentUser.name
+ *     clientId,
+ *     displayName: name
  *   });
  *
  *   const handleNameChange = (newName) => {
