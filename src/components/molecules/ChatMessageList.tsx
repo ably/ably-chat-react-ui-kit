@@ -42,14 +42,14 @@ export interface ChatMessageListProps
    * @param message - The original message being edited
    * @param newText - The updated message content
    */
-  onEdit: (message: Message, newText: string) => void;
+  onEdit?: (message: Message, newText: string) => void;
 
   /**
    * Callback triggered when a user confirms deletion of their message.
    * Passed through to individual ChatMessage components.
    * @param message - The message to be deleted
    */
-  onDelete: (message: Message) => void;
+  onDelete?: (message: Message) => void;
 
   /**
    * Callback triggered when a user adds an emoji reaction to any message.
@@ -57,7 +57,7 @@ export interface ChatMessageListProps
    * @param message - The message receiving the reaction
    * @param emoji - The emoji character being added
    */
-  onReactionAdd: (message: Message, emoji: string) => void;
+  onReactionAdd?: (message: Message, emoji: string) => void;
 
   /**
    * Callback triggered when a user removes their emoji reaction from a message.
@@ -65,7 +65,7 @@ export interface ChatMessageListProps
    * @param message - The message losing the reaction
    * @param emoji - The emoji character being removed
    */
-  onReactionRemove: (message: Message, emoji: string) => void;
+  onReactionRemove?: (message: Message, emoji: string) => void;
 
   /**
    * Optional React elements to render after all messages (e.g., TypingIndicators).

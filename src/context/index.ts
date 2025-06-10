@@ -6,3 +6,4 @@ export {
   type AvatarChangeCallback,
 } from './AvatarContext';
 export { ThemeProvider, type ThemeContextType } from './ThemeContext';
+export { ChatSettingsProvider, useChatSettings } from './ChatSettingsContext';

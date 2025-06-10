@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button } from '../atoms/Button';
 import { Icon } from '../atoms/Icon';
+import { useChatSettings } from '../../context';
 
 /**
  * Props for the MessageActions component
@@ -26,7 +27,7 @@ export interface MessageActionsProps {
    * Callback function triggered when the edit button is clicked.
    * Should initiate edit mode for the message, typically replacing the message
    * content with an editable input field or editor component.
-   * Only called when isOwn is true.
+   * Only displayed when isOwn is true.
    *
    *
    * @example
@@ -43,7 +44,7 @@ export interface MessageActionsProps {
   /**
    * Callback function triggered when the delete button is clicked.
    * Should handle message deletion, typically with confirmation dialog.
-   * Only called when isOwn is true.
+   * Only displayed when isOwn is true.
    *
    *
    * @example
@@ -142,6 +143,7 @@ export const MessageActions: React.FC<MessageActionsProps> = ({
   isVisible,
   isOwn,
 }) => {
+  // Get chat settings from context
   if (!isVisible) return null;
 
   // Check if there are any actions to display
