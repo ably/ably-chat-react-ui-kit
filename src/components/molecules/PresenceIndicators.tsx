@@ -4,7 +4,7 @@ import { usePresenceListener } from '@ably/chat/react';
 /**
  * Props for the PresenceIndicators component
  */
-interface PresenceIndicatorsProps {
+export interface PresenceIndicatorsProps {
   /**
    * Additional CSS classes to apply to the component's text element.
    * Merged with the component's default styling for customization.

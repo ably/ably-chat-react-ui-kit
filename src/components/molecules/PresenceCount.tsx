@@ -4,7 +4,7 @@ import { PresenceMember } from '@ably/chat';
 /**
  * Props for the PresenceCount component
  */
-interface PresenceCountProps {
+export interface PresenceCountProps {
   /**
    * Array of Ably Chat presence members currently active in the room.
    * Each member represents a unique participant with clientId.

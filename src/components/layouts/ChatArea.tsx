@@ -129,7 +129,7 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
       <ChatWindow
         key={activeRoomName}
         roomName={activeRoomName}
-        customHeaderContent={<RoomInfo roomId={activeRoomName} />}
+        customHeaderContent={<RoomInfo roomName={activeRoomName} />}
         customFooterContent={<RoomReaction />}
       />
     </ChatRoomProvider>

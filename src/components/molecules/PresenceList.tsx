@@ -7,7 +7,7 @@ import { TooltipSurface, TooltipArrow } from '../atoms';
 /**
  * Props for the PresenceList component
  */
-interface PresenceListProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface PresenceListProps extends React.HTMLAttributes<HTMLDivElement> {
   /**
    * Array of presence members currently in the room.
    * Used to generate a human-readable description of who is present.

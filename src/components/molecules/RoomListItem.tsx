@@ -9,7 +9,7 @@ import { useRoomAvatar } from '../../hooks';
 /**
  * Props for the RoomListItem component
  */
-interface RoomListItemProps {
+export interface RoomListItemProps {
   /**
    * Unique identifier for the room.
    * Used for room identification and avatar generation when no custom avatar is provided.

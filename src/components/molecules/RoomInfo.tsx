@@ -1,41 +1,168 @@
-import React, { useEffect, useState } from 'react';
-import { Avatar, AvatarData } from '../atoms/Avatar';
+import React, { useState } from 'react';
+import { Avatar, AvatarData } from '../atoms';
 import { AvatarEditor } from './AvatarEditor';
 import { PresenceCount } from './PresenceCount';
 import { PresenceList } from './PresenceList';
 import { ParticipantList } from './ParticipantList';
-import { usePresenceListener, useChatClient, useTyping, usePresence } from '@ably/chat/react';
+import { usePresenceListener, useChatClient, useTyping } from '@ably/chat/react';
 import { PresenceIndicators } from './PresenceIndicators';
 import { TypingIndicators } from './TypingIndicators';
 import { useRoomAvatar } from '../../hooks';
+import clsx from 'clsx';
 
 /**
  * Props for the RoomInfo component
  */
-interface RoomInfoProps {
-  /** Avatar data for the room (optional, will use AvatarContext if not provided) */
+export interface RoomInfoProps {
+  /**
+   * Optional avatar data for the room to override context-managed avatar.
+   * When provided, bypasses the AvatarContext and uses this data directly.
+   * Useful for scenarios with external avatar management or testing.
+   * If not provided, automatically fetches or creates avatar via useRoomAvatar hook.
+   *
+   * @example
+   * // Using context-managed avatar (recommended)
+   * <RoomInfo roomId="general-chat" />
+   *
+   * @example
+   * // Providing custom avatar data
+   * <RoomInfo
+   *   roomId="special-room"
+   *   roomAvatar={{
+   *     displayName: "VIP Lounge",
+   *     color: "#FFD700",
+   *     initials: "VL",
+   *     src: "https://example.com/vip-avatar.jpg"
+   *   }}
+   * />
+   */
   roomAvatar?: AvatarData;
-  /** Unique identifier for the room */
-  roomId: string;
-  /** Position coordinates for rendering the participant list */
+
+  /**
+   * Unique identifier for the chat room.
+   * Used for avatar management, presence tracking, and display purposes.
+   * Should be consistent across all components referencing the same room.
+   *
+   * @example
+   * // From URL parameter
+   * const { roomName } = useRoom();
+   * <RoomInfo roomName={roomName} />
+   *
+   */
+  roomName: string;
+
+  /**
+   * Position coordinates for rendering the participant list dropdown.
+   * Defines where the participant list appears relative to the viewport.
+   * Adjust based on component placement to prevent edge overflow.
+   *
+   * @default { top: 0, left: 150 }
+   *
+   * @example
+   * // Position for sidebar placement
+   * <RoomInfo
+   *   roomId="room_123"
+   *   position={{ top: 60, left: 250 }}
+   * />
+   *
+   */
   position?: { top: number; left: number };
-  /** Optional CSS class name for the typing indicators */
+
+  /**
+   * Additional CSS class names to apply to the root container element.
+   * Use for spacing, sizing, positioning, and theme customizations.
+   *
+   * @example
+   * // Custom spacing and background
+   * <RoomInfo
+   *   roomName="room_123"
+   *   className="p-4 bg-blue-50 rounded-lg shadow-sm"
+   * />
+   *
+   * @example
+   * // Compact mobile layout
+   * <RoomInfo
+   *   roomName="room_123"
+   *   className="px-2 py-1 gap-2"
+   * />
+   *
+   * @example
+   * // Fixed positioning for overlays
+   * <RoomInfo
+   *   roomName="room_123"
+   *   className="fixed top-4 left-4 bg-white shadow-lg rounded-full px-4 py-2"
+   * />
+   *
+   * @example
+   * // Responsive design patterns
+   * <RoomInfo
+   *   roomName="room_123"
+   *   className="flex-col md:flex-row gap-2 md:gap-3"
+   * />
+   */
   className?: string;
 }
 
 /**
- * RoomInfo component displays information about a chat room
+ * RoomInfo component displays comprehensive information about a chat room with interactive features
  *
  * Features:
- * - Shows room avatar with presence count badge
- * - Displays tooltip with participant information on hover
- * - Opens participant list when clicked
- * - Allows editing the room avatar
- * - Integrates with presence and typing indicators
+ * - Room avatar display
+ * - Live presence count badge showing active participants
+ * - Interactive hover tooltip with participant preview
+ * - Expandable participant list with detailed user information
+ * - In-place avatar editing with color and image customization
+ * - Presence and typing indicators built-in
+ * - Accessibility support with ARIA roles and keyboard navigation
+ * - Customizable positioning
+ *
+ * Presence:
+ * - Live participant count with visual badge
+ * - Hover tooltip showing recent participants
+ * - Detailed participant list with status indicators
+ * - Current user highlighting and status
+ *
+ * Typing Indicators:
+ * - Typing activity display
+ * - Smart user exclusion (doesn't show own typing)
+ * - Configurable display limits
+ *
+ * @example
+ * // Sidebar room list item
+ * const SidebarRoomItem = ({ roomName, isActive }) => {
+ *   return (
+ *     <div className={`room-item ${isActive ? 'active' : ''}`}>
+ *       <RoomInfo
+ *         roomName={roomName}
+ *         className="px-3 py-2 hover:bg-gray-100 rounded-lg cursor-pointer"
+ *         position={{ top: 0, left: 220 }}
+ *       />
+ *     </div>
+ *   );
+ * };
+ *
+ *
+ * @example
+ * // Custom avatar with external management
+ * const ExternalAvatarRoom = ({ roomName, externalAvatar }) => {
+ *   return (
+ *     <RoomInfo
+ *       roomName={roomName}
+ *       roomAvatar={{
+ *         displayName: room.customName,
+ *         src: externalAvatar.imageUrl,
+ *         color: room.themeColor,
+ *         initials: room.customName.substring(0, 2).toUpperCase()
+ *       }}
+ *       className="p-4 bg-gradient-to-r from-blue-50 to-purple-50"
+ *     />
+ *   );
+ * };
+ *
  */
 export const RoomInfo: React.FC<RoomInfoProps> = ({
   roomAvatar: propRoomAvatar,
-  roomId,
+  roomName,
   position = { top: 0, left: 150 },
   className,
 }) => {
@@ -48,13 +175,14 @@ export const RoomInfo: React.FC<RoomInfoProps> = ({
   const [tooltipPosition, setTooltipPosition] = useState<'above' | 'below'>('above');
   const [showAvatarEditor, setShowAvatarEditor] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const { roomAvatar, setRoomAvatar } = useRoomAvatar({ roomName: roomId });
+  const { roomAvatar, setRoomAvatar } = useRoomAvatar({ roomName });
   const roomAvatarData = propRoomAvatar || roomAvatar;
 
   const onToggle = () => {
     setShowTooltip(false); // Hide tooltip when toggling participant list
     setIsOpen(!isOpen);
   };
+
   /**
    * Handles mouse enter event on the room avatar
    * Calculates optimal tooltip position based on available space
@@ -103,7 +231,7 @@ export const RoomInfo: React.FC<RoomInfoProps> = ({
   };
 
   return (
-    <div className="flex items-center gap-3">
+    <div className={clsx('flex items-center gap-3', className)}>
       <div className="relative">
         {/* Room Avatar with Hover Tooltip */}
         <div
@@ -114,7 +242,7 @@ export const RoomInfo: React.FC<RoomInfoProps> = ({
           role="button"
           aria-haspopup="dialog"
           aria-expanded={isOpen}
-          aria-label={`${roomId} (${presenceData?.length || 0} participants)`}
+          aria-label={`${roomName} (${presenceData?.length || 0} participants)`}
           tabIndex={0}
           onKeyDown={(e) => {
             if (e.key === 'Enter' || e.key === ' ') {
@@ -206,11 +334,11 @@ export const RoomInfo: React.FC<RoomInfoProps> = ({
 
       {/* Room Information */}
       <div className="flex-1">
-        <h2 className="font-semibold text-gray-900 dark:text-gray-100">{roomId}</h2>
+        <h2 className="font-semibold text-gray-900 dark:text-gray-100">{roomName}</h2>
         <div className="flex items-center gap-2">
           <PresenceIndicators />
           {/* Typing Indicators */}
-          <TypingIndicators className={className || 'text-xs'} />
+          <TypingIndicators className="text-xs" />
         </div>
       </div>
     </div>

@@ -9,7 +9,7 @@ import clsx from 'clsx';
 /**
  * Props for the RoomReaction component
  */
-interface RoomReactionProps {
+export interface RoomReactionProps {
   /**
    * Duration for the emoji burst animation in milliseconds.
    * Controls how long the emoji animation is visible before automatically hiding.

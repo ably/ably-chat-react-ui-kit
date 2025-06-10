@@ -6,7 +6,7 @@ import { useUserAvatar } from '../../hooks';
 /**
  * Props for the Participant component
  */
-interface ParticipantProps {
+export interface ParticipantProps {
   /**
    * Unique clientId for the participant.
    * Used for avatar generation and display name when no custom avatar is provided.

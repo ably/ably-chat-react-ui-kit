@@ -6,7 +6,7 @@ import { TypingDots } from '../atoms';
 /**
  * Props for the TypingIndicators component
  */
-interface TypingIndicatorsProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface TypingIndicatorsProps extends React.HTMLAttributes<HTMLDivElement> {
   /**
    * Maximum number of distinct clients to display by name before collapsing to "X others".
    * Controls the verbosity of the typing message to prevent overly long text.
