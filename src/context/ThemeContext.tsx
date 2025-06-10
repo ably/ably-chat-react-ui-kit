@@ -16,7 +16,7 @@ import React, {
 /**
  * Storage key for persisting theme preference in localStorage
  */
-const THEME_STORAGE_KEY = 'chat-ui-theme';
+const THEME_STORAGE_KEY = 'ably-chat-ui-theme';
 
 /**
  * Supported theme types
