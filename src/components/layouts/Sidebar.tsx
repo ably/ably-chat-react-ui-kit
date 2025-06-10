@@ -185,8 +185,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <ChatRoomProvider
               key={roomId}
               name={roomId}
-              attach={false}
-              release={false}
+              attach={true}
+              release={true}
               options={defaultRoomOptions}
             >
               <RoomListItem
