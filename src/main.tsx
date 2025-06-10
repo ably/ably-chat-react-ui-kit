@@ -13,7 +13,6 @@ const ABLY_API_KEY = import.meta.env.VITE_ABLY_API_KEY as string;
 // Create Ably Realtime client
 export const ablyClient = new Ably.Realtime({
   key: ABLY_API_KEY,
-  // Use a consistent clientId for the session
   clientId: 'demo-user-' + Math.random().toString(36).substring(2, 9),
 });
 
@@ -25,7 +24,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <ThemeProvider options={{ persist: true, defaultTheme: 'light' }}>
       <AvatarProvider>
         <ChatClientProvider client={chatClient}>
-          <App />
+          <App initialRoomNames={['my-first-room']} />
         </ChatClientProvider>
       </AvatarProvider>
     </ThemeProvider>
