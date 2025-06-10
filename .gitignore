@@ -12,3 +12,6 @@ yarn-error.log*
 .vscode/*
 /.idea/
 /dist/
+
+*storybook.log
+storybook-static
