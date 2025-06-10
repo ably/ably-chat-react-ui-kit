@@ -11,7 +11,7 @@ import { AvatarProvider } from '../context/AvatarContext';
  */
 const ChatApp: React.FC = () => {
   const chatClient = useChatClient();
-  const [initialRoomIds] = useState<string[]>(['my-first-room']);
+  const [initialRoomNames] = useState<string[]>(['my-first-room']);
   const [activeRoomName, setActiveRoomName] = useState<string | undefined>(undefined);
 
   // Function to handle room selection change
@@ -35,11 +35,12 @@ const ChatApp: React.FC = () => {
     );
   }
 
+  // TODO: Context provider for chat window (feature flags, edit/delete etc..)
   return (
     <ThemeProvider options={{ persist: true, defaultTheme: 'light' }}>
       <AppLayout width="70vw" height="70vh">
         <Sidebar
-          initialRoomNames={initialRoomIds}
+          initialRoomNames={initialRoomNames}
           onChangeActiveRoom={handleChangeSelectedRoom}
           activeRoomName={activeRoomName}
         />

@@ -5,6 +5,7 @@ import React, {
   useCallback,
   useMemo,
   useEffect,
+  useLayoutEffect,
   useRef,
 } from 'react';
 import { AvatarData } from '../components/atoms';
@@ -309,6 +310,7 @@ const useAvatarCache = (
   const [userAvatars, setUserAvatars] = useState<Record<string, AvatarData>>({});
   const [roomAvatars, setRoomAvatars] = useState<Record<string, AvatarData>>({});
   const isInitialized = useRef(false);
+  const isImporting = useRef(false);
 
   // Load persisted data on mount
   useEffect(() => {
@@ -337,7 +339,7 @@ const useAvatarCache = (
 
   // Persist data when avatars change
   useEffect(() => {
-    if (!persist || !isInitialized.current) return;
+    if (!persist || !isInitialized.current || isImporting.current) return;
 
     try {
       const data: PersistedAvatarData = {
@@ -350,6 +352,13 @@ const useAvatarCache = (
       handleError(error, 'Saving persisted avatars');
     }
   }, [userAvatars, roomAvatars, persist, handleError]);
+
+  // Reset the importing flag after state changes are committed
+  useLayoutEffect(() => {
+    if (isImporting.current) {
+      isImporting.current = false;
+    }
+  }, [userAvatars, roomAvatars]);
 
   /**
    * Manages cache size to prevent memory issues
@@ -394,6 +403,8 @@ const useAvatarCache = (
     (data: PersistedAvatarData) => {
       try {
         if (data.version === AVATAR_DATA_VERSION) {
+          // Set the importing flag to prevent the persistence effect from running
+          isImporting.current = true;
           setUserAvatars(data.userAvatars || {});
           setRoomAvatars(data.roomAvatars || {});
         } else {
