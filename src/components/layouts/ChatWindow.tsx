@@ -1,10 +1,10 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { TypingIndicators } from '../molecules';
-import { ChatMessageList } from '../molecules';
+import { ChatMessageList, MessageInput, TypingIndicators } from '../molecules';
 import { ChatWindowHeader } from './ChatWindowHeader';
 import { ChatWindowFooter } from './ChatWindowFooter';
 import { useChatClient, useMessages, usePresence, useRoom } from '@ably/chat/react';
 import {
+  ChatMessageAction,
   ChatMessageEvent,
   ChatMessageEventType,
   ErrorInfo,
@@ -13,7 +13,6 @@ import {
   MessageReactionType,
   PaginatedResult,
 } from '@ably/chat';
-import { MessageInput } from '../molecules';
 
 /**
  * Props for the ChatWindow component
@@ -159,7 +158,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
             hasChanges = true;
           } else {
             // Case 2.1: Message exists - but the new message is not an update/delete
-            if (newMessage.action === 'message.create') {
+            if (newMessage.action === ChatMessageAction.MessageCreate) {
               continue; // No-op if it's a create action but already exists
             }
 
@@ -386,12 +385,10 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
 
   const handleSendMessage = useCallback(
     async (text: string) => {
-      if (text.trim()) {
-        try {
-          await send({ text: text.trim() });
-        } catch (error) {
-          console.error('Failed to send message:', error);
-        }
+      try {
+        await send({ text: text.trim() });
+      } catch (error) {
+        console.error('Failed to send message:', error);
       }
     },
     [send]

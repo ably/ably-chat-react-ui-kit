@@ -48,10 +48,11 @@ export const RoomInfo: React.FC<RoomInfoProps> = ({
   const [tooltipPosition, setTooltipPosition] = useState<'above' | 'below'>('above');
   const [showAvatarEditor, setShowAvatarEditor] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const { roomAvatar, setRoomAvatar } = useRoomAvatar({ roomId });
+  const { roomAvatar, setRoomAvatar } = useRoomAvatar({ roomName: roomId });
   const roomAvatarData = propRoomAvatar || roomAvatar;
 
   const onToggle = () => {
+    setShowTooltip(false); // Hide tooltip when toggling participant list
     setIsOpen(!isOpen);
   };
   /**
@@ -178,7 +179,6 @@ export const RoomInfo: React.FC<RoomInfoProps> = ({
           presenceData={presenceData}
           tooltipPosition={tooltipPosition}
           showTooltip={showTooltip}
-          isOpen={isOpen}
         />
 
         {/* Participants Dropdown */}

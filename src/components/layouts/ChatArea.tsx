@@ -20,6 +20,29 @@ export interface ChatAreaProps {
    * @default { occupancy: { enableEvents: true } }
    */
   defaultRoomOptions?: RoomOptions;
+
+  /**
+   * Whether the room should attach/detach automatically on mount/unmount
+   * If true, the ChatRoomProvider will automatically attach to the room when the component mounts
+   * and detach when it unmounts.
+   *
+   * @remarks Currently, ChatRoomProviders have no method to check if they hold the only reference to the room.
+   * As such, if you are using the same room in multiple ChatRoomProviders, you should set this to false and manage the attach/release manually.
+   *
+   * @default true
+   */
+  attach?: boolean;
+
+  /**
+   * Whether the room should release when the component unmounts
+   * If false, you must manage room release manually
+   *
+   * @remarks Currently, ChatRoomProviders have no method to check if they hold the only reference to the room.
+   * As such, if you are using the same room in multiple ChatRoomProviders, you should set this to false and manage the attach/release manually.
+   *
+   * @default true
+   */
+  release?: boolean;
 }
 
 /**
@@ -47,7 +70,12 @@ export interface ChatAreaProps {
  * // Empty state (no room selected)
  * <ChatArea />
  */
-export const ChatArea: React.FC<ChatAreaProps> = ({ activeRoomName, defaultRoomOptions }) => {
+export const ChatArea: React.FC<ChatAreaProps> = ({
+  activeRoomName,
+  defaultRoomOptions,
+  attach,
+  release,
+}) => {
   // Memoize room options to prevent unnecessary re-renders
   const [roomOptions] = useState<RoomOptions>(
     defaultRoomOptions || { occupancy: { enableEvents: true } }
@@ -94,8 +122,8 @@ export const ChatArea: React.FC<ChatAreaProps> = ({ activeRoomName, defaultRoomO
     <ChatRoomProvider
       key={activeRoomName}
       name={activeRoomName}
-      attach={false}
-      release={false}
+      attach={attach}
+      release={release}
       options={roomOptions}
     >
       <ChatWindow

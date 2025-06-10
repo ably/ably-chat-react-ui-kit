@@ -69,10 +69,10 @@ export interface MessageInputProps {
  * - Automatically stopped when input is cleared or message is sent
  *
  * Emoji Integration:
- * • Picker positioned above the emoji button
- * • Smart cursor position handling for emoji insertion
- * • Maintains focus and cursor position after emoji selection
- * • Fallback behavior for browsers without selection API support
+ * - Picker positioned above the emoji button
+ * - Smart cursor position handling for emoji insertion
+ * - Maintains focus and cursor position after emoji selection
+ * - Fallback behavior for browsers without selection API support
  *
  * @example
  * // Basic usage in chat interface

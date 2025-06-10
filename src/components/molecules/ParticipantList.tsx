@@ -7,30 +7,71 @@ import { PresenceMember } from '@ably/chat';
 /**
  * Props for the ParticipantList component
  */
-interface ParticipantListProps {
-  /** Array of presence members in the room */
+export interface ParticipantListProps {
+  /**
+   * Array of Ably Chat presence members currently in the room.
+   * Used to display all participants with their online status.
+   */
   presenceData: PresenceMember[];
-  /** ID of the current user */
+
+  /**
+   * Client ID of the current Ably Connection for the room.
+   * Used to sort the current user to the top of the list and for self-identification.
+   */
   currentUserId: string;
-  /** Set of user IDs who are currently typing */
+
+  /**
+   * Set of client IDs for users who are currently typing.
+   * Used to show typing indicators next to participant names.
+   */
   currentlyTyping: Set<string>;
-  /** Whether the participant list is currently open */
+
+  /**
+   * Whether the participant list modal is currently open and visible.
+   */
   isOpen: boolean;
-  /** Callback function to toggle the list open/closed */
+
+  /**
+   * Callback function to toggle the list open/closed state.
+   * Called when the close button is clicked or when backdrop interaction occurs.
+   */
   onToggle: () => void;
-  /** Position coordinates for rendering the list */
+
+  /**
+   * Absolute positioning coordinates for rendering the modal.
+   * The modal will be positioned relative to the viewport using these coordinates.
+   * Typically calculated based on the trigger element's position.
+   */
   position: { top: number; left: number };
 }
 
 /**
- * ParticipantList component displays a modal list of participants in a room
+ * ParticipantList component displays a positioned modal showing all room participants
  *
  * Features:
- * - Shows all online participants with their avatars and status
- * - Sorts list with current user at the top
- * - Displays typing indicators for users who are typing
- * - Shows total count of participants
- * - Positioned at specified coordinates
+ * - Modal overlay with absolute positioning based on provided coordinates
+ * - Participant list with avatars, names, and status indicators
+ * - Smart sorting: current user appears first, followed by alphabetical order
+ * - Typing indicators for active participants
+ * - Participant count display in header
+ * - Scrollable list with fixed maximum height for large participant counts
+ * - Accessible modal dialog with proper ARIA attributes and focus management
+ * - Theme-aware styling supporting both light and dark modes
+ *
+ * @example
+ * // Integration with presence and typing hooks
+ * const { presenceData } = usePresenceListener();
+ * const { currentlyTyping } = useTyping();
+ * const { clientId } = useChatClient();
+ *
+ * <ParticipantList
+ *   presenceData={presenceData || []}
+ *   currentUserId={clientId}
+ *   currentlyTyping={currentlyTyping}
+ *   isOpen={participantListOpen}
+ *   onToggle={toggleParticipantList}
+ *   position={{ top: 100, left: 200 }}
+ * />
  */
 export const ParticipantList: React.FC<ParticipantListProps> = ({
   presenceData,

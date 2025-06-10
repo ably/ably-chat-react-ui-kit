@@ -6,15 +6,95 @@ import { Icon } from '../atoms/Icon';
  * Props for the MessageActions component
  */
 export interface MessageActionsProps {
-  /** Callback function when the reaction button is clicked */
+  /**
+   * Callback function triggered when the reaction button is clicked.
+   * Typically opens an emoji picker or emoji wheel for users to select reactions.
+   * Should handle the display of reaction UI components.
+   *
+   *
+   * @example
+   * ```tsx
+   * onReaction={() => {
+   *   setEmojiPickerPosition(getMessagePosition());
+   *   setShowEmojiPicker(true);
+   * }}
+   * ```
+   */
   onReaction: () => void;
-  /** Callback function when the edit button is clicked */
+
+  /**
+   * Callback function triggered when the edit button is clicked.
+   * Should initiate edit mode for the message, typically replacing the message
+   * content with an editable input field or editor component.
+   * Only called when isOwn is true.
+   *
+   *
+   * @example
+   * ```tsx
+   * onEdit={() => {
+   *   setEditingMessageId(message.id);
+   *   setEditText(message.text);
+   *   setIsEditing(true);
+   * }}
+   * ```
+   */
   onEdit: () => void;
-  /** Callback function when the delete button is clicked */
+
+  /**
+   * Callback function triggered when the delete button is clicked.
+   * Should handle message deletion, typically with confirmation dialog.
+   * Only called when isOwn is true.
+   *
+   *
+   * @example
+   * ```tsx
+   * onDelete={() => {
+   *   setDeleteTarget(message.id);
+   *   setShowDeleteConfirm(true);
+   * }}
+   * ```
+   */
   onDelete: () => void;
-  /** Whether the action buttons should be visible */
+
+  /**
+   * Whether the action buttons should be visible and interactive.
+   * Typically controlled by hover state, focus, or explicit user action.
+   * When false, the component returns null and renders nothing.
+   *
+   * - Mouse hover over message bubble
+   * - Focus on message for keyboard users
+   * - Explicit toggle for persistent display
+   *
+   * @example
+   * ```tsx
+   * // Hover-based visibility
+   * const [isVisible, setIsVisible] = useState(false);
+   *
+   * <div
+   *   onMouseEnter={() => setIsVisible(true)}
+   *   onMouseLeave={() => setIsVisible(false)}
+   * >
+   *   <MessageActions isVisible={isVisible} {...otherProps} />
+   * </div>
+   * ```
+   */
   isVisible: boolean;
-  /** Whether the message belongs to the current user (determines if edit/delete are shown) */
+
+  /**
+   * Whether the message belongs to the current user.
+   * Determines if edit and delete buttons are shown.
+   * When false, only the reaction button is displayed.
+   *
+   * - Own messages: Show all actions (reaction, edit, delete)
+   * - Other messages: Show only reaction button
+   *
+   * @example
+   * ```tsx
+   * // Basic ownership check
+   * isOwn={message.senderId === currentUser.id}
+   *
+   * ```
+   */
   isOwn: boolean;
 }
 
@@ -26,6 +106,34 @@ export interface MessageActionsProps {
  * - Edit and delete buttons for the message owner
  * - Positioned relative to the message bubble
  * - Conditionally rendered based on hover state
+ * - Accessible toolbar with proper ARIA attributes
+ * - Responsive to theme changes (light/dark)
+ * - Smooth hover transitions and visual feedback
+ *
+ * @example
+ * // Basic usage in a chat message component
+ * const [actionsVisible, setActionsVisible] = useState(false);
+ * const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+ *
+ * return (
+ *   <div
+ *     className="message-bubble"
+ *     onMouseEnter={() => setActionsVisible(true)}
+ *     onMouseLeave={() => setActionsVisible(false)}
+ *   >
+ *     <div className="message-content">{message.text}</div>
+ *
+ *     <MessageActions
+ *       isVisible={actionsVisible}
+ *       isOwn={message.senderId === currentUser.id}
+ *       onReaction={() => setShowEmojiPicker(true)}
+ *       onEdit={() => handleEditMessage(message.id)}
+ *       onDelete={() => handleDeleteMessage(message.id)}
+ *     />
+ *   </div>
+ * );
+ *
+ *
  */
 export const MessageActions: React.FC<MessageActionsProps> = ({
   onReaction,

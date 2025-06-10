@@ -12,7 +12,7 @@ import { AvatarData } from '../components/atoms';
 /**
  * Storage key for persisting avatar data in localStorage
  */
-const STORAGE_KEY = 'chat-ui-avatars';
+const STORAGE_KEY = 'ably-chat-ui-avatars';
 
 /**
  * Callback function type for avatar change events

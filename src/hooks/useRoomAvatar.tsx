@@ -7,9 +7,9 @@ import { AvatarData } from '../components/atoms';
  */
 export interface UseRoomAvatarProps {
   /** The unique identifier for the room */
-  roomId: string;
+  roomName: string;
   /** Optional room name (defaults to roomId if not provided) */
-  roomName?: string;
+  displayName?: string;
 }
 
 /**
@@ -25,8 +25,8 @@ export interface UseRoomAvatarReturn {
 /**
  * Custom hook that handles fetching or creating a room avatar with internal state management
  *
- * @param roomId - The unique identifier for the room
- * @param roomName - Optional room name (defaults to roomId if not provided)
+ * @param roomName - The unique identifier for the room
+ * @param displayName - Optional display name (defaults to roomName if not provided)
  * @returns Object containing the avatar data and setter function for the room
  * @throws Error if used outside of an AvatarProvider
  *
@@ -39,24 +39,27 @@ export interface UseRoomAvatarReturn {
  *
  * @example
  * // With destructuring alias:
- * const { roomAvatar: avatarData, setRoomAvatar: updateAvatar } = useRoomAvatar(roomId);
+ * const { roomAvatar: avatarData, setRoomAvatar: updateAvatar } = useRoomAvatar(roomName);
  */
-export const useRoomAvatar = ({ roomId, roomName }: UseRoomAvatarProps): UseRoomAvatarReturn => {
+export const useRoomAvatar = ({
+  roomName,
+  displayName,
+}: UseRoomAvatarProps): UseRoomAvatarReturn => {
   const { getAvatarForRoom, createAvatarForRoom, setRoomAvatar: updateRoomAvatar } = useAvatar();
   const [avatar, setAvatar] = useState<AvatarData | undefined>();
 
   useEffect(() => {
     // Try to get existing avatar
-    const existingAvatar = getAvatarForRoom(roomId);
+    const existingAvatar = getAvatarForRoom(roomName);
 
     if (existingAvatar) {
       setAvatar(existingAvatar);
     } else {
       // Create a new avatar if one doesn't exist
-      const newAvatar = createAvatarForRoom(roomId, roomName);
+      const newAvatar = createAvatarForRoom(roomName, displayName);
       setAvatar(newAvatar);
     }
-  }, [getAvatarForRoom, createAvatarForRoom, roomId, roomName]);
+  }, [getAvatarForRoom, createAvatarForRoom, roomName, displayName]);
 
   /**
    * Updates the room avatar both in the cache and local state
@@ -65,10 +68,10 @@ export const useRoomAvatar = ({ roomId, roomName }: UseRoomAvatarProps): UseRoom
    */
   const setRoomAvatar = useCallback(
     (avatarData: Partial<AvatarData>) => {
-      updateRoomAvatar(roomId, avatarData);
+      updateRoomAvatar(roomName, avatarData);
       setAvatar((prev) => (prev ? { ...prev, ...avatarData } : undefined));
     },
-    [updateRoomAvatar, roomId]
+    [updateRoomAvatar, roomName]
   );
 
   return {

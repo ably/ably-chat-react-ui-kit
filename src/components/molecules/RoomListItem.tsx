@@ -1,45 +1,153 @@
-import React, { useEffect } from 'react';
-import { useOccupancy, useRoom } from '@ably/chat/react';
-import { Avatar, AvatarData } from '../atoms/Avatar';
-import { TypingIndicators } from './TypingIndicators.tsx';
-import { Icon } from '../atoms/Icon';
-import { Button } from '../atoms/Button';
+import React from 'react';
+import { useOccupancy } from '@ably/chat/react';
+import { Avatar, AvatarData } from '../atoms';
+import { TypingIndicators } from './TypingIndicators';
+import { Icon } from '../atoms';
+import { Button } from '../atoms';
 import { useRoomAvatar } from '../../hooks';
 
 /**
  * Props for the RoomListItem component
  */
 interface RoomListItemProps {
-  /** Unique identifier for the room */
-  roomId: string;
-  /** Whether this room is currently selected */
+  /**
+   * Unique identifier for the room.
+   * Used for room identification and avatar generation when no custom avatar is provided.
+   */
+  roomName: string;
+
+  /**
+   * Whether this room is currently selected/active in the UI.
+   * Controls visual highlighting and selection indicators.
+   * When true, shows selection styling and active indicators.
+   */
   isSelected: boolean;
-  /** Callback function when the room is clicked */
+
+  /**
+   * Callback function triggered when the room item is clicked.
+   * Should handle room navigation and selection logic.
+   * Called for clicks on the main room area (not action buttons).
+   */
   onClick: () => void;
-  /** Callback function when the leave button is clicked */
+
+  /**
+   * Callback function triggered when the leave button is clicked.
+   * Should handle room departure logic and UI updates.
+   * Called only when the leave button is explicitly clicked.
+   */
   onLeave: () => void;
-  /** Optional avatar data for the room (from props) */
+
+  /**
+   * Optional custom avatar data for the room.
+   * If not provided, uses the useRoomAvatar hook to generate/retrieve avatar data.
+   * Allows for custom room branding and visual identity.
+   */
   avatar?: AvatarData;
-  /** Whether the component should render in collapsed mode (avatar only) */
+
+  /**
+   * Whether the component should render in collapsed mode (avatar only).
+   * When true, displays only the room avatar with a selection indicator.
+   * When false, shows full room information including name, counts, and actions.
+   * @default false
+   */
   isCollapsed?: boolean;
-  /** Whether typing indicators are enabled (default: true) */
+
+  /**
+   * Whether typing indicators should be displayed for this room.
+   * Controls the visibility of real-time typing status below the room name.
+   * @default true
+   */
   typingIndicatorsEnabled?: boolean;
 }
 
 /**
- * RoomListItem component displays a room in the sidebar
+ * RoomListItem component displays a room entry in the sidebar with activity indicators and controls
  *
- * Features:
- * - Shows room avatar with presence indicators
- * - Displays room name and participant count
- * - Shows typing indicators when users are typing
- * - Highlights the currently selected room
- * - Integrates with Ably's occupancy and typing data
- * - Supports collapsed mode (avatar only) for compact sidebar display
+ * Core Features:
+ * • Room avatar with automatic fallback to generated avatars via useRoomAvatar hook
+ * • Real-time activity indicators (presence count, activity status)
+ * • Interactive room selection with visual feedback and hover states
+ * • Typing indicators showing who is currently typing (when enabled)
+ * • Leave room functionality with hover-revealed action button
+ * • Collapsed mode for compact sidebar display (avatar-only)
+ * • Connection count display for total room occupancy
+ * • Accessible design with proper ARIA attributes and keyboard navigation
+ * • Theme-aware styling supporting both light and dark modes
+ *
+ * Visual States:
+ * • Selected: Blue border accent, highlighted background
+ * • Active (has participants): Green presence dot and participant count badge
+ * • Hover: Background color change, leave button appears
+ * • Collapsed: Avatar-only with selection ring
+ *
+ * Data Integration:
+ * • useOccupancy hook for real-time connection and presence data
+ * • useRoomAvatar hook for consistent room visual identity
+ * • TypingIndicators component for real-time typing status
+ * • Automatic presence badge display with smart count formatting (9+ cap)
+ *
+ * Behavior:
+ * • Click anywhere on item (except leave button) to select room
+ * • Leave button only visible on hover for clean UI
+ * • Keyboard navigation support with Enter/Space activation
+ * • Prevents action button clicks from triggering room selection
+ * • Smart presence detection using occupancy data
+ *
+ * Layout Modes:
+ * • Full Mode: Avatar, name, counts, typing indicators, actions
+ * • Collapsed Mode: Avatar only with selection indicator
+ * • Responsive design adapts to different sidebar widths
+ *
+ * @example
+ * // Basic usage in sidebar room list
+ * <RoomListItem
+ *   roomId="general"
+ *   isSelected={currentRoom === "general"}
+ *   onClick={() => setCurrentRoom("general")}
+ *   onLeave={() => leaveRoom("general")}
+ * />
+ *
+ * @example
+ * // With custom avatar and collapsed mode
+ * <RoomListItem
+ *   roomId="design-team"
+ *   isSelected={false}
+ *   onClick={handleRoomSelect}
+ *   onLeave={handleRoomLeave}
+ *   avatar={{
+ *     displayName: "Design Team",
+ *     src: "/team-avatars/design.jpg",
+ *     color: "bg-purple-500"
+ *   }}
+ *   isCollapsed={sidebarCollapsed}
+ *   typingIndicatorsEnabled={true}
+ * />
+ *
+ * @example
+ * // Integration with room management hooks
+ * const roomItems = rooms.map(room => (
+ *   <RoomListItem
+ *     key={room.id}
+ *     roomId={room.id}
+ *     isSelected={room.id === activeRoom}
+ *     onClick={() => joinRoom(room.id)}
+ *     onLeave={() => leaveRoom(room.id)}
+ *     isCollapsed={sidebarMode === 'compact'}
+ *   />
+ * ));
+ *
+ * @example
+ * // Different activity states and visual feedback
+ * // No activity: Gray presence dot, no badge
+ * // Active room: Green presence dot, participant count badge
+ * // Selected room: Blue border accent, highlighted background
+ * // Typing activity: Animated typing indicators below room name
+ * // Hover state: Leave button appears, background highlights
  */
+
 export const RoomListItem: React.FC<RoomListItemProps> = React.memo(
   ({
-    roomId,
+    roomName,
     isSelected,
     onClick,
     onLeave,
@@ -47,19 +155,11 @@ export const RoomListItem: React.FC<RoomListItemProps> = React.memo(
     isCollapsed = false,
     typingIndicatorsEnabled = true,
   }) => {
-    const { room } = useRoom();
     // Get occupancy data
     const { connections, presenceMembers } = useOccupancy();
 
-    const { roomAvatar } = useRoomAvatar({ roomId });
+    const { roomAvatar } = useRoomAvatar({ roomName });
     const roomAvatarData = propAvatar || roomAvatar;
-
-    useEffect(() => {
-      // attach the room when the component renders
-      // detaching and release is handled at the top app level for now
-      room?.attach();
-    }, [room]);
-
     /**
      * Checks if the room has any active users
      *

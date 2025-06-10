@@ -7,27 +7,80 @@ import { useUserAvatar } from '../../hooks';
  * Props for the Participant component
  */
 interface ParticipantProps {
-  /** Unique identifier for the participant */
+  /**
+   * Unique clientId for the participant.
+   * Used for avatar generation and display name when no custom avatar is provided.
+   */
   clientId: string;
-  /** Whether the participant is currently present/online */
+
+  /**
+   * Whether the participant is currently present/online in the room.
+   * Controls the presence indicator color (green for online, gray for offline).
+   */
   isPresent: boolean;
-  /** Whether this participant is the current user */
+
+  /**
+   * Whether this participant represents the current client.
+   * When true, displays "(you)" label and hides typing indicators for self.
+   */
   isSelf: boolean;
-  /** Whether the participant is currently typing */
+
+  /**
+   * Whether the participant is currently typing in the chat.
+   * Shows animated typing dots and "typing..." text when true (except for current user).
+   */
   isTyping: boolean;
-  /** Avatar data for the participant */
+
+  /**
+   * Optional custom avatar data for the participant.
+   * If not provided, uses the useUserAvatar hook to generate/retrieve avatar data.
+   */
   avatar?: AvatarData;
 }
 
 /**
- * Participant component displays information about a chat participant
+ * Participant component displays detailed information about a chat room participant
  *
  * Features:
- * - Shows participant's avatar with presence indicator
- * - Displays name and online status
- * - Shows typing indicator when participant is typing
- * - Differentiates between current user and other participants
+ * - Avatar display with automatic fallback to generated avatars via useUserAvatar hook
+ * - Real-time presence indicator (green dot for online, gray for offline)
+ * - Typing status with animated dots and text indicator
+ * - Current user identification with "(you)" label
+ * - Accessible design with proper ARIA attributes and screen reader support
+ * - Hover effects for interactive feel within participant lists
+ * - Theme-aware styling supporting light and dark modes
+ *
+ * Styling:
+ * • Status line showing either typing animation, online, or offline state
+ * • Proper text truncation for long participant names
+ *
+ *
+ * @example
+ * // Basic participant in a list
+ * <Participant
+ *   clientId="user123"
+ *   isPresent={true}
+ *   isSelf={false}
+ *   isTyping={false}
+ * />
+ *
+ * @example
+ * // Current user with custom avatar
+ * <Participant
+ *   clientId="currentUser"
+ *   isPresent={true}
+ *   isSelf={true}
+ *   isTyping={false}
+ *   avatar={{
+ *     displayName: "John Doe",
+ *     src: "https://example.com/avatar.jpg",
+ *     color: "bg-blue-500"
+ *   }}
+ * />
+ *
+ *
  */
+
 export const Participant: React.FC<ParticipantProps> = ({
   clientId,
   isPresent,

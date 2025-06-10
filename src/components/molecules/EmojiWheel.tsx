@@ -1,17 +1,115 @@
 import React, { useEffect, useState } from 'react';
 import { Icon } from '../atoms/Icon';
 
+// Default set of emoji reactions for the wheel
+const DEFAULT_EMOJIS = ['👍', '❤️', '😂', '😮', '😢', '😡', '👏', '🎉'];
+
 /**
  * Props for the EmojiWheel component
  */
 export interface EmojiWheelProps {
-  /** Whether the emoji wheel is currently visible */
+  /**
+   * Whether the emoji wheel is currently visible and usable.
+   * Controls both visibility and animation states.
+   * When transitioning from true to false, exit animation plays before hiding.
+   */
   isOpen: boolean;
-  /** Position where the wheel should appear */
+
+  /**
+   * Position where the wheel should appear, in viewport coordinates.
+   * The wheel automatically adjusts position to stay within viewport boundaries.
+   *
+   * - Wheel centers itself on the provided coordinates
+   * - Automatically repositioned if it would extend beyond viewport edges
+   * - Ensures the wheel is fully visible on screen
+   * - Total wheel diameter: ~208px (80px radius + 48px button + padding)
+   *
+   * @example
+   * ```tsx
+   * // From mouse event
+   * position={{ x: event.clientX, y: event.clientY }}
+   *
+   * // From element center
+   * const rect = element.getBoundingClientRect();
+   * position={{
+   *   x: rect.left + rect.width / 2,
+   *   y: rect.top + rect.height / 2
+   * }}
+   *
+   * // From touch event
+   * const touch = event.touches[0];
+   * position={{ x: touch.clientX, y: touch.clientY }}
+   * ```
+   */
   position: { x: number; y: number };
-  /** Callback when an emoji is selected */
+
+  /**
+   * Optional list of emojis to display on the wheel.
+   * If not provided, a default set of 8 emojis will be used.
+   *
+   * For optimal user experience, it's recommended to use exactly 8 emojis,
+   * as the wheel is designed to display this number in a circular arrangement.
+   * Using fewer or more emojis may affect the visual layout and usability.
+   *
+   * @example
+   * ```tsx
+   * // Custom emoji set
+   * emojis={['🔥', '🚀', '👀', '🙌', '💯', '🎯', '🌟', '✨']}
+   * ```
+   */
+  emojis?: string[];
+
+  /**
+   * Callback function triggered when an emoji is selected from the wheel.
+   * Receives the selected emoji character as a string parameter.
+   * The wheel does not automatically close after selection.
+   *
+   * @param emoji - The selected emoji from the set (default or custom)
+   *
+   * @remarks
+   * The callback should handle:
+   * - Adding the reaction to your data model
+   * - Closing the wheel (by setting isOpen to false)
+   * - Any additional UI updates or animations
+   *
+   * @example
+   * ```tsx
+   * onEmojiSelect={(emoji) => {
+   *   // Add reaction to message
+   *   addReaction(messageId, emoji, userId);
+   *
+   *   // Close the wheel
+   *   setWheelOpen(false);
+   *
+   *   // Optional: Show feedback
+   *   showToast(`Reacted with ${emoji}`);
+   * }}
+   * ```
+   */
   onEmojiSelect: (emoji: string) => void;
-  /** Callback when the wheel should be closed */
+
+  /**
+   * Callback function triggered when the wheel should be closed.
+   * Called when user clicks outside the wheel, clicks the center close button,
+   * or triggers other dismissal actions.
+   *
+   * To dismiss the wheel, you can:
+   * - Clicking outside the wheel area
+   * - Clicking the center close button
+   * - Programmatic closure (escape key, etc.)
+   *
+   * This callback should update parent state to set isOpen to false.
+   * The component handles exit animations automatically.
+   *
+   * @example
+   * ```tsx
+   * onClose={() => {
+   *   setWheelOpen(false);
+   *   // Optional: cleanup or additional actions
+   *   clearSelection();
+   * }}
+   * ```
+   */
   onClose: () => void;
 }
 
@@ -24,17 +122,98 @@ export interface EmojiWheelProps {
  * - Click outside to close
  * - Hover effects for better UX
  * - Optimized for touch and mouse interaction
+ * - Safe positioning prevents off-screen rendering
+ * - Staggered animation entrance for visual appeal
+ * - Center close button for easy dismissal
+ *
+ * @example
+ * // Message reaction wheel triggered by long press
+ * const [wheelOpen, setWheelOpen] = useState(false);
+ * const [wheelPosition, setWheelPosition] = useState({ x: 0, y: 0 });
+ * const [selectedMessage, setSelectedMessage] = useState<string | null>(null);
+ *
+ * // Optional: Define custom emojis (exactly 8 for optimal layout)
+ * const customEmojis = ['🔥', '🚀', '👀', '🙌', '💯', '🎯', '🌟', '✨'];
+ *
+ * const handleLongPress = (event: React.MouseEvent, messageId: string) => {
+ *   event.preventDefault();
+ *   setWheelPosition({ x: event.clientX, y: event.clientY });
+ *   setSelectedMessage(messageId);
+ *   setWheelOpen(true);
+ * };
+ *
+ * return (
+ *   <>
+ *     <div
+ *       onContextMenu={(e) => handleLongPress(e, message.id)}
+ *       className="message-content"
+ *     >
+ *       {message.text}
+ *     </div>
+ *
+ *     <EmojiWheel
+ *       isOpen={wheelOpen}
+ *       position={wheelPosition}
+ *       emojis={customEmojis} // Optional: Use custom emojis instead of defaults
+ *       onEmojiSelect={(emoji) => {
+ *         addReaction(selectedMessage, emoji);
+ *         setWheelOpen(false);
+ *       }}
+ *       onClose={() => setWheelOpen(false)}
+ *     />
+ *   </>
+ * );
+ *
+ * @example
+ * // Quick reaction button in chat interface
+ * const [showReactionWheel, setShowReactionWheel] = useState(false);
+ * const reactionButtonRef = useRef<HTMLButtonElement>(null);
+ *
+ * const handleReactionClick = () => {
+ *   if (reactionButtonRef.current) {
+ *     const rect = reactionButtonRef.current.getBoundingClientRect();
+ *     setWheelPosition({
+ *       x: rect.left + rect.width / 2,
+ *       y: rect.top + rect.height / 2
+ *     });
+ *     setShowReactionWheel(true);
+ *   }
+ * };
+ *
+ * <button
+ *   ref={reactionButtonRef}
+ *   onClick={handleReactionClick}
+ *   className="reaction-trigger"
+ * >
+ *   😀 React
+ * </button>
+ *
+ * @example
+ * // Touch-optimized mobile usage
+ * const handleTouchStart = (event: React.TouchEvent) => {
+ *   const touch = event.touches[0];
+ *   setWheelPosition({ x: touch.clientX, y: touch.clientY });
+ *   setWheelOpen(true);
+ * };
+ *
+ * <div
+ *   onTouchStart={handleTouchStart}
+ *   className="touch-target"
+ * >
+ *   Hold to react
+ * </div>
  */
 export const EmojiWheel: React.FC<EmojiWheelProps> = ({
   isOpen,
   position,
+  emojis: customEmojis,
   onEmojiSelect,
   onClose,
 }) => {
   const [isAnimating, setIsAnimating] = useState(false);
 
-  // Available emoji reactions for the wheel
-  const emojis = ['👍', '❤️', '😂', '😮', '😢', '😡', '👏', '🎉'];
+  // Use custom emojis or fall back to default set
+  const emojis = customEmojis || DEFAULT_EMOJIS;
 
   useEffect(() => {
     if (isOpen) {

@@ -1,8 +1,8 @@
 import React, { useState, useRef } from 'react';
-import { Avatar } from '../atoms/Avatar';
-import { TextInput } from '../atoms/TextInput';
-import { Button } from '../atoms/Button';
-import { Icon } from '../atoms/Icon';
+import { Avatar } from '../atoms';
+import { TextInput } from '../atoms';
+import { Button } from '../atoms';
+import { Icon } from '../atoms';
 import { TooltipSurface, TooltipArrow } from '../atoms';
 import { MessageActions } from './MessageActions';
 import { MessageReactions } from './MessageReactions';
@@ -71,13 +71,14 @@ export interface ChatMessageProps {
  * ChatMessage component displays an individual chat message with interactive capabilities
  *
  * Core Features:
- * • Message content display with sender avatar
- * • Edit/delete functionality for own messages with confirmation dialogs
- * • Emoji reactions system with picker and toggle functionality
- * • Avatar editing for message senders (own messages only)
- * • Status indicators (edited, deleted)
- * • Basic ARIA support (role, aria-label)
- * • Hover tooltips showing sender information
+ * - Message content display with sender avatar
+ * - Edit/delete functionality for own messages with confirmation dialogs
+ * - Emoji reactions system with picker and toggle functionality
+ * - Avatar editing for message senders (own messages only)
+ * - Status indicators (edited, deleted)
+ * - Basic ARIA support (role, aria-label)
+ * - Hover tooltips showing sender information
+ *
  * @example
  * <ChatMessage
  *   message={message}

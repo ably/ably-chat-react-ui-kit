@@ -5,22 +5,111 @@ import { Message } from '@ably/chat';
  * Props for the MessageReactions component
  */
 export interface MessageReactionsProps {
-  /** The message object containing reaction data */
+  /**
+   * The Chat Message object containing reaction data.
+   * Access reactions via `message.reactions.distinct` which provides a map of emoji to reaction details.
+   * Only renders when the message has existing reactions.
+   */
   message: Message;
-  /** Callback function when a reaction is clicked, receives the emoji character */
+
+  /**
+   * Optional callback function triggered when a reaction button is clicked.
+   * Receives the emoji character as a parameter for handling reaction add/remove logic.
+   * Should implement toggle behavior - add reaction if user hasn't reacted, remove if they have.
+   *
+   * @param emoji - The emoji character that was clicked
+   *
+   * @example
+   * ```tsx
+   * const handleReactionClick = (emoji: string) => {
+   *   const hasUserReacted = message.reactions?.distinct[emoji]?.clientIds.includes(currentClientId);
+   *   if (hasUserReacted) {
+   *     onReactionRemove(message, emoji);
+   *   } else {
+   *     onReactionAdd(message, emoji);
+   *   }
+   * };
+   *
+   * <MessageReactions
+   *   message={message}
+   *   onReactionClick={handleReactionClick}
+   *   currentClientId={currentClientId}
+   * />
+   * ```
+   */
   onReactionClick?: (emoji: string) => void;
-  /** ID of the current user to determine if they've reacted */
+
+  /**
+   * Client ID of the current Ably Connection for the room.
+   * Used to determine which reactions the current user has added for visual highlighting.
+   * Reactions added by the current user are displayed with blue styling to indicate participation.
+   */
   currentClientId: string;
 }
 
 /**
- * MessageReactions component displays emoji reactions for a message
+ * MessageReactions component displays emoji reactions for a chat message with interactive toggle functionality
  *
- * Features:
- * - Shows all emoji reactions with their counts
- * - Highlights reactions the current user has added
- * - Allows toggling reactions by clicking
- * - Visually distinguishes between active and inactive reactions
+ * Core Features:
+ * - Displays all emoji reactions with their total counts
+ * - Visual highlighting for reactions added by the current user (blue styling)
+ * - Click-to-toggle reactions (add/remove based on current user's participation)
+ * - Responsive flexbox layout that wraps on smaller screens
+ * - Accessibility with ARIA attributes
+ * - Theme-aware styling supporting both light and dark modes
+ * - Graceful handling of missing or empty reaction data
+ *
+ * Data Structure:
+ * The component expects `message.reactions.distinct` to contain a map where:
+ * - Keys are emoji characters (e.g., "👍", "❤️", "😂")
+ * - Values contain `total` (number) and `clientIds` (string array)
+ *
+ * Styling:
+ * • Pill-shaped buttons with rounded corners
+ * • Current user's reactions: Blue background with darker blue border
+ * • Other reactions: Gray background with hover effects
+ * • Emoji and count displayed side-by-side within each button
+ *
+ * @example
+ * // Basic usage within ChatMessage component
+ * {message.reactions && Object.keys(message.reactions.distinct || {}).length > 0 && (
+ *   <MessageReactions
+ *     message={message}
+ *     onReactionClick={handleReactionToggle}
+ *     currentClientId={currentUserId}
+ *   />
+ * )}
+ *
+ * @example
+ * // Integration with reaction management system
+ * const ChatMessageWithReactions = ({ message, currentClientId }) => {
+ *   const handleReactionClick = async (emoji: string) => {
+ *     const reaction = message.reactions?.distinct[emoji];
+ *     const hasUserReacted = reaction?.clientIds.includes(currentClientId) ?? false;
+ *
+ *     try {
+ *       if (hasUserReacted) {
+ *         await room.messages.deleteReaction(message, emoji);
+ *       } else {
+ *         await room.messages.addReaction(message, emoji);
+ *       }
+ *     } catch (error) {
+ *       console.error('Failed to toggle reaction:', error);
+ *     }
+ *   };
+ *
+ *   return (
+ *     <div className="message-container">
+ *       <div className="message-content">{message.text}</div>
+ *       <MessageReactions
+ *         message={message}
+ *         onReactionClick={handleReactionClick}
+ *         currentClientId={currentClientId}
+ *       />
+ *     </div>
+ *   );
+ * };
+ *
  */
 export const MessageReactions: React.FC<MessageReactionsProps> = ({
   message,

@@ -191,7 +191,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             >
               <RoomListItem
                 key={roomId}
-                roomId={roomId}
+                roomName={roomId}
                 isSelected={roomId === activeRoomName}
                 onClick={() => onChangeActiveRoom(roomId)}
                 onLeave={() => handleLeaveRoom(roomId)}

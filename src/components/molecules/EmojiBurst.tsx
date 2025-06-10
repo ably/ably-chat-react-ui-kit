@@ -51,12 +51,11 @@ export interface EmojiBurstProps {
    * Controls how long emojis remain visible before fading out completely.
    * Longer durations allow emojis to travel further and fade more gradually.
    *
-   * @default 2000
    *
    * - Animation uses requestAnimationFrame for smooth 60fps performance
    * - Emojis begin fading after 2/3 of the duration
    */
-  duration?: number;
+  duration: number;
 
   /**
    * Callback function called when the animation completes and all emojis have faded out.
@@ -115,6 +114,7 @@ interface FlyingEmoji {
  * // Basic reaction burst on button click
  * const [burstActive, setBurstActive] = useState(false);
  * const [burstPosition, setBurstPosition] = useState({ x: 0, y: 0 });
+ * const [burstDuration] = useState(2000); // 2 seconds
  *
  * const handleReaction = (event: React.MouseEvent) => {
  *   const rect = event.currentTarget.getBoundingClientRect();
@@ -131,6 +131,7 @@ interface FlyingEmoji {
  *     <EmojiBurst
  *       isActive={burstActive}
  *       position={burstPosition}
+ *       duration={burstDuration}
  *       onComplete={() => setBurstActive(false)}
  *     />
  *   </>
@@ -165,7 +166,7 @@ export const EmojiBurst: React.FC<EmojiBurstProps> = ({
   isActive,
   position,
   emoji = '👍',
-  duration = 2000,
+  duration,
   onComplete,
 }) => {
   const [emojis, setEmojis] = useState<FlyingEmoji[]>([]);

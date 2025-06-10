@@ -3,35 +3,101 @@ import { useRoomReactions } from '@ably/chat/react';
 import { EmojiBurst } from './EmojiBurst';
 import { EmojiWheel } from './EmojiWheel';
 import { RoomReactionEvent } from '@ably/chat';
-import { useThrottle } from '../../hooks/useThrottle';
+import { useThrottle } from '../../hooks';
+import clsx from 'clsx';
 
 /**
- * Defines the properties for managing and customizing emoji reaction animations in a room.
- * @property {number} [emojiBurstDuration=500] - Duration for the emoji burst animation in milliseconds.
- * @property {Object} [emojiBurstPosition={ x: 0, y: 0 }] - Position for the burst animation, with x and y coordinates.
+ * Props for the RoomReaction component
  */
 interface RoomReactionProps {
-  emojiBurstDuration?: number; // Duration for the emoji burst animation in ms
-  emojiBurstPosition?: { x: number; y: number }; // Position for the burst animation
+  /**
+   * Duration for the emoji burst animation in milliseconds.
+   * Controls how long the emoji animation is visible before automatically hiding.
+   * Longer durations provide more noticeable feedback but may feel slower.
+   * @default 500
+   */
+  emojiBurstDuration?: number;
+
+  /**
+   * Fixed position for the burst animation when receiving reactions from others.
+   * When provided, all incoming reactions will animate at this position.
+   * When not provided, incoming reactions animate at screen center.
+   * Own reactions always animate from the button position
+   *
+   * @example
+   * // Fixed position in top-right corner
+   * emojiBurstPosition={{ x: window.innerWidth - 100, y: 100 }}
+   *
+   * @example
+   * // Center of a specific element
+   * const rect = element.getBoundingClientRect();
+   * emojiBurstPosition={{
+   *   x: rect.left + rect.width / 2,
+   *   y: rect.top + rect.height / 2
+   * }}
+   */
+  emojiBurstPosition?: { x: number; y: number };
+
+  /**
+   * Additional CSS classes to apply to the reaction button container.
+   * Allows customization of spacing, alignment, and styling.
+   * Merged with default padding and container classes using clsx.
+   *
+   * @example
+   * // Custom spacing and positioning
+   * className="px-6 py-2 fixed bottom-4 right-4"
+   *
+   * @example
+   * // Integration with flex layouts
+   * className="flex-shrink-0 ml-auto"
+   */
+  className?: string;
 }
 
 /**
- * RoomReaction component provides quick reaction functionality for the chat room
+ * RoomReaction component provides ephemeral room reaction functionality for chat rooms
  *
- * Features:
- * - Quick reaction button with customizable default emoji
- * - Long press to open emoji selection wheel
- * - Selected emoji becomes new default for quick reactions
- * - Emoji burst animation when reaction is sent or received
- * - Throttled sending (max 1 reaction per 200ms) with immediate visual feedback
- * - Uses ephemeral room reactions (not stored messages)
+ * Core Features:
+ * - Quick reaction button with customizable default emoji (starts with 👍)
+ * - Long press (500ms) to open circular emoji selection wheel
+ * - Selected emoji becomes new default for subsequent quick reactions
+ * - Immediate visual feedback with emoji burst animations
+ * - Throttled sending (max 1 reaction per 200ms)
+ * - Handles both outgoing and incoming room reactions
+ * - Mobile-friendly with touch event support and haptic feedback
+ * - Accessible with proper ARIA labels and keyboard interaction
  *
- * Room reactions are ephemeral and similar to typing indicators - they provide
- * momentary feedback without being persisted in the chat history.
+ * Interaction:
+ * • Short click/tap: Sends current default emoji immediately
+ * • Long press/hold: Opens emoji wheel for selection
+ * • Emoji wheel selection: Updates default and sends chosen emoji
+ * • Click outside wheel: Closes wheel without sending
+ *
+ *
+ * Room Reactions vs Message Reactions:
+ * Room reactions are ephemeral like typing indicators - they provide momentary
+ * feedback without being stored in chat history. They're useful for quick
+ * acknowledgments, applause, or ambient reactions during conversations.
+ *
+ * @example
+ * // With custom animation settings
+ * <RoomReaction
+ *   emojiBurstDuration={1000}
+ *   emojiBurstPosition={{ x: 400, y: 300 }}
+ * />
+ *
+ * @example
+ * // Custom positioning and styling
+ * <RoomReaction
+ *   className="fixed bottom-4 right-4 bg-white rounded-full shadow-lg p-2"
+ *   emojiBurstDuration={750}
+ * />
+ *
  */
 export const RoomReaction: React.FC<RoomReactionProps> = ({
-  emojiBurstDuration,
+  emojiBurstDuration = 500,
   emojiBurstPosition: initialEmojiBurstPosition,
+  className,
 }) => {
   const [showEmojiBurst, setShowEmojiBurst] = useState(false);
   const [emojiBurstPosition, setEmojiBurstPosition] = useState(
@@ -50,14 +116,18 @@ export const RoomReaction: React.FC<RoomReactionProps> = ({
     listener: (reaction: RoomReactionEvent) => {
       if (reaction.reaction.isSelf) {
         // If the reaction is from ourselves, we don't need to show the burst animation
+        // (we already showed it locally for immediate feedback)
         return;
       }
-      // Set the emoji and show burst at a default position (could be enhanced to show at random positions)
+
+      // Set the emoji and show burst for incoming reactions
       setBurstEmoji(reaction.reaction.type);
 
-      // If initialEmojiBurstPosition is provided, use it; otherwise use screen center
-      if (!initialEmojiBurstPosition) {
-        // Show burst in the screens center for incoming reactions
+      // Use provided position or default to screen center for incoming reactions
+      if (initialEmojiBurstPosition) {
+        setEmojiBurstPosition(initialEmojiBurstPosition);
+      } else {
+        // Show burst in the screen center for incoming reactions
         setEmojiBurstPosition({
           x: window.innerWidth / 2, // horizontal center
           y: window.innerHeight / 2, // vertical center
@@ -69,8 +139,11 @@ export const RoomReaction: React.FC<RoomReactionProps> = ({
   });
 
   /**
-   * Shows the local burst animation at the button position
-   * This provides immediate visual feedback regardless of network throttling
+   * Shows the local burst animation at the button position.
+   * This provides immediate visual feedback regardless of network throttling.
+   * Always animates from the button location for own reactions.
+   *
+   * @param emoji - The emoji character to animate in the burst
    */
   const showLocalBurst = useCallback((emoji: string) => {
     const button = reactionButtonRef.current;
@@ -86,8 +159,11 @@ export const RoomReaction: React.FC<RoomReactionProps> = ({
   }, []);
 
   /**
-   * Sends a room reaction (without throttling)
-   * This is the base function that will be wrapped by useThrottle
+   * Sends a room reaction to all participants (without throttling).
+   * This is the base function that communicates with Ably Chat.
+   * Will be wrapped by useThrottle to prevent excessive API calls.
+   *
+   * @param emoji - The emoji reaction to send to the room
    */
   const sendRoomReaction = useCallback(
     async (emoji: string) => {
@@ -101,10 +177,15 @@ export const RoomReaction: React.FC<RoomReactionProps> = ({
   );
 
   // Create throttled version of the send function to avoid excessive network calls
+  // Limits to maximum 1 reaction per 200ms while preserving immediate visual feedback
   const throttledSendReaction = useThrottle(sendRoomReaction, 200);
 
   /**
-   * Handles sending a room reaction with immediate visual feedback and throttled network call
+   * Handles sending a room reaction with immediate visual feedback and throttled network call.
+   * Shows local animation instantly, then sends throttled network request.
+   * This pattern ensures responsive UX even with network throttling.
+   *
+   * @param emoji - The emoji reaction to send and animate
    */
   const sendReaction = useCallback(
     (emoji: string) => {
@@ -118,20 +199,23 @@ export const RoomReaction: React.FC<RoomReactionProps> = ({
   );
 
   /**
-   * Handles clicking the reaction button (short press)
-   * Sends the current default emoji reaction with throttling
+   * Handles clicking the reaction button (short press).
+   * Sends the current default emoji reaction if this wasn't part of a long press.
+   * Long press detection prevents accidental reactions when opening emoji wheel.
    */
   const handleReactionClick = useCallback(() => {
     // Only send reaction if this wasn't a long press
     if (!isLongPressRef.current) {
       sendReaction(defaultEmoji);
     }
-    // Reset long press flag
+    // Reset long press flag for next interaction
     isLongPressRef.current = false;
   }, [sendReaction, defaultEmoji]);
 
   /**
-   * Handles starting a potential long press
+   * Handles starting a potential long press interaction.
+   * Sets up timer to detect long press (500ms threshold).
+   * When timer completes, opens emoji wheel at button position.
    */
   const handleMouseDown = useCallback(() => {
     isLongPressRef.current = false;
@@ -148,16 +232,18 @@ export const RoomReaction: React.FC<RoomReactionProps> = ({
         });
         setShowEmojiWheel(true);
 
-        // Add haptic feedback if available
+        // Add haptic feedback if available (mobile devices)
         if (navigator.vibrate) {
           navigator.vibrate(50);
         }
       }
-    }, 500); // 500ms for long press
+    }, 500); // 500ms threshold for long press detection
   }, []);
 
   /**
-   * Handles ending a potential long press
+   * Handles ending a potential long press interaction.
+   * Clears the long press timer to prevent wheel from opening.
+   * Called on mouse up, mouse leave, touch end events.
    */
   const handleMouseUp = useCallback(() => {
     if (longPressTimerRef.current) {
@@ -167,49 +253,55 @@ export const RoomReaction: React.FC<RoomReactionProps> = ({
   }, []);
 
   /**
-   * Handles touch start for mobile long press
+   * Handles touch start for mobile long press detection.
+   * Delegates to mouse down handler for unified behavior.
    */
   const handleTouchStart = useCallback(() => {
     handleMouseDown();
   }, [handleMouseDown]);
 
   /**
-   * Handles touch end for mobile long press
+   * Handles touch end for mobile long press detection.
+   * Delegates to mouse up handler for unified behavior.
    */
   const handleTouchEnd = useCallback(() => {
     handleMouseUp();
   }, [handleMouseUp]);
 
   /**
-   * Handles emoji selection from the wheel
-   * Updates the default emoji and sends the reaction with throttling
+   * Handles emoji selection from the emoji wheel.
+   * Updates the default emoji for future quick reactions and sends the selected emoji.
+   * Closes the wheel after selection completes.
+   *
+   * @param emoji - The emoji selected from the wheel
    */
   const handleEmojiSelect = useCallback(
     (emoji: string) => {
       setShowEmojiWheel(false);
-      setDefaultEmoji(emoji); // Update default emoji for future clicks
+      setDefaultEmoji(emoji); // Update default emoji for future quick reactions
       sendReaction(emoji);
     },
     [sendReaction]
   );
 
   /**
-   * Handles closing the emoji wheel
+   * Handles closing the emoji wheel without selecting an emoji.
+   * Called when clicking outside the wheel or pressing escape.
    */
   const handleEmojiWheelClose = useCallback(() => {
     setShowEmojiWheel(false);
   }, []);
 
   /**
-   * Callback when the emoji burst animation completes
-   * Hides the animation
+   * Callback when the emoji burst animation completes.
+   * Hides the animation component to clean up the UI.
    */
   const handleEmojiBurstComplete = useCallback(() => {
     setShowEmojiBurst(false);
   }, []);
 
   return (
-    <div className="px-4 py-4">
+    <div className={clsx('px-4 py-4', className)}>
       {/* Reaction Button */}
       <button
         ref={reactionButtonRef}
@@ -223,7 +315,7 @@ export const RoomReaction: React.FC<RoomReactionProps> = ({
         aria-label={`Send ${defaultEmoji} reaction (long press for more options)`}
         type="button"
       >
-        <span className="text-xl" aria-hidden={true}>
+        <span className="text-xl" aria-hidden="true">
           {defaultEmoji}
         </span>
       </button>
