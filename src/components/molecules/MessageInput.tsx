@@ -1,5 +1,5 @@
 import React, { useState, useRef, ChangeEvent, KeyboardEvent } from 'react';
-import { useTyping } from '@ably/chat/react';
+import { useRoom, useTyping } from '@ably/chat/react';
 import { Icon } from '../atoms/Icon';
 import { TextInput } from '../atoms/TextInput';
 import { Button } from '../atoms/Button';
@@ -9,22 +9,116 @@ import { EmojiPicker } from './EmojiPicker';
  * Props for the MessageInput component
  */
 export interface MessageInputProps {
-  /** Callback function when a message is sent, receives the message text */
-  onSend: (message: string) => void;
-  /** Placeholder text for the input field */
+  /**
+   * Callback function triggered when a message is sent.
+   * Receives the trimmed message text as a parameter.
+   * Only called when the message contains non-whitespace content.
+   *
+   * The input field is automatically cleared after sending.
+   * Typing indicators are stopped when a message is sent.
+   *
+   * @param text - The trimmed message text to be sent
+   *
+   * @example
+   * ```tsx
+   * const handleSend = async (text: string) => {
+   *   try {
+   *     await send({text});
+   *   } catch (error) {
+   *     console.error('Failed to send message:', error);
+   *   }
+   * };
+   *
+   * <MessageInput onSend={handleSend} />
+   * ```
+   */
+  onSend: (text: string) => void;
+
+  /**
+   * Placeholder text displayed in the input field when empty.
+   * Provides context about the input's purpose to users.
+   *
+   * @default "Type a message..."
+   *
+   * @example
+   * ```tsx
+   * <MessageInput
+   *   placeholder="Send a message to the team..."
+   *   onSend={handleSend}
+   * />
+   * ```
+   */
   placeholder?: string;
 }
 
+
 /**
- * MessageInput component provides a text input for composing and sending messages
+ * MessageInput component provides a comprehensive text input interface for composing and sending chat messages
  *
- * Features:
- * - Text input with typing indicator integration
- * - Emoji picker for inserting emojis
- * - Quick thumbs-up button with animation
- * - Attachment button (currently non-functional)
- * - Enter key to send messages
+ * Core Features:
+ * - Multi-line text input with automatic height adjustment (max 150px)
+ * - Enter key to send (Shift+Enter for new line)
+ * - Integrated emoji picker with cursor position insertion
+ * - Typing indicators to alert others when composing messages
+ * - Automatic input cleanup and focus management
+ * - Accessible form controls with proper ARIA attributes
+ * - Theme-aware styling (light/dark mode support)
+ *
+ * Typing Indicators:
+ * - Triggered on each keystroke when content is present
+ * - Automatically stopped when input is cleared or message is sent
+ *
+ * Emoji Integration:
+ * • Picker positioned above the emoji button
+ * • Smart cursor position handling for emoji insertion
+ * • Maintains focus and cursor position after emoji selection
+ * • Fallback behavior for browsers without selection API support
+ *
+ * @example
+ * // Basic usage in chat interface
+ * const [messages, setMessages] = useState<Message[]>([]);
+ *
+ * const handleSendMessage = async (text: string) => {
+ *   const newMessage = await send({text});
+ *   setMessages(prev => [...prev, newMessage]);
+ * };
+ *
+ * return (
+ *   <div className="chat-container">
+ *     <MessageList messages={messages} />
+ *     <MessageInput
+ *       onSend={handleSendMessage}
+ *       placeholder="Type your message here..."
+ *     />
+ *   </div>
+ * );
+ *
+ * @example
+ * // With custom styling and handlers
+ * const MessageInputContainer = () => {
+ *   const { room } = useRoom();
+ *
+ *   const handleSend = useCallback(async (message: string) => {
+ *     try {
+ *       await room.messages.send({ text: message });
+ *       // Optional: Show success feedback
+ *       toast.success('Message sent!');
+ *     } catch (error) {
+ *       toast.error('Failed to send message');
+ *       console.error('Send error:', error);
+ *     }
+ *   }, [room]);
+ *
+ *   return (
+ *     <MessageInput
+ *       onSend={handleSend}
+ *       placeholder={`Message #${room?.name}`}
+ *     />
+ *   );
+ * };
+ *
  */
+
 export const MessageInput: React.FC<MessageInputProps> = ({
   onSend,
   placeholder = 'Type a message...',
@@ -33,7 +127,6 @@ export const MessageInput: React.FC<MessageInputProps> = ({
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [emojiPickerPosition, setEmojiPickerPosition] = useState({ top: 0, left: 0 });
   const inputRef = useRef<HTMLTextAreaElement>(null);
-
   // Use typing hook with keystroke and stop methods
   const { keystroke, stop } = useTyping();
 
@@ -46,7 +139,9 @@ export const MessageInput: React.FC<MessageInputProps> = ({
       onSend(message.trim());
       setMessage('');
       // Stop typing indicator when message is sent
-      stop();
+      stop().catch((error) => {
+        console.warn('Stop typing failed:', error);
+      });
     }
   };
 
@@ -62,10 +157,14 @@ export const MessageInput: React.FC<MessageInputProps> = ({
 
     // Call keystroke on each keypress when there's content
     if (newValue.trim()) {
-      keystroke();
+      keystroke().catch((error) => {
+        console.warn('Keystroke failed:', error);
+      });
     } else {
       // Stop typing indicator when all text is deleted
-      stop();
+      stop().catch((error) => {
+        console.warn('Stop typing failed:', error);
+      });
     }
   };
 
@@ -118,7 +217,9 @@ export const MessageInput: React.FC<MessageInputProps> = ({
       setMessage(newMessage);
 
       // Trigger keystroke for emoji insertion
-      keystroke();
+      keystroke().catch((error) => {
+        console.warn('Keystroke failed:', error);
+      });
 
       // Focus back on input and set cursor position after emoji
       setTimeout(() => {
@@ -129,7 +230,9 @@ export const MessageInput: React.FC<MessageInputProps> = ({
     } else {
       // Fallback: append to end
       setMessage((prev) => prev + emoji);
-      keystroke();
+      keystroke().catch((error) => {
+        console.warn('Keystroke failed:', error);
+      });
     }
 
     setShowEmojiPicker(false);
