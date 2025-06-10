@@ -126,43 +126,6 @@ export interface EmojiWheelProps {
  * - Staggered animation entrance for visual appeal
  * - Center close button for easy dismissal
  *
- * @example
- * // Message reaction wheel triggered by long press
- * const [wheelOpen, setWheelOpen] = useState(false);
- * const [wheelPosition, setWheelPosition] = useState({ x: 0, y: 0 });
- * const [selectedMessage, setSelectedMessage] = useState<string | null>(null);
- *
- * // Optional: Define custom emojis (exactly 8 for optimal layout)
- * const customEmojis = ['🔥', '🚀', '👀', '🙌', '💯', '🎯', '🌟', '✨'];
- *
- * const handleLongPress = (event: React.MouseEvent, messageId: string) => {
- *   event.preventDefault();
- *   setWheelPosition({ x: event.clientX, y: event.clientY });
- *   setSelectedMessage(messageId);
- *   setWheelOpen(true);
- * };
- *
- * return (
- *   <>
- *     <div
- *       onContextMenu={(e) => handleLongPress(e, message.id)}
- *       className="message-content"
- *     >
- *       {message.text}
- *     </div>
- *
- *     <EmojiWheel
- *       isOpen={wheelOpen}
- *       position={wheelPosition}
- *       emojis={customEmojis} // Optional: Use custom emojis instead of defaults
- *       onEmojiSelect={(emoji) => {
- *         addReaction(selectedMessage, emoji);
- *         setWheelOpen(false);
- *       }}
- *       onClose={() => setWheelOpen(false)}
- *     />
- *   </>
- * );
  *
  * @example
  * // Quick reaction button in chat interface
@@ -264,6 +227,7 @@ export const EmojiWheel: React.FC<EmojiWheelProps> = ({
 
       {/* Emoji Wheel Container */}
       <div
+        data-emoji-wheel="true"
         className={`absolute pointer-events-auto transition-all duration-300 ease-out ${
           isOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-50'
         }`}

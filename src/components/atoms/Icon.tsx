@@ -4,6 +4,8 @@ import React from 'react';
  * Available icon names in the icon library
  */
 type IconName =
+  | 'send'
+  | 'info'
   | 'moon'
   | 'sun'
   | 'phone'
@@ -149,6 +151,8 @@ export const Icon: React.FC<IconProps> = ({
    * All icons are designed for a 24x24 viewBox with stroke-based rendering
    */
   const iconPaths: Record<IconName, string> = {
+    send: 'M12 19l9-7-9-7v4l-9 3 9 3v4z',
+    info: 'M12 8v4m0 4h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z',
     moon: 'M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z',
     sun: 'M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z',
     phone:
