@@ -20,7 +20,7 @@ export interface MessageActionsProps {
    * }}
    * ```
    */
-  onReaction: () => void;
+  onReaction?: () => void;
 
   /**
    * Callback function triggered when the edit button is clicked.
@@ -38,7 +38,7 @@ export interface MessageActionsProps {
    * }}
    * ```
    */
-  onEdit: () => void;
+  onEdit?: () => void;
 
   /**
    * Callback function triggered when the delete button is clicked.
@@ -54,7 +54,7 @@ export interface MessageActionsProps {
    * }}
    * ```
    */
-  onDelete: () => void;
+  onDelete?: () => void;
 
   /**
    * Whether the action buttons should be visible and interactive.
@@ -144,44 +144,56 @@ export const MessageActions: React.FC<MessageActionsProps> = ({
 }) => {
   if (!isVisible) return null;
 
+  // Check if there are any actions to display
+  const hasReactionAction = onReaction !== undefined;
+  const hasEditAction = isOwn && onEdit !== undefined;
+  const hasDeleteAction = isOwn && onDelete !== undefined;
+
+  // If no actions are available, don't render anything
+  if (!hasReactionAction && !hasEditAction && !hasDeleteAction) {
+    return null;
+  }
+
   return (
     <div
-      className="message-actions flex items-center gap-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-md p-1"
+      className="absolute -top-10 right-0 z-10 flex items-center gap-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-md p-1"
       role="toolbar"
       aria-label="Message actions"
     >
-      <Button
-        variant="ghost"
-        size="sm"
-        className="text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
-        onClick={onReaction}
-        aria-label="Add reaction"
-      >
-        <Icon name="emoji" size="md" aria-hidden={true} />
-      </Button>
+      {hasReactionAction && (
+        <Button
+          variant="ghost"
+          size="sm"
+          className="text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
+          onClick={onReaction}
+          aria-label="Add reaction"
+        >
+          <Icon name="emoji" size="md" aria-hidden={true} />
+        </Button>
+      )}
 
-      {isOwn && (
-        <>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
-            onClick={onEdit}
-            aria-label="Edit message"
-          >
-            <Icon name="edit" size="sm" aria-hidden={true} />
-          </Button>
+      {hasEditAction && (
+        <Button
+          variant="ghost"
+          size="sm"
+          className="text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
+          onClick={onEdit}
+          aria-label="Edit message"
+        >
+          <Icon name="edit" size="sm" aria-hidden={true} />
+        </Button>
+      )}
 
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-gray-600 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400"
-            onClick={onDelete}
-            aria-label="Delete message"
-          >
-            <Icon name="delete" size="sm" aria-hidden={true} />
-          </Button>
-        </>
+      {hasDeleteAction && (
+        <Button
+          variant="ghost"
+          size="sm"
+          className="text-gray-600 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400"
+          onClick={onDelete}
+          aria-label="Delete message"
+        >
+          <Icon name="delete" size="sm" aria-hidden={true} />
+        </Button>
       )}
     </div>
   );

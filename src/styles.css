@@ -2,51 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-html,
-body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  font-family:
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell',
-    'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* Hide scrollbar for Chrome, Safari and Opera */
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-
-/* Hide scrollbar for IE, Edge and Firefox */
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-/* Custom animation */
-.pulse-slow {
-  animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-/* Message actions positioning */
-.message-actions {
-  position: absolute;
-  top: -40px;
-  right: 0;
-  z-index: 10;
-}
-
 @layer base {
   html {
     font-family: 'Inter', system-ui, sans-serif;
-  }
-
-  body {
-    margin: 0;
-    padding: 0;
-    min-height: 100vh;
   }
 }
 
@@ -58,11 +16,5 @@ body {
 
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
-  }
-}
-
-@layer utilities {
-  .animate-pulse-slow {
-    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
 }
