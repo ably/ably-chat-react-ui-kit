@@ -1,8 +1,9 @@
 import React, { useCallback, useState } from 'react';
 import { useChatClient } from '@ably/chat/react';
 import { AppLayout } from '../components/layouts';
-import { Sidebar } from '../components/layouts';
-import { ChatArea } from '../components/layouts/ChatArea';
+import { ChatSettingsProvider } from '../context';
+import { Sidebar } from '../components/molecules/Sidebar.tsx';
+import { ChatWindow } from '../components/molecules/ChatWindow.tsx';
 
 /**
  * Props for the App component.
@@ -21,6 +22,7 @@ interface AppProps {
 export const App: React.FC<AppProps> = ({ initialRoomNames }) => {
   const chatClient = useChatClient();
   const [activeRoomName, setActiveRoomName] = useState<string | undefined>(undefined);
+  const [defaultRoomOptions] = useState({ occupancy: { enableEvents: true } });
 
   // Function to handle room selection change
   const handleChangeSelectedRoom = useCallback((roomName?: string) => {
@@ -41,15 +43,28 @@ export const App: React.FC<AppProps> = ({ initialRoomNames }) => {
     );
   }
 
-  // TODO: Context provider for chat window (feature flags, edit/delete etc..)
   return (
-    <AppLayout width="70vw" height="70vh">
-      <Sidebar
-        initialRoomNames={initialRoomNames}
-        onChangeActiveRoom={handleChangeSelectedRoom}
-        activeRoomName={activeRoomName}
-      />
-      <ChatArea activeRoomName={activeRoomName} />
-    </AppLayout>
+    <ChatSettingsProvider>
+      <AppLayout
+        width="70vw"
+        height="70vh"
+        sidebar={
+          <Sidebar
+            initialRoomNames={initialRoomNames}
+            defaultRoomOptions={defaultRoomOptions}
+            onChangeActiveRoom={handleChangeSelectedRoom}
+            activeRoomName={activeRoomName}
+          />
+        }
+        children={
+          <ChatWindow
+            activeRoomName={activeRoomName}
+            attach={false}
+            release={false}
+            defaultRoomOptions={defaultRoomOptions}
+          />
+        }
+      ></AppLayout>
+    </ChatSettingsProvider>
   );
 };

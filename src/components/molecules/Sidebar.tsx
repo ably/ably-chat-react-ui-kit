@@ -1,10 +1,10 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { ChatRoomProvider, useChatClient } from '@ably/chat/react';
-import { RoomListItem } from '../molecules/RoomListItem';
-import { Button } from '../atoms/Button';
-import { Icon } from '../atoms/Icon';
-import { DropdownMenu } from '../molecules/DropdownMenu';
-import { CreateRoomModal } from '../molecules/CreateRoomModal';
+import { RoomListItem } from './RoomListItem.tsx';
+import { Button } from '../atoms/Button.tsx';
+import { Icon } from '../atoms/Icon.tsx';
+import { DropdownMenu } from './DropdownMenu.tsx';
+import { CreateRoomModal } from './CreateRoomModal.tsx';
 import { useTheme } from '../../hooks';
 import { useAvatar } from '../../context/AvatarContext.tsx';
 import { RoomOptions } from '@ably/chat';
@@ -18,12 +18,16 @@ export interface SidebarProps {
   initialRoomNames?: string[];
   /** Currently active/selected room name */
   activeRoomName?: string;
-  /** Width of the sidebar (CSS value or pixels) */
-  width?: string | number;
+  /** Default options for new rooms */
+  defaultRoomOptions?: RoomOptions;
   /** Callback when the active room changes */
   onChangeActiveRoom: (roomName?: string) => void;
   /** Additional CSS classes for the sidebar */
   className?: string;
+  /** Whether the sidebar is collapsed (controlled by layout) */
+  isCollapsed?: boolean;
+  /** Handler for toggling collapse (provided by layout) */
+  onToggleCollapse?: () => void;
 }
 
 /**
@@ -38,50 +42,44 @@ export interface SidebarProps {
  *
  * @example
  * // Basic usage
- * <Sidebar
+ * <SidebarLayout
+ *   sidebar={
+ *   <Sidebar
  *   initialRoomNames={['general', 'random']}
  *   activeRoomName="general"
- *   onChangeActiveRoom={handleRoomChange}
- * />
+ *   onChangeActiveRoom={handleRoomChange}/>
+ *   }>
+ *   </SidebarLayout>
  *
  * @example
  * // With custom width and styling
  * <Sidebar
- *   width="300px"
  *   className="shadow-lg"
  *   onChangeActiveRoom={handleRoomChange}
  * />
  */
 export const Sidebar: React.FC<SidebarProps> = ({
-  initialRoomNames = [], // Default to empty array
-  width = '20rem', // 320px default
+  initialRoomNames = [],
+  defaultRoomOptions,
   activeRoomName,
   onChangeActiveRoom,
   className = '',
+  isCollapsed = false,
+  onToggleCollapse,
 }) => {
   const [roomNames, setRoomNames] = useState<string[]>(initialRoomNames);
-  const [defaultRoomOptions] = useState<RoomOptions>({ occupancy: { enableEvents: true } });
-  const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
   const { theme, toggleTheme } = useTheme();
   const [showCreateRoomModal, setShowCreateRoomModal] = useState(false);
   const { getAvatarForRoom } = useAvatar();
   const chatClient = useChatClient();
 
-  // Handle toggle collapse
-  const handleToggleCollapse = useCallback(() => {
-    setIsCollapsed((prev) => !prev);
-  }, []);
-
-  // Handle leave room
+  // ... rest of your room management logic stays the same ...
   const handleLeaveRoom = useCallback(
     async (roomNameToLeave: string) => {
       try {
         await chatClient.rooms.release(roomNameToLeave);
-
         setRoomNames((prevRoomNames) => {
           const newRoomNames = prevRoomNames.filter((id) => id !== roomNameToLeave);
-
-          // Handle active room switching
           if (roomNameToLeave === activeRoomName) {
             if (newRoomNames.length > 0) {
               onChangeActiveRoom(newRoomNames[0]);
@@ -89,7 +87,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
               onChangeActiveRoom(undefined);
             }
           }
-
           return newRoomNames;
         });
       } catch (error) {
@@ -99,17 +96,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
     [activeRoomName, onChangeActiveRoom, chatClient]
   );
 
-  // Handle creating a new room
   const handleCreateRoom = useCallback(
     async (roomName: string) => {
       setRoomNames((prevRoomNames) => {
-        // Check if the room already exists using the current state
         if (prevRoomNames.includes(roomName)) {
           onChangeActiveRoom(roomName);
-          return prevRoomNames; // No state change needed
+          return prevRoomNames;
         }
-
-        // Add new room
         getAvatarForRoom(roomName);
         onChangeActiveRoom(roomName);
         return [...prevRoomNames, roomName];
@@ -127,11 +120,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
     },
   ];
 
-  const sidebarStyle = {
-    width: isCollapsed ? '4rem' : typeof width === 'number' ? `${width}px` : width,
-    transition: 'width 0.3s ease-in-out',
-  };
-
   return (
     <aside
       className={clsx(
@@ -140,9 +128,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         'flex flex-col h-full',
         className
       )}
-      style={sidebarStyle}
     >
-      {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800">
         {!isCollapsed ? (
           <>
@@ -161,9 +147,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 }
                 items={dropdownItems}
               />
-              <Button variant="ghost" size="sm" onClick={handleToggleCollapse}>
-                <Icon name="chevronleft" size="md" />
-              </Button>
+              {onToggleCollapse && (
+                <Button variant="ghost" size="sm" onClick={onToggleCollapse}>
+                  <Icon name="chevronleft" size="md" />
+                </Button>
+              )}
             </div>
           </>
         ) : (
@@ -171,9 +159,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <Button variant="ghost" size="sm" onClick={toggleTheme}>
               <Icon name={theme === 'dark' ? 'sun' : 'moon'} size="md" />
             </Button>
-            <Button variant="ghost" size="sm" onClick={handleToggleCollapse}>
-              <Icon name="chevronright" size="md" />
-            </Button>
+            {onToggleCollapse && (
+              <Button variant="ghost" size="sm" onClick={onToggleCollapse}>
+                <Icon name="chevronright" size="md" />
+              </Button>
+            )}
           </div>
         )}
       </div>
@@ -202,7 +192,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
       </div>
 
-      {/* Create Room Modal */}
       <CreateRoomModal
         isOpen={showCreateRoomModal}
         onClose={() => setShowCreateRoomModal(false)}

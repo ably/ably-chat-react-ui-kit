@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { App } from './app';
-import './index.css';
+import './styles.css';
 import { ChatClientProvider } from '@ably/chat/react';
 import * as Ably from 'ably';
 import { ChatClient } from '@ably/chat';

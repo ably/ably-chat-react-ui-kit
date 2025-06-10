@@ -1,46 +1,32 @@
-import React, { ReactNode, useMemo } from 'react';
+import React, { ReactNode, useCallback, useMemo, useState } from 'react';
 import clsx from 'clsx';
 
 /**
  * Props for the AppLayout component
  */
 export interface AppLayoutProps {
-  /**
-   * Content to be rendered within the layout container
-   */
+  /** Sidebar content */
+  sidebar?: ReactNode;
+  /** Main content area */
   children: ReactNode;
-
-  /**
-   * Width of the layout container
-   * - String values (e.g., "100%", "50vw") for relative sizing
-   * - Number values for pixel dimensions
-   * @default "50vw"
-   */
+  /** Width of the entire app container */
   width?: string | number;
-
-  /**
-   * Height of the layout container
-   * - String values (e.g., "100%", "50vh") for relative sizing
-   * - Number values for pixel dimensions
-   * @default "50vh"
-   */
+  /** Height of the entire app container */
   height?: string | number;
-
-  /**
-   * Additional CSS classes to apply to the layout container
-   */
+  /** Width of the sidebar when expanded */
+  sidebarWidth?: string | number;
+  /** Width of the sidebar when collapsed */
+  collapsedSidebarWidth?: string | number;
+  /** Initial collapsed state */
+  initialSidebarCollapsed?: boolean;
+  /** Additional CSS classes */
   className?: string;
-
-  /**
-   * Optional ARIA label for the layout container
-   */
+  /** ARIA label for the layout container */
   'aria-label'?: string;
-
-  /**
-   * Optional ARIA role for the layout container
-   * @default "main"
-   */
+  /** ARIA role for the layout container */
   role?: string;
+  /** Callback when sidebar collapse state changes */
+  onSidebarCollapseChange?: (isCollapsed: boolean) => void;
 }
 
 /**
@@ -88,17 +74,49 @@ export interface AppLayoutProps {
  * </AppLayout>
  */
 export const AppLayout = React.memo<AppLayoutProps>(
-  ({ children, width, height, className = '', 'aria-label': ariaLabel, role = 'main' }) => {
-    const layoutWidth = width ?? '50vw';
-    const layoutHeight = height ?? '50vh';
+  ({
+    sidebar,
+    children,
+    width = '70vw',
+    height = '70vh',
+    sidebarWidth = '20rem',
+    collapsedSidebarWidth = '4rem',
+    initialSidebarCollapsed = false,
+    className = '',
+    'aria-label': ariaLabel,
+    role = 'main',
+    onSidebarCollapseChange,
+  }) => {
+    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(initialSidebarCollapsed);
 
-    // Memoize the style object to prevent unnecessary re-renders
+    const handleToggleSidebar = useCallback(() => {
+      const newCollapsed = !isSidebarCollapsed;
+      setIsSidebarCollapsed(newCollapsed);
+      onSidebarCollapseChange?.(newCollapsed);
+    }, [isSidebarCollapsed, onSidebarCollapseChange]);
+
+    // Memoize the container style
     const containerStyle = useMemo(
       () => ({
-        width: typeof layoutWidth === 'number' ? `${layoutWidth}px` : layoutWidth,
-        height: typeof layoutHeight === 'number' ? `${layoutHeight}px` : layoutHeight,
+        width: typeof width === 'number' ? `${width}px` : width,
+        height: typeof height === 'number' ? `${height}px` : height,
       }),
-      [layoutWidth, layoutHeight]
+      [width, height]
+    );
+
+    // Memoize the sidebar style
+    const sidebarStyle = useMemo(
+      () => ({
+        width: isSidebarCollapsed
+          ? typeof collapsedSidebarWidth === 'number'
+            ? `${collapsedSidebarWidth}px`
+            : collapsedSidebarWidth
+          : typeof sidebarWidth === 'number'
+            ? `${sidebarWidth}px`
+            : sidebarWidth,
+        transition: 'width 0.3s ease-in-out',
+      }),
+      [isSidebarCollapsed, sidebarWidth, collapsedSidebarWidth]
     );
 
     return (
@@ -123,11 +141,21 @@ export const AppLayout = React.memo<AppLayoutProps>(
         role={role}
         aria-label={ariaLabel}
       >
-        {children}
+        {/* Sidebar */}
+        {sidebar && (
+          <div style={sidebarStyle} className="flex-shrink-0">
+            {React.cloneElement(sidebar as React.ReactElement, {
+              isCollapsed: isSidebarCollapsed,
+              onToggleCollapse: handleToggleSidebar,
+            })}
+          </div>
+        )}
+
+        {/* Main Content */}
+        <main className="flex-1 overflow-hidden">{children}</main>
       </div>
     );
   }
 );
 
-// Set display name for better debugging experience
 AppLayout.displayName = 'AppLayout';
