@@ -2,6 +2,7 @@ import { TooltipSurface } from './TooltipSurface';
 import { TooltipArrow } from './TooltipArrow';
 import { Button } from './Button';
 import { Meta, StoryObj } from '@storybook/react-vite';
+import React from 'react';
 
 /**
  * The TooltipSurface component renders positioned tooltips with customizable styling and positioning.
@@ -65,14 +66,21 @@ The component supports 'above' and 'below' positioning relative to trigger eleme
     children: 'This is a tooltip',
   },
   decorators: [
-    (Story) => (
-      <div className="relative inline-block p-16">
-        <div className="bg-blue-500 text-white px-4 py-2 rounded">
-          Hover Target
+    (Story) => {
+      const [show, setShow] = React.useState(false);
+      return (
+        <div className="relative inline-block p-16">
+          <div
+            className="bg-blue-500 text-white px-4 py-2 rounded cursor-default"
+            onMouseEnter={() => setShow(true)}
+            onMouseLeave={() => setShow(false)}
+          >
+            Hover Target
+          </div>
+          {show && <Story />}
         </div>
-        <Story />
-      </div>
-    ),
+      );
+    },
   ],
 };
 
@@ -160,7 +168,8 @@ export const Large: Story = {
   args: {
     position: 'above',
     maxWidth: 'max-w-lg',
-    children: 'Large tooltip with plenty of space for comprehensive information, detailed instructions, or multiple pieces of related content',
+    children:
+      'Large tooltip with plenty of space for comprehensive information, detailed instructions, or multiple pieces of related content',
   },
 };
 
@@ -278,18 +287,14 @@ export const AllVariants: Story = {
   render: () => (
     <div className="flex gap-8">
       <div className="relative inline-block">
-        <div className="bg-gray-200 px-3 py-2 rounded text-sm">
-          Dark Tooltip
-        </div>
+        <div className="bg-gray-200 px-3 py-2 rounded text-sm">Dark Tooltip</div>
         <TooltipSurface position="above" variant="dark">
           Dark themed tooltip
         </TooltipSurface>
         <TooltipArrow position="above" variant="dark" />
       </div>
       <div className="relative inline-block">
-        <div className="bg-gray-200 px-3 py-2 rounded text-sm">
-          Light Tooltip
-        </div>
+        <div className="bg-gray-200 px-3 py-2 rounded text-sm">Light Tooltip</div>
         <TooltipSurface position="above" variant="light">
           Light themed tooltip
         </TooltipSurface>
@@ -318,21 +323,13 @@ export const AllPositions: Story = {
   render: () => (
     <div className="flex flex-col gap-12">
       <div className="relative inline-block">
-        <div className="bg-blue-500 text-white px-4 py-2 rounded">
-          Above Position
-        </div>
-        <TooltipSurface position="above">
-          Tooltip positioned above
-        </TooltipSurface>
+        <div className="bg-blue-500 text-white px-4 py-2 rounded">Above Position</div>
+        <TooltipSurface position="above">Tooltip positioned above</TooltipSurface>
         <TooltipArrow position="above" />
       </div>
       <div className="relative inline-block">
-        <div className="bg-blue-500 text-white px-4 py-2 rounded">
-          Below Position
-        </div>
-        <TooltipSurface position="below">
-          Tooltip positioned below
-        </TooltipSurface>
+        <div className="bg-blue-500 text-white px-4 py-2 rounded">Below Position</div>
+        <TooltipSurface position="below">Tooltip positioned below</TooltipSurface>
         <TooltipArrow position="below" />
       </div>
     </div>
@@ -351,4 +348,4 @@ export const AllPositions: Story = {
       </div>
     ),
   ],
-}; 
+};
