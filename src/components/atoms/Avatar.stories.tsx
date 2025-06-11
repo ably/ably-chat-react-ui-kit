@@ -86,7 +86,7 @@ export const WithImage: Story = {
 export const WithCustomInitials: Story = {
   args: {
     alt: 'John Doe',
-    initials: 'JD',
+    initials: 'KJ',
   },
 };
 
@@ -97,48 +97,12 @@ export const WithCustomColor: Story = {
   },
 };
 
-// Size Variations
-export const Small: Story = {
-  args: {
-    alt: 'Small Avatar',
-    size: 'sm',
-  },
-};
-
-export const Medium: Story = {
-  args: {
-    alt: 'Medium Avatar',
-    size: 'md',
-  },
-};
-
-export const Large: Story = {
-  args: {
-    alt: 'Large Avatar',
-    size: 'lg',
-  },
-};
-
-export const ExtraLarge: Story = {
-  args: {
-    alt: 'Extra Large Avatar',
-    size: 'xl',
-  },
-};
-
 // Interactive Examples
 export const Clickable: Story = {
   args: {
     alt: 'Clickable Avatar',
-    onClick: action('clicked'),
+    onClick: () => alert('Profile clicked!'),
     src: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=256&h=256&fit=crop&crop=face',
-  },
-};
-
-export const ClickableWithInitials: Story = {
-  args: {
-    alt: 'Sarah Wilson',
-    onClick: action('clicked'),
   },
 };
 
