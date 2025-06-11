@@ -4,7 +4,7 @@ import { AvatarEditor } from './AvatarEditor';
 import { PresenceCount } from './PresenceCount';
 import { PresenceList } from './PresenceList';
 import { ParticipantList } from './ParticipantList';
-import { usePresenceListener, useChatClient, useTyping } from '@ably/chat/react';
+import { usePresenceListener, useChatClient, useTyping, useRoom } from '@ably/chat/react';
 import { PresenceIndicators } from './PresenceIndicators';
 import { TypingIndicators } from './TypingIndicators';
 import { useRoomAvatar } from '../../hooks';
@@ -39,19 +39,6 @@ export interface RoomInfoProps {
   roomAvatar?: AvatarData;
 
   /**
-   * Unique identifier for the chat room.
-   * Used for avatar management, presence tracking, and display purposes.
-   * Should be consistent across all components referencing the same room.
-   *
-   * @example
-   * // From URL parameter
-   * const { roomName } = useRoom();
-   * <RoomInfo roomName={roomName} />
-   *
-   */
-  roomName: string;
-
-  /**
    * Position coordinates for rendering the participant list dropdown.
    * Defines where the participant list appears relative to the viewport.
    * Adjust based on component placement to prevent edge overflow.
@@ -61,7 +48,6 @@ export interface RoomInfoProps {
    * @example
    * // Position for sidebar placement
    * <RoomInfo
-   *   roomName="room_123"
    *   position={{ top: 60, left: 250 }}
    * />
    *
@@ -75,28 +61,24 @@ export interface RoomInfoProps {
    * @example
    * // Custom spacing and background
    * <RoomInfo
-   *   roomName="room_123"
    *   className="p-4 bg-blue-50 rounded-lg shadow-sm"
    * />
    *
    * @example
    * // Compact mobile layout
    * <RoomInfo
-   *   roomName="room_123"
    *   className="px-2 py-1 gap-2"
    * />
    *
    * @example
    * // Fixed positioning for overlays
    * <RoomInfo
-   *   roomName="room_123"
    *   className="fixed top-4 left-4 bg-white shadow-lg rounded-full px-4 py-2"
    * />
    *
    * @example
    * // Responsive design patterns
    * <RoomInfo
-   *   roomName="room_123"
    *   className="flex-col md:flex-row gap-2 md:gap-3"
    * />
    */
@@ -104,7 +86,8 @@ export interface RoomInfoProps {
 }
 
 /**
- * RoomInfo component displays comprehensive information about a chat room with interactive features
+ * RoomInfo component displays comprehensive information about a chat room with interactive features.
+ * It must be used within the context of a ChatRoomProvider and AvatarProvider to function correctly.
  *
  * Features:
  * - Room avatar display
@@ -133,7 +116,6 @@ export interface RoomInfoProps {
  *   return (
  *     <div className={`room-item ${isActive ? 'active' : ''}`}>
  *       <RoomInfo
- *         roomName={roomName}
  *         className="px-3 py-2 hover:bg-gray-100 rounded-lg cursor-pointer"
  *         position={{ top: 0, left: 220 }}
  *       />
@@ -147,7 +129,6 @@ export interface RoomInfoProps {
  * const ExternalAvatarRoom = ({ roomName, externalAvatar }) => {
  *   return (
  *     <RoomInfo
- *       roomName={roomName}
  *       roomAvatar={{
  *         displayName: room.customName,
  *         src: externalAvatar.imageUrl,
@@ -162,10 +143,10 @@ export interface RoomInfoProps {
  */
 export const RoomInfo: React.FC<RoomInfoProps> = ({
   roomAvatar: propRoomAvatar,
-  roomName,
   position = { top: 0, left: 150 },
   className,
 }) => {
+  const { roomName } = useRoom();
   const { presenceData } = usePresenceListener();
   const { currentlyTyping } = useTyping();
   const chatClient = useChatClient();

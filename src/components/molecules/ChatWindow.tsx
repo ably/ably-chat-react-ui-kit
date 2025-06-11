@@ -115,6 +115,7 @@ export interface ChatWindowProps {
 
 /**
  * ChatWindow component acts as a wrapper around the {@link ActiveChatWindow}, to provide loading and empty state management.
+ * It must be used within an {@link ChatRoomProvider}, {@link AvatarProvider} and {@link ChatSettingsProvider} to function correctly.
  *
  * Features:
  * - Automatically switches between empty state and active chat
@@ -218,7 +219,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
         customHeaderContent={customHeaderContent}
         customFooterContent={customFooterContent}
         initialHistoryLimit={initialHistoryLimit}
-        // className={className}
+        className={className}
       />
     </ChatRoomProvider>
   );

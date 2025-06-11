@@ -4,6 +4,7 @@ import { AppLayout } from '../components/layouts';
 import { ChatSettingsProvider } from '../context';
 import { Sidebar } from '../components/molecules/Sidebar.tsx';
 import { ChatWindow } from '../components/molecules/ChatWindow.tsx';
+import { RoomInfo, RoomReaction } from '../components/molecules';
 
 /**
  * Props for the App component.
@@ -61,6 +62,8 @@ export const App: React.FC<AppProps> = ({ initialRoomNames }) => {
             activeRoomName={activeRoomName}
             attach={false}
             release={false}
+            customHeaderContent={<RoomInfo />}
+            customFooterContent={<RoomReaction />}
             defaultRoomOptions={defaultRoomOptions}
           />
         }
