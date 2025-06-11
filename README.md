@@ -31,31 +31,33 @@ import 'ably-chat-react-ui-components/dist/styles.css';
 Before using any components, you need to set up the required React context providers. These providers manage the chat client connection, theming, and avatar generation.
 
 ### Basic Provider Setup
+
 ```tsx
 import { ChatClient } from '@ably/chat';
 import { ChatClientProvider } from '@ably/chat/react';
-import { ThemeProvider, AvatarProvider } from 'ably-chat-react-ui-components';
+import { ThemeProvider, AvatarProvider, ChatSettingsProvider } from 'ably-chat-react-ui-components';
 import * as Ably from 'ably';
 
-function App() {
-  // Create Ably Realtime client
-  const ablyClient = new Ably.Realtime({
-    key: 'YOUR_ABLY_API_KEY', // Replace with your Ably API key
-    clientId: 'your-chat-client-id',
-  });
-  
-  const chatClient = new ChatClient(ablyClient);
+// Create Ably Realtime client
+const ablyClient = new Ably.Realtime({
+   key: 'YOUR_ABLY_API_KEY', // Replace with your Ably API key
+   clientId: 'your-chat-client-id',
+});
 
-  return (
-    <ThemeProvider options={{ persist: true, defaultTheme: 'light' }}>
-      <AvatarProvider>
-        <ChatClientProvider client={chatClient}>
-          {/* Your chat components go here */}
-          <YourChatComponents />
-        </ChatClientProvider>
-      </AvatarProvider>
-    </ThemeProvider>
-  );
+const chatClient = new ChatClient(ablyClient);
+
+function App() {
+   return (
+           <ThemeProvider options={{ persist: true, defaultTheme: 'light' }}>
+              <AvatarProvider>
+                 <ChatSettingsProvider>
+                    <ChatClientProvider client={chatClient}>
+                       {/* Your chat components go here */}
+                       <YourChatComponents />
+                    </ChatClientProvider>
+                 </ChatSettingsProvider>
+              </AvatarProvider>
+           </ThemeProvider>);
 }
 ```
 
@@ -100,7 +102,7 @@ import { App } from 'ably-chat-react-ui-components';
 <App />
 ```
 
-### ChatWindow
+### ActiveChatWindow
 A comprehensive chat interface for individual rooms featuring:
 
 - Message history with pagination
@@ -111,17 +113,17 @@ A comprehensive chat interface for individual rooms featuring:
 - Customizable header and footer content
 
 ```tsx
-import { ChatWindow } from 'ably-chat-react-ui-components';
 import { ChatRoomProvider } from '@ably/chat/react';
+import { ActiveChatWindow } from 'ably-chat-react-ui-components';
 
 // Within your provider setup:
-<ChatRoomProvider name="general" attach={true}>
-  <ChatWindow 
-    roomName="general"
-    customHeaderContent={<RoomInfo />}
-    initialHistoryLimit={50}
-  />
-</ChatRoomProvider>
+<ChatRoomProvider roomName="general">
+   <ActiveChatWindow
+           roomName="general"
+           customHeaderContent={<RoomInfo />}
+           initialHistoryLimit={50}
+   />
+</ChatRoomProvider>;
 ```
 
 ### Sidebar
@@ -138,57 +140,52 @@ import { Sidebar } from 'ably-chat-react-ui-components';
 
 // Within your provider setup:
 <Sidebar
-  initialRoomNames={['general', 'support', 'random']}
-  activeRoomName={activeRoom}
-  onChangeActiveRoom={setActiveRoom}
-  width="300px"
-/>
+        initialRoomNames={['general', 'support', 'random']}
+        activeRoomName={activeRoom}
+        onChangeActiveRoom={setActiveRoom}
+        isCollapsed={isCollapsed}
+        onToggleCollapse={() => setIsCollapsed(!isCollapsed)}
+        width="300px"
+/>;
 ```
 
 ## Quick Start Example
 Here's a complete minimal example:
 
 ```tsx
-import React, { useState } from 'react';
+import React from 'react';
+import ReactDOM from 'react-dom/client';
 import { ChatClient } from '@ably/chat';
-import { ChatClientProvider, ChatRoomProvider } from '@ably/chat/react';
-import { ThemeProvider, AvatarProvider, Sidebar, ChatWindow } from 'ably-chat-react-ui-components';
-import 'ably-chat-react-ui-components/dist/styles.css';
 import * as Ably from 'ably';
+import { ChatClientProvider } from '@ably/chat/react';
+import 'ably-chat-react-ui-components/dist/styles.css';
+import { App, ThemeProvider, AvatarProvider, ChatSettingsProvider } from 'ably-chat-react-ui-components';
 
-function ChatApp() {
-  const [activeRoom, setActiveRoom] = useState('general');
-  
-  const ablyClient = new Ably.Realtime({
-    key: 'YOUR_ABLY_API_KEY',
-    clientId: 'user-123',
-  });
-  
-  const chatClient = new ChatClient(ablyClient);
+// Vite will replace this at build time
+const ABLY_API_KEY = import.meta.env.VITE_ABLY_API_KEY as string;
 
-  return (
-    <ThemeProvider options={{ persist: true, defaultTheme: 'light' }}>
-      <AvatarProvider>
-        <ChatClientProvider client={chatClient}>
-          <div style={{ display: 'flex', height: '100vh' }}>
-            <Sidebar
-              initialRoomNames={['general', 'random']}
-              activeRoomName={activeRoom}
-              onChangeActiveRoom={setActiveRoom}
-            />
-            {activeRoom && (
-              <ChatRoomProvider name={activeRoom} attach={true}>
-                <ChatWindow roomName={activeRoom} />
-              </ChatRoomProvider>
-            )}
-          </div>
-        </ChatClientProvider>
-      </AvatarProvider>
-    </ThemeProvider>
-  );
-}
+// Create Ably Realtime client
+export const ablyClient = new Ably.Realtime({
+   key: "your-ably-api-key", // Replace with your Ably API key
+   clientId: "your-chat-client-id", // Set your client ID
+});
 
-export default ChatApp;
+// Create Chat client using the Ably client
+export const chatClient = new ChatClient(ablyClient);
+
+ReactDOM.createRoot(document.getElementById('root')!).render(
+        <React.StrictMode>
+           <ThemeProvider options={{ persist: true, defaultTheme: 'light' }}>
+              <AvatarProvider>
+                 <ChatSettingsProvider>
+                    <ChatClientProvider client={chatClient}>
+                       <App initialRoomNames={['my-first-room']} />
+                    </ChatClientProvider>
+                 </ChatSettingsProvider>
+              </AvatarProvider>
+           </ThemeProvider>
+        </React.StrictMode>
+);
 ```
 
 
