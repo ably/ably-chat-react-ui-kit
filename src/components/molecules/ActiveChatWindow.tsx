@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ChatMessageList, MessageInput, TypingIndicators } from '../molecules';
-import { useChatClient, useMessages, usePresence, useRoom } from '@ably/chat/react';
+import { useChatClient, useMessages, usePresence } from '@ably/chat/react';
 import { useChatSettings } from '../../context';
 import {
   ChatMessageAction,

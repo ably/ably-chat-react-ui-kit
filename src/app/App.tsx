@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { useChatClient, useChatConnection } from '@ably/chat/react';
+import { useChatConnection } from '@ably/chat/react';
 import { AppLayout } from '../components/layouts';
 import { ChatSettingsProvider } from '../context';
 import { Sidebar } from '../components/molecules/Sidebar.tsx';
