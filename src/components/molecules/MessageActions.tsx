@@ -1,7 +1,6 @@
 import React from 'react';
 import { Button } from '../atoms/Button';
 import { Icon } from '../atoms/Icon';
-import { useChatSettings } from '../../context';
 
 /**
  * Props for the MessageActions component

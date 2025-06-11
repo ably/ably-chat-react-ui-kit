@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback } from 'react';
 import { ChatRoomProvider, useChatClient } from '@ably/chat/react';
 import { RoomListItem } from './RoomListItem.tsx';
 import { Button } from '../atoms/Button.tsx';

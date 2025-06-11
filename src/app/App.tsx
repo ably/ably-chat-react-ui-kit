@@ -1,7 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { useChatConnection } from '@ably/chat/react';
 import { AppLayout } from '../components/layouts';
-import { ChatSettingsProvider } from '../context';
 import { Sidebar } from '../components/molecules/Sidebar.tsx';
 import { ChatWindow } from '../components/molecules/ChatWindow.tsx';
 import { RoomInfo, RoomReaction } from '../components/molecules';

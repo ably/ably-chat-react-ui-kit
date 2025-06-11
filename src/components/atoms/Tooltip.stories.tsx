@@ -103,7 +103,7 @@ export const WithNoWrap: Story = {
     wrap: 'nowrap',
     children: 'This tooltip has no wrapping and will truncate',
   },
-}
+};
 
 export const Below: Story = {
   args: {

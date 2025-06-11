@@ -1,5 +1,5 @@
 import React, { useState, useRef, ChangeEvent, KeyboardEvent } from 'react';
-import { useRoom, useTyping } from '@ably/chat/react';
+import { useTyping } from '@ably/chat/react';
 import { Icon } from '../atoms/Icon';
 import { TextInput } from '../atoms/TextInput';
 import { Button } from '../atoms/Button';

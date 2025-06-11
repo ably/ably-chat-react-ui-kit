@@ -18,8 +18,7 @@ export const ablyClient = new Ably.Realtime({
 
 // Create Chat client using the Ably client
 export const chatClient = new ChatClient(ablyClient);
-
-ReactDOM.createRoot(document.getElementById('root')!).render(
+ReactDOM.createRoot(document.getElementById('root') || document.createElement('div')).render(
   <React.StrictMode>
     <ThemeProvider options={{ persist: true, defaultTheme: 'light' }}>
       <AvatarProvider>

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 
 /**
  * Visual variants for the TextInput component
@@ -217,7 +217,7 @@ export const TextInput = React.forwardRef<HTMLInputElement | HTMLTextAreaElement
     const computedAriaInvalid = ariaInvalid ?? (error ? 'true' : undefined);
 
     // Auto-resize textarea function
-    const autoResizeTextarea = () => {
+    const autoResizeTextarea = useCallback(() => {
       const textarea = textareaRef.current;
       if (!textarea) return;
 
@@ -243,14 +243,14 @@ export const TextInput = React.forwardRef<HTMLInputElement | HTMLTextAreaElement
         textarea.classList.remove('overflow-y-auto');
         textarea.classList.add('overflow-y-hidden');
       }
-    };
+    }, [maxHeight, value]);
 
     // Auto-resize on value change
     useEffect(() => {
       if (multiline) {
         autoResizeTextarea();
       }
-    }, [value, multiline]);
+    }, [value, multiline, autoResizeTextarea]);
 
     // Render a textarea for multiline input
     const renderTextarea = () => {
@@ -282,7 +282,7 @@ export const TextInput = React.forwardRef<HTMLInputElement | HTMLTextAreaElement
           value={value}
           onChange={(e) => {
             if (onChange) {
-              onChange(e as any);
+              onChange(e);
             }
             // Auto-resize after onChange is called
             setTimeout(autoResizeTextarea, 0);
@@ -308,7 +308,7 @@ export const TextInput = React.forwardRef<HTMLInputElement | HTMLTextAreaElement
           disabled={disabled}
           aria-invalid={computedAriaInvalid}
           value={value}
-          onChange={onChange as any}
+          onChange={onChange}
           {...props}
         />
       );
