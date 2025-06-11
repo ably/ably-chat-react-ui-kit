@@ -141,8 +141,7 @@ export const ActiveChatWindow: React.FC<ActiveChatWindowProps> = ({
   usePresence(); // Enter presence on mount
 
   /**
-   * Binary search to find message index by serial for O(log n) performance
-   * Messages are kept sorted by serial for efficient lookups
+   * Binary search to find message index by serial
    *
    * @param messages - Sorted array of messages to search
    * @param targetSerial - The serial number to find
@@ -170,7 +169,6 @@ export const ActiveChatWindow: React.FC<ActiveChatWindowProps> = ({
 
   /**
    * Binary search to find optimal insertion position for new messages
-   * Maintains chronological order while providing O(log n) performance
    *
    * @param messages - Current sorted messages array
    * @param newMessage - Message to insert
@@ -196,12 +194,6 @@ export const ActiveChatWindow: React.FC<ActiveChatWindowProps> = ({
   /**
    * Efficiently handles adding and updating messages with deduplication
    * Optimized for performance with large message sets using binary search
-   *
-   * Algorithm Features:
-   * - O(1) duplicate detection using Set
-   * - O(log n) insertion position finding
-   * - Batch processing for multiple messages
-   * - Automatic state cleanup and consistency
    *
    * @param newMessages - Array of messages to add or update
    * @param prepend - Whether to prepend messages (for history loading)
@@ -334,10 +326,6 @@ export const ActiveChatWindow: React.FC<ActiveChatWindowProps> = ({
     historyBeforeSubscribe,
     history,
   } = useMessages({
-    /**
-     * Real-time message event listener
-     * Handles create, update, and delete events from other users
-     */
     listener: (event: ChatMessageEvent) => {
       const message = event.message;
       switch (event.type) {
@@ -350,15 +338,7 @@ export const ActiveChatWindow: React.FC<ActiveChatWindowProps> = ({
           console.error('Unknown message event type:', event);
       }
     },
-    /**
-     * Real-time reaction event listener
-     * Handles emoji reactions added/removed by other users
-     */
     reactionsListener: handleReactionUpdate,
-    /**
-     * Discontinuity recovery handler
-     * Triggered when connection is restored after interruption
-     */
     onDiscontinuity: () => {
       console.warn('Discontinuity detected - starting message recovery');
       // Clear all state and restart message loading

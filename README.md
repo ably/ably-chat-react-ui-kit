@@ -1,4 +1,4 @@
-# Ably Chat React UI Components
+# Ably Chat React UI Components (Early Alpha)
 
 A library of configurable UI components for building chat applications with the Ably Chat SDK. This package provides
 ready-to-use React components that integrate seamlessly with [`@ably/chat`](https://github.com/ably/ably-chat-js) to
@@ -6,7 +6,7 @@ handle real-time messaging, presence, typing indicators, and more.
 
 ## Installation
 
-```shell
+```bash
 npm install ably-chat-react-ui-components
 ```
 
@@ -14,7 +14,7 @@ npm install ably-chat-react-ui-components
 
 This package requires the following peer dependencies:
 
-```shell
+```bash
 npm install @ably/chat react react-dom
 ```
 
@@ -28,7 +28,9 @@ import 'ably-chat-react-ui-components/dist/styles.css';
 ```
 
 ## Providers Setup
-Before using any components, you need to set up the required React context providers. These providers manage the chat client connection, theming, and avatar generation.
+
+Before using any components, you need to set up the required React context providers. These providers manage the chat
+client connection, theming, and avatar generation.
 
 ### Basic Provider Setup
 
@@ -40,34 +42,36 @@ import * as Ably from 'ably';
 
 // Create Ably Realtime client
 const ablyClient = new Ably.Realtime({
-   key: 'YOUR_ABLY_API_KEY', // Replace with your Ably API key
-   clientId: 'your-chat-client-id',
+  key: 'YOUR_ABLY_API_KEY', // Replace with your Ably API key
+  clientId: 'your-chat-client-id',
 });
 
 const chatClient = new ChatClient(ablyClient);
 
 function App() {
-   return (
-           <ThemeProvider options={{ persist: true, defaultTheme: 'light' }}>
-              <AvatarProvider>
-                 <ChatSettingsProvider>
-                    <ChatClientProvider client={chatClient}>
-                       {/* Your chat components go here */}
-                       <YourChatComponents />
-                    </ChatClientProvider>
-                 </ChatSettingsProvider>
-              </AvatarProvider>
-           </ThemeProvider>);
+  return (
+    <ThemeProvider options={{ persist: true, defaultTheme: 'light' }}>
+      <AvatarProvider>
+        <ChatSettingsProvider>
+          <ChatClientProvider client={chatClient}>
+            {/* Your chat components go here */}
+            <YourChatComponents />
+          </ChatClientProvider>
+        </ChatSettingsProvider>
+      </AvatarProvider>
+    </ThemeProvider>);
 }
 ```
 
 ### Provider Responsibilities
+
 - **`ChatClientProvider`** – Provides the Ably Chat client for real-time messaging
 - **`ThemeProvider`** – Manages light/dark theme state and persistence
 - **`AvatarProvider`** – Handles avatar generation and caching for users and rooms
 - **`ChatRoomProvider`** – Provides room-specific context (wrap around room-specific components)
 
 ### Room-Specific Components
+
 Components that operate on specific chat rooms need to be wrapped in a `ChatRoomProvider`:
 
 ```tsx
@@ -87,6 +91,7 @@ function RoomSpecificComponent() {
 > **Note:** All examples below assume you have the [basic provider setup](#basic-provider-setup) in place.
 
 ### App
+
 The main application component that provides a complete chat interface out of the box. It includes:
 
 - Integrated sidebar for room navigation
@@ -103,6 +108,7 @@ import { App } from 'ably-chat-react-ui-components';
 ```
 
 ### ActiveChatWindow
+
 A comprehensive chat interface for individual rooms featuring:
 
 - Message history with pagination
@@ -118,15 +124,16 @@ import { ActiveChatWindow } from 'ably-chat-react-ui-components';
 
 // Within your provider setup:
 <ChatRoomProvider roomName="general">
-   <ActiveChatWindow
-           roomName="general"
-           customHeaderContent={<RoomInfo />}
-           initialHistoryLimit={50}
-   />
+  <ActiveChatWindow
+    roomName="general"
+    customHeaderContent={<RoomInfo />}
+    initialHistoryLimit={50}
+  />
 </ChatRoomProvider>;
 ```
 
 ### Sidebar
+
 A collapsible navigation component for managing multiple chat rooms:
 
 - Room list with activity indicators
@@ -140,16 +147,17 @@ import { Sidebar } from 'ably-chat-react-ui-components';
 
 // Within your provider setup:
 <Sidebar
-        initialRoomNames={['general', 'support', 'random']}
-        activeRoomName={activeRoom}
-        onChangeActiveRoom={setActiveRoom}
-        isCollapsed={isCollapsed}
-        onToggleCollapse={() => setIsCollapsed(!isCollapsed)}
-        width="300px"
+  initialRoomNames={['general', 'support', 'random']}
+  activeRoomName={activeRoom}
+  onChangeActiveRoom={setActiveRoom}
+  isCollapsed={isCollapsed}
+  onToggleCollapse={() => setIsCollapsed(!isCollapsed)}
+  width="300px"
 />;
 ```
 
 ## Quick Start Example
+
 Here's a complete minimal example:
 
 ```tsx
@@ -166,28 +174,27 @@ const ABLY_API_KEY = import.meta.env.VITE_ABLY_API_KEY as string;
 
 // Create Ably Realtime client
 export const ablyClient = new Ably.Realtime({
-   key: "your-ably-api-key", // Replace with your Ably API key
-   clientId: "your-chat-client-id", // Set your client ID
+  key: "your-ably-api-key", // Replace with your Ably API key
+  clientId: "your-chat-client-id", // Set your client ID
 });
 
 // Create Chat client using the Ably client
 export const chatClient = new ChatClient(ablyClient);
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
-        <React.StrictMode>
-           <ThemeProvider options={{ persist: true, defaultTheme: 'light' }}>
-              <AvatarProvider>
-                 <ChatSettingsProvider>
-                    <ChatClientProvider client={chatClient}>
-                       <App initialRoomNames={['my-first-room']} />
-                    </ChatClientProvider>
-                 </ChatSettingsProvider>
-              </AvatarProvider>
-           </ThemeProvider>
-        </React.StrictMode>
+  <React.StrictMode>
+    <ThemeProvider options={{ persist: true, defaultTheme: 'light' }}>
+      <AvatarProvider>
+        <ChatSettingsProvider>
+          <ChatClientProvider client={chatClient}>
+            <App initialRoomNames={['my-first-room']} />
+          </ChatClientProvider>
+        </ChatSettingsProvider>
+      </AvatarProvider>
+    </ThemeProvider>
+  </React.StrictMode>
 );
 ```
-
 
 ## Development
 
