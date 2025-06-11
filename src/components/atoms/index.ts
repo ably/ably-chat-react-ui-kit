@@ -15,5 +15,4 @@ export { Icon, type IconProps } from './Icon';
 export { Avatar, type AvatarProps, type AvatarData } from './Avatar';
 
 // Tooltip Components
-export { TooltipSurface, type TooltipSurfaceProps } from './TooltipSurface';
-export { TooltipArrow, type TooltipArrowProps } from './TooltipArrow';
+export { Tooltip, type TooltipProps } from './Tooltip';

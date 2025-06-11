@@ -1,10 +1,7 @@
 import React from 'react';
 import { PresenceMember } from '@ably/chat';
 import clsx from 'clsx';
-import ReactDOM from 'react-dom';
-
-import { TooltipSurface, TooltipArrow } from '../atoms';
-import { Portal } from '../atoms/Portal.tsx';
+import { Tooltip } from '../atoms';
 
 /**
  * Props for the PresenceList component
@@ -37,18 +34,11 @@ export interface PresenceListProps extends React.HTMLAttributes<HTMLDivElement> 
   coords?: { top: number; left: number } | null;
 
   /**
-   * Optional CSS classes to apply to the TooltipSurface component.
+   * Optional CSS classes to apply to the Tooltip component.
    * Allows customization of the tooltip's background, padding, shadows, etc.
    * Merged with default tooltip styling using clsx.
    */
-  surfaceClassName?: string;
-
-  /**
-   * Optional CSS classes to apply to the TooltipArrow component.
-   * Allows customization of the arrow's color, size, or positioning.
-   * Merged with default arrow styling using clsx.
-   */
-  arrowClassName?: string;
+  tooltipClassName?: string;
 
   /**
    * Optional CSS classes to apply to the tooltip text content.
@@ -74,22 +64,19 @@ export interface PresenceListProps extends React.HTMLAttributes<HTMLDivElement> 
  * // []                           → "No one is currently present"
  * // ["Alice"]                    → "Alice is present"
  * // ["Alice", "Bob"]             → "Alice, Bob are present"
- * // ["Alice", "Bob", "Charlie"]  → "Alice, Bob, Charlie are present"
- * // ["Alice", "Bob", "Charlie", "David", "Eve"] → "Alice, Bob, Charlie and 2 more participants are present"
+ * // ["Alice", "Bob", "Charlie"]  → "Alice, Bob and 2 more are present"
  */
 const buildPresenceSentence = (presenceData: PresenceMember[]): string => {
   if (!presenceData?.length) {
     return 'No one is currently present';
   }
 
-  const names = presenceData.slice(0, 3).map((m) => m.clientId);
-  const remaining = presenceData.length - 3;
+  const names = presenceData.slice(0, 2).map((m) => m.clientId);
+  const remaining = presenceData.length - 2;
 
   const base =
     remaining > 0
-      ? `${names.join(', ')} and ${remaining} more participant${
-          remaining > 1 ? 's' : ''
-        } are present`
+      ? `${names.join(', ')} and ${remaining} more are present`
       : `${names.join(', ')} ${names.length > 1 ? 'are' : 'is'} present`;
 
   return `${base}`;
@@ -126,7 +113,6 @@ const buildPresenceSentence = (presenceData: PresenceMember[]): string => {
  *   isOpen={false}
  *   surfaceClassName="bg-blue-900 border-blue-700"
  *   textClassName="text-blue-100 font-medium"
- *   arrowClassName="border-blue-700"
  * />
  *
  *
@@ -143,8 +129,7 @@ export const PresenceList: React.FC<PresenceListProps> = ({
   tooltipPosition,
   showTooltip,
   coords,
-  surfaceClassName,
-  arrowClassName,
+  tooltipClassName,
   textClassName,
   ...rest
 }) => {
@@ -152,27 +137,18 @@ export const PresenceList: React.FC<PresenceListProps> = ({
 
   const text = buildPresenceSentence(presenceData);
 
-  const tooltip = (
-    <Portal>
-      <TooltipSurface
-        position={tooltipPosition}
-        zIndex="z-50"
-        className={clsx('fixed', surfaceClassName)}
-        maxWidth="max-w-96"
-        role="tooltip"
-        aria-live="polite"
-        style={coords ? { top: coords.top, left: coords.left } : undefined}
-        {...rest}
-      >
-        <div className={clsx('text-center truncate', textClassName)}>{text}</div>
-        <TooltipArrow position={tooltipPosition} className={arrowClassName} aria-hidden="true" />
-      </TooltipSurface>
-    </Portal>
+  return (
+    <Tooltip
+      position={tooltipPosition}
+      zIndex="z-50"
+      className={clsx('fixed transform -translate-x-1/2', tooltipClassName)}
+      maxWidth="max-w-96"
+      role="tooltip"
+      aria-live="polite"
+      style={coords ? { top: coords.top, left: coords.left } : undefined}
+      {...rest}
+    >
+      <div className={clsx('text-center truncate', textClassName)}>{text}</div>
+    </Tooltip>
   );
-
-  if (typeof document !== 'undefined') {
-    return ReactDOM.createPortal(tooltip, document.body);
-  }
-
-  return tooltip;
 };

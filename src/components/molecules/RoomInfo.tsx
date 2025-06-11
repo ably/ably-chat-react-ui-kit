@@ -174,22 +174,28 @@ export const RoomInfo: React.FC<RoomInfoProps> = ({
   const handleMouseEnter = (event: React.MouseEvent) => {
     const rect = event.currentTarget.getBoundingClientRect();
     const tooltipHeight = 60; // Approximate tooltip height
+    const spacing = 8; // Space between avatar and tooltip
     const spaceAbove = rect.top;
     const spaceBelow = window.innerHeight - rect.bottom;
 
     // Position above if there's enough space, otherwise below
-    if (spaceAbove >= tooltipHeight + 10) {
-      setTooltipPosition('above');
-    } else if (spaceBelow >= tooltipHeight + 10) {
-      setTooltipPosition('below');
+    let finalTooltipPosition: 'above' | 'below';
+    if (spaceAbove >= tooltipHeight + spacing + 10) {
+      finalTooltipPosition = 'above';
+    } else if (spaceBelow >= tooltipHeight + spacing + 10) {
+      finalTooltipPosition = 'below';
     } else {
       // If neither has enough space, use the side with more space
-      setTooltipPosition(spaceAbove > spaceBelow ? 'above' : 'below');
+      finalTooltipPosition = spaceAbove > spaceBelow ? 'above' : 'below';
     }
+
+    setTooltipPosition(finalTooltipPosition);
 
     // Calculate coordinates for fixed positioning (viewport-relative)
     const horizontalCenter = (rect.left + rect.right) / 2;
-    const verticalPos = tooltipPosition === 'above' ? rect.top - 10 /* margin */ : rect.bottom + 10;
+    const verticalPos =
+      finalTooltipPosition === 'above' ? rect.top - tooltipHeight - spacing : rect.bottom + spacing;
+
     setTooltipCoords({ top: verticalPos, left: horizontalCenter });
 
     setShowTooltip(true);

@@ -3,7 +3,6 @@ import { Avatar } from '../atoms';
 import { TextInput } from '../atoms';
 import { Button } from '../atoms';
 import { Icon } from '../atoms';
-import { TooltipSurface, TooltipArrow } from '../atoms';
 import { MessageActions } from './MessageActions';
 import { MessageReactions } from './MessageReactions';
 import { EmojiPicker } from './EmojiPicker';
@@ -13,6 +12,7 @@ import { Message } from '@ably/chat';
 import { AvatarData } from '../atoms';
 import { useUserAvatar } from '../../hooks';
 import clsx from 'clsx';
+import { Tooltip } from '../atoms';
 
 /**
  * Props for the ChatMessage component
@@ -327,26 +327,22 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
 
     if (!avatarRect) return null;
 
-    // Calculate vertical position
+    // Approximate tooltip height (padding + text + arrow)
+    const tooltipHeight = 40;
+    const spacing = 8; // Space between avatar and tooltip
+
+    // Calculate vertical position with proper spacing
     const tooltipY =
       tooltipPosition === 'above'
-        ? avatarRect.top - 10 // Closer to avatar
-        : avatarRect.bottom + 10;
+        ? avatarRect.top - tooltipHeight - spacing
+        : avatarRect.bottom + spacing;
 
-    // Calculate horizontal position
-    const tooltipWidthEstimate = 200; // Safe fallback max
-    const padding = 8;
+    // Calculate horizontal position - center on avatar
     const avatarCenter = (avatarRect.left + avatarRect.right) / 2;
 
-    // Center on avatar for all messages, just respect viewport bounds
-    const clampedLeft = Math.max(
-      tooltipWidthEstimate / 2 + padding,
-      Math.min(window.innerWidth - tooltipWidthEstimate / 2 - padding, avatarCenter)
-    );
-
     return {
-      top: `${tooltipY}px`,
-      left: `${clampedLeft}px`,
+      top: tooltipY,
+      left: avatarCenter,
     };
   };
 
@@ -420,17 +416,21 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
         {showAvatarTooltip &&
           !showAvatarEditor &&
           (() => {
-            const position = calculateTooltipPosition();
+            const coords = calculateTooltipPosition();
 
-            if (!position) return null;
+            if (!coords) return null;
 
             return (
-              <div className="fixed z-50 transform -translate-x-1/2" style={position}>
-                <TooltipSurface position={tooltipPosition} role="tooltip" aria-live="polite">
-                  <div className="text-center text-sm px-2 py-1">{message.clientId}</div>
-                  <TooltipArrow position={tooltipPosition} aria-hidden="true" />
-                </TooltipSurface>
-              </div>
+              <Tooltip
+                position={tooltipPosition}
+                className="fixed transform -translate-x-1/2"
+                style={{ top: coords.top, left: coords.left }}
+                spacing="none"
+                role="tooltip"
+                aria-live="polite"
+              >
+                <div className="text-center text-sm px-2 py-1">{message.clientId}</div>
+              </Tooltip>
             );
           })()}
       </div>
