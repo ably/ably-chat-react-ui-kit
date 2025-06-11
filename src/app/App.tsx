@@ -1,10 +1,11 @@
 import React, { useCallback, useState } from 'react';
-import { useChatClient } from '@ably/chat/react';
+import { useChatClient, useChatConnection } from '@ably/chat/react';
 import { AppLayout } from '../components/layouts';
 import { ChatSettingsProvider } from '../context';
 import { Sidebar } from '../components/molecules/Sidebar.tsx';
 import { ChatWindow } from '../components/molecules/ChatWindow.tsx';
 import { RoomInfo, RoomReaction } from '../components/molecules';
+import { ConnectionStatus } from '@ably/chat';
 
 /**
  * Props for the App component.
@@ -21,7 +22,7 @@ interface AppProps {
  * @param props - The props for the App component.
  */
 export const App: React.FC<AppProps> = ({ initialRoomNames }) => {
-  const chatClient = useChatClient();
+  const { currentStatus } = useChatConnection();
   const [activeRoomName, setActiveRoomName] = useState<string | undefined>(undefined);
   const [defaultRoomOptions] = useState({ occupancy: { enableEvents: true } });
 
@@ -30,8 +31,8 @@ export const App: React.FC<AppProps> = ({ initialRoomNames }) => {
     setActiveRoomName(roomName);
   }, []);
 
-  // Show loading state if no chat client yet
-  if (!chatClient) {
+  // Show loading state if not connected (cannot make REST or WS Calls)
+  if (!(currentStatus === ConnectionStatus.Connected)) {
     return (
       <AppLayout width="50vw" height="50vh">
         <div className="flex items-center justify-center h-full">

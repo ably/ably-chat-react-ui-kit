@@ -154,6 +154,7 @@ export const RoomInfo: React.FC<RoomInfoProps> = ({
 
   const [showTooltip, setShowTooltip] = useState(false);
   const [tooltipPosition, setTooltipPosition] = useState<'above' | 'below'>('above');
+  const [tooltipCoords, setTooltipCoords] = useState<{ top: number; left: number } | null>(null);
   const [showAvatarEditor, setShowAvatarEditor] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const { roomAvatar, setRoomAvatar } = useRoomAvatar({ roomName });
@@ -185,6 +186,11 @@ export const RoomInfo: React.FC<RoomInfoProps> = ({
       // If neither has enough space, use the side with more space
       setTooltipPosition(spaceAbove > spaceBelow ? 'above' : 'below');
     }
+
+    // Calculate coordinates for fixed positioning (viewport-relative)
+    const horizontalCenter = (rect.left + rect.right) / 2;
+    const verticalPos = tooltipPosition === 'above' ? rect.top - 10 /* margin */ : rect.bottom + 10;
+    setTooltipCoords({ top: verticalPos, left: horizontalCenter });
 
     setShowTooltip(true);
   };
@@ -288,6 +294,7 @@ export const RoomInfo: React.FC<RoomInfoProps> = ({
           presenceData={presenceData}
           tooltipPosition={tooltipPosition}
           showTooltip={showTooltip}
+          coords={tooltipCoords}
         />
 
         {/* Participants Dropdown */}

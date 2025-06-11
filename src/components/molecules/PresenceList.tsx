@@ -1,8 +1,10 @@
 import React from 'react';
 import { PresenceMember } from '@ably/chat';
 import clsx from 'clsx';
+import ReactDOM from 'react-dom';
 
 import { TooltipSurface, TooltipArrow } from '../atoms';
+import { Portal } from '../Portal.tsx';
 
 /**
  * Props for the PresenceList component
@@ -27,6 +29,12 @@ export interface PresenceListProps extends React.HTMLAttributes<HTMLDivElement> 
    * When false, component returns null and renders nothing.
    */
   showTooltip: boolean;
+
+  /**
+   * Absolute viewport coordinates (in pixels) where the tooltip should be
+   * rendered. Calculated by the parent component.
+   */
+  coords?: { top: number; left: number } | null;
 
   /**
    * Optional CSS classes to apply to the TooltipSurface component.
@@ -134,6 +142,7 @@ export const PresenceList: React.FC<PresenceListProps> = ({
   presenceData,
   tooltipPosition,
   showTooltip,
+  coords,
   surfaceClassName,
   arrowClassName,
   textClassName,
@@ -143,17 +152,27 @@ export const PresenceList: React.FC<PresenceListProps> = ({
 
   const text = buildPresenceSentence(presenceData);
 
-  return (
-    <TooltipSurface
-      position={tooltipPosition}
-      className={surfaceClassName}
-      maxWidth="max-w-96"
-      role="tooltip"
-      aria-live="polite"
-      {...rest}
-    >
-      <div className={clsx('text-center truncate', textClassName)}>{text}</div>
-      <TooltipArrow position={tooltipPosition} className={arrowClassName} aria-hidden="true" />
-    </TooltipSurface>
+  const tooltip = (
+    <Portal>
+      <TooltipSurface
+        position={tooltipPosition}
+        zIndex="z-50"
+        className={clsx('fixed', surfaceClassName)}
+        maxWidth="max-w-96"
+        role="tooltip"
+        aria-live="polite"
+        style={coords ? { top: coords.top, left: coords.left } : undefined}
+        {...rest}
+      >
+        <div className={clsx('text-center truncate', textClassName)}>{text}</div>
+        <TooltipArrow position={tooltipPosition} className={arrowClassName} aria-hidden="true" />
+      </TooltipSurface>
+    </Portal>
   );
+
+  if (typeof document !== 'undefined') {
+    return ReactDOM.createPortal(tooltip, document.body);
+  }
+
+  return tooltip;
 };
