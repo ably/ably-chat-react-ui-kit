@@ -46,29 +46,27 @@ export const App: React.FC<AppProps> = ({ initialRoomNames }) => {
   }
 
   return (
-    <ChatSettingsProvider>
-      <AppLayout
-        width="70vw"
-        height="70vh"
-        sidebar={
-          <Sidebar
-            initialRoomNames={initialRoomNames}
-            defaultRoomOptions={defaultRoomOptions}
-            onChangeActiveRoom={handleChangeSelectedRoom}
-            activeRoomName={activeRoomName}
-          />
-        }
-        children={
-          <ChatWindow
-            activeRoomName={activeRoomName}
-            attach={false}
-            release={false}
-            customHeaderContent={<RoomInfo />}
-            customFooterContent={<RoomReaction />}
-            defaultRoomOptions={defaultRoomOptions}
-          />
-        }
-      ></AppLayout>
-    </ChatSettingsProvider>
+    <AppLayout
+      width="70vw"
+      height="70vh"
+      sidebar={
+        <Sidebar
+          initialRoomNames={initialRoomNames}
+          defaultRoomOptions={defaultRoomOptions}
+          onChangeActiveRoom={handleChangeSelectedRoom}
+          activeRoomName={activeRoomName}
+        />
+      }
+      children={
+        <ChatWindow
+          activeRoomName={activeRoomName}
+          attach={false}
+          release={false}
+          customHeaderContent={<RoomInfo />}
+          customFooterContent={<RoomReaction />}
+          defaultRoomOptions={defaultRoomOptions}
+        />
+      }
+    ></AppLayout>
   );
 };

@@ -5,7 +5,7 @@ import './styles.css';
 import { ChatClientProvider } from '@ably/chat/react';
 import * as Ably from 'ably';
 import { ChatClient } from '@ably/chat';
-import { AvatarProvider, ThemeProvider } from './context';
+import { AvatarProvider, ChatSettingsProvider, ThemeProvider } from './context';
 
 // Vite will replace this at build time
 const ABLY_API_KEY = import.meta.env.VITE_ABLY_API_KEY as string;
@@ -23,9 +23,11 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <ThemeProvider options={{ persist: true, defaultTheme: 'light' }}>
       <AvatarProvider>
-        <ChatClientProvider client={chatClient}>
-          <App initialRoomNames={['my-first-room']} />
-        </ChatClientProvider>
+        <ChatSettingsProvider>
+          <ChatClientProvider client={chatClient}>
+            <App initialRoomNames={['my-first-room']} />
+          </ChatClientProvider>
+        </ChatSettingsProvider>
       </AvatarProvider>
     </ThemeProvider>
   </React.StrictMode>
