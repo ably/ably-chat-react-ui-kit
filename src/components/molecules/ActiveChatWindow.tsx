@@ -138,22 +138,7 @@ export const ActiveChatWindow: React.FC<ActiveChatWindowProps> = ({
 
   // Ably Chat hooks
   const { clientId } = useChatClient();
-  const { room } = useRoom();
   usePresence(); // Enter presence on mount
-
-  /**
-   * Resets all component state when the room changes
-   * Essential for preventing state pollution between different rooms
-   */
-  useEffect(() => {
-    room?.attach();
-    setMessages([]);
-    setLoading(true);
-    setLoadingHistory(false);
-    setHasMoreHistory(true);
-    setHasBackfilled(false);
-    messageSerialsRef.current.clear();
-  }, [room]);
 
   /**
    * Binary search to find message index by serial for O(log n) performance
