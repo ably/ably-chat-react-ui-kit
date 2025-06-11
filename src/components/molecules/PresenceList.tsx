@@ -4,7 +4,7 @@ import clsx from 'clsx';
 import ReactDOM from 'react-dom';
 
 import { TooltipSurface, TooltipArrow } from '../atoms';
-import { Portal } from '../Portal.tsx';
+import { Portal } from '../atoms/Portal.tsx';
 
 /**
  * Props for the PresenceList component
