@@ -131,7 +131,8 @@ export const AvatarEditor: React.FC<AvatarEditorProps> = ({
         setIsUploading(false);
       };
       reader.readAsDataURL(file);
-    } catch (err) {
+    } catch (error) {
+      console.error('Error uploading image:', error);
       setError('Failed to upload image');
       setIsUploading(false);
     }
