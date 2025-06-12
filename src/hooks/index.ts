@@ -1,4 +1,12 @@
-export { useTheme } from './useTheme';
-export { useThrottle } from './useThrottle';
-export { useUserAvatar, type UseUserAvatarProps, type UseUserAvatarReturn } from './useUserAvatar';
-export { useRoomAvatar, type UseRoomAvatarProps, type UseRoomAvatarReturn } from './useRoomAvatar';
+export {
+  useRoomAvatar,
+  type UseRoomAvatarProps,
+  type UseRoomAvatarReturn,
+} from './use-room-avatar.tsx';
+export { useTheme } from './use-theme.tsx';
+export { useThrottle } from './use-throttle.tsx';
+export {
+  useUserAvatar,
+  type UseUserAvatarProps,
+  type UseUserAvatarReturn,
+} from './use-user-avatar.tsx';

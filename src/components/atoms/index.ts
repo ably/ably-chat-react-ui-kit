@@ -6,13 +6,13 @@
  */
 
 // Form and Input Components
-export { Button, type ButtonProps } from './Button';
-export { TypingDots, type TypingDotsProps } from './TypingDots';
-export { TextInput, type TextInputProps } from './TextInput';
+export { Button, type ButtonProps } from './button.tsx';
+export { TextInput, type TextInputProps } from './text-input.tsx';
+export { TypingDots, type TypingDotsProps } from './typing-dots.tsx';
 
 // Visual and Media Components
-export { Icon, type IconProps } from './Icon';
-export { Avatar, type AvatarProps, type AvatarData } from './Avatar';
+export { Avatar, type AvatarData, type AvatarProps } from './avatar.tsx';
+export { Icon, type IconProps } from './icon.tsx';
 
 // Tooltip Components
-export { Tooltip, type TooltipProps } from './Tooltip';
+export { Tooltip, type TooltipProps } from './tooltip.tsx';

@@ -1,6 +1,6 @@
-export * from './components/atoms';
-export * from './components/layouts';
-export * from './context';
-export * from './hooks';
-export * from './app';
-import './styles.css';
+export * from './app/index.js';
+export * from './components/atoms/index.js';
+export * from './components/layouts/index.js';
+export * from './context/index.js';
+export * from './hooks/index.js';
+import './style.css';

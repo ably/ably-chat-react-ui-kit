@@ -1,15 +1,15 @@
 export {
-  useAvatar,
-  AvatarProvider,
+  type AvatarChangeCallback,
   type AvatarContextType,
   type AvatarOptions,
-  type AvatarChangeCallback,
-} from './AvatarContext';
-export { ThemeProvider, type ThemeContextType, type ThemeProviderProps } from './ThemeContext';
+  AvatarProvider,
+  useAvatar,
+} from './avatar-context.tsx';
 export {
-  ChatSettingsProvider,
-  useChatSettings,
   type ChatSettings,
-  type ChatSettingsProviderProps,
   type ChatSettingsContextType,
-} from './ChatSettingsContext';
+  ChatSettingsProvider,
+  type ChatSettingsProviderProps,
+  useChatSettings,
+} from './chat-settings-context.tsx';
+export { type ThemeContextType, ThemeProvider, type ThemeProviderProps } from './theme-context.tsx';

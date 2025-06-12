@@ -1,121 +1,173 @@
-// For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
-import storybook from 'eslint-plugin-storybook';
+// eslint.config.js  –  Flat-config style, ESM
+import { fixupConfigRules, fixupPluginRules } from '@eslint/compat';
+import js from '@eslint/js';
+import { FlatCompat } from '@eslint/eslintrc';
 
-import reactPlugin from 'eslint-plugin-react';
-import reactHooksPlugin from 'eslint-plugin-react-hooks';
-import typescriptPlugin from '@typescript-eslint/eslint-plugin';
-import typescriptParser from '@typescript-eslint/parser';
-import prettierPlugin from 'eslint-plugin-prettier';
-import prettierConfig from 'eslint-config-prettier';
+import tsParser from '@typescript-eslint/parser';
+import typescriptEslint from '@typescript-eslint/eslint-plugin';
+
+import _import from 'eslint-plugin-import';
+import security from 'eslint-plugin-security';
+import pluginCompat from 'eslint-plugin-compat';
+import unicorn from 'eslint-plugin-unicorn';
+import simpleImportSort from 'eslint-plugin-simple-import-sort';
+import jsdoc from 'eslint-plugin-jsdoc';
+
+import react from 'eslint-plugin-react';
+import reactHooks from 'eslint-plugin-react-hooks';
+
+import globals from 'globals';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname  = path.dirname(__filename);
+
+const compat = new FlatCompat({
+  baseDirectory: __dirname,
+  recommendedConfig: js.configs.recommended,
+  allConfig:        js.configs.all,
+});
 
 export default [
+  /* -----------------------------------------------------------
+   * 1. Global ignores
+   * --------------------------------------------------------- */
   {
-    files: ['**/*.{ts,tsx}'],
-    languageOptions: {
-      parser: typescriptParser,
-      parserOptions: {
-        ecmaVersion: 2020,
-        sourceType: 'module',
-        project: ['./tsconfig.json'],
-        ecmaFeatures: {
-          jsx: true,
-        },
-      },
-    },
+    ignores: [
+      '**/eslint.config.js',
+      '**/dist',
+      '**/node_modules',
+      '**/ably-common',
+      '**/typedoc',
+      '**/vitest.config.ts',
+      '**/vite.config.ts',
+      '**/coverage/',
+      '.storybook',
+      '.github',
+      './src/stories',
+    ],
+  },
+
+  /* -----------------------------------------------------------
+   * 2. Global rule sets (apply to every file that is *not* ignored)
+   * --------------------------------------------------------- */
+  unicorn.configs.recommended,
+
+  ...fixupConfigRules(
+    compat.extends(
+      'eslint:recommended',
+      'plugin:@typescript-eslint/recommended-type-checked',
+      'plugin:@typescript-eslint/strict-type-checked',
+      'plugin:@typescript-eslint/stylistic-type-checked',
+      'plugin:security/recommended-legacy',
+      'plugin:import/recommended',
+      'plugin:compat/recommended',
+      'plugin:node/recommended',
+    ),
+  ),
+
+  {
     plugins: {
-      react: reactPlugin,
-      'react-hooks': reactHooksPlugin,
-      '@typescript-eslint': typescriptPlugin,
-      prettier: prettierPlugin,
+      '@typescript-eslint': fixupPluginRules(typescriptEslint),
+      import:               fixupPluginRules(_import),
+      security:             fixupPluginRules(security),
+      pluginCompat:         fixupPluginRules(pluginCompat),
+      'simple-import-sort': simpleImportSort,
+      jsdoc,
     },
-    settings: {
-      react: {
-        version: 'detect',
+
+    languageOptions: {
+      parser:       tsParser,
+      ecmaVersion:  2023,
+      sourceType:   'module',
+      globals: {
+        ...globals.node,
+        ...globals.browser,
       },
+      parserOptions: { project: ['./tsconfig.json'] },
     },
+
+    settings: {
+      jsdoc: { tagNamePreference: { default: 'defaultValue' } },
+    },
+
     rules: {
-      // React rules
-      'react/prop-types': 'off',
-      'react/react-in-jsx-scope': 'off',
-      'react/display-name': 'off',
-      'react/jsx-curly-brace-presence': ['error', { props: 'never', children: 'never' }],
+      /* --- stylistic / miscellaneous ---------------------------------- */
+      'eol-last':                'error',
+      'simple-import-sort/imports': 'error',
+      'simple-import-sort/exports': 'error',
 
-      // React Hooks rules
-      'react-hooks/rules-of-hooks': 'error',
-      'react-hooks/exhaustive-deps': 'warn',
-
-      // TypeScript rules
-      '@typescript-eslint/explicit-function-return-type': 'off',
-      '@typescript-eslint/explicit-module-boundary-types': 'off',
-      '@typescript-eslint/no-explicit-any': 'warn',
-      '@typescript-eslint/no-unused-vars': ['error'],
-      '@typescript-eslint/no-non-null-assertion': 'warn',
+      /* --- overrides / disables --------------------------------------- */
+      'security/detect-object-injection': 'off',
+      'no-redeclare':                    'off',
+      'node/no-missing-import':          'off',
       '@typescript-eslint/prefer-nullish-coalescing': 'off',
-      '@typescript-eslint/no-extraneous-class': [
-        'error',
-        {
-          allowStaticOnly: true,
-        },
-      ],
 
-      // TypeScript naming conventions
+      /* --- naming convention ------------------------------------------ */
       '@typescript-eslint/naming-convention': [
         'error',
-        {
-          selector: 'typeLike',
-          format: ['PascalCase'],
-        },
-        {
-          selector: 'memberLike',
-          format: ['camelCase'],
-          modifiers: ['private'],
-          leadingUnderscore: 'require',
-        },
-        {
-          selector: 'enumMember',
-          format: ['PascalCase'],
-        },
-        {
-          selector: 'memberLike',
-          format: ['camelCase'],
-          modifiers: ['public', 'protected'],
-          leadingUnderscore: 'forbid',
-        },
-        {
-          selector: 'objectLiteralProperty',
-          filter: {
-            regex: '(ably-|-ably-|chat-|-chat-)',
-            match: true,
-          },
+        { selector: 'typeLike',            format: ['PascalCase'] },
+        { selector: 'enumMember',          format: ['PascalCase'] },
+        { selector: 'memberLike',          format: ['camelCase'], modifiers: ['private'],   leadingUnderscore: 'require' },
+        { selector: 'memberLike',          format: ['camelCase'], modifiers: ['public','protected'], leadingUnderscore: 'forbid' },
+        { selector: 'objectLiteralProperty',
+          filter: { regex: '(ably-|-ably-|chat-|-chat-)', match: true },
           format: null,
         },
       ],
-
-      // General rules from your other repo
-      'eol-last': 'error',
-      'no-redeclare': 'off',
-      'no-undef': 'off',
-      'no-dupe-class-members': 'off',
-      'require-await': 'off',
-
-      // General rules (keeping existing ones)
-      'no-console': ['warn', { allow: ['warn', 'error'] }],
-      'prefer-const': 'error',
-      'no-var': 'error',
-      eqeqeq: ['error', 'always'],
-
-      // Prettier rules
-      'prettier/prettier': 'error',
     },
   },
-  // Test files configuration
+
+  /* -----------------------------------------------------------
+   * 3. TypeScript-specific tweaks (all .ts / .tsx)
+   * --------------------------------------------------------- */
   {
-    files: ['test/**/*.{ts,tsx}'],
+    files: ['src/**/*.{ts,tsx}'],
+
     rules: {
-      '@typescript-eslint/unbound-method': 'off',
-      '@typescript-eslint/no-empty-function': 'off',
+      '@typescript-eslint/no-unused-vars':             'error',
+      '@typescript-eslint/no-extraneous-class':       ['error', { allowStaticOnly: true }],
+      /* node/browser-compatibity extras */
+      'import/no-unresolved':                          'off',
+      'no-undef':                                      'off',
+      'no-dupe-class-members':                         'off',
+      'require-await':                                 'off',
+      /* relax several Unicorn rules that clash with common TS patterns */
+      'unicorn/prevent-abbreviations':                 'off',
+      'unicorn/numeric-separators-style':              'off',
+      'unicorn/prefer-event-target':                   'off',
+      'unicorn/no-static-only-class':                  'off',
+      'unicorn/no-nested-ternary':                     'off',
+
+      /* extension style: always specify except for packages */
+      'import/extensions': ['error', 'always', { ignorePackages: true }],
     },
   },
-  prettierConfig,
-  ...storybook.configs['flat/recommended'],
+
+  /* -----------------------------------------------------------
+   * 4. React & React-Hooks (only files that actually use JSX)
+   * --------------------------------------------------------- */
+  ...fixupConfigRules(
+    compat.extends('plugin:react/recommended', 'plugin:react-hooks/recommended'),
+  ).map((cfg) => ({
+    ...cfg,
+    files: ['src/**/*.{tsx,ts}'], // all code that could contain JSX
+  })),
+
+  {
+    files: ['src/**/*.{tsx,ts}'],
+    plugins: {
+      react:        fixupPluginRules(react),
+      'react-hooks': fixupPluginRules(reactHooks),
+    },
+    languageOptions: {
+      parserOptions: {
+        ecmaFeatures: { jsx: true },
+      },
+    },
+    settings: {
+      react: { version: 'detect' },
+    },
+  },
 ];
