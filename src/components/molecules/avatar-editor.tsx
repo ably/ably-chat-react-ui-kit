@@ -8,12 +8,12 @@ import { Icon } from '../atoms/icon.tsx';
  * Preset avatar options for users to choose from
  */
 const PRESET_AVATARS = [
-  { src: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix', label: 'Style 1' },
-  { src: 'https://api.dicebear.com/7.x/bottts/svg?seed=Dusty', label: 'Style 2' },
-  { src: 'https://api.dicebear.com/7.x/lorelei/svg?seed=Mittens', label: 'Style 3' },
-  { src: 'https://api.dicebear.com/7.x/thumbs/svg?seed=Misty', label: 'Style 4' },
-  { src: 'https://api.dicebear.com/7.x/micah/svg?seed=Bailey', label: 'Style 5' },
-  { src: 'https://api.dicebear.com/7.x/notionists/svg?seed=Milo', label: 'Style 6' },
+  { src: 'https://api.dicebear.com/9.x/thumbs/svg?seed=Felix', label: 'Style 1' },
+  { src: 'https://api.dicebear.com/9.x/thumbs/svg?seed=Dusty', label: 'Style 2' },
+  { src: 'https://api.dicebear.com/9.x/thumbs/svg?seed=Mittens', label: 'Style 3' },
+  { src: 'https://api.dicebear.com/9.x/thumbs/svg?seed=Misty', label: 'Style 4' },
+  { src: 'https://api.dicebear.com/9.x/thumbs/svg?seed=Bailey', label: 'Style 5' },
+  { src: 'https://api.dicebear.com/9.x/thumbs/svg?seed=Milo', label: 'Style 6' },
 ];
 
 /**
