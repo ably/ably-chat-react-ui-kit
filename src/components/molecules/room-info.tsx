@@ -317,9 +317,8 @@ export const RoomInfo: React.FC<RoomInfoProps> = ({
         />
 
         {/* Avatar Editor Modal */}
-        {roomAvatarData && (
+        {roomAvatarData && showAvatarEditor && (
           <AvatarEditor
-            isOpen={showAvatarEditor}
             onClose={() => {
               setShowAvatarEditor(false);
             }}

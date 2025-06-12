@@ -14,10 +14,6 @@ const meta: Meta<typeof AvatarEditor> = {
   },
   tags: ['autodocs'],
   argTypes: {
-    isOpen: {
-      control: 'boolean',
-      description: 'Whether the editor modal is open',
-    },
     displayName: {
       control: 'text',
       description: 'Display name used to generate initials',
@@ -32,7 +28,6 @@ const meta: Meta<typeof AvatarEditor> = {
     },
   },
   args: {
-    isOpen: true,
     displayName: 'John Doe',
     onClose: action('close'),
     onSave: action('save'),

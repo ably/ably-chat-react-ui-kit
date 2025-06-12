@@ -49,11 +49,6 @@ export interface AvatarEditorProps {
   displayName: string;
 
   /**
-   * Whether the editor is open
-   */
-  isOpen: boolean;
-
-  /**
    * Callback when the editor is closed
    */
   onClose: () => void;
@@ -85,69 +80,14 @@ export const AvatarEditor: React.FC<AvatarEditorProps> = ({
   currentAvatar,
   currentColor,
   displayName,
-  isOpen,
   onClose,
   onSave,
 }) => {
   const [avatarUrl, setAvatarUrl] = useState(currentAvatar || '');
   const [selectedColor, setSelectedColor] = useState(currentColor || '');
   const [customInitials, setCustomInitials] = useState('');
-  const [activeTab, setActiveTab] = useState<'upload' | 'presets' | 'color'>('upload');
-  const [isUploading, setIsUploading] = useState(false);
+  const [activeTab, setActiveTab] = useState<'presets' | 'color'>('presets');
   const [error, setError] = useState('');
-
-  if (!isOpen) return;
-
-  /**
-   * Handles file upload for avatar images
-   * Validates file type and size, then creates a data URL for preview
-   *
-   * @param event - The file input change event
-   */
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      setError('Please select an image file (JPG, PNG, WebP, SVG)');
-      return;
-    }
-
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      setError('File size must be less than 5MB');
-      return;
-    }
-
-    setIsUploading(true);
-    setError('');
-
-    try {
-      // Create a data URL for preview
-      const reader = new FileReader();
-      reader.addEventListener('load', (e) => {
-        const dataUrl = e.target?.result as string;
-        setAvatarUrl(dataUrl);
-        setIsUploading(false);
-      });
-      reader.readAsDataURL(file);
-    } catch (error) {
-      console.error('Error uploading image:', error);
-      setError('Failed to upload image');
-      setIsUploading(false);
-    }
-  };
-
-  /**
-   * Handles changes to the avatar URL input
-   *
-   * @param event - The input change event
-   */
-  const handleUrlChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setAvatarUrl(event.target.value);
-    setError('');
-  };
 
   /**
    * Handles changes to the custom initials input
@@ -255,22 +195,6 @@ export const AvatarEditor: React.FC<AvatarEditorProps> = ({
         <div className="flex border-b border-gray-200 dark:border-gray-700 mb-4" role="tablist">
           <button
             className={`px-4 py-2 font-medium text-sm ${
-              activeTab === 'upload'
-                ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
-                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
-            }`}
-            onClick={() => {
-              setActiveTab('upload');
-            }}
-            role="tab"
-            aria-selected={activeTab === 'upload'}
-            aria-controls="upload-tab"
-            id="upload-tab-button"
-          >
-            Upload
-          </button>
-          <button
-            className={`px-4 py-2 font-medium text-sm ${
               activeTab === 'presets'
                 ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
                 : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
@@ -302,62 +226,6 @@ export const AvatarEditor: React.FC<AvatarEditorProps> = ({
             Customize
           </button>
         </div>
-
-        {/* Upload Tab Content */}
-        {activeTab === 'upload' && (
-          <div
-            className="space-y-4"
-            role="tabpanel"
-            id="upload-tab"
-            aria-labelledby="upload-tab-button"
-          >
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Upload Image
-              </label>
-              <div className="flex items-center gap-2">
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileUpload}
-                  className="hidden"
-                  id="avatar-upload"
-                  disabled={isUploading}
-                />
-                <label
-                  htmlFor="avatar-upload"
-                  className={`cursor-pointer inline-flex items-center gap-2 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium ${
-                    isUploading
-                      ? 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500'
-                      : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
-                  }`}
-                >
-                  <Icon name="upload" size="sm" />
-                  {isUploading ? 'Uploading...' : 'Choose File'}
-                </label>
-              </div>
-              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                Recommended: 256x256px. Max 5MB. JPG, PNG, WebP, SVG.
-              </p>
-            </div>
-
-            <div className="text-center text-sm text-gray-500 dark:text-gray-400">or</div>
-
-            {/* URL Input */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Image URL
-              </label>
-              <input
-                type="url"
-                value={avatarUrl}
-                onChange={handleUrlChange}
-                placeholder="https://example.com/avatar.jpg"
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-          </div>
-        )}
 
         {/* Presets Tab Content */}
         {activeTab === 'presets' && (

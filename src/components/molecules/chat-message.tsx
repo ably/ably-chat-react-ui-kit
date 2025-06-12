@@ -540,7 +540,6 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
       {/* Avatar Editor Modal (only for own messages) */}
       {isOwn && showAvatarEditor && userAvatar && (
         <AvatarEditor
-          isOpen={showAvatarEditor}
           onClose={() => {
             setShowAvatarEditor(false);
           }}
