@@ -249,7 +249,7 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
       <div
         ref={setRefs}
         className={clsx(
-          'flex-1 overflow-y-auto pt-10 px-6 pb-6 space-y-6 bg-gray-50 dark:bg-gray-950',
+          'flex-1 overflow-y-auto pt-10 px-6 pb-6 space-y-6 bg-gray-50 dark:bg-gray-950 ably-scrollbar',
           className
         )}
         role="log"

@@ -24,7 +24,8 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "vite build && tsc --declaration --emitDeclarationOnly --outDir dist",
+    "build:css": "tailwindcss -i ./src/style.css -o ./dist/style.css --minify",
+    "build": "npm run build:css && vite build && tsc --declaration --emitDeclarationOnly --outDir dist",
     "prepare": "npm run build",
     "lint": "eslint 'src/**/*.{ts,tsx}'",
     "lint:fix": "eslint 'src/**/*.{ts,tsx}' --fix",

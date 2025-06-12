@@ -174,8 +174,8 @@ export const RoomInfo: React.FC<RoomInfoProps> = ({
    */
   const handleMouseEnter = (event: React.MouseEvent) => {
     const rect = event.currentTarget.getBoundingClientRect();
-    const tooltipHeight = 60; // Approximate tooltip height
-    const spacing = 8; // Space between avatar and tooltip
+    const tooltipHeight = 30; // Approximate tooltip height
+    const spacing = 5; // Space between avatar and tooltip
     const spaceAbove = rect.top;
     const spaceBelow = window.innerHeight - rect.bottom;
 
