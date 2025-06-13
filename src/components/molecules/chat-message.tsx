@@ -1,6 +1,6 @@
 import { Message } from '@ably/chat';
 import clsx from 'clsx';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import { useUserAvatar } from '../../hooks/use-user-avatar.tsx';
 import { Avatar, AvatarData } from '../atoms/avatar.tsx';
@@ -189,28 +189,28 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
   };
 
   /**
-   * Opens the emoji picker and positions it relative to the message bubble
-   * Calculates optimal position to ensure it's visible within the viewport
+   * Calculates the optimal position for the emoji picker
+   * relative to the message bubble and viewport constraints
    */
-  const handleAddReaction = () => {
+  const calculateEmojiPickerPosition = () => {
     const bubbleRect = messageBubbleRef.current?.getBoundingClientRect();
-    if (!bubbleRect) return;
+    if (!bubbleRect) return { top: 0, left: 0 };
 
-    const pickerWidth = 250;
-    const pickerHeight = 200; // Approximate height of the picker
+    // Use responsive width calculation
+    const pickerWidth = Math.min(240, window.innerWidth - 40);
+    const pickerHeight = Math.min(320, window.innerHeight - 40); // Responsive height
     let left: number;
+    let top: number;
 
-    // Always position the picker above the message bubble, centered horizontally
+    // Position the picker centered horizontally relative to the message bubble
     left = bubbleRect.left + bubbleRect.width / 2 - pickerWidth / 2;
 
     // Check if there's enough room above the bubble for the picker
     const spaceAbove = bubbleRect.top;
-    const requiredSpaceAbove = pickerHeight + 40; // picker height + some margin
+    const requiredSpaceAbove = Math.min(pickerHeight, 120) + 40; // Use minimum height if space is limited
 
-    const top =
-      spaceAbove >= requiredSpaceAbove
-        ? bubbleRect.top - pickerHeight - 20
-        : bubbleRect.bottom + 20;
+    // Determine initial top position
+    top = spaceAbove >= requiredSpaceAbove ? bubbleRect.top - pickerHeight - 20 : bubbleRect.bottom + 20;
 
     // Ensure picker stays within viewport bounds horizontally
     const maxLeft = window.innerWidth - pickerWidth - 20;
@@ -222,7 +222,27 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
       left = maxLeft;
     }
 
-    setEmojiPickerPosition({ top, left });
+    // Ensure picker stays within viewport bounds vertically with a minimum gap
+    const minGap = 20; // Minimum gap from screen edges
+    const maxTop = window.innerHeight - pickerHeight - minGap;
+    const minTop = minGap;
+
+    if (top < minTop) {
+      top = minTop;
+    } else if (top > maxTop) {
+      top = maxTop;
+    }
+
+    return { top, left };
+  };
+
+  /**
+   * Opens the emoji picker and positions it relative to the message bubble
+   * Calculates optimal position to ensure it's visible within the viewport
+   */
+  const handleAddReaction = () => {
+    const position = calculateEmojiPickerPosition();
+    setEmojiPickerPosition(position);
     setShowEmojiPicker(true);
   };
 
@@ -236,6 +256,21 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
     onReactionAdd?.(message, emoji);
     setShowEmojiPicker(false);
   };
+
+  // Update emoji picker position when window is resized
+  useEffect(() => {
+    if (!showEmojiPicker) return;
+
+    const handleResize = () => {
+      const position = calculateEmojiPickerPosition();
+      setEmojiPickerPosition(position);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [showEmojiPicker]);
 
   /**
    * Toggles a reaction on a message when clicking an existing reaction

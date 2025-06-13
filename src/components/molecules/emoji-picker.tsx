@@ -349,8 +349,9 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
         style={{
           top: position.top,
           left: position.left,
-          width: '240px',
-          height: '320px',
+          width: 'min(240px, calc(100vw - 40px))',
+          height: 'min(320px, calc(100vh - 40px))',
+          minHeight: '120px', // Ensures at least 2 rows of emojis (8px padding + 2 * (32px emoji + 8px gap))
         }}
         role="dialog"
         aria-label="Emoji picker"
