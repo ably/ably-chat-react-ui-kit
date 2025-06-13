@@ -273,14 +273,15 @@ export const MessageInput: React.FC<MessageInputProps> = ({
       </div>
 
       {/* Emoji Picker */}
-      <EmojiPicker
-        isOpen={showEmojiPicker}
-        onClose={() => {
-          setShowEmojiPicker(false);
-        }}
-        onEmojiSelect={handleEmojiSelect}
-        position={emojiPickerPosition}
-      />
+      {showEmojiPicker && (
+        <EmojiPicker
+          onClose={() => {
+            setShowEmojiPicker(false);
+          }}
+          onEmojiSelect={handleEmojiSelect}
+          position={emojiPickerPosition}
+        />
+      )}
     </div>
   );
 };

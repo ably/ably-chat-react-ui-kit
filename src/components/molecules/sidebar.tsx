@@ -1,33 +1,35 @@
 import { RoomOptions } from '@ably/chat';
-import { ChatRoomProvider, useChatClient } from '@ably/chat/react';
 import clsx from 'clsx';
-import React, { useCallback, useState } from 'react';
+import React, { useState } from 'react';
 
-import { useAvatar } from '../../context/avatar-context.tsx';
 import { useTheme } from '../../hooks/use-theme.tsx';
 import { Button } from '../atoms/button.tsx';
 import { Icon } from '../atoms/icon.tsx';
 import { CreateRoomModal } from './create-room-modal.tsx';
 import { DropdownMenu } from './dropdown-menu.tsx';
-import { RoomListItem } from './room-list-item.tsx';
+import { RoomList } from './room-list.tsx';
 
 /**
  * Props for the Sidebar component
  */
 export interface SidebarProps {
-  /** Initial list of room names to display */
-  initialRoomNames?: string[];
-  /** Currently active/selected room name */
+  /** Rooms to display. */
+  roomNames: string[];
+  /** Currently-active room (optional). */
   activeRoomName?: string;
-  /** Default options for new rooms */
+  /** Ably options passed to each `ChatRoomProvider`. */
   defaultRoomOptions?: RoomOptions;
-  /** Callback when the active room changes */
-  onChangeActiveRoom: (roomName?: string) => void;
-  /** Additional CSS classes for the sidebar */
+  /** Adds (or joins) a room. Should also set it active, if desired. */
+  addRoom: (name: string) => void;
+  /** Sets the active room. Pass `undefined` to clear. */
+  setActiveRoom: (name?: string) => void;
+  /** Leaves a room (and handles provider release if needed). */
+  leaveRoom: (name: string) => void;
+  /** Optional CSS class names for additional styling. */
   className?: string;
-  /** Whether the sidebar is collapsed (controlled by layout) */
+  /** Whether the sidebar is in collapsed mode (avatar-only). */
   isCollapsed?: boolean;
-  /** Handler for toggling collapse (provided by layout) */
+  /** Callback to toggle the collapsed state. */
   onToggleCollapse?: () => void;
 }
 
@@ -42,87 +44,34 @@ export interface SidebarProps {
  * - Room count display
  *
  * @example
- * // Basic usage
- * <SidebarLayout
- *   sidebar={
- *   <Sidebar
- *   initialRoomNames={['general', 'random']}
- *   activeRoomName="general"
- *   onChangeActiveRoom={handleRoomChange}/>
- *   }>
- *   </SidebarLayout>
+ * const [rooms, setRooms]   = useState<string[]>([]);
+ * const [active, setActive] = useState<string>();
  *
- * @example
- * // With custom width and styling
+ * const addRoom   = (name: string) => setRooms(r => r.includes(name) ? r : [...r, name]);
+ * const leaveRoom = (name: string) => setRooms(r => r.filter(n => n !== name));
+ *
  * <Sidebar
- *   className="shadow-lg"
- *   onChangeActiveRoom={handleRoomChange}
+ *   roomNames={rooms}
+ *   activeRoomName={active}
+ *   defaultRoomOptions={{ rewind: 50 }}
+ *   addRoom={addRoom}
+ *   setActiveRoom={setActive}
+ *   leaveRoom={leaveRoom}
  * />
  */
 export const Sidebar: React.FC<SidebarProps> = ({
-  initialRoomNames = [],
-  defaultRoomOptions,
+  roomNames,
   activeRoomName,
-  onChangeActiveRoom,
+  defaultRoomOptions,
+  addRoom,
+  setActiveRoom,
+  leaveRoom,
   className = '',
   isCollapsed = false,
   onToggleCollapse,
 }) => {
-  const [roomNames, setRoomNames] = useState<string[]>(initialRoomNames);
+  const [showCreateModal, setShowCreateModal] = useState(false);
   const { theme, toggleTheme } = useTheme();
-  const [showCreateRoomModal, setShowCreateRoomModal] = useState(false);
-  const { getAvatarForRoom } = useAvatar();
-  const chatClient = useChatClient();
-
-  const handleLeaveRoom = useCallback(
-    (roomNameToLeave: string) => {
-      chatClient.rooms
-        .release(roomNameToLeave)
-        .then(() => {
-          setRoomNames((prevRoomNames) => {
-            const newRoomNames = prevRoomNames.filter((id) => id !== roomNameToLeave);
-            if (roomNameToLeave === activeRoomName) {
-              if (newRoomNames.length > 0) {
-                onChangeActiveRoom(newRoomNames[0]);
-              } else {
-                onChangeActiveRoom();
-              }
-            }
-            return newRoomNames;
-          });
-        })
-        .catch((error: unknown) => {
-          console.error('Failed to release room:', error);
-        });
-    },
-    [activeRoomName, onChangeActiveRoom, chatClient]
-  );
-
-  const handleCreateRoom = useCallback(
-    (roomName: string) => {
-      setRoomNames((prevRoomNames) => {
-        if (prevRoomNames.includes(roomName)) {
-          onChangeActiveRoom(roomName);
-          return prevRoomNames;
-        }
-        getAvatarForRoom(roomName);
-        onChangeActiveRoom(roomName);
-        return [...prevRoomNames, roomName];
-      });
-    },
-    [onChangeActiveRoom, getAvatarForRoom]
-  );
-
-  const dropdownItems = [
-    {
-      id: 'create-room',
-      label: 'Create Room',
-      icon: '➕',
-      onClick: () => {
-        setShowCreateRoomModal(true);
-      },
-    },
-  ];
 
   return (
     <aside
@@ -133,6 +82,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         className
       )}
     >
+      {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800">
         {isCollapsed ? (
           <div className="flex flex-col items-center gap-2">
@@ -150,18 +100,30 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
               Chats <span className="text-sm font-normal text-gray-500">({roomNames.length})</span>
             </h1>
+
             <div className="flex items-center gap-2">
               <Button variant="ghost" size="sm" onClick={toggleTheme}>
                 <Icon name={theme === 'dark' ? 'sun' : 'moon'} size="md" />
               </Button>
+
               <DropdownMenu
                 trigger={
                   <Button variant="ghost" size="sm">
                     <Icon name="more" size="md" />
                   </Button>
                 }
-                items={dropdownItems}
+                items={[
+                  {
+                    id: 'create-room',
+                    label: 'Create Room',
+                    icon: '➕',
+                    onClick: () => {
+                      setShowCreateModal(true);
+                    },
+                  },
+                ]}
               />
+
               {onToggleCollapse && (
                 <Button variant="ghost" size="sm" onClick={onToggleCollapse}>
                   <Icon name="chevronleft" size="md" />
@@ -172,41 +134,28 @@ export const Sidebar: React.FC<SidebarProps> = ({
         )}
       </div>
 
-      {/* Room List */}
       <div className="flex-1 overflow-y-auto">
-        <div>
-          {roomNames.map((roomName) => (
-            <ChatRoomProvider
-              key={roomName}
-              name={roomName}
-              attach={true}
-              release={true}
-              options={defaultRoomOptions}
-            >
-              <RoomListItem
-                key={roomName}
-                roomName={roomName}
-                isSelected={roomName === activeRoomName}
-                onClick={() => {
-                  onChangeActiveRoom(roomName);
-                }}
-                onLeave={() => {
-                  handleLeaveRoom(roomName);
-                }}
-                isCollapsed={isCollapsed}
-              />
-            </ChatRoomProvider>
-          ))}
-        </div>
+        <RoomList
+          roomNames={roomNames}
+          activeRoomName={activeRoomName}
+          defaultRoomOptions={defaultRoomOptions}
+          onSelect={setActiveRoom}
+          onLeave={leaveRoom}
+          isCollapsed={isCollapsed}
+        />
       </div>
-
       <CreateRoomModal
-        isOpen={showCreateRoomModal}
+        isOpen={showCreateModal}
         onClose={() => {
-          setShowCreateRoomModal(false);
+          setShowCreateModal(false);
         }}
-        onCreateRoom={handleCreateRoom}
+        onCreateRoom={(name) => {
+          addRoom(name);
+          setShowCreateModal(false);
+        }}
       />
     </aside>
   );
 };
+
+Sidebar.displayName = 'Sidebar';

@@ -43,7 +43,8 @@ export const PresenceIndicators: React.FC<PresenceIndicatorsProps> = ({ classNam
 
   useEffect(() => {
     const presentCount = new Set(presenceData.map((p) => p.clientId)).size;
-    const newText = presentCount === 1 ? '1 person present' : `${String(presentCount)} people present`;
+    const newText =
+      presentCount === 1 ? '1 person present' : `${String(presentCount)} people present`;
     setPresenceText(newText);
   }, [presenceData]);
 
@@ -62,4 +63,3 @@ export const PresenceIndicators: React.FC<PresenceIndicatorsProps> = ({ classNam
     </p>
   );
 };
-

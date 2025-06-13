@@ -230,8 +230,14 @@ export const EmojiWheel: React.FC<EmojiWheelProps> = ({
   // Calculate safe position to prevent wheel from going off-screen
   const minMargin = 20; // Minimum margin from screen edges
   const safePosition = {
-    x: Math.max(wheelSize / 2 + minMargin, Math.min(window.innerWidth - wheelSize / 2 - minMargin, position.x)),
-    y: Math.max(wheelSize / 2 + minMargin, Math.min(window.innerHeight - wheelSize / 2 - minMargin, position.y)),
+    x: Math.max(
+      wheelSize / 2 + minMargin,
+      Math.min(window.innerWidth - wheelSize / 2 - minMargin, position.x)
+    ),
+    y: Math.max(
+      wheelSize / 2 + minMargin,
+      Math.min(window.innerHeight - wheelSize / 2 - minMargin, position.y)
+    ),
   };
 
   return (

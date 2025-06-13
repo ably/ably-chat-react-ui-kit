@@ -116,7 +116,6 @@ export const MessageActions: React.FC<MessageActionsProps> = ({
   onDeleteButtonClicked,
   isOwn,
 }) => {
-
   // Check if there are any actions to display
   const hasReactionAction = onReactionButtonClicked !== undefined;
   const hasEditAction = isOwn && onEditButtonClicked !== undefined;

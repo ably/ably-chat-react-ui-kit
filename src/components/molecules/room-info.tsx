@@ -327,7 +327,9 @@ export const RoomInfo: React.FC<RoomInfoProps> = ({
 
       {/* Room Information */}
       <div className="flex-1">
-        <h2 className="font-semibold text-gray-900 dark:text-gray-100">{roomAvatarData?.displayName || roomName}</h2>
+        <h2 className="font-semibold text-gray-900 dark:text-gray-100">
+          {roomAvatarData?.displayName || roomName}
+        </h2>
         <div className="flex items-center gap-2">
           <PresenceIndicators />
           {/* Typing Indicators */}
