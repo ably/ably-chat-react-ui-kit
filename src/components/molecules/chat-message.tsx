@@ -15,14 +15,30 @@ import { MessageActions } from './message-actions.tsx';
 import { MessageReactions } from './message-reactions.tsx';
 
 /**
- * Formats a timestamp into a readable time string (HH:MM)
+ * Formats a timestamp into a readable time string
+ * For today's dates: HH:MM format
+ * For past dates: MM/DD/YYYY, HH:MM format
  *
  * @param timestamp - The timestamp to format (milliseconds since epoch)
- * @returns Formatted time string in HH:MM format
+ * @returns Formatted time string, e.g. "12:34" or "1/2/2023, 12:34". It will show the full date if the message is not from today.
  */
 const formatTime = (timestamp?: number) => {
   if (!timestamp) return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  return new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+  const messageDate = new Date(timestamp);
+  const today = new Date();
+
+  // Check if the message is from today
+  const isToday = 
+    messageDate.getDate() === today.getDate() &&
+    messageDate.getMonth() === today.getMonth() &&
+    messageDate.getFullYear() === today.getFullYear();
+
+  return isToday
+    ? messageDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    : messageDate.toLocaleDateString([], { month: 'numeric', day: 'numeric', year: 'numeric' }) +
+        ', ' +
+        messageDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 };
 
 /**
