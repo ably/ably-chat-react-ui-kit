@@ -55,7 +55,6 @@ export interface TypingIndicatorsProps extends React.HTMLAttributes<HTMLDivEleme
    * textClassName="text-sm md:text-base"
    */
   textClassName?: string;
-
 }
 
 /**

@@ -84,13 +84,14 @@ export interface ChatWindowProps {
   customFooterContent?: React.ReactNode;
 
   /**
-   * Initial number of messages to load when entering a room.
-   * Set to 0 to disable automatic history loading.
-   * Higher values load more context but may impact initial load performance.
+   * Controls the window size for rendering messages in UI. A larger window size will
+   * produce a smoother scrolling experience, but at the cost of increased memory usage.
+   * Too high a value may lead to significant performance issues.
    *
-   * @default 20
+   * @default 200
+   * windowSize={300}
    */
-  initialHistoryLimit?: number;
+  windowSize?: number;
 
   /**
    * Additional CSS class names to apply to the root container.
@@ -140,7 +141,7 @@ export interface ChatWindowProps {
  *   }}
  *   customHeaderContent={<RoomInfo />}
  *   customFooterContent={<ReactionPicker />}
- *   initialHistoryLimit={50}
+ *   windowSize={400}
  * />
  *
  * @example
@@ -169,7 +170,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
   release = true,
   customHeaderContent,
   customFooterContent,
-  initialHistoryLimit = 20,
+  windowSize = 200,
   className,
   emptyStateConfig,
 }) => {
@@ -219,7 +220,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
         roomName={activeRoomName}
         customHeaderContent={customHeaderContent}
         customFooterContent={customFooterContent}
-        initialHistoryLimit={initialHistoryLimit}
+        windowSize={windowSize}
         className={className}
       />
     </ChatRoomProvider>

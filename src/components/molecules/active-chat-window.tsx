@@ -1,22 +1,15 @@
-import {
-  ChatMessageAction,
-  ChatMessageEvent,
-  ChatMessageEventType,
-  Message,
-  MessageReactionSummaryEvent,
-  MessageReactionType,
-  PaginatedResult,
-} from '@ably/chat';
+import { Message, MessageReactionType } from '@ably/chat';
 import { useChatClient, useMessages, usePresence } from '@ably/chat/react';
 import clsx from 'clsx';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback } from 'react';
 
+import { useChatSettings } from '../../hooks/use-chat-settings.tsx';
+import { useMessageWindow } from '../../hooks/use-message-window.tsx';
 import { ActiveChatWindowFooter } from './active-chat-window-footer.tsx';
 import { ActiveChatWindowHeader } from './active-chat-window-header.tsx';
 import { ChatMessageList } from './chat-message-list.tsx';
 import { MessageInput } from './message-input.tsx';
 import { TypingIndicators } from './typing-indicators.tsx';
-import { useChatSettings } from '../../hooks';
 
 /**
  * Props for the ChatWindow component
@@ -80,25 +73,16 @@ export interface ActiveChatWindowProps {
   enableTypingIndicators?: boolean;
 
   /**
-   * Initial number of messages to load when entering the room.
-   * Controls the first batch of message history fetched from the server.
+   * Controls the window size for rendering messages in the UI.
+   * A larger window size will produce a smoother scrolling experience,
+   * but at the cost of increased memory usage.
    *
-   * Performance considerations:
-   * - Higher values provide more context but increase initial load time
-   * - Lower values load faster but may require more pagination
-   * - Set to 0 to disable automatic history loading entirely
+   * Too high a value may lead to significant performance issues.
    *
-   * @default 20
-   *
-   * @example
-   * // Load more history for important rooms
-   * initialHistoryLimit={50}
-   *
-   * @example
-   * // Disable auto-loading for performance
-   * initialHistoryLimit={0}
+   * @default 200
+   * windowSize={200}
    */
-  initialHistoryLimit?: number;
+  windowSize?: number;
 
   /**
    * Additional CSS class names to apply to the root container.
@@ -136,433 +120,97 @@ export const ActiveChatWindow: React.FC<ActiveChatWindowProps> = ({
   roomName,
   customHeaderContent,
   customFooterContent,
-  initialHistoryLimit = 20,
+  windowSize = 200,
   enableTypingIndicators = true,
   className,
 }) => {
-  // Message state management
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [hasBackfilled, setHasBackfilled] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [loadingHistory, setLoadingHistory] = useState(false);
-  const [hasMoreHistory, setHasMoreHistory] = useState(true);
-
-  // Performance optimization refs
-  const messageSerialsRef = useRef<Set<string>>(new Set());
-  const oldestMessageRef = useRef<Message | undefined>();
-
-  // Ably Chat hooks
   const { clientId } = useChatClient();
-  usePresence(); // Enter presence on mount
+  usePresence(); // enter presence on mount
+  const { getEffectiveSettings } = useChatSettings();
+  const settings = getEffectiveSettings(roomName);
 
-  /**
-   * Binary search to find message index by serial
-   *
-   * @param messages - Sorted array of messages to search
-   * @param targetSerial - The serial number to find
-   * @returns Index of the message, or -1 if not found
-   */
-  const findMessageIndex = useCallback((messages: Message[], targetSerial: string): number => {
-    let left = 0;
-    let right = messages.length - 1;
-
-    while (left <= right) {
-      const mid = Math.floor((left + right) / 2);
-      const midSerial = messages[mid].serial;
-
-      if (midSerial === targetSerial) {
-        return mid;
-      } else if (midSerial < targetSerial) {
-        left = mid + 1;
-      } else {
-        right = mid - 1;
-      }
-    }
-
-    return -1; // Not found
-  }, []);
-
-  /**
-   * Binary search to find optimal insertion position for new messages
-   *
-   * @param messages - Current sorted messages array
-   * @param newMessage - Message to insert
-   * @returns Index where the new message should be inserted
-   */
-  const findInsertionIndex = useCallback((messages: Message[], newMessage: Message): number => {
-    let left = 0;
-    let right = messages.length;
-
-    while (left < right) {
-      const mid = Math.floor((left + right) / 2);
-
-      if (newMessage.before(messages[mid])) {
-        right = mid;
-      } else {
-        left = mid + 1;
-      }
-    }
-
-    return left;
-  }, []);
-
-  /**
-   * Efficiently handles adding and updating messages with deduplication
-   * Optimized for performance with large message sets using binary search
-   *
-   * @param newMessages - Array of messages to add or update
-   * @param prepend - Whether to prepend messages (for history loading)
-   */
-  const handleMessageUpdates = useCallback(
-    (newMessages: Message[], prepend = false) => {
-      if (newMessages.length === 0) return;
-
-      setMessages((prevMessages) => {
-        // Auto-clear: if messages array is empty, clear the Set for consistency
-        if (prevMessages.length === 0 && messageSerialsRef.current.size > 0) {
-          messageSerialsRef.current.clear();
-        }
-
-        let updatedMessages = [...prevMessages];
-        let hasChanges = false;
-
-        for (const newMessage of newMessages) {
-          // Fast O(1) existence check using Set
-          const exists = messageSerialsRef.current.has(newMessage.serial);
-
-          if (exists) {
-            // Case 2.1: Message exists but this is not an update operation
-            if (newMessage.action === ChatMessageAction.MessageCreate) {
-              continue; // Skip - no-op for duplicate creates
-            }
-
-            // Case 2.2: Message exists and needs updating (edit/delete/etc.)
-            const existingIndex = findMessageIndex(updatedMessages, newMessage.serial);
-
-            if (existingIndex === -1) {
-              console.error('Message exists in tracking set but not in array:', newMessage.serial);
-              continue;
-            }
-
-            const existingMessage = updatedMessages[existingIndex];
-            const updatedMessage = existingMessage.with(newMessage);
-
-            // Skip update if no actual change occurred
-            if (existingMessage === updatedMessage) {
-              continue;
-            }
-
-            updatedMessages[existingIndex] = updatedMessage;
-            hasChanges = true;
-          } else {
-            // Case 1: New message - find optimal insertion position
-            if (prepend && newMessage.before(updatedMessages[0])) {
-              // For prepend (history loading), messages are pre-sorted
-              // Just prepend for efficiency since they're already ordered
-              updatedMessages.unshift(newMessage);
-            } else {
-              // For append or race condition scenarios, use binary search
-              const insertIndex = findInsertionIndex(updatedMessages, newMessage);
-              updatedMessages = [
-                ...updatedMessages.slice(0, insertIndex),
-                newMessage,
-                ...updatedMessages.slice(insertIndex),
-              ];
-            }
-            // Track message serial for future duplicate detection
-            messageSerialsRef.current.add(newMessage.serial);
-            hasChanges = true;
-          }
-        }
-
-        // Optimization: return same reference if no changes to prevent re-renders
-        if (!hasChanges) {
-          return prevMessages;
-        }
-
-        // Update oldest message reference for pagination
-        if (updatedMessages.length > 0) {
-          oldestMessageRef.current = updatedMessages[0];
-        }
-
-        return updatedMessages;
-      });
-    },
-    [findMessageIndex, findInsertionIndex]
-  );
-
-  /**
-   * Handles real-time reaction updates for messages
-   * Uses binary search for efficient message lookup and updates
-   *
-   * @param reaction - The reaction summary event from Ably
-   */
-  const handleReactionUpdate = useCallback(
-    (reaction: MessageReactionSummaryEvent) => {
-      setMessages((prevMessages) => {
-        const messageSerial = reaction.summary.messageSerial;
-
-        // Quick existence check before expensive operations
-        const exists = messageSerialsRef.current.has(messageSerial);
-        if (!exists) {
-          return prevMessages; // Message not found, no-op
-        }
-
-        // Use binary search to find the target message
-        const existingIndex = findMessageIndex(prevMessages, messageSerial);
-        if (existingIndex === -1) {
-          console.error('Message exists in tracking set but not in array:', messageSerial);
-          return prevMessages;
-        }
-
-        const existingMessage = prevMessages[existingIndex];
-        const updatedMessage = existingMessage.with(reaction);
-
-        // Skip update if no actual change occurred
-        if (updatedMessage === existingMessage) {
-          return prevMessages;
-        }
-
-        const updatedArray = [...prevMessages];
-        updatedArray[existingIndex] = updatedMessage;
-        return updatedArray;
-      });
-    },
-    [findMessageIndex]
-  );
-
-  // Initialize Ably Chat messages hook with event listeners
   const {
     send,
     deleteMessage,
-    update,
+    update: updateMessageRemote,
     sendReaction,
     deleteReaction,
-    historyBeforeSubscribe,
-    history,
-  } = useMessages({
-    listener: (event: ChatMessageEvent) => {
-      const message = event.message;
-      switch (event.type) {
-        case ChatMessageEventType.Created:
-        case ChatMessageEventType.Updated:
-        case ChatMessageEventType.Deleted: {
-          handleMessageUpdates([message]);
-          break;
-        }
-        default: {
-          console.error('Unknown message event type:', event);
-        }
-      }
-    },
-    reactionsListener: handleReactionUpdate,
-    onDiscontinuity: () => {
-      console.warn('Discontinuity detected - starting message recovery');
-      // Clear all state and restart message loading
-      setMessages([]);
-      setHasBackfilled(false);
-      setLoading(true);
-      messageSerialsRef.current.clear();
-      // Restart history backfill process
-      backfillPreviousMessages(historyBeforeSubscribe, initialHistoryLimit);
-    },
-  });
+  } = useMessages();
 
-  /**
-   * Loads initial message history when joining a room
-   * Called once per room to establish initial context
-   *
-   * @param historyBeforeSubscribe - Ably function to fetch pre-subscription history
-   * @param limit - Number of messages to fetch
-   */
-  const backfillPreviousMessages = useCallback(
-    (
-      historyBeforeSubscribe: ReturnType<typeof useMessages>['historyBeforeSubscribe'],
-      limit: number = initialHistoryLimit
-    ) => {
-      if (historyBeforeSubscribe) {
-        historyBeforeSubscribe({ limit })
-          .then((result: PaginatedResult<Message>) => {
-            // Reverse messages to maintain chronological order (oldest first)
-            const reversedMessages = result.items.reverse();
-            handleMessageUpdates(reversedMessages);
-            setHasMoreHistory(result.hasNext());
-            setLoading(false);
-          })
-          .catch((error: unknown) => {
-            console.error(`Failed to backfill previous messages`, error);
-            setLoading(false);
-          });
-      }
-    },
-    [initialHistoryLimit, handleMessageUpdates]
-  );
+  const {
+    activeMessages,
+    updateMessages,
+    showLatestMessages,
+    showMessagesAroundSerial,
+    loadMoreHistory,
+    hasMoreHistory,
+    loading,
+  } = useMessageWindow({ windowSize });
 
-  /**
-   * Loads additional message history for infinite scroll
-   * Triggered by user scrolling to top of message list
-   */
-  const loadMoreHistory = useCallback(() => {
-    if (loadingHistory || !hasMoreHistory) {
-      return;
-    }
-
-    setLoadingHistory(true);
-
-    // Get timestamp of oldest message for pagination
-    const oldestTimestamp = oldestMessageRef.current?.createdAt.getTime();
-
-    // Fetch additional history before the oldest message
-    history({
-      end: oldestTimestamp,
-      limit: 50, // Load in reasonable chunks
-    })
-      .then((result) => {
-        if (result.items.length === 0) {
-          setHasMoreHistory(false);
-        } else {
-          // Reverse and prepend new messages
-          const reversedMessages = result.items.reverse();
-          handleMessageUpdates(reversedMessages, true);
-          setHasMoreHistory(result.hasNext());
-        }
-      })
-      .catch((error: unknown) => {
-        console.error('Failed to load more history:', error);
-      })
-      .finally(() => {
-        setLoadingHistory(false);
-      });
-  }, [loadingHistory, hasMoreHistory, history, handleMessageUpdates]);
-
-  /**
-   * Effect to trigger initial history loading
-   * Ensures history is loaded exactly once per room
-   */
-  useEffect(() => {
-    if (historyBeforeSubscribe && !hasBackfilled && loading) {
-      backfillPreviousMessages(historyBeforeSubscribe);
-      setHasBackfilled(true);
-    }
-  }, [historyBeforeSubscribe, backfillPreviousMessages, hasBackfilled, loading]);
-
-  /**
-   * Handles local message updates from REST operations
-   * Used for optimistic updates after edit/delete operations
-   *
-   * @param updatedMessage - The updated message from the server
-   */
   const handleRESTMessageUpdate = useCallback(
-    (updatedMessage: Message) => {
-      handleMessageUpdates([updatedMessage]);
+    (updated: Message) => {
+      updateMessages([updated]);
     },
-    [handleMessageUpdates]
+    [updateMessages]
   );
 
-  /**
-   * Handles message editing operations
-   * Performs optimistic update and syncs with server
-   *
-   * @param message - Original message to edit
-   * @param newText - New text content
-   */
   const handleMessageEdit = useCallback(
-    (message: Message, newText: string) => {
-      const updatedMessage = message.copy({
-        text: newText,
-        metadata: message.metadata,
-        headers: message.headers,
-      });
+    (msg: Message, newText: string) => {
+      const updated = msg.copy({ text: newText, metadata: msg.metadata, headers: msg.headers });
 
-      update(message.serial, updatedMessage)
-        .then((result) => {
-          handleRESTMessageUpdate(result);
-        })
+      updateMessageRemote(msg.serial, updated)
+        .then(handleRESTMessageUpdate)
         .catch((error: unknown) => {
           console.error('Failed to update message:', error);
         });
     },
-    [update, handleRESTMessageUpdate]
+    [updateMessageRemote, handleRESTMessageUpdate]
   );
 
-  /**
-   * Handles message deletion operations
-   * Performs soft delete with metadata preservation
-   *
-   * @param message - Message to delete
-   */
   const handleMessageDelete = useCallback(
-    (message: Message) => {
-      deleteMessage(message, {
-        description: 'deleted by user',
-      })
-        .then((result) => {
-          handleRESTMessageUpdate(result);
-        })
+    (msg: Message) => {
+      deleteMessage(msg, { description: 'deleted by user' })
+        .then(handleRESTMessageUpdate)
         .catch((error: unknown) => {
           console.error('Failed to delete message:', error);
-          // TODO: Show user-friendly error notification
         });
     },
     [deleteMessage, handleRESTMessageUpdate]
   );
 
-  /**
-   * Handles adding emoji reactions to messages
-   *
-   * @param message - Target message for reaction
-   * @param emoji - Emoji character to add
-   */
   const handleReactionAdd = useCallback(
-    (message: Message, emoji: string) => {
-      sendReaction(message, {
-        type: MessageReactionType.Distinct,
-        name: emoji,
-      }).catch((error: unknown) => {
-        console.error('Failed to add reaction:', error);
-        // TODO: Show user-friendly error notification
-      });
+    (msg: Message, emoji: string) => {
+      sendReaction(msg, { type: MessageReactionType.Distinct, name: emoji }).catch(
+        (error: unknown) => {
+          console.error('Failed to add reaction:', error);
+        }
+      );
     },
     [sendReaction]
   );
 
-  /**
-   * Handles removing emoji reactions from messages
-   *
-   * @param message - Target message for reaction removal
-   * @param emoji - Emoji character to remove
-   */
   const handleReactionRemove = useCallback(
-    (message: Message, emoji: string) => {
-      deleteReaction(message, {
-        type: MessageReactionType.Distinct,
-        name: emoji,
-      }).catch((error: unknown) => {
-        console.error('Failed to remove reaction:', error);
-        // TODO: Show user-friendly error notification
-      });
+    (msg: Message, emoji: string) => {
+      deleteReaction(msg, { type: MessageReactionType.Distinct, name: emoji }).catch(
+        (error: unknown) => {
+          console.error('Failed to remove reaction:', error);
+        }
+      );
     },
     [deleteReaction]
   );
 
-  /**
-   * Handles sending new messages to the room
-   *
-   * @param text - Message text content
-   */
   const handleSendMessage = useCallback(
     (text: string) => {
-      send({ text: text.trim() }).catch((error: unknown) => {
+      const trimmed = text.trim();
+      if (!trimmed) return;
+
+      send({ text: trimmed }).catch((error: unknown) => {
         console.error('Failed to send message:', error);
-        // TODO: Show user-friendly error notification
       });
     },
     [send]
   );
-
-  // Get room-specific chat settings from context
-  const { getEffectiveSettings } = useChatSettings();
-  const settings = getEffectiveSettings(roomName);
 
   return (
     <div
@@ -570,26 +218,31 @@ export const ActiveChatWindow: React.FC<ActiveChatWindowProps> = ({
       role="main"
       aria-label={`Chat room: ${roomName}`}
     >
-      {/* Chat Header */}
+      {/* Header */}
       {customHeaderContent && (
         <ActiveChatWindowHeader>{customHeaderContent}</ActiveChatWindowHeader>
       )}
 
-      {/* Message List with Typing Indicators */}
+      {/* Messages */}
       <ChatMessageList
-        messages={messages}
+        messages={activeMessages}
         currentClientId={clientId}
         isLoading={loading}
-        onLoadMoreHistory={loadMoreHistory}
+        onLoadMoreHistory={() => {
+          void loadMoreHistory();
+        }}
         hasMoreHistory={hasMoreHistory}
         onEdit={settings.allowMessageEdits ? handleMessageEdit : undefined}
         onDelete={settings.allowMessageDeletes ? handleMessageDelete : undefined}
         onReactionAdd={settings.allowMessageReactions ? handleReactionAdd : undefined}
         onReactionRemove={settings.allowMessageReactions ? handleReactionRemove : undefined}
+        onMessageInView={showMessagesAroundSerial}
+        onViewLatest={showLatestMessages}
       >
         {enableTypingIndicators && <TypingIndicators className="px-4" />}
       </ChatMessageList>
-      {/* Chat Footer with Message Input */}
+
+      {/* Footer */}
       <ActiveChatWindowFooter>
         <div className="flex-1">
           <MessageInput
@@ -604,5 +257,4 @@ export const ActiveChatWindow: React.FC<ActiveChatWindowProps> = ({
   );
 };
 
-// Set display name for better debugging experience
 ActiveChatWindow.displayName = 'ActiveChatWindow';

@@ -1,4 +1,12 @@
-import React, { createContext, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  createContext,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 
 import { AvatarData } from '../components/atoms/avatar.tsx';
 
@@ -713,4 +721,3 @@ export const AvatarProvider: React.FC<AvatarProviderProps> = ({ children, option
 
   return <AvatarContext.Provider value={contextValue}>{children}</AvatarContext.Provider>;
 };
-

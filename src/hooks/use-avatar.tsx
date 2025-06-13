@@ -36,7 +36,7 @@ export const useAvatar = (): AvatarContextType => {
   if (context === undefined) {
     throw new Error(
       'useAvatar must be used within an AvatarProvider. ' +
-      'Make sure your component is wrapped with <AvatarProvider>.',
+        'Make sure your component is wrapped with <AvatarProvider>.'
     );
   }
 

@@ -1,6 +1,13 @@
 import { Message } from '@ably/chat';
 import clsx from 'clsx';
-import React, { forwardRef, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 
 import { ChatMessage } from './chat-message.tsx';
 
@@ -36,6 +43,17 @@ export interface ChatMessageListProps
    * When false, displays "No more messages to load" indicator instead of loading spinner.
    */
   hasMoreHistory?: boolean;
+
+  /**
+   * Callback triggered when the user scrolls to view a specific message.
+   * @param messageSerial - The serial of the message currently in view
+   */
+  onMessageInView?: (messageSerial: string) => void;
+
+  /**
+   * Callback triggered when the user scrolls to the bottom of the message list.
+   */
+  onViewLatest?: () => void;
 
   /**
    * Callback triggered when a user saves an edited message.
@@ -118,13 +136,10 @@ export interface ChatMessageListProps
  * />
  *
  * @example
- * // With history loading
+ * // Rendering children like typing indicators
  * <ChatMessageList
  *   messages={messages}
  *   currentClientId="user123"
- *   onLoadMoreHistory={loadMoreHistory}
- *   isLoading={isLoadingHistory}
- *   hasMoreHistory={hasMore}
  *   onEdit={handleEdit}
  *   onDelete={handleDelete}
  *   onReactionAdd={handleReactionAdd}
@@ -132,6 +147,7 @@ export interface ChatMessageListProps
  * >
  *   <TypingIndicator />
  * </ChatMessageList>
+ *
  */
 export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
   (
@@ -145,6 +161,8 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
       onDelete,
       onReactionAdd,
       onReactionRemove,
+      onMessageInView,
+      onViewLatest,
       children,
       autoScroll = true,
       loadMoreThreshold = 100,
@@ -153,163 +171,135 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
     },
     ref
   ) => {
-    const messagesEndRef = useRef<HTMLDivElement>(null);
-    const messagesRef = useRef(messages);
     const containerRef = useRef<HTMLDivElement | null>(null);
+    const lastScrollCheck = useRef(0);
+    const shouldStickAfterPrepend = useRef(false);
+    const prevScrollHeight = useRef(0);
+    const messagesMapRef = useRef<Map<string, HTMLElement>>(new Map());
+
     const [isAtBottom, setIsAtBottom] = useState(true);
-    const previousScrollHeight = useRef<number>(0);
-    const shouldMaintainPosition = useRef<boolean>(false);
-    const lastScrollCheckTime = useRef<number>(0);
-    const pendingScrollToBottom = useRef<boolean>(false);
+    const [centerSerial, setCenterSerial] = useState<string | undefined>();
 
-
-    const checkIfAtBottom = useCallback(() => {
+    const isUserAtBottom = useCallback(() => {
       if (!containerRef.current) return false;
-
       const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
-      const threshold = 50;
-      const isBottom = scrollHeight - scrollTop - clientHeight < threshold;
-
-      // Update state only if it changed to avoid unnecessary re-renders
-      setIsAtBottom(prev => prev === isBottom ? prev : isBottom);
-
-      return isBottom;
+      return scrollHeight - scrollTop - clientHeight < 50; // px threshold
     }, []);
 
-    // Throttled scroll check to avoid performance issues
-    const handleScrollCheck = useCallback(() => {
-      const now = Date.now();
-      if (now - lastScrollCheckTime.current < 16) return; // ~60 FPS
+    const updateIsAtBottom = useCallback(() => {
+      setIsAtBottom((prev) => {
+        const atBottom = isUserAtBottom();
+        return prev === atBottom ? prev : atBottom;
+      });
+    }, [isUserAtBottom]);
 
-      lastScrollCheckTime.current = now;
-      checkIfAtBottom();
-    }, [checkIfAtBottom]);
+    const maybeLoadHistory = useCallback(() => {
+      if (!containerRef.current || !onLoadMoreHistory || !hasMoreHistory || isLoading) return;
 
-    // Check if user is near the top and should load more history
-    const checkIfNearTop = useCallback(() => {
-      if (!containerRef.current || !onLoadMoreHistory || isLoading || !hasMoreHistory) {
+      if (containerRef.current.scrollTop < loadMoreThreshold) {
+        shouldStickAfterPrepend.current = true;
+        prevScrollHeight.current = containerRef.current.scrollHeight;
+        onLoadMoreHistory();
+      }
+    }, [onLoadMoreHistory, hasMoreHistory, isLoading, loadMoreThreshold]);
+
+    /** Determine which message is closest to the viewport centre */
+    const reportMessageInView = useCallback(() => {
+      if (!containerRef.current || messages.length === 0) return;
+
+      const rect = containerRef.current.getBoundingClientRect();
+      const viewportCenter = rect.top + rect.height / 2;
+
+      // Early‑out: if user is at bottom → tail‑follow
+      if (isUserAtBottom()) {
+        if (centerSerial !== undefined) setCenterSerial(undefined);
+        onViewLatest?.();
         return;
       }
 
-      const { scrollTop } = containerRef.current;
-      if (scrollTop < loadMoreThreshold) {
-        previousScrollHeight.current = containerRef.current.scrollHeight;
-        shouldMaintainPosition.current = true;
-        onLoadMoreHistory();
+      let best: { serial: string; dist: number } | undefined;
+      for (const [serial, el] of messagesMapRef.current.entries()) {
+        const { top, bottom } = el.getBoundingClientRect();
+        const d = Math.abs((top + bottom) / 2 - viewportCenter);
+        if (!best || d < best.dist) best = { serial, dist: d };
       }
-    }, [onLoadMoreHistory, isLoading, hasMoreHistory, loadMoreThreshold]);
 
-    // Maintain scroll position when new history is loaded
-    useEffect(() => {
-      if (shouldMaintainPosition.current && containerRef.current) {
-        const newScrollHeight = containerRef.current.scrollHeight;
-        const heightDifference = newScrollHeight - previousScrollHeight.current;
-
-        if (heightDifference > 0) {
-          containerRef.current.scrollTop += heightDifference;
-        }
-
-        shouldMaintainPosition.current = false;
+      if (best && best.serial !== centerSerial) {
+        setCenterSerial(best.serial);
+        onMessageInView?.(best.serial);
       }
-    }, [messages]);
+    }, [centerSerial, isUserAtBottom, messages.length, onMessageInView, onViewLatest]);
 
     const handleScroll = useCallback(() => {
-      handleScrollCheck();
-      checkIfNearTop();
-    }, [handleScrollCheck, checkIfNearTop]);
+      const now = performance.now();
+      if (now - lastScrollCheck.current < 16) return; // ~60fps
+      lastScrollCheck.current = now;
 
+      updateIsAtBottom();
+      maybeLoadHistory();
+      reportMessageInView();
+    }, [updateIsAtBottom, maybeLoadHistory, reportMessageInView]);
 
     const scrollToBottom = useCallback(() => {
       if (!containerRef.current) return;
-
-      // Direct scroll to bottom - so even if we have child elements, we scroll to the end
       containerRef.current.scrollTop = containerRef.current.scrollHeight;
-
-      // Update isAtBottom immediately since we just scrolled to bottom
-      setIsAtBottom(true);
-      pendingScrollToBottom.current = false;
     }, []);
 
-    useEffect(() => {
-      if (!containerRef.current) return;
-
-      const resizeObserver = new ResizeObserver(() => {
-        if (autoScroll && (isAtBottom || pendingScrollToBottom.current)) {
-          // Use requestAnimationFrame to ensure layout is complete
-          requestAnimationFrame(() => {
-            scrollToBottom();
-          });
-        }
-      });
-
-      resizeObserver.observe(containerRef.current);
-
-      return () => {
-        resizeObserver.disconnect();
-      };
-    }, [autoScroll, isAtBottom, scrollToBottom]);
-
-    // Add scroll event listener
-    useEffect(() => {
-      const container = containerRef.current;
-      if (!container) return;
-
-      // Check initial position
-      checkIfAtBottom();
-      container.addEventListener('scroll', handleScroll, { passive: true });
-
-      return () => {
-        container.removeEventListener('scroll', handleScroll);
-      };
-    }, [handleScroll, checkIfAtBottom]);
-
-    // Auto scroll when new messages arrive
+    // After messages prepend, adjust scroll so content doesn't jump
     useLayoutEffect(() => {
-      if (
-        autoScroll &&
-        messages !== messagesRef.current &&
-        !shouldMaintainPosition.current
-      ) {
-        const wasAtBottom = isAtBottom;
-        messagesRef.current = messages;
+      if (!shouldStickAfterPrepend.current || !containerRef.current) return;
+      const delta = containerRef.current.scrollHeight - prevScrollHeight.current;
+      containerRef.current.scrollTop += delta;
+      shouldStickAfterPrepend.current = false;
+    }, [messages]);
 
-        if (wasAtBottom) {
-          pendingScrollToBottom.current = true;
-          // Use requestAnimationFrame to ensure DOM is updated
-          requestAnimationFrame(() => {
-            scrollToBottom();
-          });
-        }
-      } else {
-        messagesRef.current = messages;
+    // Auto‑scroll on new messages if user is at bottom
+    useLayoutEffect(() => {
+      if (autoScroll && isAtBottom) {
+        scrollToBottom();
       }
     }, [messages, autoScroll, isAtBottom, scrollToBottom]);
 
-    // Handle children changes
-    useLayoutEffect(() => {
-      if (
-        autoScroll &&
-        isAtBottom &&
-        !shouldMaintainPosition.current
-      ) {
-        pendingScrollToBottom.current = true;
-        requestAnimationFrame(() => {
-          scrollToBottom();
-        });
-      }
-    }, [children, autoScroll, isAtBottom, scrollToBottom]);
+    useEffect(() => {
+      const node = containerRef.current;
+      if (!node) return;
 
-    // Combine refs to use both the forwarded ref and our container ref
-    const setRefs = useCallback((element: HTMLDivElement | null) => {
-      // Set the forwarded ref
-      if (typeof ref === 'function') {
-        ref(element);
-      } else if (ref) {
-        ref.current = element;
-      }
-      // Set our container ref
-      containerRef.current = element;
-    }, [ref]);
+      // Set initial state
+      updateIsAtBottom();
+      reportMessageInView();
+
+      node.addEventListener('scroll', handleScroll, { passive: true });
+      const resizeObs = new ResizeObserver(() => {
+        if (autoScroll && isUserAtBottom()) {
+          scrollToBottom();
+        }
+      });
+      resizeObs.observe(node);
+
+      return () => {
+        node.removeEventListener('scroll', handleScroll);
+        resizeObs.disconnect();
+      };
+    }, [
+      handleScroll,
+      autoScroll,
+      updateIsAtBottom,
+      reportMessageInView,
+      isUserAtBottom,
+      scrollToBottom,
+    ]);
+
+    const setRefs = useCallback(
+      (el: HTMLDivElement | null) => {
+        if (typeof ref === 'function') {
+          ref(el);
+        } else if (ref) {
+          ref.current = el;
+        }
+        containerRef.current = el;
+      },
+      [ref]
+    );
 
     return (
       <div
@@ -327,43 +317,39 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
       >
         {isLoading && (
           <div className="flex justify-center py-4" role="status" aria-live="polite">
-            <div
-              className="text-sm text-gray-500 dark:text-gray-400"
-              aria-label="Loading older messages"
-            >
-              Loading messages...
-            </div>
+            <span className="text-sm text-gray-500 dark:text-gray-400">Loading messages…</span>
           </div>
         )}
+
+        {/* Top sentinel / "no more" */}
         {!hasMoreHistory && messages.length > 0 && (
           <div className="flex justify-center py-4" role="status">
-            <div
-              className="text-sm text-gray-500 dark:text-gray-400"
-              aria-label="End of message history"
-            >
-              No more messages to load
-            </div>
+            <span className="text-sm text-gray-500 dark:text-gray-400">No more messages</span>
           </div>
         )}
 
-        {/* Render messages automatically */}
-        {messages.map((msg) => (
-          <ChatMessage
-            key={msg.serial}
-            message={msg}
-            currentClientId={currentClientId}
-            onEdit={onEdit}
-            onDelete={onDelete}
-            onReactionAdd={onReactionAdd}
-            onReactionRemove={onReactionRemove}
-          />
-        ))}
+        {/* Messages */}
+        {messages.map((msg) => {
+          const setEl = (el: HTMLElement | null) => {
+            if (el) messagesMapRef.current.set(msg.serial, el);
+            else messagesMapRef.current.delete(msg.serial);
+          };
+          return (
+            <div key={msg.serial} ref={setEl}>
+              <ChatMessage
+                message={msg}
+                currentClientId={currentClientId}
+                onEdit={onEdit}
+                onDelete={onDelete}
+                onReactionAdd={onReactionAdd}
+                onReactionRemove={onReactionRemove}
+              />
+            </div>
+          );
+        })}
 
-        {/* Render additional components passed as children */}
+        {/* children (typing indicators etc.) */}
         {children}
-
-        {/* This element is used for auto-scrolling - must be after all content */}
-        <div ref={messagesEndRef} />
       </div>
     );
   }

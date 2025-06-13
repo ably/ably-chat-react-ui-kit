@@ -156,4 +156,3 @@ export const ChatSettingsProvider: React.FC<ChatSettingsProviderProps> = ({
     <ChatSettingsContext.Provider value={contextValue}>{children}</ChatSettingsContext.Provider>
   );
 };
-
