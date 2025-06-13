@@ -1,5 +1,5 @@
 import { usePresenceListener } from '@ably/chat/react';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 /**
  * Props for the PresenceIndicators component
@@ -39,17 +39,13 @@ export interface PresenceIndicatorsProps {
  */
 export const PresenceIndicators: React.FC<PresenceIndicatorsProps> = ({ className = '' }) => {
   const { presenceData } = usePresenceListener();
+  const [presenceText, setPresenceText] = useState('0 people present');
 
-  /**
-   * Generates human-readable text about presence count
-   *
-   * @returns A string indicating how many people are present
-   */
-  const getPresenceText = () => {
+  useEffect(() => {
     const presentCount = new Set(presenceData.map((p) => p.clientId)).size;
-    if (presentCount === 1) return '1 person present';
-    return `${String(presentCount)} people present`;
-  };
+    const newText = presentCount === 1 ? '1 person present' : `${String(presentCount)} people present`;
+    setPresenceText(newText);
+  }, [presenceData]);
 
   // Determine if anyone is present
   const isAnyonePresent = (presenceData.length || 0) > 0;
@@ -62,7 +58,8 @@ export const PresenceIndicators: React.FC<PresenceIndicatorsProps> = ({ classNam
       role="status"
       aria-live="polite"
     >
-      {getPresenceText()}
+      {presenceText}
     </p>
   );
 };
+
