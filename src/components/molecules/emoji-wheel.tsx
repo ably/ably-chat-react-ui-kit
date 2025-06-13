@@ -205,6 +205,22 @@ export const EmojiWheel: React.FC<EmojiWheelProps> = ({
     }
   }, [isOpen, onClose]);
 
+  // Force re-render on window resize to ensure proper positioning
+  const [, setWindowSize] = useState({ width: window.innerWidth, height: window.innerHeight });
+
+  useEffect(() => {
+    if (!isOpen && !isAnimating) return;
+
+    const handleResize = () => {
+      setWindowSize({ width: window.innerWidth, height: window.innerHeight });
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [isOpen, isAnimating]);
+
   if (!isOpen && !isAnimating) return;
 
   const radius = 80; // Distance from center to emoji buttons
@@ -212,9 +228,10 @@ export const EmojiWheel: React.FC<EmojiWheelProps> = ({
   const wheelSize = (radius + buttonSize) * 2; // Total wheel size
 
   // Calculate safe position to prevent wheel from going off-screen
+  const minMargin = 20; // Minimum margin from screen edges
   const safePosition = {
-    x: Math.max(wheelSize / 2, Math.min(window.innerWidth - wheelSize / 2, position.x)),
-    y: Math.max(wheelSize / 2, Math.min(window.innerHeight - wheelSize / 2, position.y)),
+    x: Math.max(wheelSize / 2 + minMargin, Math.min(window.innerWidth - wheelSize / 2 - minMargin, position.x)),
+    y: Math.max(wheelSize / 2 + minMargin, Math.min(window.innerHeight - wheelSize / 2 - minMargin, position.y)),
   };
 
   return (

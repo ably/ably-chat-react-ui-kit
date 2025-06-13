@@ -1,7 +1,7 @@
 import { RoomReactionEvent } from '@ably/chat';
 import { useRoomReactions } from '@ably/chat/react';
 import clsx from 'clsx';
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useThrottle } from '../../hooks/use-throttle.tsx';
 import { EmojiBurst } from './emoji-burst.tsx';
@@ -288,6 +288,30 @@ export const RoomReaction: React.FC<RoomReactionProps> = ({
   const handleEmojiWheelClose = useCallback(() => {
     setShowEmojiWheel(false);
   }, []);
+
+  /**
+   * Updates the emoji wheel position when the window is resized
+   * Ensures the wheel stays properly positioned relative to the button
+   */
+  useEffect(() => {
+    if (!showEmojiWheel) return;
+
+    const handleResize = () => {
+      const button = reactionButtonRef.current;
+      if (button) {
+        const rect = button.getBoundingClientRect();
+        setEmojiWheelPosition({
+          x: rect.left + rect.width / 2,
+          y: rect.top + rect.height / 2,
+        });
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [showEmojiWheel]);
 
   /**
    * Callback when the emoji burst animation completes.
