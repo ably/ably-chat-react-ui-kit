@@ -242,7 +242,7 @@ export const RoomListItem: React.FC<RoomListItemProps> = React.memo(function Roo
           </div>
         </div>
         <div aria-live="polite">
-          <TypingIndicators enabled={typingIndicatorsEnabled} maxClients={1} />
+          {typingIndicatorsEnabled && <TypingIndicators maxClients={1} />}
         </div>
       </div>
     </div>

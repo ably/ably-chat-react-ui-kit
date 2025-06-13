@@ -68,6 +68,18 @@ export interface ActiveChatWindowProps {
   customFooterContent?: React.ReactNode;
 
   /**
+   * Whether to show typing indicators in the chat window.
+   * When enabled, shows indicators when other users are typing.
+   *
+   * @default true
+   *
+   * @example
+   * // Disable typing indicators for performance in large rooms
+   * enableTypingIndicators={false}
+   */
+  enableTypingIndicators?: boolean;
+
+  /**
    * Initial number of messages to load when entering the room.
    * Controls the first batch of message history fetched from the server.
    *
@@ -125,6 +137,7 @@ export const ActiveChatWindow: React.FC<ActiveChatWindowProps> = ({
   customHeaderContent,
   customFooterContent,
   initialHistoryLimit = 20,
+  enableTypingIndicators = true,
   className,
 }) => {
   // Message state management
@@ -574,9 +587,8 @@ export const ActiveChatWindow: React.FC<ActiveChatWindowProps> = ({
         onReactionAdd={settings.allowMessageReactions ? handleReactionAdd : undefined}
         onReactionRemove={settings.allowMessageReactions ? handleReactionRemove : undefined}
       >
-        <TypingIndicators className="px-4 py-2" />
+        {enableTypingIndicators && <TypingIndicators className="px-4" />}
       </ChatMessageList>
-
       {/* Chat Footer with Message Input */}
       <ActiveChatWindowFooter>
         <div className="flex-1">

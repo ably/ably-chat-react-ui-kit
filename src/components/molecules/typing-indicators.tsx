@@ -56,21 +56,6 @@ export interface TypingIndicatorsProps extends React.HTMLAttributes<HTMLDivEleme
    */
   textClassName?: string;
 
-  /**
-   * Whether typing indicators should be shown at all.
-   * When false, component returns null regardless of typing activity.
-   * Useful for conditional display based on room settings or user preferences.
-   *
-   * @default true
-   * @example
-   * // Conditional based on room settings
-   * enabled={roomSettings.showTypingIndicators}
-   *
-   * @example
-   * // Disable in busy rooms
-   * enabled={participantCount < 50}
-   */
-  enabled?: boolean;
 }
 
 /**
@@ -83,7 +68,6 @@ export interface TypingIndicatorsProps extends React.HTMLAttributes<HTMLDivEleme
  * - Automatic exclusion of the current user from typing displays
  * - Live region support for screen reader announcements
  * - Custom styling of container and text elements
- * - Enable/disable functionality for conditional display
  *
  * Display:
  * • 0 typing: Component returns null (nothing rendered)
@@ -93,17 +77,8 @@ export interface TypingIndicatorsProps extends React.HTMLAttributes<HTMLDivEleme
  * • 4+ users (maxClients=3): "Alice, Bob and 2 others are typing"
  * • Current user excluded: Never shows "You are typing"
  *
- * @example
- * // Conditional display based on room size
- * <TypingIndicators
- *   enabled={participantCount < 20}
- *   maxClients={3}
- *   className="px-4 py-2"
- * />
  *
  * @example
- * // Custom styling for different contexts
- * // Light theme with custom colors
  * <TypingIndicators
  *   className="bg-blue-50 rounded-lg px-3 py-2"
  *   textClassName="text-blue-700 font-medium"

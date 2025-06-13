@@ -3,6 +3,7 @@ import clsx from 'clsx';
 import React, { forwardRef, useCallback, useEffect, useRef, useState } from 'react';
 
 import { ChatMessage } from './chat-message.tsx';
+import { TypingIndicators } from './typing-indicators.tsx';
 
 export interface ChatMessageListProps
   extends Omit<React.HTMLAttributes<HTMLDivElement>, 'children'> {
@@ -233,6 +234,17 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
       }
     }, [messages, autoScroll, isAtBottom]);
 
+    // Auto scroll when typing indicators change, only if user is at the bottom
+    useEffect(() => {
+      if (
+        autoScroll &&
+        isAtBottom &&
+        !shouldMaintainPosition.current
+      ) {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, [children, autoScroll, isAtBottom]);
+
     // Combine refs to use both the forwarded ref and our container ref
     const setRefs = (element: HTMLDivElement | null) => {
       // Set the forwarded ref
@@ -296,6 +308,7 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
         {/* Render additional components passed as children */}
         {children}
 
+        {/* This element is used for auto-scrolling - must be after all content */}
         <div ref={messagesEndRef} />
       </div>
     );
