@@ -299,12 +299,7 @@ export const RoomInfo: React.FC<RoomInfoProps> = ({
         </div>
 
         {/* Hover Tooltip */}
-        <PresenceList
-          presenceData={presenceData}
-          tooltipPosition={tooltipPosition}
-          showTooltip={showTooltip}
-          coords={tooltipCoords}
-        />
+        {showTooltip && <PresenceList tooltipPosition={tooltipPosition} coords={tooltipCoords} />}
 
         {/* Participants Dropdown */}
         {isOpen && (
