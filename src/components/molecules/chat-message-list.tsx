@@ -1,9 +1,8 @@
 import { Message } from '@ably/chat';
 import clsx from 'clsx';
-import React, { forwardRef, useCallback, useEffect, useRef, useState } from 'react';
+import React, { forwardRef, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 import { ChatMessage } from './chat-message.tsx';
-import { TypingIndicators } from './typing-indicators.tsx';
 
 export interface ChatMessageListProps
   extends Omit<React.HTMLAttributes<HTMLDivElement>, 'children'> {
@@ -160,14 +159,31 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
     const [isAtBottom, setIsAtBottom] = useState(true);
     const previousScrollHeight = useRef<number>(0);
     const shouldMaintainPosition = useRef<boolean>(false);
-    // Memoize the checkIfAtBottom function
+    const lastScrollCheckTime = useRef<number>(0);
+    const pendingScrollToBottom = useRef<boolean>(false);
+
+
     const checkIfAtBottom = useCallback(() => {
-      if (!containerRef.current) return;
+      if (!containerRef.current) return false;
 
       const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
-      const isBottom = scrollHeight - scrollTop - clientHeight < 10;
-      setIsAtBottom(isBottom);
+      const threshold = 50;
+      const isBottom = scrollHeight - scrollTop - clientHeight < threshold;
+
+      // Update state only if it changed to avoid unnecessary re-renders
+      setIsAtBottom(prev => prev === isBottom ? prev : isBottom);
+
+      return isBottom;
     }, []);
+
+    // Throttled scroll check to avoid performance issues
+    const handleScrollCheck = useCallback(() => {
+      const now = Date.now();
+      if (now - lastScrollCheckTime.current < 16) return; // ~60 FPS
+
+      lastScrollCheckTime.current = now;
+      checkIfAtBottom();
+    }, [checkIfAtBottom]);
 
     // Check if user is near the top and should load more history
     const checkIfNearTop = useCallback(() => {
@@ -198,55 +214,93 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
     }, [messages]);
 
     const handleScroll = useCallback(() => {
-      checkIfAtBottom();
+      handleScrollCheck();
       checkIfNearTop();
-    }, [checkIfAtBottom, checkIfNearTop]);
+    }, [handleScrollCheck, checkIfNearTop]);
 
-    // Add scroll event listener to track if user is at bottom
+
+    const scrollToBottom = useCallback(() => {
+      if (!containerRef.current) return;
+
+      // Direct scroll to bottom - so even if we have child elements, we scroll to the end
+      containerRef.current.scrollTop = containerRef.current.scrollHeight;
+
+      // Update isAtBottom immediately since we just scrolled to bottom
+      setIsAtBottom(true);
+      pendingScrollToBottom.current = false;
+    }, []);
+
+    useEffect(() => {
+      if (!containerRef.current) return;
+
+      const resizeObserver = new ResizeObserver(() => {
+        if (autoScroll && (isAtBottom || pendingScrollToBottom.current)) {
+          // Use requestAnimationFrame to ensure layout is complete
+          requestAnimationFrame(() => {
+            scrollToBottom();
+          });
+        }
+      });
+
+      resizeObserver.observe(containerRef.current);
+
+      return () => {
+        resizeObserver.disconnect();
+      };
+    }, [autoScroll, isAtBottom, scrollToBottom]);
+
+    // Add scroll event listener
     useEffect(() => {
       const container = containerRef.current;
       if (!container) return;
+
       // Check initial position
       checkIfAtBottom();
-      container.addEventListener('scroll', handleScroll);
+      container.addEventListener('scroll', handleScroll, { passive: true });
+
       return () => {
         container.removeEventListener('scroll', handleScroll);
       };
-    }, [checkIfAtBottom, handleScroll]);
+    }, [handleScroll, checkIfAtBottom]);
 
-    // Check scroll position when messages change
-    useEffect(() => {
-      checkIfAtBottom();
-    }, [checkIfAtBottom, messages]);
-
-    // Auto scroll with each new message, only if user is at the bottom
-    useEffect(() => {
+    // Auto scroll when new messages arrive
+    useLayoutEffect(() => {
       if (
         autoScroll &&
         messages !== messagesRef.current &&
-        isAtBottom &&
         !shouldMaintainPosition.current
       ) {
+        const wasAtBottom = isAtBottom;
         messagesRef.current = messages;
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+
+        if (wasAtBottom) {
+          pendingScrollToBottom.current = true;
+          // Use requestAnimationFrame to ensure DOM is updated
+          requestAnimationFrame(() => {
+            scrollToBottom();
+          });
+        }
       } else {
         messagesRef.current = messages;
       }
-    }, [messages, autoScroll, isAtBottom]);
+    }, [messages, autoScroll, isAtBottom, scrollToBottom]);
 
-    // Auto scroll when typing indicators change, only if user is at the bottom
-    useEffect(() => {
+    // Handle children changes
+    useLayoutEffect(() => {
       if (
         autoScroll &&
         isAtBottom &&
         !shouldMaintainPosition.current
       ) {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        pendingScrollToBottom.current = true;
+        requestAnimationFrame(() => {
+          scrollToBottom();
+        });
       }
-    }, [children, autoScroll, isAtBottom]);
+    }, [children, autoScroll, isAtBottom, scrollToBottom]);
 
     // Combine refs to use both the forwarded ref and our container ref
-    const setRefs = (element: HTMLDivElement | null) => {
+    const setRefs = useCallback((element: HTMLDivElement | null) => {
       // Set the forwarded ref
       if (typeof ref === 'function') {
         ref(element);
@@ -255,7 +309,7 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
       }
       // Set our container ref
       containerRef.current = element;
-    };
+    }, [ref]);
 
     return (
       <div

@@ -93,6 +93,7 @@
   },
   "browserslist": [
     "defaults",
-    "not op_mini all"
+    "not op_mini all",
+    "not kaios 2.5"
   ]
 }
