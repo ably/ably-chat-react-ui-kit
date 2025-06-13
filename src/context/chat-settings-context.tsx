@@ -1,4 +1,4 @@
-import React, { createContext, ReactNode, useContext } from 'react';
+import React, { createContext, ReactNode } from 'react';
 
 /**
  * Interface representing chat settings that can be configured globally or per room.
@@ -48,7 +48,7 @@ const DEFAULT_SETTINGS: ChatSettings = {
  *
  * @internal
  */
-const ChatSettingsContext = createContext<ChatSettingsContextType>({
+export const ChatSettingsContext = createContext<ChatSettingsContextType>({
   globalSettings: DEFAULT_SETTINGS,
   roomSettings: {},
   getEffectiveSettings: () => ({ ...DEFAULT_SETTINGS }),
@@ -157,23 +157,3 @@ export const ChatSettingsProvider: React.FC<ChatSettingsProviderProps> = ({
   );
 };
 
-/**
- * Hook to access the chat settings context.
- *
- * Provides access to global settings, room settings, and the function
- * to get effective settings for specific rooms.
- *
- * @example
- * ```tsx
- * const { globalSettings, getEffectiveSettings } = useChatSettings();
- * const roomSettings = getEffectiveSettings('general');
- * ```
- *
- * @returns The chat settings context value
- * @throws Error if used outside of ChatSettingsProvider
- *
- * @public
- */
-export const useChatSettings = () => {
-  return useContext(ChatSettingsContext);
-};

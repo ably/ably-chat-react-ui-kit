@@ -11,12 +11,12 @@ import { useChatClient, useMessages, usePresence } from '@ably/chat/react';
 import clsx from 'clsx';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
-import { useChatSettings } from '../../context/chat-settings-context.tsx';
 import { ActiveChatWindowFooter } from './active-chat-window-footer.tsx';
 import { ActiveChatWindowHeader } from './active-chat-window-header.tsx';
 import { ChatMessageList } from './chat-message-list.tsx';
 import { MessageInput } from './message-input.tsx';
 import { TypingIndicators } from './typing-indicators.tsx';
+import { useChatSettings } from '../../hooks';
 
 /**
  * Props for the ChatWindow component
