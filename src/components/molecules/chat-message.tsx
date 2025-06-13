@@ -29,7 +29,7 @@ const formatTime = (timestamp?: number) => {
   const today = new Date();
 
   // Check if the message is from today
-  const isToday = 
+  const isToday =
     messageDate.getDate() === today.getDate() &&
     messageDate.getMonth() === today.getMonth() &&
     messageDate.getFullYear() === today.getFullYear();
@@ -210,7 +210,10 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
     const requiredSpaceAbove = Math.min(pickerHeight, 120) + 40; // Use minimum height if space is limited
 
     // Determine initial top position
-    top = spaceAbove >= requiredSpaceAbove ? bubbleRect.top - pickerHeight - 20 : bubbleRect.bottom + 20;
+    top =
+      spaceAbove >= requiredSpaceAbove
+        ? bubbleRect.top - pickerHeight - 20
+        : bubbleRect.bottom + 20;
 
     // Ensure picker stays within viewport bounds horizontally
     const maxLeft = window.innerWidth - pickerWidth - 20;
@@ -547,13 +550,14 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
           </div>
 
           {/* Message Actions to update/delete/react */}
-          <MessageActions
-            isVisible={isHovered && !isEditing && !message.isDeleted}
-            isOwn={isOwn}
-            onReaction={handleAddReaction}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-          />
+          {isHovered && !isEditing && !message.isDeleted && (
+            <MessageActions
+              isOwn={isOwn}
+              onReactionButtonClicked={handleAddReaction}
+              onEditButtonClicked={handleEdit}
+              onDeleteButtonClicked={handleDelete}
+            />
+          )}
         </div>
 
         {/* Reactions will be rendered below the relevant message */}
@@ -579,7 +583,6 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
       {/* Emoji Picker */}
       {showEmojiPicker && (
         <EmojiPicker
-          isOpen={showEmojiPicker}
           onClose={() => {
             setShowEmojiPicker(false);
           }}

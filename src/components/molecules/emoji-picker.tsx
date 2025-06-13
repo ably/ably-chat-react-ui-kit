@@ -7,13 +7,6 @@ const DEFAULT_EMOJI_STORAGE_KEY = 'ably-chat-recent-emojis';
  */
 export interface EmojiPickerProps {
   /**
-   * Whether the emoji picker is currently open and visible.
-   * Controls the visibility state and enables keyboard event handling.
-   * When false, the component returns null for optimal performance.
-   */
-  isOpen: boolean;
-
-  /**
    * Callback function triggered when the picker should be closed.
    * Called on backdrop click, escape key press, or programmatic close.
    * Should update the parent component's state to hide the picker.
@@ -200,14 +193,13 @@ const emojis = [
  * // Custom emoji list with reaction-specific emojis
  * const reactionEmojis = ['👍', '❤️', '😂', '😮', '😢', '😡'];
  *
- * <EmojiPicker
- *   isOpen={showReactionPicker}
+ * {showReactionPicker && (<EmojiPicker
  *   position={reactionPosition}
  *   emojiList={reactionEmojis}
  *   columns={3}
  *   onClose={() => setShowReactionPicker(false)}
  *   onEmojiSelect={handleReaction}
- * />
+ * />)}
  *
  * @example
  * // Chat message emoji picker with positioning
@@ -225,7 +217,6 @@ const emojis = [
  * };
  */
 export const EmojiPicker: React.FC<EmojiPickerProps> = ({
-  isOpen,
   onClose,
   onEmojiSelect,
   position,
@@ -273,8 +264,6 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
 
   // Handle Escape key to close the picker
   useEffect(() => {
-    if (!isOpen) return;
-
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         onClose();
@@ -285,7 +274,7 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [isOpen, onClose]);
+  }, [onClose]);
 
   // Use provided emoji list or default
   const displayEmojis = useMemo(() => emojiList || emojis, [emojiList]);
@@ -335,8 +324,6 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
       </div>
     );
   }, [recentEmojis, columns, handleEmojiSelect]);
-
-  if (!isOpen) return;
 
   return (
     <>

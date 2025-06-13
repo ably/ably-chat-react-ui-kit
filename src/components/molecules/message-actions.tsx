@@ -15,13 +15,13 @@ export interface MessageActionsProps {
    *
    * @example
    * ```tsx
-   * onReaction={() => {
+   * onReactionButtonClicked={() => {
    *   setEmojiPickerPosition(getMessagePosition());
    *   setShowEmojiPicker(true);
    * }}
    * ```
    */
-  onReaction?: () => void;
+  onReactionButtonClicked?: () => void;
 
   /**
    * Callback function triggered when the edit button is clicked.
@@ -32,14 +32,14 @@ export interface MessageActionsProps {
    *
    * @example
    * ```tsx
-   * onEdit={() => {
+   * onEditButtonClicked={() => {
    *   setEditingMessageId(message.id);
    *   setEditText(message.text);
    *   setIsEditing(true);
    * }}
    * ```
    */
-  onEdit?: () => void;
+  onEditButtonClicked?: () => void;
 
   /**
    * Callback function triggered when the delete button is clicked.
@@ -49,37 +49,13 @@ export interface MessageActionsProps {
    *
    * @example
    * ```tsx
-   * onDelete={() => {
+   * onDeleteButtonClicked={() => {
    *   setDeleteTarget(message.id);
    *   setShowDeleteConfirm(true);
    * }}
    * ```
    */
-  onDelete?: () => void;
-
-  /**
-   * Whether the action buttons should be visible and interactive.
-   * Typically controlled by hover state, focus, or explicit user action.
-   * When false, the component returns null and renders nothing.
-   *
-   * - Mouse hover over message bubble
-   * - Focus on message for keyboard users
-   * - Explicit toggle for persistent display
-   *
-   * @example
-   * ```tsx
-   * // Hover-based visibility
-   * const [isVisible, setIsVisible] = useState(false);
-   *
-   * <div
-   *   onMouseEnter={() => setIsVisible(true)}
-   *   onMouseLeave={() => setIsVisible(false)}
-   * >
-   *   <MessageActions isVisible={isVisible} {...otherProps} />
-   * </div>
-   * ```
-   */
-  isVisible: boolean;
+  onDeleteButtonClicked?: () => void;
 
   /**
    * Whether the message belongs to the current user.
@@ -106,7 +82,6 @@ export interface MessageActionsProps {
  * - Reaction button for adding emoji reactions to messages
  * - Edit and delete buttons for the message owner
  * - Positioned relative to the message bubble
- * - Conditionally rendered based on hover state
  * - Accessible toolbar with proper ARIA attributes
  * - Responsive to theme changes (light/dark)
  * - Smooth hover transitions and visual feedback
@@ -124,32 +99,28 @@ export interface MessageActionsProps {
  *   >
  *     <div className="message-content">{message.text}</div>
  *
- *     <MessageActions
- *       isVisible={actionsVisible}
+ *     {actionsVisible && (<MessageActions
  *       isOwn={message.senderId === currentUser.id}
  *       onReaction={() => setShowEmojiPicker(true)}
  *       onEdit={() => handleEditMessage(message.id)}
  *       onDelete={() => handleDeleteMessage(message.id)}
  *     />
- *   </div>
+ *   </div>)}
  * );
  *
  *
  */
 export const MessageActions: React.FC<MessageActionsProps> = ({
-  onReaction,
-  onEdit,
-  onDelete,
-  isVisible,
+  onReactionButtonClicked,
+  onEditButtonClicked,
+  onDeleteButtonClicked,
   isOwn,
 }) => {
-  // Get chat settings from context
-  if (!isVisible) return;
 
   // Check if there are any actions to display
-  const hasReactionAction = onReaction !== undefined;
-  const hasEditAction = isOwn && onEdit !== undefined;
-  const hasDeleteAction = isOwn && onDelete !== undefined;
+  const hasReactionAction = onReactionButtonClicked !== undefined;
+  const hasEditAction = isOwn && onEditButtonClicked !== undefined;
+  const hasDeleteAction = isOwn && onDeleteButtonClicked !== undefined;
 
   // If no actions are available, don't render anything
   if (!hasReactionAction && !hasEditAction && !hasDeleteAction) {
@@ -167,7 +138,7 @@ export const MessageActions: React.FC<MessageActionsProps> = ({
           variant="ghost"
           size="sm"
           className="text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
-          onClick={onReaction}
+          onClick={onReactionButtonClicked}
           aria-label="Add reaction"
         >
           <Icon name="emoji" size="md" aria-hidden={true} />
@@ -179,7 +150,7 @@ export const MessageActions: React.FC<MessageActionsProps> = ({
           variant="ghost"
           size="sm"
           className="text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
-          onClick={onEdit}
+          onClick={onEditButtonClicked}
           aria-label="Edit message"
         >
           <Icon name="edit" size="sm" aria-hidden={true} />
@@ -191,7 +162,7 @@ export const MessageActions: React.FC<MessageActionsProps> = ({
           variant="ghost"
           size="sm"
           className="text-gray-600 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400"
-          onClick={onDelete}
+          onClick={onDeleteButtonClicked}
           aria-label="Delete message"
         >
           <Icon name="delete" size="sm" aria-hidden={true} />
