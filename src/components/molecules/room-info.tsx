@@ -23,12 +23,11 @@ export interface RoomInfoProps {
    *
    * @example
    * // Using context-managed avatar (recommended)
-   * <RoomInfo roomName="general-chat" />
+   * <RoomInfo />
    *
    * @example
    * // Providing custom avatar data
    * <RoomInfo
-   *   roomName="special-room"
    *   roomAvatar={{
    *     displayName: "VIP Lounge",
    *     color: "#FFD700",
@@ -238,7 +237,7 @@ export const RoomInfo: React.FC<RoomInfoProps> = ({
           role="button"
           aria-haspopup="dialog"
           aria-expanded={isOpen}
-          aria-label={`${roomName} (${String(presenceData.length || 0)} participants)`}
+          aria-label={`${roomAvatarData?.displayName || roomName} (${String(presenceData.length || 0)} participants)`}
           tabIndex={0}
           onKeyDown={(e) => {
             if (e.key === 'Enter' || e.key === ' ') {
@@ -328,7 +327,7 @@ export const RoomInfo: React.FC<RoomInfoProps> = ({
 
       {/* Room Information */}
       <div className="flex-1">
-        <h2 className="font-semibold text-gray-900 dark:text-gray-100">{roomName}</h2>
+        <h2 className="font-semibold text-gray-900 dark:text-gray-100">{roomAvatarData?.displayName || roomName}</h2>
         <div className="flex items-center gap-2">
           <PresenceIndicators />
           {/* Typing Indicators */}
