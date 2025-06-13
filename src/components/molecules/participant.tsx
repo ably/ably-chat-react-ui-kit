@@ -93,8 +93,8 @@ export const Participant: React.FC<ParticipantProps> = ({
   const { userAvatar } = useUserAvatar({ clientId });
   const avatarData = propAvatar || userAvatar;
 
-  // Determine the status text for screen readers
-  const statusText = isTyping && !isSelf ? 'typing' : isPresent ? 'online' : 'offline';
+  // Use the helper function
+  const statusText = getParticipantStatus(isTyping, isPresent, isSelf);
 
   return (
     <div
@@ -144,4 +144,17 @@ export const Participant: React.FC<ParticipantProps> = ({
       </div>
     </div>
   );
+};
+
+/**
+ * Helper function to determine participant status text
+ *
+ * @param isTyping - Whether the participant is currently typing
+ * @param isPresent - Whether the participant is currently present/online
+ * @param isSelf - Whether this participant represents the current user
+ * @returns Status text for the participant
+ */
+const getParticipantStatus = (isTyping: boolean, isPresent: boolean, isSelf: boolean): string => {
+  if (isTyping && !isSelf) return 'typing';
+  return isPresent ? 'online' : 'offline';
 };
