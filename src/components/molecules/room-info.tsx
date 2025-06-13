@@ -307,14 +307,15 @@ export const RoomInfo: React.FC<RoomInfoProps> = ({
         />
 
         {/* Participants Dropdown */}
-        <ParticipantList
-          presenceData={presenceData}
-          currentClientId={currentClientId}
-          currentlyTyping={currentlyTyping}
-          isOpen={isOpen}
-          onToggle={onToggle}
-          position={position}
-        />
+        {isOpen && (
+          <ParticipantList
+            presenceData={presenceData}
+            currentClientId={currentClientId}
+            currentlyTyping={currentlyTyping}
+            onToggle={onToggle}
+            position={position}
+          />
+        )}
 
         {/* Avatar Editor Modal */}
         {roomAvatarData && showAvatarEditor && (

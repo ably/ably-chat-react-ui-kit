@@ -28,11 +28,6 @@ export interface ParticipantListProps {
   currentlyTyping: Set<string>;
 
   /**
-   * Whether the participant list modal is currently open and visible.
-   */
-  isOpen: boolean;
-
-  /**
    * Callback function to toggle the list open/closed state.
    * Called when the close button is clicked or when backdrop interaction occurs.
    */
@@ -65,27 +60,21 @@ export interface ParticipantListProps {
  * const { currentlyTyping } = useTyping();
  * const { clientId } = useChatClient();
  *
- * <ParticipantList
+ * {participantListOpen && (<ParticipantList
  *   presenceData={presenceData || []}
  *   currentClientId={clientId}
  *   currentlyTyping={currentlyTyping}
- *   isOpen={participantListOpen}
  *   onToggle={toggleParticipantList}
  *   position={{ top: 100, left: 200 }}
- * />
+ * />)}
  */
 export const ParticipantList: React.FC<ParticipantListProps> = ({
   presenceData,
   currentClientId,
   currentlyTyping,
-  isOpen,
   onToggle,
   position,
 }) => {
-  if (!isOpen) {
-    return;
-  }
-
   // Calculate present count from unique clientIds in presence data
   const presentCount = presenceData.length || 0;
 
