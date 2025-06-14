@@ -1,5 +1,5 @@
 import { ChatMessageEvent, ChatMessageEventType, Message, PaginatedResult } from '@ably/chat';
-import { useMessages } from '@ably/chat/react';
+import { useMessages, useRoom } from '@ably/chat/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 /** Props for the useMessageWindow hook */
@@ -117,6 +117,21 @@ export const useMessageWindow = ({
   const initialHistoryLoadedRef = useRef<boolean>(false);
   const recoveringRef = useRef<boolean>(false);
 
+  /** Entire message history, should not be used for UI display */
+  const allMessagesRef = useRef<Message[]>([]);
+  /** Current version of the message list, used to trigger re-renders */
+  const [version, setVersion] = useState(0);
+  /** Slice to render in UI, typically a couple 100 messages */
+  const [activeMessages, setActiveMessages] = useState<Message[]>([]);
+  /** Anchor row, used to maintain the window position (‑1==latest) */
+  const [anchorIdx, setAnchorIdx] = useState<number>(-1);
+
+  /** Loading state for history queries */
+  const [loading, setLoading] = useState<boolean>(false);
+
+  /** Access the current room context so we can reset state correctly when it changes */
+  const { room } = useRoom();
+
   const { historyBeforeSubscribe } = useMessages({
     listener: (event: ChatMessageEvent) => {
       const { message, type } = event;
@@ -133,42 +148,46 @@ export const useMessageWindow = ({
       }
     },
     reactionsListener: (event) => {
-      setAllMessages((prev) => {
+      setVersion((prevVersion) => {
         const messageSerial = event.summary.messageSerial;
-        const next = [...prev];
         let changed = false;
+
         // If we don't have the message for this reaction, we can't do anything
         if (serialSetRef.current.has(messageSerial)) {
-          const idx = findMessageIndex(prev, messageSerial);
+          const idx = findMessageIndex(allMessagesRef.current, messageSerial);
           if (idx !== -1) {
-            const merged = next[idx].with(event);
-            if (merged !== next[idx]) {
-              next[idx] = merged;
+            const merged = allMessagesRef.current[idx].with(event);
+            if (merged !== allMessagesRef.current[idx]) {
+              allMessagesRef.current[idx] = merged; // Safe mutation here
               changed = true;
             }
           }
         }
-        if (!changed) return prev; // nothing changed → avoid re‑render
-        return next;
+
+        return changed ? prevVersion + 1 : prevVersion; // Only increment if changed
       });
     },
     onDiscontinuity: () => {
       // Get the serial of the last message in the current window
-      if (allMessages.length === 0) return;
-      const lastReceivedMessage = allMessages.at(-1);
+      if (allMessagesRef.current.length === 0) return;
+      const lastReceivedMessage = allMessagesRef.current.at(-1);
       if (!lastReceivedMessage) return;
       handleDiscontinuity(lastReceivedMessage.serial);
     },
   });
 
-  /** Entire message history, should not be used for UI display */
-  const [allMessages, setAllMessages] = useState<Message[]>([]);
-  /** Slice to render in UI, typically a couple 100 messages */
-  const [activeMessages, setActiveMessages] = useState<Message[]>([]);
-  /** Anchor row, used to maintain the window position (‑1==latest) */
-  const [anchorIdx, setAnchorIdx] = useState<number>(-1);
+  // Reset state when room changes.
+  useEffect(() => {
+    allMessagesRef.current = [];
+    serialSetRef.current.clear();
+    nextPageRef.current = undefined;
+    initialHistoryLoadedRef.current = false;
+    recoveringRef.current = false;
+    setVersion(0);
+    setActiveMessages([]);
+    setAnchorIdx(-1);
+  }, [room]);
 
-  const [loading, setLoading] = useState<boolean>(false);
   const [hasMoreHistory, setHasMoreHistory] = useState<boolean>(Boolean(historyBeforeSubscribe));
 
   /**
@@ -234,50 +253,56 @@ export const useMessageWindow = ({
     return left;
   }, []);
 
+  // TODO: More optimizations may be needed here, but further load testing is required to determine.
   const updateMessages = useCallback(
     (msgs: Message[], prepend = false) => {
       if (msgs.length === 0) return;
-
-      setAllMessages((prev) => {
-        const next = [...prev];
+      setVersion((prevVersion) => {
         let changed = false;
         let insertedBeforeAnchor = 0;
 
         for (const m of msgs) {
-          // If we already have this message, we can apply the update
           if (serialSetRef.current.has(m.serial)) {
-            const idx = findMessageIndex(prev, m.serial);
+            const idx = findMessageIndex(allMessagesRef.current, m.serial);
             if (idx !== -1) {
-              const merged = next[idx].with(m);
-              if (merged !== next[idx]) {
-                next[idx] = merged;
+              const merged = allMessagesRef.current[idx].with(m);
+              if (merged !== allMessagesRef.current[idx]) {
+                allMessagesRef.current[idx] = merged;
                 changed = true;
               }
             }
             continue;
           }
-          // If msg does not exist, we need to insert it
-          if (prepend && (next.length === 0 || m.before(next[0]))) {
-            // If prepending, and we are
-            next.unshift(m);
-            insertedBeforeAnchor += 1;
+
+          // Insert new message, if we are prepending, we insert at the beginning, but
+          // must check if it is actually older than the first message in the list.
+          if (
+            prepend &&
+            (allMessagesRef.current.length === 0 || m.before(allMessagesRef.current[0]))
+          ) {
+            allMessagesRef.current.unshift(m);
+            if (anchorIdx !== -1) insertedBeforeAnchor += 1;
           } else {
-            const insIdx = findInsertionIndex(next, m);
-            next.splice(insIdx, 0, m);
-            if (anchorIdx !== -1 && insIdx <= anchorIdx) insertedBeforeAnchor += 1;
+            // For new messages, or as a fallback, we find the insertion index
+            const newestMsg = allMessagesRef.current.at(-1);
+            if (allMessagesRef.current.length === 0 || (newestMsg && m.after(newestMsg))) {
+              allMessagesRef.current.push(m);
+            } else {
+              const insIdx = findInsertionIndex(allMessagesRef.current, m);
+              allMessagesRef.current.splice(insIdx, 0, m);
+              if (anchorIdx !== -1 && insIdx <= anchorIdx) insertedBeforeAnchor += 1;
+            }
           }
 
           serialSetRef.current.add(m.serial);
           changed = true;
         }
 
-        if (!changed) return prev; // nothing changed → avoid re‑render
-
-        if (insertedBeforeAnchor) {
+        if (changed && insertedBeforeAnchor) {
           setAnchorIdx((a) => (a === -1 ? a : a + insertedBeforeAnchor));
         }
 
-        return next;
+        return changed ? prevVersion + 1 : prevVersion;
       });
     },
     [anchorIdx, findInsertionIndex, findMessageIndex]
@@ -345,7 +370,6 @@ export const useMessageWindow = ({
         setHasMoreHistory(page.hasNext());
       } catch (error) {
         console.error('History load failed', error);
-        setHasMoreHistory(false);
         initialHistoryLoadedRef.current = false;
       } finally {
         if (!cancelled) setLoading(false);
@@ -376,7 +400,6 @@ export const useMessageWindow = ({
       }
     } catch (error) {
       console.error('History load failed', error);
-      setHasMoreHistory(false);
     } finally {
       setLoading(false);
     }
@@ -396,35 +419,33 @@ export const useMessageWindow = ({
     [windowSize, overscan]
   );
 
+  // Effects depend on version instead of allMessages
   useEffect(() => {
-    setActiveMessages(computeWindow(allMessages, anchorIdx));
-  }, [allMessages, anchorIdx, computeWindow]);
+    setActiveMessages(computeWindow(allMessagesRef.current, anchorIdx));
+  }, [version, anchorIdx, computeWindow]);
 
   const showLatestMessages = useCallback(() => {
     setAnchorIdx(-1);
   }, []);
 
-  const scrollBy = useCallback(
-    (delta: number) => {
-      setAnchorIdx((prev) => {
-        if (allMessages.length === 0) return prev;
-        const latest = allMessages.length - 1;
-        const base = prev === -1 ? latest : prev;
-        const next = base + delta;
-        if (next >= latest) return -1; // tail‑follow again
-        if (next < 0) return 0;
-        return next;
-      });
-    },
-    [allMessages]
-  );
+  const scrollBy = useCallback((delta: number) => {
+    setAnchorIdx((prev) => {
+      if (allMessagesRef.current.length === 0) return prev;
+      const latest = allMessagesRef.current.length - 1;
+      const base = prev === -1 ? latest : prev;
+      const next = base + delta;
+      if (next >= latest) return -1; // tail‑follow again
+      if (next < 0) return 0;
+      return next;
+    });
+  }, []);
 
   const showMessagesAroundSerial = useCallback(
     (serial: string) => {
-      const idx = findMessageIndex(allMessages, serial);
+      const idx = findMessageIndex(allMessagesRef.current, serial);
       if (idx !== -1) setAnchorIdx(idx);
     },
-    [allMessages, findMessageIndex]
+    [findMessageIndex]
   );
 
   return {
