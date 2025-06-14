@@ -13,10 +13,6 @@ export interface AppLayoutProps {
   width?: string | number;
   /** Height of the entire app container */
   height?: string | number;
-  /** Width of the sidebar when expanded */
-  sidebarWidth?: string | number;
-  /** Width of the sidebar when collapsed */
-  collapsedSidebarWidth?: string | number;
   /** Initial collapsed state */
   initialSidebarCollapsed?: boolean;
   /** Additional CSS classes */
@@ -79,8 +75,6 @@ export const AppLayout = React.memo<AppLayoutProps>(
     children,
     width = '70vw',
     height = '70vh',
-    sidebarWidth = '20rem',
-    collapsedSidebarWidth = '4rem',
     initialSidebarCollapsed = false,
     className = '',
     'aria-label': ariaLabel,
@@ -102,21 +96,6 @@ export const AppLayout = React.memo<AppLayoutProps>(
         height: typeof height === 'number' ? `${String(height)}px` : height,
       }),
       [width, height]
-    );
-
-    // Memoize the sidebar style
-    const sidebarStyle = useMemo(
-      () => ({
-        width: isSidebarCollapsed
-          ? typeof collapsedSidebarWidth === 'number'
-            ? `${String(collapsedSidebarWidth)}px`
-            : collapsedSidebarWidth
-          : typeof sidebarWidth === 'number'
-            ? `${String(sidebarWidth)}px`
-            : sidebarWidth,
-        transition: 'width 0.3s ease-in-out',
-      }),
-      [isSidebarCollapsed, sidebarWidth, collapsedSidebarWidth]
     );
 
     return (
@@ -143,7 +122,13 @@ export const AppLayout = React.memo<AppLayoutProps>(
       >
         {/* Sidebar */}
         {sidebar && (
-          <div style={sidebarStyle} className="flex-shrink-0">
+          <div
+            className={clsx(
+              'flex-shrink-0',
+              'transition-all duration-300 ease-in-out',
+              isSidebarCollapsed ? 'w-16' : 'w-64 md:w-72 lg:w-80'
+            )}
+          >
             {React.cloneElement(sidebar as React.ReactElement, {
               isCollapsed: isSidebarCollapsed,
               onToggleCollapse: handleToggleSidebar,

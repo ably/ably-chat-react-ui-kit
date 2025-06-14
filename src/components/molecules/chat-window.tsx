@@ -5,9 +5,9 @@ import React, { useCallback } from 'react';
 
 import { useChatSettings } from '../../hooks/use-chat-settings.tsx';
 import { useMessageWindow } from '../../hooks/use-message-window.tsx';
+import { ChatMessageList } from './chat-message-list.tsx';
 import { ChatWindowFooter } from './chat-window-footer.tsx';
 import { ChatWindowHeader } from './chat-window-header.tsx';
-import { ChatMessageList } from './chat-message-list.tsx';
 import { MessageInput } from './message-input.tsx';
 import { TypingIndicators } from './typing-indicators.tsx';
 
@@ -231,9 +231,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
       aria-label={`Chat room: ${roomName}`}
     >
       {/* Header */}
-      {customHeaderContent && (
-        <ChatWindowHeader>{customHeaderContent}</ChatWindowHeader>
-      )}
+      {customHeaderContent && <ChatWindowHeader>{customHeaderContent}</ChatWindowHeader>}
 
       {/* Messages */}
       <ChatMessageList

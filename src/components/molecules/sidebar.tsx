@@ -79,11 +79,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
         'bg-white dark:bg-gray-900',
         'border-r border-gray-200 dark:border-gray-800',
         'flex flex-col h-full',
+        'w-full',
         className
       )}
     >
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800">
+      <div
+        className={clsx(
+          'flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800',
+          'min-h-[4rem]'
+        )}
+      >
         {isCollapsed ? (
           <div className="flex flex-col items-center gap-2">
             <Button variant="ghost" size="sm" onClick={toggleTheme}>
@@ -97,11 +103,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
         ) : (
           <>
-            <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+            <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100 truncate">
               Chats <span className="text-sm font-normal text-gray-500">({roomNames.length})</span>
             </h1>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-shrink-0">
               <Button variant="ghost" size="sm" onClick={toggleTheme}>
                 <Icon name={theme === 'dark' ? 'sun' : 'moon'} size="md" />
               </Button>
@@ -134,7 +140,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         )}
       </div>
 
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto min-w-0">
         <RoomList
           roomNames={roomNames}
           activeRoomName={activeRoomName}
