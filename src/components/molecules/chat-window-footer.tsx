@@ -32,7 +32,7 @@ export interface ChatWindowFooterProps {
  *   <CustomFooterContent />
  * </ChatWindowFooter>
  */
-export const ActiveChatWindowFooter: React.FC<ChatWindowFooterProps> = ({
+export const ChatWindowFooter: React.FC<ChatWindowFooterProps> = ({
   children,
   className,
   'aria-label': ariaLabel,
@@ -56,4 +56,4 @@ export const ActiveChatWindowFooter: React.FC<ChatWindowFooterProps> = ({
   );
 };
 
-ActiveChatWindowFooter.displayName = 'ChatWindowFooter';
+ChatWindowFooter.displayName = 'ChatWindowFooter';

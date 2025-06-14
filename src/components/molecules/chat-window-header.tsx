@@ -44,7 +44,7 @@ export interface ChatWindowHeaderProps {
  * // Empty header (spacer only)
  * <ChatWindowHeader />
  */
-export const ActiveChatWindowHeader: React.FC<ChatWindowHeaderProps> = ({
+export const ChatWindowHeader: React.FC<ChatWindowHeaderProps> = ({
   children,
   className = '',
   'aria-label': ariaLabel,
@@ -69,4 +69,4 @@ export const ActiveChatWindowHeader: React.FC<ChatWindowHeaderProps> = ({
   );
 };
 
-ActiveChatWindowHeader.displayName = 'ChatWindowHeader';
+ChatWindowHeader.displayName = 'ChatWindowHeader';

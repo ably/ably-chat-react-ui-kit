@@ -44,7 +44,7 @@ Full application component that provides a complete chat interface out of the bo
 - Theme support (light/dark mode)
 - Avatar management
 
-### ActiveChatWindow
+### ChatWindow
 A comprehensive chat interface for individual rooms featuring:
 - Message history with pagination
 - Real-time message display

@@ -1,6 +1,15 @@
 export { AvatarEditor, type AvatarEditorProps } from './avatar-editor.tsx';
 export { ChatMessage, type ChatMessageProps } from './chat-message.tsx';
 export { ChatMessageList, type ChatMessageListProps } from './chat-message-list.tsx';
+export { ChatWindow, type ChatWindowProps } from './chat-window.tsx';
+export {
+  ChatWindowFooter,
+  type ChatWindowFooterProps,
+} from './chat-window-footer.tsx';
+export {
+  ChatWindowHeader,
+  type ChatWindowHeaderProps,
+} from './chat-window-header.tsx';
 export { ConfirmDialog, type ConfirmDialogProps } from './confirm-dialog.tsx';
 export { CreateRoomModal, type CreateRoomModalProps } from './create-room-modal.tsx';
 export { DropdownMenu, type DropdownMenuItem, type DropdownMenuProps } from './dropdown-menu.tsx';

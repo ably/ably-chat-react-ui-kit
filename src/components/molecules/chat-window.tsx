@@ -1,87 +1,76 @@
-import { RoomOptions } from '@ably/chat';
-import { ChatRoomProvider } from '@ably/chat/react';
-import React from 'react';
+import { Message, MessageReactionType } from '@ably/chat';
+import { useChatClient, useMessages, usePresence } from '@ably/chat/react';
+import clsx from 'clsx';
+import React, { useCallback } from 'react';
 
-import { ActiveChatWindow } from './active-chat-window.tsx';
-import { EmptyState } from './empty-state.tsx';
+import { useChatSettings } from '../../hooks/use-chat-settings.tsx';
+import { useMessageWindow } from '../../hooks/use-message-window.tsx';
+import { ChatWindowFooter } from './chat-window-footer.tsx';
+import { ChatWindowHeader } from './chat-window-header.tsx';
+import { ChatMessageList } from './chat-message-list.tsx';
+import { MessageInput } from './message-input.tsx';
+import { TypingIndicators } from './typing-indicators.tsx';
 
 /**
  * Props for the ChatWindow component
  */
 export interface ChatWindowProps {
   /**
-   * Name of the currently active chat room.
-   * When undefined or empty, displays an empty state prompting user to select a room.
-   * When provided, establishes a ChatRoomProvider context and renders the full chat interface.
+   * Unique identifier for the chat room.
+   * Used for room-specific settings lookup and display customization.
+   * Must be a valid room name as defined by your chat service.
    */
-  activeRoomName?: string;
+  roomName: string;
 
   /**
-   * Default room options to apply to the chat room.
-   * These options configure room behavior including occupancy tracking, typing indicators,
-   * message history settings, and other room-level features.
+   * Optional custom content for the header area of the chat window.
+   * Typically contains room information, participant counts, settings buttons,
+   * or other room-specific controls and metadata display.
    *
-   * If you have used the same room in multiple ChatRoomProviders, you must provide the same options
-   * to each provider.
-   *
-   * If you do not provide options, the room will use the default {@link RoomOptions} from the Ably Chat SDK.
-   *
-   * @default undefined
+   * Content is rendered within the ChatWindowHeader component and inherits
+   * the header's styling and layout constraints.
    *
    * @example
-   * // Basic room options
-   * defaultRoomOptions={{
-   *   occupancy: { enableEvents: true },
-   *   typing: { timeoutMs: 5000 }
-   * }}
-   */
-  defaultRoomOptions?: RoomOptions;
-
-  /**
-   * Whether the room should attach/detach automatically on mount/unmount.
-   * If true, the ChatRoomProvider will automatically attach to the room when the component mounts
-   * and detach when it unmounts. Set to false for manual room lifecycle management.
-   *
-   * @remarks Currently, ChatRoomProviders have no method to check if they hold the only reference to the room.
-   * As such, if you are using the same room in multiple ChatRoomProviders, you should set this to false
-   * and manage the attach/detach lifecycle manually to avoid conflicts. This will be fixed in an upcoming release.
-   *
-   * @default true
-   */
-  attach?: boolean;
-
-  /**
-   * Whether the room should release when the component unmounts.
-   * If false, you must manage room release manually to prevent memory leaks.
-   * Set to false when sharing rooms across multiple components.
-   *
-   * @remarks Currently, ChatRoomProviders have no method to check if they hold the only reference to the room.
-   * As such, if you are using the same room in multiple ChatRoomProviders, you should set this to false
-   * and manage the release lifecycle manually.
-   *
-   * @default true
-   */
-  release?: boolean;
-
-  /**
-   * Optional custom content for the chat header area.
-   * Typically used for room information, participant counts, or action buttons.
-   * Content will be rendered within the ChatWindowHeader component.
-   *
-   * @example
-   * customHeaderContent={<RoomInfo roomName={activeRoomName} />}
+   * customHeaderContent={
+   *   <div className="flex items-center gap-2">
+   *     <RoomInfo roomName={roomName} />
+   *     <ParticipantCount />
+   *     <RoomSettingsButton />
+   *   </div>
+   * }
    */
   customHeaderContent?: React.ReactNode;
 
   /**
-   * Optional custom content for the chat footer area.
-   * Typically used for reaction pickers, file upload buttons, or additional controls.
-   * Content will be rendered alongside the MessageInput in the ChatWindowFooter.
+   * Optional custom content for the footer area of the chat window.
+   * Typically contains additional input controls like reaction pickers,
+   * file upload buttons, formatting tools, or other message composition aids.
+   *
+   * Content is rendered alongside the MessageInput within the ChatWindowFooter
+   * and should be designed to complement the primary input functionality.
    *
    * @example
-   * customFooterContent={<ReactionPicker />}
+   * customFooterContent={
+   *   <div className="flex items-center gap-2">
+   *     <EmojiPickerButton />
+   *     <FileUploadButton />
+   *     <VoiceRecordButton />
+   *   </div>
+   * }
    */
   customFooterContent?: React.ReactNode;
+
+  /**
+   * Whether to show typing indicators in the chat window.
+   * When enabled, shows indicators when other users are typing.
+   *
+   * @default true
+   *
+   * @example
+   * // Disable typing indicators for performance in large rooms
+   * enableTypingIndicators={false}
+   */
+  enableTypingIndicators?: boolean;
 
   /**
    * Controls the window size for rendering messages in UI. A larger window size will
@@ -89,143 +78,195 @@ export interface ChatWindowProps {
    * Too high a value may lead to significant performance issues.
    *
    * @default 200
-   * windowSize={300}
+   * windowSize={200}
    */
   windowSize?: number;
 
   /**
    * Additional CSS class names to apply to the root container.
-   * Useful for custom styling, layout adjustments, or theme variations.
+   * Useful for custom styling, layout adjustments, theme variations,
+   * or integration with external design systems.
+   *
+   * Applied to the outermost div element and combined with default styling.
    */
   className?: string;
-
-  /**
-   * Configuration for the empty state displayed when no room is selected.
-   * Allows customization of the icon, title, and message shown to users.
-   */
-  emptyStateConfig?: {
-    /** Custom icon to display in the empty state */
-    icon?: React.ReactNode;
-    /** Custom title text for the empty state */
-    title?: string;
-    /** Custom message text for the empty state */
-    message?: string;
-    /** Optional action button for the empty state */
-    action?: React.ReactNode;
-  };
 }
 
 /**
- * ChatWindow component acts as a wrapper around the {@link ActiveChatWindow}, to provide loading and empty state management.
- * It must be used within an {@link ChatRoomProvider}, {@link AvatarProvider} and {@link ChatSettingsProvider} to function correctly.
+ * ChatWindow component provides the main chat interface for a room.
  *
  * Features:
- * - Automatically switches between empty state and active chat
- * - Manages ChatRoomProvider lifecycle and context
- * - Configurable initial message loading with pagination support
- * - Flexible header and footer content slots
- * - ARIA support with proper semantic structure
- *
- *
- * @example
- * // Basic usage with room selection
- * <ChatWindow activeRoomName="general" />
+ * - Message display with history loading
+ * - Message editing, deletion, and reactions
+ * - Typing indicators and presence
+ * - Custom header and footer content
+ * - Discontinuity recovery on reconnection
+ * - Active chat window management to control which messages are rendered in the UI.
+ * - History loading with infinite scroll support
  *
  * @example
- * // With custom room options and content
- * <ChatWindow
- *   activeRoomName="support"
- *   defaultRoomOptions={{
- *     occupancy: { enableEvents: true },
- *     typing: { timeoutMs: 5000 }
- *   }}
- *   customHeaderContent={<RoomInfo />}
- *   customFooterContent={<ReactionPicker />}
- *   windowSize={400}
- * />
+ * // Basic usage
+ * <ChatRoomProvider
+ *   key={'general'}
+ *   name={'general'}
+ * >
+ *   <ChatWindow
+ *     roomName={'general'}
+ *   />
+ * </ChatRoomProvider>
  *
  * @example
- * // Empty state with custom configuration
- * <ChatWindow
- *   emptyStateConfig={{
- *     title: "Welcome to Team Chat",
- *     message: "Select a channel from the sidebar to start collaborating",
- *     action: <Button onClick={handleCreateRoom}>Create Channel</Button>
- *   }}
- * />
- *
- * @example
- * // Manual room lifecycle management
- * <ChatWindow
- *   activeRoomName="private-room"
- *   attach={false}
- *   release={false}
- *   className="custom-chat-theme"
- * />
+ * // With custom header and footer
+ * <ChatRoomProvider
+ *   key={'general'}
+ *   name={'general'}
+ * >
+ *   <ChatWindow
+ *     roomName={'general'}
+ *     customHeaderContent={<RoomInfo />}
+ *     customFooterContent={<RoomReaction />}
+ *   />
+ * </ChatRoomProvider>
  */
 export const ChatWindow: React.FC<ChatWindowProps> = ({
-  activeRoomName,
-  defaultRoomOptions,
-  attach = true,
-  release = true,
+  roomName,
   customHeaderContent,
   customFooterContent,
   windowSize = 200,
+  enableTypingIndicators = true,
   className,
-  emptyStateConfig,
 }) => {
-  // Render empty state when no room is selected
-  if (!activeRoomName) {
-    return (
-      <div className={`flex flex-col h-full ${className || ''}`}>
-        <EmptyState
-          icon={
-            <svg
-              className="mx-auto h-12 w-12 text-gray-400"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              aria-hidden="true"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-              />
-            </svg>
-          }
-          title={emptyStateConfig?.title || 'Select a room to start chatting'}
-          message={
-            emptyStateConfig?.message ||
-            'Choose a room or create a new one to begin your conversation'
-          }
-          action={emptyStateConfig?.action}
-          ariaLabel="No chat room selected"
-        />
-      </div>
-    );
-  }
+  const { clientId } = useChatClient();
+  usePresence(); // enter presence on mount
+  const { getEffectiveSettings } = useChatSettings();
+  const settings = getEffectiveSettings(roomName);
 
-  // Render active chat room with provider context
+  const {
+    send,
+    deleteMessage,
+    update: updateMessageRemote,
+    sendReaction,
+    deleteReaction,
+  } = useMessages();
+
+  const {
+    activeMessages,
+    updateMessages,
+    showLatestMessages,
+    showMessagesAroundSerial,
+    loadMoreHistory,
+    hasMoreHistory,
+    loading,
+  } = useMessageWindow({ windowSize });
+
+  const handleRESTMessageUpdate = useCallback(
+    (updated: Message) => {
+      updateMessages([updated]);
+    },
+    [updateMessages]
+  );
+
+  const handleMessageEdit = useCallback(
+    (msg: Message, newText: string) => {
+      const updated = msg.copy({ text: newText, metadata: msg.metadata, headers: msg.headers });
+
+      updateMessageRemote(msg.serial, updated)
+        .then(handleRESTMessageUpdate)
+        .catch((error: unknown) => {
+          console.error('Failed to update message:', error);
+        });
+    },
+    [updateMessageRemote, handleRESTMessageUpdate]
+  );
+
+  const handleMessageDelete = useCallback(
+    (msg: Message) => {
+      deleteMessage(msg, { description: 'deleted by user' })
+        .then(handleRESTMessageUpdate)
+        .catch((error: unknown) => {
+          console.error('Failed to delete message:', error);
+        });
+    },
+    [deleteMessage, handleRESTMessageUpdate]
+  );
+
+  const handleReactionAdd = useCallback(
+    (msg: Message, emoji: string) => {
+      sendReaction(msg, { type: MessageReactionType.Distinct, name: emoji }).catch(
+        (error: unknown) => {
+          console.error('Failed to add reaction:', error);
+        }
+      );
+    },
+    [sendReaction]
+  );
+
+  const handleReactionRemove = useCallback(
+    (msg: Message, emoji: string) => {
+      deleteReaction(msg, { type: MessageReactionType.Distinct, name: emoji }).catch(
+        (error: unknown) => {
+          console.error('Failed to remove reaction:', error);
+        }
+      );
+    },
+    [deleteReaction]
+  );
+
+  const handleSendMessage = useCallback(
+    (text: string) => {
+      const trimmed = text.trim();
+      if (!trimmed) return;
+
+      send({ text: trimmed }).catch((error: unknown) => {
+        console.error('Failed to send message:', error);
+      });
+    },
+    [send]
+  );
+
   return (
-    <ChatRoomProvider
-      key={activeRoomName}
-      name={activeRoomName}
-      attach={attach}
-      release={release}
-      options={defaultRoomOptions}
+    <div
+      className={clsx('flex flex-col h-full bg-white dark:bg-gray-900 flex-1', className)}
+      role="main"
+      aria-label={`Chat room: ${roomName}`}
     >
-      <ActiveChatWindow
-        roomName={activeRoomName}
-        customHeaderContent={customHeaderContent}
-        customFooterContent={customFooterContent}
-        windowSize={windowSize}
-        className={className}
-      />
-    </ChatRoomProvider>
+      {/* Header */}
+      {customHeaderContent && (
+        <ChatWindowHeader>{customHeaderContent}</ChatWindowHeader>
+      )}
+
+      {/* Messages */}
+      <ChatMessageList
+        messages={activeMessages}
+        currentClientId={clientId}
+        isLoading={loading}
+        onLoadMoreHistory={() => {
+          void loadMoreHistory();
+        }}
+        hasMoreHistory={hasMoreHistory}
+        onEdit={settings.allowMessageEdits ? handleMessageEdit : undefined}
+        onDelete={settings.allowMessageDeletes ? handleMessageDelete : undefined}
+        onReactionAdd={settings.allowMessageReactions ? handleReactionAdd : undefined}
+        onReactionRemove={settings.allowMessageReactions ? handleReactionRemove : undefined}
+        onMessageInView={showMessagesAroundSerial}
+        onViewLatest={showLatestMessages}
+      >
+        {enableTypingIndicators && <TypingIndicators className="px-4" />}
+      </ChatMessageList>
+
+      {/* Footer */}
+      <ChatWindowFooter>
+        <div className="flex-1">
+          <MessageInput
+            onSend={handleSendMessage}
+            placeholder={`Message ${roomName}...`}
+            aria-label={`Send message to ${roomName}`}
+          />
+        </div>
+        {customFooterContent}
+      </ChatWindowFooter>
+    </div>
   );
 };
 
-// Set display name for better debugging experience
 ChatWindow.displayName = 'ChatWindow';

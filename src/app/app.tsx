@@ -1,10 +1,11 @@
 import { ConnectionStatus, RoomOptions } from '@ably/chat';
-import { useChatConnection } from '@ably/chat/react';
+import { ChatRoomProvider, useChatConnection } from '@ably/chat/react';
 import React, { useCallback, useState } from 'react';
 
 import { AppLoading } from '../components/atoms/app-loading.tsx';
 import { AppLayout } from '../components/layouts/app-layout.tsx';
 import { ChatWindow } from '../components/molecules/chat-window.tsx';
+import { EmptyState } from '../components/molecules/empty-state.tsx';
 import { RoomInfo } from '../components/molecules/room-info.tsx';
 import { RoomReaction } from '../components/molecules/room-reaction.tsx';
 import { Sidebar } from '../components/molecules/sidebar.tsx';
@@ -76,14 +77,46 @@ export const App: React.FC<AppProps> = ({ initialRoomNames }) => {
         />
       }
     >
-      <ChatWindow
-        activeRoomName={activeRoom}
-        attach={false}
-        release={false}
-        customHeaderContent={<RoomInfo />}
-        customFooterContent={<RoomReaction />}
-        defaultRoomOptions={DEFAULT_ROOM_OPTIONS}
-      />
+      {/* Render the active chat window if a room is selected, otherwise show empty state */}
+      {activeRoom ? (
+        <ChatRoomProvider
+          key={activeRoom}
+          name={activeRoom}
+          attach={false}
+          release={false}
+          options={DEFAULT_ROOM_OPTIONS}
+        >
+          <ChatWindow
+            roomName={activeRoom}
+            customHeaderContent={<RoomInfo />}
+            customFooterContent={<RoomReaction />}
+          />
+        </ChatRoomProvider>
+      ) : (
+        <div className="flex flex-col h-full">
+          <EmptyState
+            icon={
+              <svg
+                className="mx-auto h-12 w-12 text-gray-400"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                />
+              </svg>
+            }
+            title={'Select a room to start chatting'}
+            message={'Choose a room or create a new one to begin your conversation'}
+            ariaLabel="No chat room selected"
+          />
+        </div>
+      )}
     </AppLayout>
   );
 };

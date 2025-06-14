@@ -2,7 +2,6 @@ import { ChatMessageEvent, ChatMessageEventType, Message, PaginatedResult } from
 import { useMessages } from '@ably/chat/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-
 /** Props for the useMessageWindow hook */
 export interface UseMessageWindowProps {
   /** Number of rows kept mounted (ex‑overscan). Defaults to 200 */
