@@ -186,7 +186,7 @@ export const EmojiBurst: React.FC<EmojiBurstProps> = ({
 
       newEmojis.push({
         id: i,
-        emoji: emojiVariants[Math.floor(Math.random() * emojiVariants.length)],
+        emoji: emojiVariants[Math.floor(Math.random() * emojiVariants.length)] || emoji,
         x: position.x,
         y: position.y,
         vx: Math.cos(angle) * speed,

@@ -1,12 +1,14 @@
-import clsx from 'clsx';
+import { clsx } from 'clsx';
 import React, { ReactNode, useCallback, useMemo, useState } from 'react';
+
+import type { SidebarProps } from '../molecules/sidebar.tsx';
 
 /**
  * Props for the AppLayout component
  */
 export interface AppLayoutProps {
   /** Sidebar content */
-  sidebar?: ReactNode;
+  sidebar?: React.ReactElement<SidebarProps>;
   /** Children nodes. */
   children?: ReactNode;
   /** Width of the entire app container */
@@ -129,7 +131,7 @@ export const AppLayout = React.memo<AppLayoutProps>(
               isSidebarCollapsed ? 'w-16' : 'w-64 md:w-72 lg:w-80'
             )}
           >
-            {React.cloneElement(sidebar as React.ReactElement, {
+            {React.cloneElement(sidebar, {
               isCollapsed: isSidebarCollapsed,
               onToggleCollapse: handleToggleSidebar,
             })}

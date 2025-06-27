@@ -127,9 +127,9 @@ export const MessageReactions: React.FC<MessageReactionsProps> = ({
     <div className="flex flex-wrap gap-1 mt-2" role="group" aria-label="Message reactions">
       {emojiNames.map((emoji) => {
         const reaction = distinct[emoji];
+        if (!reaction) return;
         const hasUserReacted = reaction.clientIds.includes(currentClientId);
         const count = reaction.total;
-
         return (
           <button
             key={emoji}

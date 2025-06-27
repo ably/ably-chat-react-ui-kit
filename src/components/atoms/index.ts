@@ -16,3 +16,6 @@ export { Icon, type IconProps } from './icon.tsx';
 
 // Tooltip Components
 export { Tooltip, type TooltipProps } from './tooltip.tsx';
+
+// Loading Components
+export { AppLoading } from './app-loading.tsx';

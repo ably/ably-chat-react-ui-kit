@@ -164,11 +164,13 @@ export const AvatarEditor: React.FC<AvatarEditorProps> = ({
 
     return displayName
       .split(' ')
-      .map((name) => name[0].toUpperCase() || '')
+      .filter(name => name.length > 0)
+      .map((name) => name[0]?.toUpperCase() || '')
       .join('')
       .padEnd(2, '•')
       .slice(0, 2);
   };
+
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">

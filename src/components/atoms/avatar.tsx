@@ -21,7 +21,7 @@ export interface AvatarData {
  * @param text - The text to generate a color from
  * @returns A Tailwind CSS color class
  */
-const getRandomColor = (text: string) => {
+const getRandomColor = (text: string): string => {
   const colors = [
     'bg-blue-500',
     'bg-purple-500',
@@ -46,8 +46,11 @@ const getRandomColor = (text: string) => {
   for (let i = 0; i < text.length; i++) {
     hash = ((hash << 5) - hash + (text.codePointAt(i) ?? 0)) & 0xFFFFFFFF;
   }
-  return colors[Math.abs(hash) % colors.length];
+
+  const colorIndex = Math.abs(hash) % colors.length;
+  return colors[colorIndex] || 'bg-gray-500';
 };
+
 
 /**
  * Recommended image dimensions: 256x256 pixels
@@ -163,10 +166,24 @@ export const Avatar: React.FC<AvatarProps> = ({
     // Fallback to generating initials from alt text
     if (!alt) return '??'; // Handle empty alt text
 
-    const words = alt.trim().split(/\s+/);
-    if (words.length >= 2) {
-      return (words[0][0] + words[1][0]).toUpperCase();
+    const words = alt
+      .trim()
+      .split(/\s+/)
+      .filter((word) => word.length > 0);
+
+    if (words.length >= 2 && words[0] && words[1]) {
+      const firstChar = words[0][0];
+      const secondChar = words[1][0];
+      if (firstChar && secondChar) {
+        return (firstChar + secondChar).toUpperCase();
+      }
     }
+
+    if (words.length === 1 && words[0] && words[0].length >= 2) {
+      return words[0].slice(0, 2).toUpperCase();
+    }
+
+    // Final fallback using the original alt text
     return alt.slice(0, 2).toUpperCase();
   };
 

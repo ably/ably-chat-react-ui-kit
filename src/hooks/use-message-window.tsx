@@ -112,7 +112,7 @@ export const useMessageWindow = ({
   overscan = 20,
   historyBatchSize = 300,
 }: UseMessageWindowProps = {}): UseMessageWindowResponse => {
-  const nextPageRef = useRef<undefined | (() => Promise<PaginatedResult<Message> | null>)>();
+  const nextPageRef = useRef<undefined | (() => Promise<PaginatedResult<Message> | null>)>(undefined);
   const serialSetRef = useRef<Set<string>>(new Set());
   const initialHistoryLoadedRef = useRef<boolean>(false);
   const recoveringRef = useRef<boolean>(false);
@@ -155,10 +155,11 @@ export const useMessageWindow = ({
         // If we don't have the message for this reaction, we can't do anything
         if (serialSetRef.current.has(messageSerial)) {
           const idx = findMessageIndex(allMessagesRef.current, messageSerial);
-          if (idx !== -1) {
-            const merged = allMessagesRef.current[idx].with(event);
-            if (merged !== allMessagesRef.current[idx]) {
-              allMessagesRef.current[idx] = merged; // Safe mutation here
+          if (idx !== -1 && allMessagesRef.current[idx]) {
+            const currentMessage = allMessagesRef.current[idx];
+            const merged = currentMessage.with(event);
+            if (merged !== currentMessage) {
+              allMessagesRef.current[idx] = merged;
               changed = true;
             }
           }
@@ -169,8 +170,11 @@ export const useMessageWindow = ({
     },
     onDiscontinuity: () => {
       // Get the serial of the last message in the current window
-      if (allMessagesRef.current.length === 0) return;
-      const lastReceivedMessage = allMessagesRef.current.at(-1);
+      const messages = allMessagesRef.current;
+      if (messages.length === 0) return;
+
+      // eslint-disable-next-line unicorn/prefer-at
+      const lastReceivedMessage = messages[messages.length - 1];
       if (!lastReceivedMessage) return;
       handleDiscontinuity(lastReceivedMessage.serial);
     },
@@ -208,7 +212,11 @@ export const useMessageWindow = ({
 
       while (left <= right) {
         const mid = Math.floor((left + right) / 2);
-        const midSerial = messages[mid].serial;
+        const midMessage = messages[mid];
+
+        if (!midMessage) return -1;
+
+        const midSerial = midMessage.serial;
 
         if (midSerial === targetSerial) {
           return mid;
@@ -242,8 +250,13 @@ export const useMessageWindow = ({
 
     while (left < right) {
       const mid = Math.floor((left + right) / 2);
+      const midMessage = messages[mid];
 
-      if (newMessage.before(messages[mid])) {
+      if (!midMessage) {
+        return -1
+      }
+
+      if (newMessage.before(midMessage)) {
         right = mid;
       } else {
         left = mid + 1;
@@ -257,41 +270,43 @@ export const useMessageWindow = ({
   const updateMessages = useCallback(
     (msgs: Message[], prepend = false) => {
       if (msgs.length === 0) return;
+
       setVersion((prevVersion) => {
         let changed = false;
         let insertedBeforeAnchor = 0;
-
+        const allMessages = allMessagesRef.current;
         for (const m of msgs) {
+          // Handle existing messages
           if (serialSetRef.current.has(m.serial)) {
-            const idx = findMessageIndex(allMessagesRef.current, m.serial);
-            if (idx !== -1) {
-              const merged = allMessagesRef.current[idx].with(m);
-              if (merged !== allMessagesRef.current[idx]) {
-                allMessagesRef.current[idx] = merged;
-                changed = true;
-              }
+            const idx = findMessageIndex(allMessages, m.serial);
+            const existingMessage = allMessagesRef.current[idx];
+            const merged = existingMessage?.with(m);
+
+            if (merged && merged !== existingMessage) {
+              allMessagesRef.current[idx] = merged;
+              changed = true;
             }
             continue;
           }
 
-          // Insert new message, if we are prepending, we insert at the beginning, but
-          // must check if it is actually older than the first message in the list.
-          if (
-            prepend &&
-            (allMessagesRef.current.length === 0 || m.before(allMessagesRef.current[0]))
-          ) {
-            allMessagesRef.current.unshift(m);
+          // Handle new messages
+          const firstMessage = allMessages[0];
+          const lastMessage = allMessages.at(-1);
+
+          // Prepend if requested and message is older than first
+          if (prepend && (allMessages.length === 0 || (firstMessage && m.before(firstMessage)))) {
+            allMessages.unshift(m);
             if (anchorIdx !== -1) insertedBeforeAnchor += 1;
-          } else {
-            // For new messages, or as a fallback, we find the insertion index
-            const newestMsg = allMessagesRef.current.at(-1);
-            if (allMessagesRef.current.length === 0 || (newestMsg && m.after(newestMsg))) {
-              allMessagesRef.current.push(m);
-            } else {
-              const insIdx = findInsertionIndex(allMessagesRef.current, m);
-              allMessagesRef.current.splice(insIdx, 0, m);
-              if (anchorIdx !== -1 && insIdx <= anchorIdx) insertedBeforeAnchor += 1;
-            }
+          }
+          // Append if message is newer than last
+          else if (allMessages.length === 0 || (lastMessage && m.after(lastMessage))) {
+            allMessages.push(m);
+          }
+          // Insert at correct position
+          else {
+            const insIdx = findInsertionIndex(allMessages, m);
+            allMessages.splice(insIdx, 0, m);
+            if (anchorIdx !== -1 && insIdx <= anchorIdx) insertedBeforeAnchor += 1;
           }
 
           serialSetRef.current.add(m.serial);
@@ -307,6 +322,7 @@ export const useMessageWindow = ({
     },
     [anchorIdx, findInsertionIndex, findMessageIndex]
   );
+
 
   const handleDiscontinuity = useCallback(
     (recoverFromSerial: string) => {

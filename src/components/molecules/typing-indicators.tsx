@@ -1,5 +1,5 @@
 import { useChatClient, useTyping } from '@ably/chat/react';
-import clsx from 'clsx';
+import { clsx } from 'clsx';
 import React, { ReactNode } from 'react';
 
 import { TypingDots } from '../atoms/typing-dots.tsx';
@@ -171,18 +171,18 @@ function buildTypingSentence(clientIds: string[], maxClients = 1): string {
 
   // All users fit into the limit → list them, nothing to collapse
   if (count <= safeMax) {
-    if (count === 1) return `${clientIds[0]} is typing`;
-    if (count === 2) return `${clientIds[0]} and ${clientIds[1]} are typing`;
-    if (count === 3) return `${clientIds[0]}, ${clientIds[1]} and ${clientIds[2]} are typing`;
+    if (count === 1) return `${String(clientIds[0])} is typing`;
+    if (count === 2) return `${String(clientIds[0])} and ${String(clientIds[1])} are typing`;
+    if (count === 3)
+      return `${String(clientIds[0])}, ${String(clientIds[1])} and ${String(clientIds[2])} are typing`;
 
     // >3 but still within the limit – generic join
-    const names = clientIds.slice(0, -1).join(', ');
-    return `${names} and ${clientIds[count - 1]} are typing`;
+    const names = clientIds.slice(0, -1).map(String).join(', ');
+    return `${names} and ${String(clientIds[count - 1])} are typing`;
   }
-
   // Need to collapse the tail into "…n others"
   const displayNames = clientIds.slice(0, safeMax).join(', ');
   const remaining = count - safeMax;
 
-  return `${displayNames} and ${String(remaining)} other${remaining > 1 ? 's' : ''} are typing`;
+  return `${displayNames} and ${remaining.toString()} other${remaining > 1 ? 's' : ''} are typing`;
 }

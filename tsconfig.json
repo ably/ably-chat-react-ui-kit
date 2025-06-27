@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
+    "target": "ES2022",
     "module": "ESNext",
-    "lib": ["ES2021", "DOM", "DOM.Iterable"],
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "jsx": "react-jsx",
     "skipLibCheck": true,
     "outDir": "dist",
@@ -15,7 +15,17 @@
     "declaration": true,
     "declarationDir": "dist",
     "emitDeclarationOnly": true,
-    "allowImportingTsExtensions": true
+    "allowImportingTsExtensions": true,
+    "alwaysStrict": true,
+    "noImplicitThis": true,
+    "strictNullChecks": true,
+    "noUncheckedIndexedAccess": true,
+    "sourceMap": true,
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": [
+    "src/**/*.stories.tsx",
+    "dist",
+    "node_modules"
+  ]
 }

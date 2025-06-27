@@ -1,6 +1,6 @@
 import { RoomReactionEvent } from '@ably/chat';
 import { useRoomReactions } from '@ably/chat/react';
-import clsx from 'clsx';
+import { clsx } from 'clsx';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useThrottle } from '../../hooks/use-throttle.tsx';
@@ -110,7 +110,7 @@ export const RoomReaction: React.FC<RoomReactionProps> = ({
   const [defaultEmoji, setDefaultEmoji] = useState('👍'); // Track current default emoji
 
   const reactionButtonRef = useRef<HTMLButtonElement>(null);
-  const longPressTimerRef = useRef<NodeJS.Timeout | undefined>();
+  const longPressTimerRef = useRef<NodeJS.Timeout | undefined>(undefined);
   const isLongPressRef = useRef(false);
 
   const { send } = useRoomReactions({

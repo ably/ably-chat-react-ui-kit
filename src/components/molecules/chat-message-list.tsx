@@ -1,5 +1,5 @@
 import { Message } from '@ably/chat';
-import clsx from 'clsx';
+import { clsx } from 'clsx';
 import React, {
   forwardRef,
   useCallback,

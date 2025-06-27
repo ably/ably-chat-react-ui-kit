@@ -1,6 +1,6 @@
 import { PresenceMember } from '@ably/chat';
 import { usePresenceListener } from '@ably/chat/react';
-import clsx from 'clsx';
+import { clsx } from 'clsx';
 import React, { useEffect, useState } from 'react';
 
 import { Tooltip } from '../atoms/tooltip.tsx';

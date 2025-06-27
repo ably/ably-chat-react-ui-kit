@@ -1,5 +1,5 @@
 import { RoomOptions } from '@ably/chat';
-import clsx from 'clsx';
+import { clsx } from 'clsx';
 import React, { useState } from 'react';
 
 import { useTheme } from '../../hooks/use-theme.tsx';

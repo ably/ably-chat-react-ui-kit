@@ -32,8 +32,8 @@ export function useThrottle<Args extends unknown[], R>(
   fn: (...args: Args) => R,
   delay: number
 ): (...args: Args) => R {
-  const timeoutRef = useRef<NodeJS.Timeout | undefined>();
-  const lastArgsRef = useRef<Args | undefined>();
+  const timeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
+  const lastArgsRef = useRef<Args | undefined>(undefined);
   const isThrottledRef = useRef(false);
 
   // Cleanup function to clear pending timeouts

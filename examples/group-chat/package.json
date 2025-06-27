@@ -11,8 +11,9 @@
   },
   "dependencies": {
     "ably-chat-react-ui-components": "file:../../",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "@ably/chat": "^0.8.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.0",

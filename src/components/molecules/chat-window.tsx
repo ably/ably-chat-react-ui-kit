@@ -1,6 +1,6 @@
 import { Message, MessageReactionType } from '@ably/chat';
 import { useChatClient, useMessages, usePresence } from '@ably/chat/react';
-import clsx from 'clsx';
+import { clsx } from 'clsx';
 import React, { useCallback } from 'react';
 
 import { useChatSettings } from '../../hooks/use-chat-settings.tsx';

@@ -252,7 +252,7 @@ const useAvatarGeneration = (customColors?: string[]) => {
       for (let i = 0; i < text.length; i++) {
         hash = ((hash << 5) - hash + (text.codePointAt(i) ?? 0)) & 0xFFFFFFFF;
       }
-      return avatarColors[Math.abs(hash) % avatarColors.length];
+      return avatarColors[Math.abs(hash) % avatarColors.length] || 'bg-gray-500';
     },
     [avatarColors]
   );
@@ -273,11 +273,12 @@ const useAvatarGeneration = (customColors?: string[]) => {
     const words = cleanName.split(' ').filter((word: string) => word.length > 0);
 
     if (words.length >= 2) {
-      return (words[0][0] + words[1][0]).toUpperCase();
+      const firstInitial = words[0]?.[0] || '';
+      const secondInitial = words[1]?.[0] || '';
+      return (firstInitial + secondInitial).toUpperCase();
     }
     return cleanName.slice(0, 2).toUpperCase();
   }, []);
-
   return { generateColor, generateInitials };
 };
 

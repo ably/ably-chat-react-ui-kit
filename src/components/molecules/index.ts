@@ -19,6 +19,8 @@ export { PresenceCount, type PresenceCountProps } from './presence-count.tsx';
 export { PresenceIndicators, type PresenceIndicatorsProps } from './presence-indicators.tsx';
 export { PresenceList, type PresenceListProps } from './presence-list.tsx';
 export { RoomInfo, type RoomInfoProps } from './room-info.tsx';
+export { RoomList, type RoomListProps } from './room-list.tsx';
 export { RoomListItem, type RoomListItemProps } from './room-list-item.tsx';
 export { RoomReaction, type RoomReactionProps } from './room-reaction.tsx';
+export { Sidebar, type SidebarProps } from './sidebar.tsx';
 export { TypingIndicators, type TypingIndicatorsProps } from './typing-indicators.tsx';

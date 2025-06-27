@@ -1,5 +1,5 @@
 import { Message } from '@ably/chat';
-import clsx from 'clsx';
+import {clsx} from 'clsx';
 import React, { useEffect, useRef, useState } from 'react';
 
 import { useUserAvatar } from '../../hooks/use-user-avatar.tsx';

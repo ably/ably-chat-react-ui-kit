@@ -1,5 +1,5 @@
 import { useChatClient, usePresenceListener, useRoom, useTyping } from '@ably/chat/react';
-import clsx from 'clsx';
+import { clsx } from 'clsx';
 import React, { useState } from 'react';
 
 import { useRoomAvatar } from '../../hooks/use-room-avatar.tsx';
