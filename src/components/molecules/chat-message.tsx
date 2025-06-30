@@ -1,6 +1,7 @@
 import { Message } from '@ably/chat';
 import {clsx} from 'clsx';
 import React, { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 
 import { useUserAvatar } from '../../hooks/use-user-avatar.tsx';
 import { Avatar, AvatarData } from '../atoms/avatar.tsx';
@@ -470,7 +471,7 @@ export const ChatMessage = ({
 
             if (!coords) return;
 
-            return (
+            return createPortal(
               <Tooltip
                 position={tooltipPosition}
                 className="fixed transform -translate-x-1/2"
@@ -480,7 +481,8 @@ export const ChatMessage = ({
                 aria-live="polite"
               >
                 <div className="text-center text-sm px-2 py-1">{message.clientId}</div>
-              </Tooltip>
+              </Tooltip>,
+              document.body
             );
           })()}
       </div>

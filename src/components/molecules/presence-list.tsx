@@ -2,6 +2,7 @@ import { PresenceMember } from '@ably/chat';
 import { usePresenceListener } from '@ably/chat/react';
 import { clsx } from 'clsx';
 import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 
 import { Tooltip } from '../atoms/tooltip.tsx';
 
@@ -118,7 +119,9 @@ export const PresenceList =  ({
     setPresenceText(newText);
   }, [presenceData]);
 
-  return (
+  if (!coords) return null;
+
+  return createPortal(
     <Tooltip
       position={tooltipPosition}
       zIndex="z-50"
@@ -126,10 +129,11 @@ export const PresenceList =  ({
       maxWidth="max-w-96"
       role="tooltip"
       aria-live="polite"
-      style={coords ? { top: coords.top, left: coords.left } : undefined}
+      style={{ top: coords.top, left: coords.left }}
       {...rest}
     >
       <div className={clsx('text-center truncate', textClassName)}>{presenceText}</div>
-    </Tooltip>
+    </Tooltip>,
+    document.body
   );
 };
