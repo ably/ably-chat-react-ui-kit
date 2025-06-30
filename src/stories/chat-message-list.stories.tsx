@@ -49,8 +49,10 @@ const meta: Meta<typeof ChatMessageList> = {
   decorators: [
     (Story) => (
       <AvatarProvider>
-        <div className="h-full max-w-xl mx-auto border rounded-md overflow-hidden">
-          <Story />
+        <div className="h-screen w-full flex items-center justify-center bg-gray-50 dark:bg-gray-950">
+          <div className="h-[600px] max-w-xl w-full border rounded-md overflow-hidden bg-white dark:bg-gray-900 flex flex-col">
+            <Story />
+          </div>
         </div>
       </AvatarProvider>
     ),
@@ -66,7 +68,6 @@ const meta: Meta<typeof ChatMessageList> = {
     onDelete: action('delete'),
     onReactionAdd: action('reaction-add'),
     onReactionRemove: action('reaction-remove'),
-    // History-related callbacks are left undefined in the default story.
     hasMoreHistory: false,
   },
 };
