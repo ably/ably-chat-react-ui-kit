@@ -112,7 +112,9 @@ export const useMessageWindow = ({
   overscan = 20,
   historyBatchSize = 300,
 }: UseMessageWindowProps = {}): UseMessageWindowResponse => {
-  const nextPageRef = useRef<undefined | (() => Promise<PaginatedResult<Message> | null>)>(undefined);
+  const nextPageRef = useRef<undefined | (() => Promise<PaginatedResult<Message> | null>)>(
+    undefined
+  );
   const serialSetRef = useRef<Set<string>>(new Set());
   const initialHistoryLoadedRef = useRef<boolean>(false);
   const recoveringRef = useRef<boolean>(false);
@@ -131,6 +133,22 @@ export const useMessageWindow = ({
 
   /** Access the current room context so we can reset state correctly when it changes */
   const { room } = useRoom();
+
+  // Reset state when room changes.
+  useEffect(() => {
+    return () => {
+      // Reset all state
+      allMessagesRef.current = [];
+      serialSetRef.current = new Set();
+      nextPageRef.current = undefined;
+      initialHistoryLoadedRef.current = false;
+      recoveringRef.current = false;
+
+      setVersion(0);
+      setActiveMessages([]);
+      setAnchorIdx(-1);
+    };
+  }, [room]);
 
   const { historyBeforeSubscribe } = useMessages({
     listener: (event: ChatMessageEvent) => {
@@ -179,18 +197,6 @@ export const useMessageWindow = ({
       handleDiscontinuity(lastReceivedMessage.serial);
     },
   });
-
-  // Reset state when room changes.
-  useEffect(() => {
-    allMessagesRef.current = [];
-    serialSetRef.current.clear();
-    nextPageRef.current = undefined;
-    initialHistoryLoadedRef.current = false;
-    recoveringRef.current = false;
-    setVersion(0);
-    setActiveMessages([]);
-    setAnchorIdx(-1);
-  }, [room]);
 
   const [hasMoreHistory, setHasMoreHistory] = useState<boolean>(Boolean(historyBeforeSubscribe));
 
@@ -253,7 +259,7 @@ export const useMessageWindow = ({
       const midMessage = messages[mid];
 
       if (!midMessage) {
-        return -1
+        return -1;
       }
 
       if (newMessage.before(midMessage)) {
@@ -272,6 +278,11 @@ export const useMessageWindow = ({
       if (msgs.length === 0) return;
 
       setVersion((prevVersion) => {
+        if (prevVersion === 0 && allMessagesRef.current.length > 0) {
+          // If this is the first update and we already have messages, we need to reset the state
+          allMessagesRef.current = [];
+          serialSetRef.current.clear();
+        }
         let changed = false;
         let insertedBeforeAnchor = 0;
         const allMessages = allMessagesRef.current;
