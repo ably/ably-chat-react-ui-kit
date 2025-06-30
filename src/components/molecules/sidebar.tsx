@@ -59,7 +59,7 @@ export interface SidebarProps {
  *   leaveRoom={leaveRoom}
  * />
  */
-export const Sidebar: React.FC<SidebarProps> = ({
+export const Sidebar = ({
   roomNames,
   activeRoomName,
   defaultRoomOptions,
@@ -69,7 +69,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   className = '',
   isCollapsed = false,
   onToggleCollapse,
-}) => {
+}: SidebarProps) => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const { theme, toggleTheme } = useTheme();
 

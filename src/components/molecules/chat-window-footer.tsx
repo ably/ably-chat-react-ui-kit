@@ -32,11 +32,11 @@ export interface ChatWindowFooterProps {
  *   <CustomFooterContent />
  * </ChatWindowFooter>
  */
-export const ChatWindowFooter: React.FC<ChatWindowFooterProps> = ({
+export const ChatWindowFooter =  ({
   children,
   className,
   'aria-label': ariaLabel,
-}) => {
+}: ChatWindowFooterProps) => {
   return (
     <div
       className={clsx(

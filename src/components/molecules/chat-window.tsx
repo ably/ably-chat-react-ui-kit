@@ -127,14 +127,14 @@ export interface ChatWindowProps {
  *   />
  * </ChatRoomProvider>
  */
-export const ChatWindow: React.FC<ChatWindowProps> = ({
+export const ChatWindow =  ({
   roomName,
   customHeaderContent,
   customFooterContent,
   windowSize = 200,
   enableTypingIndicators = true,
   className,
-}) => {
+}: ChatWindowProps) => {
   const { clientId } = useChatClient();
   usePresence(); // enter presence on mount
   const { getEffectiveSettings } = useChatSettings();

@@ -76,13 +76,13 @@ export interface AvatarEditorProps {
  * - AvatarCustomizeTab
  * - AvatarPreview
  */
-export const AvatarEditor: React.FC<AvatarEditorProps> = ({
+export const AvatarEditor = ({
   currentAvatar,
   currentColor,
   displayName,
   onClose,
   onSave,
-}) => {
+}: AvatarEditorProps) => {
   const [avatarUrl, setAvatarUrl] = useState(currentAvatar || '');
   const [selectedColor, setSelectedColor] = useState(currentColor || '');
   const [customInitials, setCustomInitials] = useState('');

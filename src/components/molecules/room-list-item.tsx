@@ -102,7 +102,7 @@ export interface RoomListItemProps {
  *
  *
  */
-export const RoomListItem: React.FC<RoomListItemProps> = React.memo(function RoomListItem({
+export const RoomListItem = React.memo(function RoomListItem({
   roomName,
   isSelected,
   onClick,

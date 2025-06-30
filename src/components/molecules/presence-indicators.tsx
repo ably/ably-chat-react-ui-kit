@@ -37,7 +37,7 @@ export interface PresenceIndicatorsProps {
  * // 5 participants: "5 people present" (green text)
  * // Duplicate clientIds are automatically deduplicated
  */
-export const PresenceIndicators: React.FC<PresenceIndicatorsProps> = ({ className = '' }) => {
+export const PresenceIndicators = ({ className = '' }: PresenceIndicatorsProps) => {
   const { presenceData } = usePresenceListener();
   const [presenceText, setPresenceText] = useState('0 people present');
 

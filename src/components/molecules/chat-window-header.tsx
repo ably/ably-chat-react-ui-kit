@@ -44,11 +44,11 @@ export interface ChatWindowHeaderProps {
  * // Empty header (spacer only)
  * <ChatWindowHeader />
  */
-export const ChatWindowHeader: React.FC<ChatWindowHeaderProps> = ({
+export const ChatWindowHeader = ({
   children,
   className = '',
   'aria-label': ariaLabel,
-}) => {
+}:ChatWindowHeaderProps) => {
   // Combine base classes with custom className
   return (
     <div

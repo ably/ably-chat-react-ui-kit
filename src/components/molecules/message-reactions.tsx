@@ -111,11 +111,11 @@ export interface MessageReactionsProps {
  * };
  *
  */
-export const MessageReactions: React.FC<MessageReactionsProps> = ({
+export const MessageReactions =  ({
   message,
   onReactionClick,
   currentClientId,
-}) => {
+}: MessageReactionsProps) => {
   const distinct = message.reactions.distinct;
 
   // Get all emoji names that have reactions

@@ -78,7 +78,7 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 /**
  * Default loading spinner component
  */
-const DefaultSpinner: React.FC<{ size: ButtonSize }> = ({ size }) => {
+const DefaultSpinner = ({ size }: { size: ButtonSize }) => {
   const spinnerSizes = {
     xs: 'w-3 h-3',
     sm: 'w-4 h-4',
@@ -144,7 +144,7 @@ const DefaultSpinner: React.FC<{ size: ButtonSize }> = ({ size }) => {
  *   Continue
  * </Button>
  */
-export const Button: React.FC<ButtonProps> = ({
+export const Button = ({
   variant = 'primary',
   size = 'md',
   children,
@@ -156,7 +156,7 @@ export const Button: React.FC<ButtonProps> = ({
   loadingSpinner,
   disabled,
   ...props
-}) => {
+}: ButtonProps) => {
   // Base classes applied to all buttons
   const baseClasses = [
     'inline-flex items-center justify-center',

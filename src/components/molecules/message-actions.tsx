@@ -110,12 +110,12 @@ export interface MessageActionsProps {
  *
  *
  */
-export const MessageActions: React.FC<MessageActionsProps> = ({
+export const MessageActions = ({
   onReactionButtonClicked,
   onEditButtonClicked,
   onDeleteButtonClicked,
   isOwn,
-}) => {
+}: MessageActionsProps) => {
   // Check if there are any actions to display
   const hasReactionAction = onReactionButtonClicked !== undefined;
   const hasEditAction = isOwn && onEditButtonClicked !== undefined;

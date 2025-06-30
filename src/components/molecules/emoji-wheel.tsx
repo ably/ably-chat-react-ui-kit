@@ -167,13 +167,13 @@ export interface EmojiWheelProps {
  *   Hold to react
  * </div>
  */
-export const EmojiWheel: React.FC<EmojiWheelProps> = ({
+export const EmojiWheel =  ({
   isOpen,
   position,
   emojis: customEmojis,
   onEmojiSelect,
   onClose,
-}) => {
+}: EmojiWheelProps) => {
   const [isAnimating, setIsAnimating] = useState(false);
 
   // Use custom emojis or fall back to default set

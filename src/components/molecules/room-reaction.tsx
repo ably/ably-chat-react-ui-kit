@@ -95,11 +95,11 @@ export interface RoomReactionProps {
  * />
  *
  */
-export const RoomReaction: React.FC<RoomReactionProps> = ({
+export const RoomReaction = ({
   emojiBurstDuration = 500,
   emojiBurstPosition: initialEmojiBurstPosition,
   className,
-}) => {
+}: RoomReactionProps) => {
   const [showEmojiBurst, setShowEmojiBurst] = useState(false);
   const [emojiBurstPosition, setEmojiBurstPosition] = useState(
     initialEmojiBurstPosition || { x: 0, y: 0 }

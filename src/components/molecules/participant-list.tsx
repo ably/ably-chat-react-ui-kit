@@ -68,13 +68,13 @@ export interface ParticipantListProps {
  *   position={{ top: 100, left: 200 }}
  * />)}
  */
-export const ParticipantList: React.FC<ParticipantListProps> = ({
+export const ParticipantList = ({
   presenceData,
   currentClientId,
   currentlyTyping,
   onToggle,
   position,
-}) => {
+}: ParticipantListProps) => {
   // Calculate present count from unique clientIds in presence data
   const presentCount = presenceData.length || 0;
 

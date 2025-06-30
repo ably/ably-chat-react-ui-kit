@@ -162,13 +162,13 @@ interface FlyingEmoji {
  *   onComplete={() => setBurstActive(false)}
  * />
  */
-export const EmojiBurst: React.FC<EmojiBurstProps> = ({
+export const EmojiBurst =  ({
   isActive,
   position,
   emoji = '👍',
   duration,
   onComplete,
-}) => {
+}: EmojiBurstProps) => {
   const [emojis, setEmojis] = useState<FlyingEmoji[]>([]);
 
   useEffect(() => {

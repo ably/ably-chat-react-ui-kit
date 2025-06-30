@@ -120,7 +120,7 @@ export interface ConfirmDialogProps {
  * @see {@link Button} - For button styling variants
  * @see {@link Icon} - For available icon options
  */
-export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
+export const ConfirmDialog = ({
   isOpen,
   onClose,
   onConfirm,
@@ -130,7 +130,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   cancelText = 'Cancel',
   confirmVariant = 'danger',
   icon,
-}) => {
+}: ConfirmDialogProps) => {
   // Handle escape key press to close the dialog
   useEffect(() => {
     const handleEscapeKey = (e: KeyboardEvent) => {

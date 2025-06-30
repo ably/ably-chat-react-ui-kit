@@ -120,7 +120,7 @@ export interface EmptyStateProps {
  *   className="bg-gray-50 dark:bg-gray-800 rounded-lg p-8"
  * />
  */
-export const EmptyState: React.FC<EmptyStateProps> = ({
+export const EmptyState = ({
   icon,
   title,
   message,
@@ -130,7 +130,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   maxWidth = 'md',
   verticalAlign = 'center',
   textAlign = 'center',
-}) => {
+}: EmptyStateProps) => {
   /**
    * Maps maxWidth prop to Tailwind CSS classes
    */

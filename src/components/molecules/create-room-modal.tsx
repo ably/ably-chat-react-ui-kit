@@ -89,11 +89,11 @@ export interface CreateRoomModalProps {
  *   onCreateRoom={handleCreateRoom}
  * />
  */
-export const CreateRoomModal: React.FC<CreateRoomModalProps> = ({
+export const CreateRoomModal = ({
   isOpen,
   onClose,
   onCreateRoom,
-}) => {
+}: CreateRoomModalProps) => {
   const [roomName, setRoomName] = useState('');
 
   /**

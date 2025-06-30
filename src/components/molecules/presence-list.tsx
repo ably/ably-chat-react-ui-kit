@@ -103,13 +103,13 @@ const buildPresenceSentence = (presenceData: PresenceMember[]): string => {
  * // presenceData = [5 members] → "Alice, Bob, Charlie and 2 more participants are present"
  */
 
-export const PresenceList: React.FC<PresenceListProps> = ({
+export const PresenceList =  ({
   tooltipPosition,
   coords,
   tooltipClassName,
   textClassName,
   ...rest
-}) => {
+}: PresenceListProps) => {
   const { presenceData } = usePresenceListener();
   const [presenceText, setPresenceText] = useState('No one is currently present');
 

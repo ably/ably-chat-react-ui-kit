@@ -44,7 +44,7 @@ export interface PresenceCountProps {
  * // Shows "99+" (count > 99)
  * <PresenceCount presenceData={arrayWith150Members} />
  */
-export const PresenceCount: React.FC<PresenceCountProps> = ({ presenceData }) => {
+export const PresenceCount = ({ presenceData }: PresenceCountProps) => {
   const presentCount = presenceData.length || 0;
 
   if (presentCount === 0) {

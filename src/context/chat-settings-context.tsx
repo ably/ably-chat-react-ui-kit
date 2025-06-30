@@ -112,11 +112,11 @@ export interface ChatSettingsProviderProps {
  *
  * @public
  */
-export const ChatSettingsProvider: React.FC<ChatSettingsProviderProps> = ({
-  children,
+export const ChatSettingsProvider = ({
   initialGlobalSettings = {},
   initialRoomSettings = {},
-}) => {
+  children,
+}: ChatSettingsProviderProps)  => {
   // Merge initial global settings with defaults
   const globalSettings: ChatSettings = {
     ...DEFAULT_SETTINGS,

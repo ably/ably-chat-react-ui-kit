@@ -104,7 +104,7 @@ export interface TooltipProps extends React.HTMLAttributes<HTMLDivElement> {
  *   Simple tooltip without arrow
  * </Tooltip>
  */
-export const Tooltip: React.FC<TooltipProps> = ({
+export const Tooltip = ({
   position,
   children,
   className,
@@ -118,7 +118,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
   role = 'tooltip',
   'aria-hidden': ariaHidden,
   ...rest
-}) => {
+}: TooltipProps) => {
   // Size configurations
   const sizeClasses = {
     sm: {

@@ -167,11 +167,11 @@ export interface ThemeProviderProps {
  *   <ChatApplication />
  * </ThemeProvider>
  */
-export const ThemeProvider: React.FC<ThemeProviderProps> = ({
+export const ThemeProvider = ({
   children,
   options = {},
   onThemeChange: externalOnThemeChange,
-}) => {
+}: ThemeProviderProps) => {
   const { persist = true, detectSystemTheme = true, defaultTheme = 'light' } = options;
 
   const [theme, setThemeState] = useState<ThemeType>(defaultTheme);

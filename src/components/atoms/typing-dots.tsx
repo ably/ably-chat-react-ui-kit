@@ -65,7 +65,7 @@ const ANIMATION_DELAYS = ['0ms', '200ms', '400ms'];
  * // With custom animation
  * <TypingDots animationDuration="0.8s" />
  */
-export const TypingDots: React.FC<TypingDotsProps> = ({
+export const TypingDots = ({
   dotSizeClassName = 'w-1.5 h-1.5',
   className,
   dotClassName,
@@ -73,7 +73,7 @@ export const TypingDots: React.FC<TypingDotsProps> = ({
   dotColor = 'bg-current',
   'aria-label': ariaLabel = 'Typing indicator',
   ...rest
-}) => (
+}: TypingDotsProps) => (
   <div
     className={clsx('flex gap-0.5', className)}
     role="status"

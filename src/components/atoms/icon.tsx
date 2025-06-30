@@ -117,7 +117,7 @@ export interface IconProps {
  * // Decorative icon (hidden from screen readers)
  * <Icon name="star" aria-hidden />
  */
-export const Icon: React.FC<IconProps> = ({
+export const Icon = ({
   name,
   size = 'md',
   className = '',
@@ -127,7 +127,7 @@ export const Icon: React.FC<IconProps> = ({
   onClick,
   svgProps,
   ...rest
-}) => {
+}: IconProps) => {
   // Size class mappings
   const sizeClasses: Record<IconSize, string> = {
     sm: 'w-4 h-4',

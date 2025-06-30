@@ -141,11 +141,11 @@ export interface RoomInfoProps {
  * };
  *
  */
-export const RoomInfo: React.FC<RoomInfoProps> = ({
+export const RoomInfo =  ({
   roomAvatar: propRoomAvatar,
   position = { top: 0, left: 150 },
   className,
-}) => {
+}: RoomInfoProps) => {
   const { roomName } = useRoom();
   const { presenceData } = usePresenceListener();
   const { currentlyTyping } = useTyping();

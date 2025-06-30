@@ -216,13 +216,13 @@ const emojis = [
  *   setPickerOpen(true);
  * };
  */
-export const EmojiPicker: React.FC<EmojiPickerProps> = ({
+export const EmojiPicker =  ({
   onClose,
   onEmojiSelect,
   position,
   columns = 4,
   emojiList,
-}) => {
+}: EmojiPickerProps) => {
   const [recentEmojis, setRecentEmojis] = useState<string[]>([]);
 
   // Load recent emojis from localStorage on mount

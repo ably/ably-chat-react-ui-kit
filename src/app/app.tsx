@@ -27,7 +27,7 @@ const DEFAULT_ROOM_OPTIONS: RoomOptions = {
  *
  * @param props - The props for the App component.
  */
-export const App: React.FC<AppProps> = ({ initialRoomNames }) => {
+export const App = ({ initialRoomNames }: AppProps) => {
   const { currentStatus } = useChatConnection();
   const [roomNames, setRoomNames] = useState<string[]>(initialRoomNames || []);
   const [activeRoom, setActiveRoom] = useState<string | undefined>();

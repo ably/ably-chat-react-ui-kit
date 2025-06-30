@@ -127,14 +127,14 @@ export interface AvatarProps {
  * const avatarData = { displayName: "John Doe", src: "https://example.com/avatar.jpg" };
  * <Avatar alt={avatarData.displayName} src={avatarData.src} color={avatarData.color} initials={avatarData.initials} />
  */
-export const Avatar: React.FC<AvatarProps> = ({
+export const Avatar = ({
   src,
   alt,
   color,
   size = 'md',
   initials,
   onClick,
-}) => {
+}: AvatarProps) => {
   const [imgError, setImgError] = useState(false);
 
   // Reset image error state if src changes

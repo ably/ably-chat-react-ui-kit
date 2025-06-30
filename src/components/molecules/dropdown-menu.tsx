@@ -148,7 +148,7 @@ export interface DropdownMenuProps {
  *   ]}
  * />
  */
-export const DropdownMenu: React.FC<DropdownMenuProps> = ({ trigger, items, align = 'right' }) => {
+export const DropdownMenu =  ({ trigger, items, align = 'right' }: DropdownMenuProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 

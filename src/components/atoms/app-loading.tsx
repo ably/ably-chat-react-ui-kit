@@ -6,7 +6,7 @@ import { AppLayout } from '../layouts/app-layout.tsx';
  * Loading component displayed when connecting to Ably Chat.
  * Shows a spinner and a message.
  */
-export const AppLoading: React.FC = () => {
+export const AppLoading = () => {
   return (
     <AppLayout width="50vw" height="50vh">
       <div className="flex items-center justify-center h-full">

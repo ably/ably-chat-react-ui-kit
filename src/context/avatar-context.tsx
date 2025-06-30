@@ -532,7 +532,7 @@ interface AvatarProviderProps {
  *   <ChatApplication />
  * </AvatarProvider>
  */
-export const AvatarProvider: React.FC<AvatarProviderProps> = ({ children, options = {} }) => {
+export const AvatarProvider = ({ children, options = {} }: AvatarProviderProps) => {
   const { persist = true, customColors, maxCacheSize = 100, onError } = options;
   const { generateColor, generateInitials } = useAvatarGeneration(customColors);
   const { notifyAvatarChange, onAvatarChange, handleError } = useAvatarNotifications(onError);

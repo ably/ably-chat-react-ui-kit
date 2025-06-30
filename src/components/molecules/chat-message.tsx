@@ -116,7 +116,7 @@ export interface ChatMessageProps {
  *   onReactionRemove={handleReactionRemove}
  * />
  */
-export const ChatMessage: React.FC<ChatMessageProps> = ({
+export const ChatMessage = ({
   message,
   currentClientId,
   onEdit,
@@ -124,7 +124,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
   onReactionAdd,
   onReactionRemove,
   className,
-}) => {
+}: ChatMessageProps) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(message.text || '');

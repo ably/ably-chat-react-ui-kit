@@ -128,31 +128,28 @@ export default [
     rules: {
       '@typescript-eslint/no-unused-vars':             'error',
       '@typescript-eslint/no-extraneous-class':       ['error', { allowStaticOnly: true }],
-      /* node/browser-compatibity extras */
       'import/no-unresolved':                          'off',
       'no-undef':                                      'off',
       'no-dupe-class-members':                         'off',
       'require-await':                                 'off',
-      /* relax several Unicorn rules that clash with common TS patterns */
       'unicorn/prevent-abbreviations':                 'off',
       'unicorn/numeric-separators-style':              'off',
       'unicorn/prefer-event-target':                   'off',
       'unicorn/no-static-only-class':                  'off',
       'unicorn/no-nested-ternary':                     'off',
 
-      /* extension style: always specify except for packages */
       'import/extensions': ['error', 'always', { ignorePackages: true }],
     },
   },
 
   /* -----------------------------------------------------------
-   * 4. React & React-Hooks (only files that actually use JSX)
+   * 4. React & React-Hooks
    * --------------------------------------------------------- */
   ...fixupConfigRules(
     compat.extends('plugin:react/recommended', 'plugin:react-hooks/recommended'),
   ).map((cfg) => ({
     ...cfg,
-    files: ['src/**/*.{tsx,ts}'], // all code that could contain JSX
+    files: ['src/**/*.{tsx,ts}'],
   })),
 
   {

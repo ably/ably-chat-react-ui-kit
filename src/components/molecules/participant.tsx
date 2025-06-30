@@ -82,13 +82,13 @@ export interface ParticipantProps {
  *
  */
 
-export const Participant: React.FC<ParticipantProps> = ({
+export const Participant = ({
   clientId,
   isPresent,
   isSelf,
   isTyping,
   avatar: propAvatar,
-}) => {
+}: ParticipantProps) => {
   // Use the custom hook to get or create user avatar
   const { userAvatar } = useUserAvatar({ clientId });
   const avatarData = propAvatar || userAvatar;

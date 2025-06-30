@@ -50,14 +50,14 @@ export interface RoomListProps {
  * />
  *
  */
-export const RoomList: React.FC<RoomListProps> = ({
+export const RoomList = ({
   roomNames,
   activeRoomName,
   defaultRoomOptions,
   onSelect,
   onLeave,
   isCollapsed = false,
-}) => (
+}: RoomListProps) => (
   <>
     {roomNames.map((roomName) => (
       <ChatRoomProvider key={roomName} name={roomName} options={defaultRoomOptions}>
