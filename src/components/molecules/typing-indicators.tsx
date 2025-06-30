@@ -1,13 +1,13 @@
 import { useChatClient, useTyping } from '@ably/chat/react';
 import { clsx } from 'clsx';
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useEffect } from 'react';
 
 import { TypingDots } from '../atoms/typing-dots.tsx';
 
 /**
  * Props for the TypingIndicators component
  */
-export interface TypingIndicatorsProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface TypingIndicatorsProps {
   /**
    * Maximum number of distinct clients to display by name before collapsing to "X others".
    * Controls the verbosity of the typing message to prevent overly long text.
@@ -55,6 +55,22 @@ export interface TypingIndicatorsProps extends React.HTMLAttributes<HTMLDivEleme
    * textClassName="text-sm md:text-base"
    */
   textClassName?: string;
+
+  /**
+   * Callback function triggered when the typing state changes.
+   * Useful for parent components to react to typing activity,
+   * @param typingUsers - Array of client IDs currently typing, excluding the current user.
+   *
+   * Example usage:
+   * ```tsx
+   * <TypingIndicators
+   *   onTypingChange={(typingUsers) => {
+   *   console.log('Current typing users:', typingUsers);
+   *   }}
+   *   />
+   *
+   */
+  onTypingChange?: (typingUsers: string[]) => void;
 }
 
 /**
@@ -86,10 +102,11 @@ export interface TypingIndicatorsProps extends React.HTMLAttributes<HTMLDivEleme
  *
  */
 
-export const TypingIndicators: React.FC<TypingIndicatorsProps> = ({
+export const TypingIndicators = ({
   maxClients,
-  className,
   textClassName,
+  className,
+  onTypingChange,
 }: TypingIndicatorsProps): ReactNode => {
   const { currentlyTyping } = useTyping();
   const { clientId } = useChatClient();
@@ -97,7 +114,14 @@ export const TypingIndicators: React.FC<TypingIndicatorsProps> = ({
   // Exclude yourself from the typing indicators
   const activeTypingUsers = [...currentlyTyping].filter((id) => id !== clientId);
 
+  useEffect(() => {
+    if (onTypingChange) {
+      onTypingChange(activeTypingUsers);
+    }
+  }, [activeTypingUsers, onTypingChange]);
+
   if (activeTypingUsers.length === 0) return;
+
   return (
     <div
       className={clsx(

@@ -9,7 +9,6 @@ import { ChatMessageList } from './chat-message-list.tsx';
 import { ChatWindowFooter } from './chat-window-footer.tsx';
 import { ChatWindowHeader } from './chat-window-header.tsx';
 import { MessageInput } from './message-input.tsx';
-import { TypingIndicators } from './typing-indicators.tsx';
 
 /**
  * Props for the ChatWindow component
@@ -242,6 +241,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
           void loadMoreHistory();
         }}
         hasMoreHistory={hasMoreHistory}
+        enableTypingIndicators={enableTypingIndicators}
         onEdit={settings.allowMessageEdits ? handleMessageEdit : undefined}
         onDelete={settings.allowMessageDeletes ? handleMessageDelete : undefined}
         onReactionAdd={settings.allowMessageReactions ? handleReactionAdd : undefined}
@@ -249,7 +249,6 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
         onMessageInView={showMessagesAroundSerial}
         onViewLatest={showLatestMessages}
       >
-        {enableTypingIndicators && <TypingIndicators className="px-4" />}
       </ChatMessageList>
 
       {/* Footer */}

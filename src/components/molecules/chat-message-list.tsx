@@ -10,6 +10,7 @@ import React, {
 } from 'react';
 
 import { ChatMessage } from './chat-message.tsx';
+import { TypingIndicators } from './typing-indicators.tsx';
 
 export interface ChatMessageListProps
   extends Omit<React.HTMLAttributes<HTMLDivElement>, 'children'> {
@@ -107,6 +108,13 @@ export interface ChatMessageListProps
   loadMoreThreshold?: number;
 
   /**
+   * Whether to enable built-in typing indicators for other users.
+   * Displays animated dots when other users are typing in the chat room.
+   * @default true
+   */
+  enableTypingIndicators?: boolean;
+
+  /**
    * Additional CSS classes to apply to the message list container.
    * Merged with default styling classes using clsx.
    */
@@ -163,9 +171,9 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
       onReactionRemove,
       onMessageInView,
       onViewLatest,
-      children,
       autoScroll = true,
       loadMoreThreshold = 100,
+      enableTypingIndicators = true,
       className = '',
       ...rest
     },
@@ -210,7 +218,6 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
       const rect = containerRef.current.getBoundingClientRect();
       const viewportCenter = rect.top + rect.height / 2;
 
-      // Early‑out: if user is at bottom → tail‑follow
       if (isUserAtBottom()) {
         if (centerSerial !== undefined) setCenterSerial(undefined);
         onViewLatest?.();
@@ -244,6 +251,15 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
       if (!containerRef.current) return;
       containerRef.current.scrollTop = containerRef.current.scrollHeight;
     }, []);
+
+    const handleTypingChange = useCallback(() => {
+      if (autoScroll && isAtBottom) {
+        // Small delay to ensure DOM is updated
+        requestAnimationFrame(() => {
+          scrollToBottom();
+        });
+      }
+    }, [autoScroll, isAtBottom, scrollToBottom]);
 
     // After messages prepend, adjust scroll so content doesn't jump
     useLayoutEffect(() => {
@@ -321,7 +337,6 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
           </div>
         )}
 
-        {/* Top sentinel / "no more" */}
         {!hasMoreHistory && messages.length > 0 && (
           <div className="flex justify-center py-4" role="status">
             <span className="text-sm text-gray-500 dark:text-gray-400">No more messages</span>
@@ -347,9 +362,9 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
             </div>
           );
         })}
-
-        {/* children (typing indicators etc.) */}
-        {children}
+        {enableTypingIndicators && (
+          <TypingIndicators className="px-4" onTypingChange={handleTypingChange} />
+        )}
       </div>
     );
   }
