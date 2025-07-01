@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 
 import { useRoomAvatar } from '../../hooks/use-room-avatar.tsx';
 import { Avatar, AvatarData } from '../atoms/avatar.tsx';
-import { AvatarEditor } from './avatar-editor.tsx';
 import { ParticipantList } from './participant-list.tsx';
 import { PresenceCount } from './presence-count.tsx';
 import { PresenceIndicators } from './presence-indicators.tsx';
@@ -155,9 +154,8 @@ export const RoomInfo =  ({
   const [showTooltip, setShowTooltip] = useState(false);
   const [tooltipPosition, setTooltipPosition] = useState<'above' | 'below'>('above');
   const [tooltipCoords, setTooltipCoords] = useState<{ top: number; left: number } | undefined>();
-  const [showAvatarEditor, setShowAvatarEditor] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const { roomAvatar, setRoomAvatar } = useRoomAvatar({ roomName });
+  const { roomAvatar } = useRoomAvatar({ roomName });
   const roomAvatarData = propRoomAvatar || roomAvatar;
 
   const onToggle = () => {
@@ -201,28 +199,6 @@ export const RoomInfo =  ({
     setShowTooltip(true);
   };
 
-  /**
-   * Handles click on the avatar edit overlay
-   * Prevents event propagation and opens the avatar editor
-   *
-   * @param e - The click event
-   */
-  const handleAvatarClick = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent triggering the participant dropdown
-    setShowAvatarEditor(true);
-  };
-
-  /**
-   * Handles avatar changes from the AvatarEditor
-   * Updates the room avatar in the AvatarContext
-   *
-   * @param avatarData - Partial avatar data to update
-   */
-  const handleAvatarSave = (avatarData: Partial<AvatarData>) => {
-    // Update the room avatar in the AvatarProvider
-    setRoomAvatar(avatarData);
-  };
-
   return (
     <div className={clsx('flex items-center gap-3', className)}>
       <div className="relative">
@@ -254,43 +230,6 @@ export const RoomInfo =  ({
               size="lg"
               initials={roomAvatarData?.initials}
             />
-
-            {/* Edit overlay */}
-            <div
-              className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity cursor-pointer group"
-              onClick={handleAvatarClick}
-              title="Edit avatar"
-              role="button"
-              aria-label="Edit room avatar"
-              tabIndex={0}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  handleAvatarClick(e as unknown as React.MouseEvent);
-                }
-              }}
-            >
-              {/* Semi-transparent overlay */}
-              <div
-                className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 rounded-full transition-all"
-                aria-hidden="true"
-              />
-
-              {/* Edit icon in center - smaller clickable area */}
-              <div
-                className="relative z-10 bg-black bg-opacity-60 rounded-full p-2 transform scale-0 group-hover:scale-100 transition-transform"
-                aria-hidden="true"
-              >
-                <svg
-                  className="w-4 h-4 text-white"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                  aria-hidden="true"
-                >
-                  <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                </svg>
-              </div>
-            </div>
           </div>
 
           {/* Present Count Badge */}
@@ -311,18 +250,6 @@ export const RoomInfo =  ({
           />
         )}
 
-        {/* Avatar Editor Modal */}
-        {roomAvatarData && showAvatarEditor && (
-          <AvatarEditor
-            onClose={() => {
-              setShowAvatarEditor(false);
-            }}
-            onSave={handleAvatarSave}
-            currentAvatar={roomAvatarData.src}
-            currentColor={roomAvatarData.color}
-            displayName={roomAvatarData.displayName}
-          />
-        )}
       </div>
 
       {/* Room Information */}
