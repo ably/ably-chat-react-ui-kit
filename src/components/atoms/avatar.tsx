@@ -164,12 +164,14 @@ export const Avatar = ({
     if (initials) return initials;
 
     // Fallback to generating initials from alt text
-    if (!alt) return '??'; // Handle empty alt text
+    if (!alt || alt.trim() === '') return '??'; // Handle empty or whitespace-only alt text
 
     const words = alt
       .trim()
       .split(/\s+/)
-      .filter((word) => word.length > 0);
+      .filter((word) => word.length > 0)
+      .filter((word) => /^[a-zA-Z]/.test(word));
+
 
     if (words.length >= 2 && words[0] && words[1]) {
       const firstChar = words[0][0];
@@ -192,6 +194,10 @@ export const Avatar = ({
     setImgError(true);
   };
 
+  // Determine if we're showing an image or initials
+  const showingImage = src && !imgError;
+
+
   return (
     <div
       className={`${sizeClasses[size]} rounded-full flex items-center justify-center text-white font-medium ${avatarColor} relative ${
@@ -210,7 +216,8 @@ export const Avatar = ({
             }
           : undefined
       }
-      role={onClick ? 'button' : 'img'}
+      data-testid="avatar-component"
+      role={onClick ? 'button' : showingImage ? undefined : 'img'}
       tabIndex={onClick ? 0 : undefined}
       title={alt}
       aria-label={alt}

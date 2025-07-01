@@ -261,7 +261,7 @@ export const TextInput = React.forwardRef<HTMLInputElement | HTMLTextAreaElement
             if (typeof ref === 'function') {
               ref(element);
             } else if (ref) {
-              (ref as React.MutableRefObject<HTMLTextAreaElement | null>).current = element;
+              (ref as React.RefObject<HTMLTextAreaElement | null>).current = element;
             }
             // Set our local ref
             textareaRef.current = element;

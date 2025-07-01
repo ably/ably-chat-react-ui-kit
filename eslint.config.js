@@ -43,6 +43,7 @@ export default [
       '**/vitest.config.ts',
       '**/vite.config.ts',
       '**/coverage/',
+      './src/setup.ts',
       '.storybook',
       '.github',
       './src/stories',
@@ -143,7 +144,25 @@ export default [
   },
 
   /* -----------------------------------------------------------
-   * 4. React & React-Hooks
+   * 4. Test files (all .ts / .tsx)
+   * --------------------------------------------------------- */
+
+  {
+    files: ['src/test/**/*.{ts,tsx}'],
+
+    rules: {
+      '@typescript-eslint/unbound-method': 'off',
+      '@typescript-eslint/no-empty-function': 'off',
+      'unicorn/no-null': 'off',
+      'react/react-in-jsx-scope': 'off',
+      'node/no-unpublished-import': 'off',
+      'unicorn/consistent-function-scoping': 'off',
+      'unicorn/prefer-ternary': 'off',
+    },
+  },
+
+  /* -----------------------------------------------------------
+   * 5. React & React-Hooks
    * --------------------------------------------------------- */
   ...fixupConfigRules(
     compat.extends('plugin:react/recommended', 'plugin:react-hooks/recommended'),
