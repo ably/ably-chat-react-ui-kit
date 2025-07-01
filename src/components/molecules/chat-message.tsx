@@ -4,12 +4,11 @@ import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 import { useUserAvatar } from '../../hooks/use-user-avatar.tsx';
-import { Avatar, AvatarData } from '../atoms/avatar.tsx';
+import { Avatar } from '../atoms/avatar.tsx';
 import { Button } from '../atoms/button.tsx';
 import { Icon } from '../atoms/icon.tsx';
 import { TextInput } from '../atoms/text-input.tsx';
 import { Tooltip } from '../atoms/tooltip.tsx';
-import { AvatarEditor } from './avatar-editor.tsx';
 import { ConfirmDialog } from './confirm-dialog.tsx';
 import { EmojiPicker } from './emoji-picker.tsx';
 import { MessageActions } from './message-actions.tsx';
@@ -136,9 +135,6 @@ export const ChatMessage = ({
   const [showAvatarTooltip, setShowAvatarTooltip] = useState(false);
   const [tooltipPosition, setTooltipPosition] = useState<'above' | 'below'>('above');
 
-  // Avatar editor state
-  const [showAvatarEditor, setShowAvatarEditor] = useState(false);
-
   // Confirm dialog state
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
@@ -147,7 +143,7 @@ export const ChatMessage = ({
   const avatarRef = useRef<HTMLDivElement>(null);
   const isOwn = message.clientId === currentClientId;
 
-  const { userAvatar, setUserAvatar } = useUserAvatar({ clientId: message.clientId });
+  const { userAvatar } = useUserAvatar({ clientId: message.clientId });
 
   /**
    * Enables edit mode for the message
@@ -345,30 +341,6 @@ export const ChatMessage = ({
   };
 
   /**
-   * Handles click on the avatar (only for own messages)
-   * Opens the avatar editor modal
-   *
-   * @param event - The click event
-   */
-  const handleAvatarClick = (event: React.MouseEvent) => {
-    event.stopPropagation();
-    if (isOwn) {
-      setShowAvatarEditor(true);
-    }
-  };
-
-  /**
-   * Handles avatar changes from the AvatarEditor
-   * Updates the user avatar in the AvatarContext
-   *
-   * @param avatarData - Partial avatar data to update
-   */
-  const handleAvatarSave = (avatarData: Partial<AvatarData>) => {
-    setUserAvatar(avatarData);
-    setShowAvatarEditor(false);
-  };
-
-  /**
    * Calculates tooltip position based on avatar location and viewport constraints
    *
    * @returns Object containing top and left positioning values
@@ -408,27 +380,15 @@ export const ChatMessage = ({
       role="article"
       aria-label={`Message from ${message.clientId}${message.isDeleted ? ' (deleted)' : ''}${message.isUpdated ? ' (edited)' : ''}`}
     >
-      {/* Avatar with hover tooltip and click functionality */}
+      {/* Avatar with hover tooltip functionality */}
       <div className="relative">
         <div
           ref={avatarRef}
-          className={`relative ${isOwn ? 'cursor-pointer' : ''}`}
+          className={`relative`}
           onMouseEnter={handleAvatarMouseEnter}
           onMouseLeave={handleAvatarMouseLeave}
-          onClick={handleAvatarClick}
-          role={isOwn ? 'button' : undefined}
-          aria-label={isOwn ? 'Click to edit your avatar' : `Avatar for ${message.clientId}`}
+          aria-label={`Avatar for ${message.clientId}`}
           tabIndex={isOwn ? 0 : undefined}
-          onKeyDown={
-            isOwn
-              ? (e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    handleAvatarClick(e as unknown as React.MouseEvent);
-                  }
-                }
-              : undefined
-          }
         >
           <Avatar
             alt={userAvatar?.displayName}
@@ -437,35 +397,10 @@ export const ChatMessage = ({
             size="sm"
             initials={userAvatar?.initials}
           />
-
-          {/* Edit overlay for own avatar */}
-          {isOwn && (
-            <div
-              className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity cursor-pointer group"
-              title="Edit avatar"
-              aria-hidden="true"
-            >
-              {/* Semi-transparent overlay */}
-              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 rounded-full transition-all" />
-
-              {/* Edit icon in center - smaller for sm avatar */}
-              <div className="relative z-10 bg-black bg-opacity-60 rounded-full p-1 transform scale-0 group-hover:scale-100 transition-transform">
-                <svg
-                  className="w-2 h-2 text-white"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                  aria-hidden="true"
-                >
-                  <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                </svg>
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Avatar Hover Tooltip */}
         {showAvatarTooltip &&
-          !showAvatarEditor &&
           (() => {
             const coords = calculateTooltipPosition();
 
@@ -590,19 +525,6 @@ export const ChatMessage = ({
           }}
           onEmojiSelect={handleEmojiSelect}
           position={emojiPickerPosition}
-        />
-      )}
-
-      {/* Avatar Editor Modal (only for own messages) */}
-      {isOwn && showAvatarEditor && userAvatar && (
-        <AvatarEditor
-          onClose={() => {
-            setShowAvatarEditor(false);
-          }}
-          onSave={handleAvatarSave}
-          currentAvatar={userAvatar.src}
-          currentColor={userAvatar.color}
-          displayName={userAvatar.displayName}
         />
       )}
 
