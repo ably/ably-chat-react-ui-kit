@@ -1,3 +1,4 @@
+import { clsx } from 'clsx';
 import React, { useCallback, useEffect, useRef } from 'react';
 
 /**
@@ -266,15 +267,15 @@ export const TextInput = React.forwardRef<HTMLInputElement | HTMLTextAreaElement
             // Set our local ref
             textareaRef.current = element;
           }}
-          className={`
-            ${baseClasses} 
-            ${variantClasses[variant === 'message' ? 'default' : variant]} 
-            ${sizeClasses[size]}
-            ${multilineClasses}
-            ${prefix ? 'pl-10' : ''}
-            ${suffix ? 'pr-10' : ''}
-            ${className}
-          `.trim()}
+          className={clsx(
+            baseClasses,
+            variantClasses[variant === 'message' ? 'default' : variant],
+            sizeClasses[size],
+            multilineClasses,
+            prefix && 'pl-10',
+            suffix && 'pr-10',
+            className
+          )}
           style={{ maxHeight }}
           disabled={disabled}
           aria-invalid={computedAriaInvalid}
@@ -297,14 +298,13 @@ export const TextInput = React.forwardRef<HTMLInputElement | HTMLTextAreaElement
       return (
         <input
           ref={ref as React.Ref<HTMLInputElement>}
-          className={`
-            ${baseClasses} 
-            ${variantClasses[variant]} 
-            ${sizeClasses[size]}
-            ${prefix ? 'pl-10' : ''}
-            ${suffix ? 'pr-10' : ''}
-            ${className}
-          `.trim()}
+          className={clsx(
+            baseClasses,
+            variantClasses[variant],
+            sizeClasses[size],
+            prefix ? 'pl-10' : '',
+            suffix ? 'pr-10' : '',
+            className)}
           disabled={disabled}
           aria-invalid={computedAriaInvalid}
           value={value}

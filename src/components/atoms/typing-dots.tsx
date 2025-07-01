@@ -71,14 +71,10 @@ export const TypingDots = ({
   dotClassName,
   animationDuration = '1s',
   dotColor = 'bg-current',
-  'aria-label': ariaLabel = 'Typing indicator',
   ...rest
 }: TypingDotsProps) => (
   <div
     className={clsx('flex gap-0.5', className)}
-    role="status"
-    aria-label={ariaLabel}
-    aria-live="polite"
     {...rest}
   >
     {ANIMATION_DELAYS.map((delay) => (
