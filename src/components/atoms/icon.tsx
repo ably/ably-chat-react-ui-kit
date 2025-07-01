@@ -1,3 +1,4 @@
+import { clsx } from 'clsx';
 import React from 'react';
 
 /**
@@ -126,7 +127,6 @@ export const Icon = ({
   color = 'current',
   onClick,
   svgProps,
-  ...rest
 }: IconProps) => {
   // Size class mappings
   const sizeClasses: Record<IconSize, string> = {
@@ -203,12 +203,12 @@ export const Icon = ({
 
   return (
     <svg
-      className={`
-        ${sizeClasses[size]} 
-        ${isInteractive ? 'cursor-pointer' : ''} 
-        ${colorClasses[color]} 
-        ${className}
-      `.trim()}
+      className={clsx(
+        sizeClasses[size],
+        isInteractive && 'cursor-pointer',
+        colorClasses[color],
+        className
+      )}
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"
@@ -229,7 +229,6 @@ export const Icon = ({
           : undefined
       }
       {...svgProps}
-      {...rest}
     >
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={iconPath} />
     </svg>
