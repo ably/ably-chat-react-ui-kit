@@ -119,7 +119,7 @@ export const PresenceList =  ({
     setPresenceText(newText);
   }, [presenceData]);
 
-  if (!coords) return null;
+  if (!coords) return;
 
   return createPortal(
     <Tooltip
