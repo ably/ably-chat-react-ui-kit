@@ -32,7 +32,8 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:typescript": "tsc"
   },
   "files": [
     "dist/**",
