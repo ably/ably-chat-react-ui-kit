@@ -167,7 +167,7 @@ export interface EmojiWheelProps {
  *   Hold to react
  * </div>
  */
-export const EmojiWheel =  ({
+export const EmojiWheel = ({
   isOpen,
   position,
   emojis: customEmojis,

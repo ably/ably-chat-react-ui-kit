@@ -1,4 +1,4 @@
-import clsx from 'clsx';
+import { clsx } from 'clsx';
 import React from 'react';
 
 /**
@@ -73,10 +73,7 @@ export const TypingDots = ({
   dotColor = 'bg-current',
   ...rest
 }: TypingDotsProps) => (
-  <div
-    className={clsx('flex gap-0.5', className)}
-    {...rest}
-  >
+  <div className={clsx('flex gap-0.5', className)} {...rest}>
     {ANIMATION_DELAYS.map((delay) => (
       <div
         key={delay}

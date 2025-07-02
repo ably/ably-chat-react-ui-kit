@@ -51,7 +51,6 @@ const getRandomColor = (text: string): string => {
   return colors[colorIndex] || 'bg-gray-500';
 };
 
-
 /**
  * Recommended image dimensions: 256x256 pixels
  * Supported formats: JPG, PNG, WebP, SVG
@@ -127,14 +126,7 @@ export interface AvatarProps {
  * const avatarData = { displayName: "John Doe", src: "https://example.com/avatar.jpg" };
  * <Avatar alt={avatarData.displayName} src={avatarData.src} color={avatarData.color} initials={avatarData.initials} />
  */
-export const Avatar = ({
-  src,
-  alt,
-  color,
-  size = 'md',
-  initials,
-  onClick,
-}: AvatarProps) => {
+export const Avatar = ({ src, alt, color, size = 'md', initials, onClick }: AvatarProps) => {
   const [imgError, setImgError] = useState(false);
 
   // Reset image error state if src changes
@@ -172,7 +164,6 @@ export const Avatar = ({
       .filter((word) => word.length > 0)
       .filter((word) => /^[a-zA-Z]/.test(word));
 
-
     if (words.length >= 2 && words[0] && words[1]) {
       const firstChar = words[0][0];
       const secondChar = words[1][0];
@@ -196,7 +187,6 @@ export const Avatar = ({
 
   // Determine if we're showing an image or initials
   const showingImage = src && !imgError;
-
 
   return (
     <div

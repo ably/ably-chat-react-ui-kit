@@ -160,13 +160,7 @@ describe('TextInput', () => {
     it('renders with both prefix and suffix', () => {
       const prefix = <span data-testid="prefix">@</span>;
       const suffix = <button data-testid="suffix">Send</button>;
-      render(
-        <TextInput
-          prefix={prefix}
-          suffix={suffix}
-          placeholder="Enter text"
-        />
-      );
+      render(<TextInput prefix={prefix} suffix={suffix} placeholder="Enter text" />);
 
       expect(screen.getByTestId('prefix')).toBeInTheDocument();
       expect(screen.getByTestId('suffix')).toBeInTheDocument();

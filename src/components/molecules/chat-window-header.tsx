@@ -1,4 +1,4 @@
-import clsx from 'clsx';
+import { clsx } from 'clsx';
 import React from 'react';
 
 /**
@@ -48,7 +48,7 @@ export const ChatWindowHeader = ({
   children,
   className = '',
   'aria-label': ariaLabel,
-}:ChatWindowHeaderProps) => {
+}: ChatWindowHeaderProps) => {
   // Combine base classes with custom className
   return (
     <div

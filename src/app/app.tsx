@@ -23,7 +23,6 @@ interface AppProps {
   height?: string | number;
 }
 
-
 const DEFAULT_ROOM_OPTIONS: RoomOptions = {
   occupancy: { enableEvents: true },
 };
@@ -33,12 +32,11 @@ const DEFAULT_ROOM_OPTIONS: RoomOptions = {
  *
  * @param props - The props for the App component.
  */
-export const App = ({initialRoomNames, width = '70vw', height = '70vh' }: AppProps) => {
+export const App = ({ initialRoomNames, width = '70vw', height = '70vh' }: AppProps) => {
   const { currentStatus } = useChatConnection();
   const [roomNames, setRoomNames] = useState<string[]>(initialRoomNames || []);
   const [activeRoom, setActiveRoom] = useState<string | undefined>();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-
 
   // Function to handle room selection change
   const handleChangeSelectedRoom = useCallback((roomName?: string) => {
@@ -77,7 +75,6 @@ export const App = ({initialRoomNames, width = '70vw', height = '70vh' }: AppPro
     }),
     [width, height]
   );
-
 
   // Show loading state if not connected (cannot make REST or WS Calls)
   // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison

@@ -56,7 +56,7 @@ export const ManyRooms: Story = {
     roomNames: [
       'general',
       'random',
-      'announcements', 
+      'announcements',
       'team-alpha',
       'project-beta',
       'design-reviews',
@@ -65,7 +65,7 @@ export const ManyRooms: Story = {
       'support',
       'watercooler',
       'urgent-issues',
-      'feature-requests'
+      'feature-requests',
     ],
     activeRoomName: 'engineering',
   },

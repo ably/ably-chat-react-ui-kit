@@ -148,7 +148,7 @@ export interface DropdownMenuProps {
  *   ]}
  * />
  */
-export const DropdownMenu =  ({ trigger, items, align = 'right' }: DropdownMenuProps) => {
+export const DropdownMenu = ({ trigger, items, align = 'right' }: DropdownMenuProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 

@@ -261,7 +261,11 @@ describe('Button Component', () => {
     });
 
     it('is disabled when both disabled and loading are true', () => {
-      render(<Button disabled loading>Click me</Button>);
+      render(
+        <Button disabled loading>
+          Click me
+        </Button>
+      );
 
       const button = screen.getByRole('button');
       expect(button).toBeDisabled();
@@ -355,7 +359,9 @@ describe('Button Component', () => {
     });
 
     it('supports form submission', () => {
-      const handleSubmit = vi.fn((e: React.FormEvent<HTMLFormElement>) => { e.preventDefault(); });
+      const handleSubmit = vi.fn((e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+      });
 
       render(
         <form onSubmit={handleSubmit}>
@@ -375,11 +381,7 @@ describe('Button Component', () => {
       render(<Button>Click me</Button>);
 
       const button = screen.getByRole('button');
-      expect(button).toHaveClass(
-        'focus:outline-none',
-        'focus:ring-2',
-        'focus:ring-offset-2'
-      );
+      expect(button).toHaveClass('focus:outline-none', 'focus:ring-2', 'focus:ring-offset-2');
     });
 
     it('applies variant-specific focus ring colors', () => {

@@ -1,4 +1,4 @@
-import clsx from 'clsx';
+import { clsx } from 'clsx';
 import React from 'react';
 
 /**
@@ -32,7 +32,7 @@ export interface ChatWindowFooterProps {
  *   <CustomFooterContent />
  * </ChatWindowFooter>
  */
-export const ChatWindowFooter =  ({
+export const ChatWindowFooter = ({
   children,
   className,
   'aria-label': ariaLabel,

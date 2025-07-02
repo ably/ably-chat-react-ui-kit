@@ -1,6 +1,6 @@
-import { fireEvent,render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
-import { beforeEach,describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ButtonProps } from '../../../components/atoms/button.tsx';
 import { IconProps } from '../../../components/atoms/icon.tsx';
@@ -9,7 +9,6 @@ import { DropdownMenuProps } from '../../../components/molecules/dropdown-menu.t
 import { RoomListProps } from '../../../components/molecules/room-list.tsx';
 import { Sidebar } from '../../../components/molecules/sidebar.tsx';
 import { useTheme } from '../../../hooks/use-theme.tsx';
-
 
 vi.mock('../../../hooks/use-theme.tsx', () => ({
   useTheme: vi.fn().mockReturnValue({
@@ -41,14 +40,22 @@ vi.mock('../../../components/atoms/icon.tsx', () => ({
 }));
 
 vi.mock('../../../components/molecules/create-room-modal.tsx', () => ({
-  CreateRoomModal: ({ isOpen, onClose, onCreateRoom }: CreateRoomModalProps) => (
+  CreateRoomModal: ({ isOpen, onClose, onCreateRoom }: CreateRoomModalProps) =>
     isOpen ? (
       <div data-testid="create-room-modal">
-        <button data-testid="close-modal" onClick={onClose}>Close</button>
-        <button data-testid="create-room" onClick={() => { onCreateRoom('new-room'); }}>Create Room</button>
+        <button data-testid="close-modal" onClick={onClose}>
+          Close
+        </button>
+        <button
+          data-testid="create-room"
+          onClick={() => {
+            onCreateRoom('new-room');
+          }}
+        >
+          Create Room
+        </button>
       </div>
-    ) : null
-  ),
+    ) : null,
 }));
 
 vi.mock('../../../components/molecules/dropdown-menu.tsx', () => ({
@@ -69,8 +76,15 @@ vi.mock('../../../components/molecules/dropdown-menu.tsx', () => ({
 }));
 
 vi.mock('../../../components/molecules/room-list.tsx', () => ({
-  RoomList: ({ roomNames, activeRoomName, defaultRoomOptions, onSelect, onLeave, isCollapsed }: RoomListProps) => (
-    <div 
+  RoomList: ({
+    roomNames,
+    activeRoomName,
+    defaultRoomOptions,
+    onSelect,
+    onLeave,
+    isCollapsed,
+  }: RoomListProps) => (
+    <div
       data-testid="room-list"
       data-room-count={roomNames.length}
       data-active-room={activeRoomName}
@@ -79,10 +93,20 @@ vi.mock('../../../components/molecules/room-list.tsx', () => ({
     >
       {roomNames.map((roomName) => (
         <div key={roomName} data-testid={`room-${roomName}`}>
-          <button data-testid={`select-${roomName}`} onClick={() => { onSelect(roomName); }}>
+          <button
+            data-testid={`select-${roomName}`}
+            onClick={() => {
+              onSelect(roomName);
+            }}
+          >
             Select {roomName}
           </button>
-          <button data-testid={`leave-${roomName}`} onClick={() => { onLeave(roomName); }}>
+          <button
+            data-testid={`leave-${roomName}`}
+            onClick={() => {
+              onLeave(roomName);
+            }}
+          >
             Leave {roomName}
           </button>
         </div>
@@ -97,7 +121,7 @@ describe('Sidebar', () => {
   const mockLeaveRoom = vi.fn();
   const mockToggleCollapse = vi.fn();
   const mockToggleTheme = vi.fn();
-  
+
   beforeEach(() => {
     vi.clearAllMocks();
     (useTheme as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
@@ -128,17 +152,17 @@ describe('Sidebar', () => {
     expect(roomList).toBeInTheDocument();
     expect(roomList).toHaveAttribute('data-room-count', '3');
     expect(roomList).toHaveAttribute('data-collapsed', 'false');
-    
+
     // Check if theme toggle button is rendered
     expect(screen.getByTestId('icon-moon')).toBeInTheDocument();
-    
+
     // Check if dropdown menu is rendered
     expect(screen.getByTestId('dropdown-menu')).toBeInTheDocument();
   });
-  
+
   it('renders in collapsed mode', () => {
     const roomNames = ['room1', 'room2'];
-    
+
     render(
       <Sidebar
         roomNames={roomNames}
@@ -149,18 +173,18 @@ describe('Sidebar', () => {
         onToggleCollapse={mockToggleCollapse}
       />
     );
-    
+
     // Check if the component is in collapsed mode
     expect(screen.queryByText('Chats (2)')).not.toBeInTheDocument();
-    
+
     // Check if the room list is in collapsed mode
     const roomList = screen.getByTestId('room-list');
     expect(roomList).toHaveAttribute('data-collapsed', 'true');
-    
+
     // Check if the expand button is rendered
     expect(screen.getByTestId('icon-chevronright')).toBeInTheDocument();
   });
-  
+
   it('toggles theme when theme button is clicked', () => {
     render(
       <Sidebar
@@ -170,26 +194,26 @@ describe('Sidebar', () => {
         leaveRoom={mockLeaveRoom}
       />
     );
-    
+
     // Click the theme toggle button
     const themeButtons = screen.getAllByTestId('button');
-    const themeButton = themeButtons.find(button => 
+    const themeButton = themeButtons.find((button) =>
       button.contains(screen.getByTestId('icon-moon'))
     );
     expect(themeButton).toBeInTheDocument();
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     fireEvent.click(themeButton!);
-    
+
     // Check if toggleTheme was called
     expect(mockToggleTheme).toHaveBeenCalledTimes(1);
   });
-  
+
   it('shows dark mode icon when theme is dark', () => {
     (useTheme as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
       theme: 'dark',
       toggleTheme: mockToggleTheme,
     });
-    
+
     render(
       <Sidebar
         roomNames={['room1']}
@@ -198,11 +222,11 @@ describe('Sidebar', () => {
         leaveRoom={mockLeaveRoom}
       />
     );
-    
+
     // Check if sun icon is rendered for dark mode
     expect(screen.getByTestId('icon-sun')).toBeInTheDocument();
   });
-  
+
   it('toggles collapse when collapse button is clicked', () => {
     render(
       <Sidebar
@@ -213,21 +237,21 @@ describe('Sidebar', () => {
         onToggleCollapse={mockToggleCollapse}
       />
     );
-    
+
     // Find and click the collapse button
     const collapseButtons = screen.getAllByTestId('button');
-    const collapseButton = collapseButtons.find(button => 
+    const collapseButton = collapseButtons.find((button) =>
       button.contains(screen.getByTestId('icon-chevronleft'))
     );
 
     expect(collapseButton).toBeInTheDocument();
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     fireEvent.click(collapseButton!);
-    
+
     // Check if onToggleCollapse was called
     expect(mockToggleCollapse).toHaveBeenCalledTimes(1);
   });
-  
+
   it('opens create room modal when dropdown item is clicked', () => {
     render(
       <Sidebar
@@ -237,17 +261,17 @@ describe('Sidebar', () => {
         leaveRoom={mockLeaveRoom}
       />
     );
-    
+
     // Initially, modal should not be visible
     expect(screen.queryByTestId('create-room-modal')).not.toBeInTheDocument();
-    
+
     // Click the create room dropdown item
     fireEvent.click(screen.getByTestId('dropdown-item-create-room'));
-    
+
     // Modal should now be visible
     expect(screen.getByTestId('create-room-modal')).toBeInTheDocument();
   });
-  
+
   it('creates a room when create button is clicked in modal', () => {
     render(
       <Sidebar
@@ -257,20 +281,20 @@ describe('Sidebar', () => {
         leaveRoom={mockLeaveRoom}
       />
     );
-    
+
     // Open the modal
     fireEvent.click(screen.getByTestId('dropdown-item-create-room'));
-    
+
     // Click the create room button in the modal
     fireEvent.click(screen.getByTestId('create-room'));
-    
+
     // Check if addRoom was called with the new room name
     expect(mockAddRoom).toHaveBeenCalledWith('new-room');
-    
+
     // Modal should be closed
     expect(screen.queryByTestId('create-room-modal')).not.toBeInTheDocument();
   });
-  
+
   it('closes modal without creating room when close button is clicked', () => {
     render(
       <Sidebar
@@ -280,23 +304,23 @@ describe('Sidebar', () => {
         leaveRoom={mockLeaveRoom}
       />
     );
-    
+
     // Open the modal
     fireEvent.click(screen.getByTestId('dropdown-item-create-room'));
-    
+
     // Click the close button in the modal
     fireEvent.click(screen.getByTestId('close-modal'));
-    
+
     // Check if addRoom was not called
     expect(mockAddRoom).not.toHaveBeenCalled();
-    
+
     // Modal should be closed
     expect(screen.queryByTestId('create-room-modal')).not.toBeInTheDocument();
   });
-  
+
   it('passes defaultRoomOptions to RoomList', () => {
-    const defaultRoomOptions = { occupancy: {enableEvents: true } };
-    
+    const defaultRoomOptions = { occupancy: { enableEvents: true } };
+
     render(
       <Sidebar
         roomNames={['room1']}
@@ -310,9 +334,12 @@ describe('Sidebar', () => {
     // Check if RoomList receives the defaultRoomOptions
     const roomList = screen.getByTestId('room-list');
     expect(roomList).toBeInTheDocument();
-    expect(roomList).toHaveAttribute('data-default-room-options', JSON.stringify(defaultRoomOptions));
+    expect(roomList).toHaveAttribute(
+      'data-default-room-options',
+      JSON.stringify(defaultRoomOptions)
+    );
   });
-  
+
   it('applies custom className when provided', () => {
     render(
       <Sidebar
@@ -323,7 +350,7 @@ describe('Sidebar', () => {
         className="custom-class"
       />
     );
-    
+
     // Check if the root container has the custom class
     const sidebar = screen.getByRole('complementary');
     expect(sidebar).toHaveClass('custom-class');

@@ -1,4 +1,4 @@
-import { fireEvent,render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -16,13 +16,12 @@ vi.mock('../../../components/atoms/icon', () => ({
 
 // Mocks the Button component
 vi.mock('../../../components/atoms/button', () => ({
-  Button: ({ children, variant, ...props }:ButtonProps) => (
+  Button: ({ children, variant, ...props }: ButtonProps) => (
     <button data-testid="button" data-variant={variant} {...props}>
       {children}
     </button>
   ),
 }));
-
 
 describe('ConfirmDialog', () => {
   it('renders nothing when isOpen is false', () => {
@@ -64,7 +63,7 @@ describe('ConfirmDialog', () => {
 
   it('calls onClose when backdrop is clicked', () => {
     const handleClose = vi.fn();
-    
+
     render(
       <ConfirmDialog
         isOpen={true}
@@ -79,13 +78,13 @@ describe('ConfirmDialog', () => {
     const backdrop = screen.getByRole('dialog').parentElement;
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     fireEvent.click(backdrop!);
-    
+
     expect(handleClose).toHaveBeenCalledTimes(1);
   });
 
   it('calls onClose when close button is clicked', () => {
     const handleClose = vi.fn();
-    
+
     render(
       <ConfirmDialog
         isOpen={true}
@@ -99,13 +98,13 @@ describe('ConfirmDialog', () => {
     // Click the close button
     const closeButton = screen.getByLabelText('Close dialog');
     fireEvent.click(closeButton);
-    
+
     expect(handleClose).toHaveBeenCalledTimes(1);
   });
 
   it('calls onClose when cancel button is clicked', () => {
     const handleClose = vi.fn();
-    
+
     render(
       <ConfirmDialog
         isOpen={true}
@@ -119,14 +118,14 @@ describe('ConfirmDialog', () => {
     // Click the cancel button
     const cancelButton = screen.getByText('Cancel');
     fireEvent.click(cancelButton);
-    
+
     expect(handleClose).toHaveBeenCalledTimes(1);
   });
 
   it('calls onConfirm and onClose when confirm button is clicked', () => {
     const handleClose = vi.fn();
     const handleConfirm = vi.fn();
-    
+
     render(
       <ConfirmDialog
         isOpen={true}
@@ -140,7 +139,7 @@ describe('ConfirmDialog', () => {
     // Click the confirm button
     const confirmButton = screen.getByText('Confirm');
     fireEvent.click(confirmButton);
-    
+
     expect(handleConfirm).toHaveBeenCalledTimes(1);
     expect(handleClose).toHaveBeenCalledTimes(1);
   });
@@ -157,7 +156,7 @@ describe('ConfirmDialog', () => {
         cancelText="No, Keep"
       />
     );
-    
+
     expect(screen.getByText('Yes, Delete')).toBeInTheDocument();
     expect(screen.getByText('No, Keep')).toBeInTheDocument();
   });
@@ -173,7 +172,7 @@ describe('ConfirmDialog', () => {
         icon={<div data-testid="custom-icon">Warning</div>}
       />
     );
-    
+
     expect(screen.getByTestId('custom-icon')).toBeInTheDocument();
   });
 
@@ -197,7 +196,7 @@ describe('ConfirmDialog', () => {
 
   it('handles escape key press', () => {
     const handleClose = vi.fn();
-    
+
     render(
       <ConfirmDialog
         isOpen={true}
@@ -209,13 +208,13 @@ describe('ConfirmDialog', () => {
     );
 
     fireEvent.keyDown(document, { key: 'Escape' });
-    
+
     expect(handleClose).toHaveBeenCalledTimes(1);
   });
 
   it('prevents event propagation when clicking the dialog', () => {
     const handleClose = vi.fn();
-    
+
     render(
       <ConfirmDialog
         isOpen={true}
@@ -229,7 +228,7 @@ describe('ConfirmDialog', () => {
     // Click the dialog itself (not the backdrop)
     const dialog = screen.getByRole('dialog');
     fireEvent.click(dialog);
-    
+
     // onClose should not be called when clicking the dialog itself
     expect(handleClose).not.toHaveBeenCalled();
   });

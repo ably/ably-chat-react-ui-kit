@@ -34,12 +34,7 @@ describe('Avatar Component', () => {
 
   describe('Image Handling', () => {
     it('displays image when src is provided', () => {
-      render(
-        <Avatar
-          src="https://example.com/avatar.jpg"
-          alt="John Doe"
-        />
-      );
+      render(<Avatar src="https://example.com/avatar.jpg" alt="John Doe" />);
 
       const image = screen.getByRole('img');
       expect(image).toHaveAttribute('src', 'https://example.com/avatar.jpg');
@@ -48,12 +43,7 @@ describe('Avatar Component', () => {
     });
 
     it('falls back to initials when image fails to load', async () => {
-      render(
-        <Avatar
-          src="https://example.com/broken-image.jpg"
-          alt="John Doe"
-        />
-      );
+      render(<Avatar src="https://example.com/broken-image.jpg" alt="John Doe" />);
 
       const image = screen.getByRole('img');
 
@@ -67,10 +57,7 @@ describe('Avatar Component', () => {
 
     it('resets error state when src changes', async () => {
       const { rerender } = render(
-        <Avatar
-          src="https://example.com/broken-image.jpg"
-          alt="John Doe"
-        />
+        <Avatar src="https://example.com/broken-image.jpg" alt="John Doe" />
       );
 
       const image = screen.getByRole('img');
@@ -81,24 +68,14 @@ describe('Avatar Component', () => {
       });
 
       // Change src - should attempt to load image again
-      rerender(
-        <Avatar
-          src="https://example.com/new-image.jpg"
-          alt="John Doe"
-        />
-      );
+      rerender(<Avatar src="https://example.com/new-image.jpg" alt="John Doe" />);
 
       const newImage = screen.getByRole('img');
       expect(newImage).toHaveAttribute('src', 'https://example.com/new-image.jpg');
     });
 
     it('includes loading="lazy" attribute on images', () => {
-      render(
-        <Avatar
-          src="https://example.com/avatar.jpg"
-          alt="John Doe"
-        />
-      );
+      render(<Avatar src="https://example.com/avatar.jpg" alt="John Doe" />);
 
       const image = screen.getByRole('img');
       expect(image).toHaveAttribute('loading', 'lazy');
@@ -181,13 +158,25 @@ describe('Avatar Component', () => {
       const avatar = screen.getByRole('img');
       // Should have one of the predefined color classes
       const colorClasses = [
-        'bg-blue-500', 'bg-purple-500', 'bg-green-500', 'bg-orange-500',
-        'bg-red-500', 'bg-pink-500', 'bg-indigo-500', 'bg-yellow-500',
-        'bg-teal-500', 'bg-cyan-500', 'bg-emerald-500', 'bg-violet-500',
-        'bg-amber-500', 'bg-rose-500', 'bg-fuchsia-500', 'bg-sky-500'
+        'bg-blue-500',
+        'bg-purple-500',
+        'bg-green-500',
+        'bg-orange-500',
+        'bg-red-500',
+        'bg-pink-500',
+        'bg-indigo-500',
+        'bg-yellow-500',
+        'bg-teal-500',
+        'bg-cyan-500',
+        'bg-emerald-500',
+        'bg-violet-500',
+        'bg-amber-500',
+        'bg-rose-500',
+        'bg-fuchsia-500',
+        'bg-sky-500',
       ];
 
-      const hasColorClass = colorClasses.some(colorClass =>
+      const hasColorClass = colorClasses.some((colorClass) =>
         avatar.classList.contains(colorClass)
       );
       expect(hasColorClass).toBe(true);
@@ -324,7 +313,7 @@ describe('Avatar Component', () => {
         displayName: 'Jane Smith',
         src: 'https://example.com/jane.jpg',
         color: 'bg-pink-500',
-        initials: 'JS'
+        initials: 'JS',
       };
 
       render(
@@ -348,7 +337,7 @@ describe('Avatar Component', () => {
 
     it('falls back gracefully when optional AvatarData properties are missing', () => {
       const avatarData: AvatarData = {
-        displayName: 'Jane Smith'
+        displayName: 'Jane Smith',
       };
 
       render(
@@ -365,8 +354,8 @@ describe('Avatar Component', () => {
 
       // Should have generated color
       const avatar = screen.getByRole('img');
-      const hasGeneratedColor = [...avatar.classList].some(cls =>
-        cls.startsWith('bg-') && cls !== 'bg-gray-500'
+      const hasGeneratedColor = [...avatar.classList].some(
+        (cls) => cls.startsWith('bg-') && cls !== 'bg-gray-500'
       );
       expect(hasGeneratedColor).toBe(true);
     });

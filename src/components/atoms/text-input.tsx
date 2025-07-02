@@ -304,7 +304,8 @@ export const TextInput = React.forwardRef<HTMLInputElement | HTMLTextAreaElement
             sizeClasses[size],
             prefix ? 'pl-10' : '',
             suffix ? 'pr-10' : '',
-            className)}
+            className
+          )}
           disabled={disabled}
           aria-invalid={computedAriaInvalid}
           value={value}

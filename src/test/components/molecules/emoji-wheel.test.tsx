@@ -1,6 +1,6 @@
-import { fireEvent,render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
-import { afterEach,beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { EmojiWheel } from '../../../components/molecules/emoji-wheel.tsx';
 
@@ -37,7 +37,10 @@ describe('EmojiWheel', () => {
 
   afterEach(() => {
     Object.defineProperty(globalThis, 'innerWidth', { value: originalInnerWidth, writable: true });
-    Object.defineProperty(globalThis, 'innerHeight', { value: originalInnerHeight, writable: true });
+    Object.defineProperty(globalThis, 'innerHeight', {
+      value: originalInnerHeight,
+      writable: true,
+    });
 
     vi.restoreAllMocks();
   });
@@ -83,7 +86,7 @@ describe('EmojiWheel', () => {
 
   it('renders with custom emoji list when provided', () => {
     const customEmojis = ['🎉', '🥳', '🎊', '🎁', '🎈', '🎯', '🎪', '🎭'];
-    
+
     render(
       <EmojiWheel
         isOpen={true}
@@ -111,10 +114,10 @@ describe('EmojiWheel', () => {
       />
     );
 
-    const emojiButton = screen.getAllByRole('button').find(
-      button => !button.getAttribute('aria-label')?.includes('Close')
-    );
-    
+    const emojiButton = screen
+      .getAllByRole('button')
+      .find((button) => !button.getAttribute('aria-label')?.includes('Close'));
+
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     fireEvent.click(emojiButton!);
 
@@ -182,7 +185,7 @@ describe('EmojiWheel', () => {
 
   it('adjusts position to stay within viewport', () => {
     const edgePosition = { x: 10, y: 10 };
-    
+
     render(
       <EmojiWheel
         isOpen={true}
@@ -192,11 +195,13 @@ describe('EmojiWheel', () => {
       />
     );
 
-    const wheelContainer = screen.getByRole('dialog').parentElement?.querySelector('[data-emoji-wheel="true"]');
+    const wheelContainer = screen
+      .getByRole('dialog')
+      .parentElement?.querySelector('[data-emoji-wheel="true"]');
     expect(wheelContainer).toBeInTheDocument();
 
     const style = wheelContainer?.getAttribute('style') || '';
-    
+
     // The position should be adjusted to be at least the minimum margin from the edge
     expect(style).not.toContain('left: -');
     expect(style).not.toContain('top: -');
@@ -213,7 +218,9 @@ describe('EmojiWheel', () => {
     );
 
     // When open, the wheel should have the open animation classes
-    const openWheel = screen.getByRole('dialog').parentElement?.querySelector('[data-emoji-wheel="true"]');
+    const openWheel = screen
+      .getByRole('dialog')
+      .parentElement?.querySelector('[data-emoji-wheel="true"]');
     expect(openWheel).toHaveClass('opacity-100', 'scale-100');
     expect(openWheel).not.toHaveClass('opacity-0', 'scale-50');
 
@@ -236,7 +243,7 @@ describe('EmojiWheel', () => {
 
   it('cleans up event listeners on unmount', () => {
     const removeEventListenerSpy = vi.spyOn(document, 'removeEventListener');
-    
+
     const { unmount } = render(
       <EmojiWheel
         isOpen={true}

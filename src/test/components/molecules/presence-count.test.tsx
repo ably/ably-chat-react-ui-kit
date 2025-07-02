@@ -23,7 +23,7 @@ describe('PresenceCount', () => {
         ]}
       />
     );
-    
+
     const badge = screen.getByRole('status');
     expect(badge).toBeInTheDocument();
     expect(badge).toHaveTextContent('1');
@@ -55,7 +55,7 @@ describe('PresenceCount', () => {
         ]}
       />
     );
-    
+
     const badge = screen.getByRole('status');
     expect(badge).toBeInTheDocument();
     expect(badge).toHaveTextContent('3');
@@ -63,15 +63,15 @@ describe('PresenceCount', () => {
   });
 
   it('caps display at "99+" for large numbers', () => {
-    const manyMembers = Array.from({ length: 100 }, (_, i) => ({ 
+    const manyMembers = Array.from({ length: 100 }, (_, i) => ({
       clientId: `user${(i + 1).toString()}`,
       data: undefined,
       extras: undefined,
-      updatedAt: 0
+      updatedAt: 0,
     }));
-    
+
     render(<PresenceCount presenceData={manyMembers} />);
-    
+
     const badge = screen.getByRole('status');
     expect(badge).toBeInTheDocument();
     expect(badge).toHaveTextContent('99+');
@@ -91,7 +91,7 @@ describe('PresenceCount', () => {
         ]}
       />
     );
-    
+
     const badge = screen.getByRole('status');
     expect(badge).toHaveClass('bg-green-500');
     expect(badge).toHaveClass('text-white');

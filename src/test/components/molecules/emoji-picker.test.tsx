@@ -163,7 +163,6 @@ describe('EmojiPicker', () => {
     expect(storedValue).toContain(selectedEmoji);
   });
 
-
   it('displays recent emojis when available', () => {
     const recentEmojis = ['🎉', '🥳', '🎊'];
     localStorage.setItem('ably-chat-recent-emojis', JSON.stringify(recentEmojis));

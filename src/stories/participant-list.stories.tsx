@@ -90,9 +90,7 @@ export const WithTriggerButton: Story = {
               >
                 👥 Click me to toggle participants
               </button>
-              {isOpen && (
-                <Story args={{ ...context.args, onToggle: handleToggle }} />
-              )}
+              {isOpen && <Story args={{ ...context.args, onToggle: handleToggle }} />}
             </div>
           </div>
         </AvatarProvider>
@@ -100,7 +98,6 @@ export const WithTriggerButton: Story = {
     },
   ],
 };
-
 
 export const NoTyping: Story = {
   args: {

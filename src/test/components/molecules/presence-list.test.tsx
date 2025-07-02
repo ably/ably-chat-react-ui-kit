@@ -18,7 +18,14 @@ vi.mock('react-dom', () => ({
 
 // Mock the Tooltip component
 vi.mock('../../../components/atoms/tooltip.tsx', () => ({
-  Tooltip: ({ children, className, role, 'aria-live': ariaLive, position, style }: TooltipProps) => (
+  Tooltip: ({
+    children,
+    className,
+    role,
+    'aria-live': ariaLive,
+    position,
+    style,
+  }: TooltipProps) => (
     <div
       data-testid="tooltip"
       className={className}
@@ -31,7 +38,6 @@ vi.mock('../../../components/atoms/tooltip.tsx', () => ({
     </div>
   ),
 }));
-
 
 describe('PresenceList', () => {
   it('renders nothing when coords are not provided', () => {

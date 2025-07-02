@@ -17,7 +17,6 @@ vi.mock('../../../../src/hooks/use-user-avatar.tsx', () => ({
   }),
 }));
 
-
 vi.mock('react-dom', async () => {
   const actual = await vi.importActual('react-dom');
   return {
@@ -26,17 +25,34 @@ vi.mock('react-dom', async () => {
   };
 });
 
-
 vi.mock('../../../../src/components/molecules/emoji-picker.tsx', () => ({
-  EmojiPicker: ({ onEmojiSelect, onClose }: { onEmojiSelect: (emoji: string) => void; onClose: () => void }) => (
+  EmojiPicker: ({
+    onEmojiSelect,
+    onClose,
+  }: {
+    onEmojiSelect: (emoji: string) => void;
+    onClose: () => void;
+  }) => (
     <div role="dialog" aria-label="Emoji Picker" data-testid="emoji-picker">
-      <button onClick={() => {
-        onEmojiSelect('👍');
-      }} data-testid="emoji-👍">👍</button>
-      <button onClick={() => {
-        onEmojiSelect('❤️');
-      }} data-testid="emoji-❤️">❤️</button>
-      <button onClick={onClose} data-testid="close-emoji-picker">Close</button>
+      <button
+        onClick={() => {
+          onEmojiSelect('👍');
+        }}
+        data-testid="emoji-👍"
+      >
+        👍
+      </button>
+      <button
+        onClick={() => {
+          onEmojiSelect('❤️');
+        }}
+        data-testid="emoji-❤️"
+      >
+        ❤️
+      </button>
+      <button onClick={onClose} data-testid="close-emoji-picker">
+        Close
+      </button>
     </div>
   ),
 }));
@@ -48,12 +64,7 @@ describe('ChatMessage', () => {
       text: 'Hello, world!',
     });
 
-    render(
-      <ChatMessage
-        message={message}
-        currentClientId="user2"
-      />
-    );
+    render(<ChatMessage message={message} currentClientId="user2" />);
 
     expect(screen.getByText('Hello, world!')).toBeInTheDocument();
     expect(screen.getByLabelText(/Avatar for user1/i)).toBeInTheDocument();
@@ -95,13 +106,7 @@ describe('ChatMessage', () => {
 
     const handleEdit = vi.fn();
 
-    render(
-      <ChatMessage
-        message={message}
-        currentClientId="user1"
-        onEdit={handleEdit}
-      />
-    );
+    render(<ChatMessage message={message} currentClientId="user1" onEdit={handleEdit} />);
 
     // Find the message bubble container and hover
     const messageBubble = screen.getByText('Original text').closest('div');
@@ -132,12 +137,7 @@ describe('ChatMessage', () => {
       isDeleted: true,
     });
 
-    render(
-      <ChatMessage
-        message={message}
-        currentClientId="user2"
-      />
-    );
+    render(<ChatMessage message={message} currentClientId="user2" />);
 
     expect(screen.getByText(/message deleted/i)).toBeInTheDocument();
   });
@@ -150,19 +150,14 @@ describe('ChatMessage', () => {
       reactions: {
         distinct: {
           '👍': { total: 2, clientIds: ['user1', 'user2'] },
-          '❤️': { total: 1, clientIds: ['user3'] }
+          '❤️': { total: 1, clientIds: ['user3'] },
         },
         unique: {},
-        multiple: {}
-      }
+        multiple: {},
+      },
     });
 
-    render(
-      <ChatMessage
-        message={message}
-        currentClientId="user2"
-      />
-    );
+    render(<ChatMessage message={message} currentClientId="user2" />);
 
     // Check if reactions are displayed
     expect(screen.getByText('👍')).toBeInTheDocument();
@@ -182,11 +177,7 @@ describe('ChatMessage', () => {
     const handleReactionAdd = vi.fn();
 
     render(
-      <ChatMessage
-        message={message}
-        currentClientId="user2"
-        onReactionAdd={handleReactionAdd}
-      />
+      <ChatMessage message={message} currentClientId="user2" onReactionAdd={handleReactionAdd} />
     );
 
     // Find the message bubble container and hover
@@ -218,11 +209,11 @@ describe('ChatMessage', () => {
       reactions: {
         distinct: {
           '👍': { total: 2, clientIds: ['user1', 'user2'] }, // Current user (user2) has reacted
-          '❤️': { total: 1, clientIds: ['user3'] }
+          '❤️': { total: 1, clientIds: ['user3'] },
         },
         unique: {},
-        multiple: {}
-      }
+        multiple: {},
+      },
     });
 
     const handleReactionRemove = vi.fn();

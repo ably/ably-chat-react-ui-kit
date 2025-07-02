@@ -1,4 +1,3 @@
-
 import { Meta, StoryObj } from '@storybook/react-vite';
 import React from 'react';
 
@@ -16,10 +15,7 @@ const meta: Meta<StoryProps> = {
   component: RoomInfo,
   decorators: [
     (Story, context) => (
-      <ChatRoomProvider
-        name="storybook-room"
-        mockOverrides={context.args.mockOverrides}
-      >
+      <ChatRoomProvider name="storybook-room" mockOverrides={context.args.mockOverrides}>
         <AvatarProvider>
           <div className="h-screen w-full flex items-center justify-center bg-gray-50 dark:bg-gray-950 p-8">
             <div className="bg-white dark:bg-gray-900 border rounded-lg p-6 shadow-lg max-w-md">

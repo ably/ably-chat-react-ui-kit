@@ -162,7 +162,7 @@ interface FlyingEmoji {
  *   onComplete={() => setBurstActive(false)}
  * />
  */
-export const EmojiBurst =  ({
+export const EmojiBurst = ({
   isActive,
   position,
   emoji = '👍',

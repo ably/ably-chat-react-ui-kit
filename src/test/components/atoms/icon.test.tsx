@@ -106,7 +106,7 @@ describe('Icon Component', () => {
     for (const { size, expectedClasses } of sizes) {
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
       it(`renders ${size} size correctly`, () => {
-        const { container } =render(<Icon name="send" size={size} />);
+        const { container } = render(<Icon name="send" size={size} />);
 
         const icon = getIcon(container);
         for (const className of expectedClasses) {
@@ -241,7 +241,6 @@ describe('Icon Component', () => {
 
       expect(preventDefaultSpy).toHaveBeenCalled();
     });
-
 
     it('does not respond to other keys', async () => {
       const handleClick = vi.fn();

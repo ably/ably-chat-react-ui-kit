@@ -1,5 +1,5 @@
 import { PresenceMember } from '@ably/chat';
-import { fireEvent,render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -11,7 +11,7 @@ import { ParticipantList } from '../../../components/molecules/participant-list.
 // Mock the Participant component
 vi.mock('../../../components/molecules/participant', () => ({
   Participant: ({ clientId, isPresent, isSelf, isTyping }: ParticipantProps) => (
-    <div 
+    <div
       data-testid={`participant-${clientId}`}
       data-present={isPresent.toString()}
       data-self={isSelf.toString()}
@@ -25,12 +25,7 @@ vi.mock('../../../components/molecules/participant', () => ({
 // Mock the Button component
 vi.mock('../../../components/atoms/button', () => ({
   Button: ({ children, onClick, variant, size, 'aria-label': ariaLabel }: ButtonProps) => (
-    <button 
-      onClick={onClick}
-      data-variant={variant}
-      data-size={size}
-      aria-label={ariaLabel}
-    >
+    <button onClick={onClick} data-variant={variant} data-size={size} aria-label={ariaLabel}>
       {children}
     </button>
   ),
@@ -39,11 +34,7 @@ vi.mock('../../../components/atoms/button', () => ({
 // Mock the Icon component
 vi.mock('../../../components/atoms/icon', () => ({
   Icon: ({ name, size, 'aria-hidden': ariaHidden }: IconProps) => (
-    <span 
-      data-testid={`icon-${name}`}
-      data-size={size}
-      aria-hidden={ariaHidden}
-    >
+    <span data-testid={`icon-${name}`} data-size={size} aria-hidden={ariaHidden}>
       {name}
     </span>
   ),
@@ -92,7 +83,7 @@ describe('ParticipantList', () => {
     );
 
     const modal = screen.getByRole('dialog');
-    
+
     // Check if the modal has the correct position styles
     expect(modal).toHaveStyle('top: 100px');
     expect(modal).toHaveStyle('left: 200px');
@@ -111,11 +102,11 @@ describe('ParticipantList', () => {
     );
 
     const participants = container.querySelectorAll('[data-testid^="participant-"]');
-    
+
     // Check if the first participant is the current user
     expect(participants[0]).toHaveAttribute('data-testid', 'participant-user3');
     expect(participants[0]).toHaveAttribute('data-self', 'true');
-    
+
     // Check if the remaining participants are sorted alphabetically
     expect(participants[1]).toHaveAttribute('data-testid', 'participant-user1');
     expect(participants[2]).toHaveAttribute('data-testid', 'participant-user2');
@@ -134,7 +125,7 @@ describe('ParticipantList', () => {
 
     // Check if the typing user has the correct typing status
     expect(screen.getByTestId('participant-user2')).toHaveAttribute('data-typing', 'true');
-    
+
     // Check if non-typing users have the correct typing status
     expect(screen.getByTestId('participant-user1')).toHaveAttribute('data-typing', 'false');
     expect(screen.getByTestId('participant-user3')).toHaveAttribute('data-typing', 'false');
@@ -153,7 +144,7 @@ describe('ParticipantList', () => {
 
     const closeButton = screen.getByLabelText('Close participants list');
     fireEvent.click(closeButton);
-    
+
     // Check if onToggle was called
     expect(mockToggle).toHaveBeenCalledTimes(1);
   });
@@ -172,7 +163,7 @@ describe('ParticipantList', () => {
     // Check if the component shows zero participants
     expect(screen.getByText('Participants (0)')).toBeInTheDocument();
     expect(screen.getByText('0 people present')).toBeInTheDocument();
-    
+
     // Check that no participant elements are rendered
     expect(screen.queryByTestId(/participant-/)).not.toBeInTheDocument();
   });
@@ -180,7 +171,9 @@ describe('ParticipantList', () => {
   it('handles singular form for one participant', () => {
     render(
       <ParticipantList
-        presenceData={[{ clientId: 'user1', data: {}, extras: {}, updatedAt: new Date().getUTCDate() }]}
+        presenceData={[
+          { clientId: 'user1', data: {}, extras: {}, updatedAt: new Date().getUTCDate() },
+        ]}
         currentClientId="user1"
         currentlyTyping={new Set()}
         onToggle={mockToggle}

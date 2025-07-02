@@ -1,4 +1,4 @@
-import { fireEvent,render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -8,7 +8,14 @@ import { MessageActions } from '../../../components/molecules/message-actions.ts
 
 // Mocks the Button component
 vi.mock('../../../components/atoms/button', () => ({
-  Button: ({ children, onClick, variant, size, className, 'aria-label': ariaLabel }: ButtonProps) => (
+  Button: ({
+    children,
+    onClick,
+    variant,
+    size,
+    className,
+    'aria-label': ariaLabel,
+  }: ButtonProps) => (
     <button
       onClick={onClick}
       data-variant={variant}
@@ -155,9 +162,7 @@ describe('MessageActions', () => {
   });
 
   it('applies correct styling classes to the toolbar', () => {
-    render(
-      <MessageActions isOwn={true} onReactionButtonClicked={() => {}} />
-    );
+    render(<MessageActions isOwn={true} onReactionButtonClicked={() => {}} />);
 
     // Check if the toolbar has the correct styling classes
     const toolbar = screen.getByRole('toolbar');

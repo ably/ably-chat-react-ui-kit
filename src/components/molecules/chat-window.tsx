@@ -127,7 +127,7 @@ export interface ChatWindowProps {
  *   />
  * </ChatRoomProvider>
  */
-export const ChatWindow =  ({
+export const ChatWindow = ({
   roomName,
   customHeaderContent,
   customFooterContent,
@@ -248,8 +248,7 @@ export const ChatWindow =  ({
         onReactionRemove={settings.allowMessageReactions ? handleReactionRemove : undefined}
         onMessageInView={showMessagesAroundSerial}
         onViewLatest={showLatestMessages}
-      >
-      </ChatMessageList>
+      ></ChatMessageList>
 
       {/* Footer */}
       <ChatWindowFooter>

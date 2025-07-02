@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import React from 'react';
-import { describe, expect,it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import { ChatWindowHeader } from '../../../components/molecules/chat-window-header.tsx';
 
@@ -18,7 +18,7 @@ describe('ChatWindowHeader', () => {
 
   it('renders without children', () => {
     render(<ChatWindowHeader />);
-    
+
     // The component should render even without children
     const header = screen.getByRole('banner');
     expect(header).toBeInTheDocument();
@@ -33,7 +33,7 @@ describe('ChatWindowHeader', () => {
 
     const header = screen.getByRole('banner');
     expect(header).toHaveClass('custom-class');
-    
+
     // Should also have the default classes
     expect(header).toHaveClass('px-6');
     expect(header).toHaveClass('py-4');
@@ -46,21 +46,21 @@ describe('ChatWindowHeader', () => {
 
   it('uses default aria-label when not provided', () => {
     render(<ChatWindowHeader />);
-    
+
     const header = screen.getByRole('banner');
     expect(header).toHaveAttribute('aria-label', 'Chat window header');
   });
 
   it('uses custom aria-label when provided', () => {
     render(<ChatWindowHeader aria-label="Custom header label" />);
-    
+
     const header = screen.getByRole('banner');
     expect(header).toHaveAttribute('aria-label', 'Custom header label');
   });
 
   it('has correct role attribute', () => {
     render(<ChatWindowHeader />);
-    
+
     const header = screen.getByRole('banner');
     expect(header).toBeInTheDocument();
   });
@@ -85,7 +85,7 @@ describe('ChatWindowHeader', () => {
 
   it('handles empty className gracefully', () => {
     render(<ChatWindowHeader className="" />);
-    
+
     const header = screen.getByRole('banner');
     // Should still have the default classes
     expect(header).toHaveClass('px-6');

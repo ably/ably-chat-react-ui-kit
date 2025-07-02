@@ -84,16 +84,16 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-
 export const Default: Story = {
   args: {
     messages: Array.from({ length: 25 }, (_, i) =>
       createMockMessage({
         serial: `msg_${i + 1}`,
         clientId: i % 4 === 0 ? 'user1' : `user${(i % 3) + 2}`,
-        text: i % 5 === 0
-          ? `This is a much longer message to test text wrapping and layout. Message number ${i + 1} with lots of content to see how it displays in the chat interface.`
-          : `Message ${i + 1}`,
+        text:
+          i % 5 === 0
+            ? `This is a much longer message to test text wrapping and layout. Message number ${i + 1} with lots of content to see how it displays in the chat interface.`
+            : `Message ${i + 1}`,
         createdAt: new Date(Date.now() - 1000 * 60 * (25 - i)),
         updatedAt: new Date(Date.now() - 1000 * 60 * (25 - i)),
         reactions: emptyMessageReactions(),
@@ -182,15 +182,16 @@ export const WithTypingIndicators: Story = {
 export const AutoScrollComparison: Story = {
   decorators: [
     (Story, context) => {
-      const [messages, setMessages] = React.useState(() =>
-        Array.from({ length: 8 }, (_, i) =>
-          createMockMessage({
-            serial: `msg_${i + 1}`,
-            clientId: i % 2 === 0 ? 'user1' : 'user2',
-            text: `Initial message ${i + 1}`,
-            createdAt: new Date(Date.now() - 1000 * 60 * (8 - i)),
-          })
-        ) as unknown as Message[]
+      const [messages, setMessages] = React.useState(
+        () =>
+          Array.from({ length: 8 }, (_, i) =>
+            createMockMessage({
+              serial: `msg_${i + 1}`,
+              clientId: i % 2 === 0 ? 'user1' : 'user2',
+              text: `Initial message ${i + 1}`,
+              createdAt: new Date(Date.now() - 1000 * 60 * (8 - i)),
+            })
+          ) as unknown as Message[]
       );
 
       const [isRunning, setIsRunning] = React.useState(true);
@@ -203,12 +204,17 @@ export const AutoScrollComparison: Story = {
           messageCountRef.current += 1;
           const newMessage = createMockMessage({
             serial: `msg_${messageCountRef.current}`,
-            clientId: messageCountRef.current % 3 === 0 ? 'user1' : messageCountRef.current % 2 === 0 ? 'user2' : 'user3',
+            clientId:
+              messageCountRef.current % 3 === 0
+                ? 'user1'
+                : messageCountRef.current % 2 === 0
+                  ? 'user2'
+                  : 'user3',
             text: `Message ${messageCountRef.current} - ${new Date().toLocaleTimeString()}`,
             createdAt: new Date(),
           }) as unknown as Message;
 
-          setMessages(prev => [...prev, newMessage]);
+          setMessages((prev) => [...prev, newMessage]);
         }, 1500);
 
         return () => clearInterval(interval);

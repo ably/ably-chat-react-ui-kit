@@ -7,11 +7,7 @@ import { Tooltip } from '../../../components/atoms/tooltip.tsx';
 describe('Tooltip', () => {
   describe('Basic rendering', () => {
     it('renders with required props', () => {
-      render(
-        <Tooltip position="above">
-          Tooltip content
-        </Tooltip>
-      );
+      render(<Tooltip position="above">Tooltip content</Tooltip>);
 
       const tooltip = screen.getByRole('tooltip');
       expect(tooltip).toBeInTheDocument();
@@ -32,22 +28,14 @@ describe('Tooltip', () => {
 
   describe('Positioning', () => {
     it('applies correct classes for above position', () => {
-      render(
-        <Tooltip position="above">
-          Above tooltip
-        </Tooltip>
-      );
+      render(<Tooltip position="above">Above tooltip</Tooltip>);
 
       const tooltip = screen.getByRole('tooltip');
       expect(tooltip).toHaveClass('bottom-full', 'mb-2');
     });
 
     it('applies correct classes for below position', () => {
-      render(
-        <Tooltip position="below">
-          Below tooltip
-        </Tooltip>
-      );
+      render(<Tooltip position="below">Below tooltip</Tooltip>);
 
       const tooltip = screen.getByRole('tooltip');
       expect(tooltip).toHaveClass('top-full', 'mt-2');
@@ -56,11 +44,7 @@ describe('Tooltip', () => {
 
   describe('Variants', () => {
     it('applies dark variant classes by default', () => {
-      render(
-        <Tooltip position="above">
-          Dark tooltip
-        </Tooltip>
-      );
+      render(<Tooltip position="above">Dark tooltip</Tooltip>);
 
       const tooltip = screen.getByRole('tooltip');
       expect(tooltip).toHaveClass('bg-gray-900', 'dark:bg-gray-700', 'text-white');
@@ -99,11 +83,7 @@ describe('Tooltip', () => {
     });
 
     it('applies medium size classes by default', () => {
-      render(
-        <Tooltip position="above">
-          Medium tooltip
-        </Tooltip>
-      );
+      render(<Tooltip position="above">Medium tooltip</Tooltip>);
 
       const tooltip = screen.getByRole('tooltip');
       expect(tooltip).toHaveClass('px-3', 'py-2', 'text-sm');
@@ -123,11 +103,7 @@ describe('Tooltip', () => {
 
   describe('Arrow', () => {
     it('renders arrow by default', () => {
-      render(
-        <Tooltip position="above">
-          Tooltip with arrow
-        </Tooltip>
-      );
+      render(<Tooltip position="above">Tooltip with arrow</Tooltip>);
 
       const arrow = screen.getByRole('tooltip').querySelector('[aria-hidden="true"]');
       expect(arrow).toBeInTheDocument();
@@ -206,11 +182,7 @@ describe('Tooltip', () => {
 
   describe('Text wrapping', () => {
     it('applies wrap classes by default', () => {
-      render(
-        <Tooltip position="above">
-          Wrapping tooltip
-        </Tooltip>
-      );
+      render(<Tooltip position="above">Wrapping tooltip</Tooltip>);
 
       const tooltip = screen.getByRole('tooltip');
       expect(tooltip).toHaveClass('whitespace-normal');
@@ -241,11 +213,7 @@ describe('Tooltip', () => {
 
   describe('Spacing', () => {
     it('applies default spacing', () => {
-      render(
-        <Tooltip position="above">
-          Default spacing
-        </Tooltip>
-      );
+      render(<Tooltip position="above">Default spacing</Tooltip>);
 
       const tooltip = screen.getByRole('tooltip');
       expect(tooltip).toHaveClass('bottom-full', 'mb-2');
@@ -336,11 +304,7 @@ describe('Tooltip', () => {
 
   describe('Accessibility', () => {
     it('has correct ARIA attributes by default', () => {
-      render(
-        <Tooltip position="above">
-          Accessible tooltip
-        </Tooltip>
-      );
+      render(<Tooltip position="above">Accessible tooltip</Tooltip>);
 
       const tooltip = screen.getByRole('tooltip');
       expect(tooltip).toHaveAttribute('role', 'tooltip');
@@ -357,13 +321,8 @@ describe('Tooltip', () => {
       expect(tooltip).toHaveAttribute('aria-hidden', 'true');
     });
 
-
     it('arrow has aria-hidden attribute', () => {
-      render(
-        <Tooltip position="above">
-          Tooltip with arrow
-        </Tooltip>
-      );
+      render(<Tooltip position="above">Tooltip with arrow</Tooltip>);
 
       const arrow = screen.getByRole('tooltip').querySelector('[aria-hidden="true"]');
       expect(arrow).toHaveAttribute('aria-hidden', 'true');
@@ -373,11 +332,7 @@ describe('Tooltip', () => {
   describe('Additional HTML attributes', () => {
     it('passes through additional HTML attributes', () => {
       render(
-        <Tooltip
-          position="above"
-          data-testid="custom-tooltip"
-          id="tooltip-1"
-        >
+        <Tooltip position="above" data-testid="custom-tooltip" id="tooltip-1">
           Custom attributes
         </Tooltip>
       );
@@ -416,11 +371,7 @@ describe('Tooltip', () => {
 
   describe('Default values', () => {
     it('uses default values when props are not provided', () => {
-      render(
-        <Tooltip position="above">
-          Default values test
-        </Tooltip>
-      );
+      render(<Tooltip position="above">Default values test</Tooltip>);
 
       const tooltip = screen.getByRole('tooltip');
       // Default maxWidth

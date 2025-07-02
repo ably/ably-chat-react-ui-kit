@@ -119,10 +119,7 @@ export interface MessageInputProps {
  *
  */
 
-export const MessageInput =  ({
-  onSend,
-  placeholder = 'Type a message...',
-}: MessageInputProps) => {
+export const MessageInput = ({ onSend, placeholder = 'Type a message...' }: MessageInputProps) => {
   const [message, setMessage] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [emojiPickerPosition, setEmojiPickerPosition] = useState({ top: 0, left: 0 });

@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import React from 'react';
-import { describe, expect,it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import { ChatWindowFooter } from '../../../components/molecules/chat-window-footer.tsx';
 
@@ -18,7 +18,7 @@ describe('ChatWindowFooter', () => {
 
   it('renders without children', () => {
     render(<ChatWindowFooter />);
-    
+
     // The component should render even without children
     const footer = screen.getByRole('contentinfo');
     expect(footer).toBeInTheDocument();
@@ -33,7 +33,7 @@ describe('ChatWindowFooter', () => {
 
     const footer = screen.getByRole('contentinfo');
     expect(footer).toHaveClass('custom-class');
-    
+
     // Should also have the default classes
     expect(footer).toHaveClass('flex');
     expect(footer).toHaveClass('items-center');
@@ -46,21 +46,21 @@ describe('ChatWindowFooter', () => {
 
   it('uses default aria-label when not provided', () => {
     render(<ChatWindowFooter />);
-    
+
     const footer = screen.getByRole('contentinfo');
     expect(footer).toHaveAttribute('aria-label', 'Chat window footer');
   });
 
   it('uses custom aria-label when provided', () => {
     render(<ChatWindowFooter aria-label="Custom footer label" />);
-    
+
     const footer = screen.getByRole('contentinfo');
     expect(footer).toHaveAttribute('aria-label', 'Custom footer label');
   });
 
   it('has correct role attribute', () => {
     render(<ChatWindowFooter />);
-    
+
     const footer = screen.getByRole('contentinfo');
     expect(footer).toBeInTheDocument();
   });

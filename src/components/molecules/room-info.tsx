@@ -140,7 +140,7 @@ export interface RoomInfoProps {
  * };
  *
  */
-export const RoomInfo =  ({
+export const RoomInfo = ({
   roomAvatar: propRoomAvatar,
   position = { top: 0, left: 150 },
   className,
@@ -249,7 +249,6 @@ export const RoomInfo =  ({
             position={position}
           />
         )}
-
       </div>
 
       {/* Room Information */}

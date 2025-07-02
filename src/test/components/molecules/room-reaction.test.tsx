@@ -1,4 +1,3 @@
-
 import { ConnectionStatus, RoomReactionEvent, RoomReactionListener, RoomStatus } from '@ably/chat';
 import { useRoomReactions } from '@ably/chat/react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
@@ -8,7 +7,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { EmojiBurstProps } from '../../../components/molecules/emoji-burst.tsx';
 import { EmojiWheelProps } from '../../../components/molecules/emoji-wheel.tsx';
 import { RoomReaction } from '../../../components/molecules/room-reaction.tsx';
-
 
 vi.mock('@ably/chat/react', () => ({
   useRoomReactions: vi.fn().mockReturnValue({
@@ -72,7 +70,7 @@ Object.defineProperty(navigator, 'vibrate', {
 });
 
 describe('RoomReaction', () => {
-  const mockSend = vi.fn().mockResolvedValue({})
+  const mockSend = vi.fn().mockResolvedValue({});
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -244,16 +242,18 @@ describe('RoomReaction', () => {
     let storedListener: RoomReactionListener | null = null;
 
     // Mock useRoomReactions to capture the listener
-    (useRoomReactions as unknown as ReturnType<typeof vi.fn>).mockImplementation((params?: { listener?: RoomReactionListener }) => {
-      if (params?.listener) {
-        storedListener = params.listener;
+    (useRoomReactions as unknown as ReturnType<typeof vi.fn>).mockImplementation(
+      (params?: { listener?: RoomReactionListener }) => {
+        if (params?.listener) {
+          storedListener = params.listener;
+        }
+        return {
+          roomStatus: RoomStatus.Attached,
+          connectionStatus: ConnectionStatus.Connected,
+          send: mockSend,
+        };
       }
-      return {
-        roomStatus: RoomStatus.Attached,
-        connectionStatus: ConnectionStatus.Connected,
-        send: mockSend,
-      };
-    });
+    );
 
     render(<RoomReaction emojiBurstPosition={customPosition} />);
 

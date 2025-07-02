@@ -4,7 +4,11 @@ import { ConnectionStatus } from '@ably/chat';
 
 import { AvatarProvider, ChatSettingsProvider, ThemeProvider } from '../context';
 import { App } from '../app/app.tsx';
-import { ChatClientProvider, MockChatClient, createMockScenario } from '../../.storybook/mocks/mock-ably-chat';
+import {
+  ChatClientProvider,
+  MockChatClient,
+  createMockScenario,
+} from '../../.storybook/mocks/mock-ably-chat';
 
 // Extend the component props for Storybook to include mockOverrides
 type StoryProps = React.ComponentProps<typeof App> & {
@@ -16,10 +20,7 @@ const meta: Meta<StoryProps> = {
   component: App,
   decorators: [
     (Story, context) => (
-      <ChatClientProvider
-        client={new MockChatClient()}
-        mockOverrides={context.args.mockOverrides}
-      >
+      <ChatClientProvider client={new MockChatClient()} mockOverrides={context.args.mockOverrides}>
         <ThemeProvider>
           <ChatSettingsProvider>
             <AvatarProvider>
@@ -39,7 +40,7 @@ const meta: Meta<StoryProps> = {
   args: {
     initialRoomNames: ['general', 'random', 'announcements'],
     width: '70vw',
-    height: '90vh'
+    height: '90vh',
   },
   argTypes: {
     mockOverrides: {
@@ -71,7 +72,7 @@ export const ManyRooms: Story = {
     initialRoomNames: [
       'general',
       'random',
-      'announcements', 
+      'announcements',
       'team-alpha',
       'project-beta',
       'design-reviews',
@@ -80,7 +81,7 @@ export const ManyRooms: Story = {
       'support',
       'watercooler',
       'urgent-issues',
-      'feature-requests'
+      'feature-requests',
     ],
   },
 };
@@ -140,13 +141,16 @@ export const BusyChat: Story = {
         updatedAt: new Date(Date.now() - 1000 * 60 * (50 - i)),
         isUpdated: i % 10 === 0,
         isDeleted: false,
-        reactions: i % 6 === 0 ? {
-          distinct: {
-            '👍': { total: 3, clientIds: ['User1', 'User2', 'User3'] },
-            '❤️': { total: 2, clientIds: ['User4', 'User5'] },
-            '😊': { total: 1, clientIds: ['User6'] },
-          }
-        } : { distinct: {} },
+        reactions:
+          i % 6 === 0
+            ? {
+                distinct: {
+                  '👍': { total: 3, clientIds: ['User1', 'User2', 'User3'] },
+                  '❤️': { total: 2, clientIds: ['User4', 'User5'] },
+                  '😊': { total: 1, clientIds: ['User6'] },
+                },
+              }
+            : { distinct: {} },
       })),
       occupancy: {
         connections: 15,
@@ -195,4 +199,4 @@ export const QuietChat: Story = {
       },
     },
   },
-}; 
+};

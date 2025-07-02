@@ -111,7 +111,7 @@ export interface MessageReactionsProps {
  * };
  *
  */
-export const MessageReactions =  ({
+export const MessageReactions = ({
   message,
   onReactionClick,
   currentClientId,

@@ -1,6 +1,6 @@
-import { act,render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import React from 'react';
-import { afterEach,beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { EmojiBurst } from '../../../components/molecules/emoji-burst.tsx';
 
@@ -13,7 +13,7 @@ describe('EmojiBurst', () => {
     globalThis.requestAnimationFrame = vi.fn((callback: FrameRequestCallback) => {
       return setTimeout(callback, 16) as unknown as number;
     });
-    globalThis.cancelAnimationFrame = vi.fn((id:number) => {
+    globalThis.cancelAnimationFrame = vi.fn((id: number) => {
       clearTimeout(id);
     });
   });
@@ -52,7 +52,7 @@ describe('EmojiBurst', () => {
     // The component should render a container with emojis
     const container = screen.getByRole('presentation', { hidden: true });
     expect(container).toBeInTheDocument();
-    
+
     // Should render default emojis
     const emojis = container.querySelectorAll('[aria-hidden="true"]');
     expect(emojis.length).toBe(12);
@@ -71,11 +71,9 @@ describe('EmojiBurst', () => {
 
     const container = screen.getByRole('presentation', { hidden: true });
     const emojis = container.querySelectorAll('[aria-hidden="true"]');
-    
+
     // Check if at least one of the emojis is the provided one
-    const hasProvidedEmoji = [...emojis].some(
-      (emoji) => emoji.textContent === '🎉'
-    );
+    const hasProvidedEmoji = [...emojis].some((emoji) => emoji.textContent === '🎉');
     expect(hasProvidedEmoji).toBe(true);
   });
 
@@ -92,21 +90,21 @@ describe('EmojiBurst', () => {
 
     const container = screen.getByRole('presentation', { hidden: true });
     const emojis = container.querySelectorAll('[aria-hidden="true"]');
-    
+
     // Get all emoji text content
-    const emojiTexts = [...emojis].map(emoji => emoji.textContent);
-    
+    const emojiTexts = [...emojis].map((emoji) => emoji.textContent);
+
     // Check if we have at least one thumbs up emoji (any variant)
-    const hasThumbsUp = emojiTexts.some(text => 
-      text === '👍' || text === '👍🏻' || text === '👍🏽' || text === '👍🏿'
+    const hasThumbsUp = emojiTexts.some(
+      (text) => text === '👍' || text === '👍🏻' || text === '👍🏽' || text === '👍🏿'
     );
-    
+
     expect(hasThumbsUp).toBe(true);
   });
 
   it('calls onComplete when animation finishes', () => {
     const handleComplete = vi.fn();
-    
+
     render(
       <EmojiBurst
         isActive={true}
@@ -127,14 +125,9 @@ describe('EmojiBurst', () => {
 
   it('positions emojis at the specified coordinates', () => {
     const testPosition = { x: 250, y: 350 };
-    
+
     render(
-      <EmojiBurst
-        isActive={true}
-        position={testPosition}
-        duration={1000}
-        onComplete={() => {}}
-      />
+      <EmojiBurst isActive={true} position={testPosition} duration={1000} onComplete={() => {}} />
     );
 
     const container = screen.getByRole('presentation', { hidden: true });

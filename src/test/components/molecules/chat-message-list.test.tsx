@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
-import { beforeEach,describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { createMockMessage } from '../../../../.storybook/mocks/mock-ably-chat.ts';
 import { ChatMessageProps } from '../../../components/molecules/chat-message.tsx';
@@ -9,44 +9,58 @@ import { TypingIndicatorsProps } from '../../../components/molecules/typing-indi
 
 // Mock the ChatMessage component
 vi.mock('../../../components/molecules/chat-message', () => ({
-  ChatMessage: ({ message, onEdit, onDelete, onReactionAdd, onReactionRemove }: ChatMessageProps) => (
+  ChatMessage: ({
+    message,
+    onEdit,
+    onDelete,
+    onReactionAdd,
+    onReactionRemove,
+  }: ChatMessageProps) => (
     <div data-testid={`chat-message-${message.serial}`} data-message-id={message.serial}>
       <div data-testid="message-text">{message.text}</div>
       <div data-testid="message-client-id">{message.clientId}</div>
       {onEdit && (
-        <button 
-          data-testid={`edit-button-${message.serial}`} 
-          onClick={() => { onEdit(message, 'Edited message'); }}
+        <button
+          data-testid={`edit-button-${message.serial}`}
+          onClick={() => {
+            onEdit(message, 'Edited message');
+          }}
         >
           Edit
         </button>
       )}
       {onDelete && (
-        <button 
-          data-testid={`delete-button-${message.serial}`} 
-          onClick={() => { onDelete(message); }}
+        <button
+          data-testid={`delete-button-${message.serial}`}
+          onClick={() => {
+            onDelete(message);
+          }}
         >
           Delete
         </button>
       )}
       {onReactionAdd && (
-        <button 
-          data-testid={`add-reaction-button-${message.serial}`} 
-          onClick={() => { onReactionAdd(message, '👍'); }}
+        <button
+          data-testid={`add-reaction-button-${message.serial}`}
+          onClick={() => {
+            onReactionAdd(message, '👍');
+          }}
         >
           Add Reaction
         </button>
       )}
       {onReactionRemove && (
-        <button 
-          data-testid={`remove-reaction-button-${message.serial}`} 
-          onClick={() => { onReactionRemove(message, '👍'); }}
+        <button
+          data-testid={`remove-reaction-button-${message.serial}`}
+          onClick={() => {
+            onReactionRemove(message, '👍');
+          }}
         >
           Remove Reaction
         </button>
       )}
     </div>
-  )
+  ),
 }));
 
 // Mock the TypingIndicators component
@@ -61,7 +75,7 @@ vi.mock('../../../components/molecules/typing-indicators', () => ({
         Trigger Typing Change
       </button>
     </div>
-  )
+  ),
 }));
 
 describe('ChatMessageList', () => {
@@ -69,7 +83,7 @@ describe('ChatMessageList', () => {
   const mockMessages = [
     createMockMessage({ serial: 'msg1', clientId: 'user1', text: 'Hello world' }),
     createMockMessage({ serial: 'msg2', clientId: 'user2', text: 'How are you?' }),
-    createMockMessage({ serial: 'msg3', clientId: 'user1', text: 'I am fine, thanks!' })
+    createMockMessage({ serial: 'msg3', clientId: 'user1', text: 'I am fine, thanks!' }),
   ];
 
   // Mock callback functions
@@ -90,7 +104,7 @@ describe('ChatMessageList', () => {
     mockIntersectionObserver.mockReturnValue({
       observe: () => null,
       unobserve: () => null,
-      disconnect: () => null
+      disconnect: () => null,
     });
     globalThis.IntersectionObserver = mockIntersectionObserver;
 
@@ -99,18 +113,13 @@ describe('ChatMessageList', () => {
     mockResizeObserver.mockReturnValue({
       observe: () => null,
       unobserve: () => null,
-      disconnect: () => null
+      disconnect: () => null,
     });
     globalThis.ResizeObserver = mockResizeObserver;
   });
 
   it('renders messages correctly', () => {
-    render(
-      <ChatMessageList
-        messages={mockMessages}
-        currentClientId="user1"
-      />
-    );
+    render(<ChatMessageList messages={mockMessages} currentClientId="user1" />);
 
     // Check if all messages are rendered
     expect(screen.getByTestId('chat-message-msg1')).toBeInTheDocument();
@@ -119,24 +128,14 @@ describe('ChatMessageList', () => {
   });
 
   it('shows loading indicator when isLoading is true', () => {
-    render(
-      <ChatMessageList
-        messages={mockMessages}
-        currentClientId="user1"
-        isLoading={true}
-      />
-    );
+    render(<ChatMessageList messages={mockMessages} currentClientId="user1" isLoading={true} />);
 
     expect(screen.getByText('Loading messages…')).toBeInTheDocument();
   });
 
   it('shows "No more messages" when hasMoreHistory is false and there are messages', () => {
     render(
-      <ChatMessageList
-        messages={mockMessages}
-        currentClientId="user1"
-        hasMoreHistory={false}
-      />
+      <ChatMessageList messages={mockMessages} currentClientId="user1" hasMoreHistory={false} />
     );
 
     expect(screen.getByText('No more messages')).toBeInTheDocument();
@@ -212,11 +211,9 @@ describe('ChatMessageList', () => {
     // Get the container and mock the scrollTop getter
     const container = screen.getByRole('log');
 
-    const maybeLoadHistorySpy = vi.spyOn(
-      Object.getPrototypeOf(container), 
-      'scrollTop', 
-      'get'
-    ).mockImplementation(() => 10); // Very low value to trigger loading
+    const maybeLoadHistorySpy = vi
+      .spyOn(Object.getPrototypeOf(container), 'scrollTop', 'get')
+      .mockImplementation(() => 10); // Very low value to trigger loading
 
     fireEvent.scroll(container);
 
@@ -336,7 +333,7 @@ describe('ChatMessageList', () => {
     Object.defineProperty(container, 'scrollTop', {
       get: () => 1000,
       set: scrollTopSetter,
-      configurable: true
+      configurable: true,
     });
     Object.defineProperty(container, 'scrollHeight', { value: 1100 });
     Object.defineProperty(container, 'clientHeight', { value: 100 });
@@ -353,11 +350,7 @@ describe('ChatMessageList', () => {
 
   it('applies custom className to container', () => {
     render(
-      <ChatMessageList
-        messages={mockMessages}
-        currentClientId="user1"
-        className="custom-class"
-      />
+      <ChatMessageList messages={mockMessages} currentClientId="user1" className="custom-class" />
     );
 
     const container = screen.getByRole('log');
@@ -365,12 +358,7 @@ describe('ChatMessageList', () => {
   });
 
   it('has correct accessibility attributes', () => {
-    render(
-      <ChatMessageList
-        messages={mockMessages}
-        currentClientId="user1"
-      />
-    );
+    render(<ChatMessageList messages={mockMessages} currentClientId="user1" />);
 
     const container = screen.getByRole('log');
     expect(container).toHaveAttribute('aria-label', 'Chat messages');

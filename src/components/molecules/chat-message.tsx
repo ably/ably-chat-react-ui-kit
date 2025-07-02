@@ -1,5 +1,5 @@
 import { Message } from '@ably/chat';
-import {clsx} from 'clsx';
+import { clsx } from 'clsx';
 import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
@@ -281,7 +281,6 @@ export const ChatMessage = ({
    */
   const handleReactionClick = (emoji: string) => {
     const distinct = message.reactions.distinct;
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     const hasUserReacted = distinct[emoji]?.clientIds.includes(currentClientId);
 
     if (hasUserReacted) {

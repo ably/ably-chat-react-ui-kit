@@ -164,13 +164,12 @@ export const AvatarEditor = ({
 
     return displayName
       .split(' ')
-      .filter(name => name.length > 0)
+      .filter((name) => name.length > 0)
       .map((name) => name[0]?.toUpperCase() || '')
       .join('')
       .padEnd(2, '•')
       .slice(0, 2);
   };
-
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">

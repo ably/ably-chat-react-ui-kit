@@ -75,7 +75,7 @@ vi.mock('../../../components/molecules/chat-message-list', () => ({
     onViewLatest,
     children,
   }: ChatMessageListProps) => {
-    const mockMessage = messages[0]
+    const mockMessage = messages[0];
     if (!mockMessage) {
       return <div data-testid="chat-message-list-empty">No message</div>;
     }

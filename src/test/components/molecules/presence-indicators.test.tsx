@@ -10,7 +10,6 @@ vi.mock('@ably/chat/react', () => ({
   usePresenceListener: vi.fn(),
 }));
 
-
 describe('PresenceIndicators', () => {
   it('shows "0 people present" when no one is present', () => {
     (usePresenceListener as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
@@ -18,7 +17,7 @@ describe('PresenceIndicators', () => {
     });
 
     render(<PresenceIndicators />);
-    
+
     const indicator = screen.getByRole('status');
     expect(indicator).toBeInTheDocument();
     expect(indicator).toHaveTextContent('0 people present');
@@ -31,7 +30,7 @@ describe('PresenceIndicators', () => {
     });
 
     render(<PresenceIndicators />);
-    
+
     const indicator = screen.getByRole('status');
     expect(indicator).toBeInTheDocument();
     expect(indicator).toHaveTextContent('1 person present');
@@ -40,15 +39,11 @@ describe('PresenceIndicators', () => {
 
   it('shows plural text for multiple people', () => {
     (usePresenceListener as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
-      presenceData: [
-        { clientId: 'user1' },
-        { clientId: 'user2' },
-        { clientId: 'user3' },
-      ],
+      presenceData: [{ clientId: 'user1' }, { clientId: 'user2' }, { clientId: 'user3' }],
     });
 
     render(<PresenceIndicators />);
-    
+
     const indicator = screen.getByRole('status');
     expect(indicator).toBeInTheDocument();
     expect(indicator).toHaveTextContent('3 people present');
@@ -65,7 +60,7 @@ describe('PresenceIndicators', () => {
     });
 
     render(<PresenceIndicators />);
-    
+
     const indicator = screen.getByRole('status');
     expect(indicator).toBeInTheDocument();
     expect(indicator).toHaveTextContent('2 people present');
@@ -77,7 +72,7 @@ describe('PresenceIndicators', () => {
     });
 
     render(<PresenceIndicators className="custom-class" />);
-    
+
     const indicator = screen.getByRole('status');
     expect(indicator).toHaveClass('custom-class');
   });
@@ -88,7 +83,7 @@ describe('PresenceIndicators', () => {
     });
 
     render(<PresenceIndicators />);
-    
+
     const indicator = screen.getByRole('status');
     expect(indicator).toHaveAttribute('aria-live', 'polite');
   });

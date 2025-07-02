@@ -1,4 +1,4 @@
-import { fireEvent,render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -8,7 +8,7 @@ describe('DropdownMenu', () => {
   const mockItems = [
     { id: 'edit', label: 'Edit', onClick: vi.fn() },
     { id: 'delete', label: 'Delete', onClick: vi.fn() },
-    { id: 'share', label: 'Share', icon: '🔗', onClick: vi.fn() }
+    { id: 'share', label: 'Share', icon: '🔗', onClick: vi.fn() },
   ];
 
   beforeEach(() => {
@@ -30,12 +30,7 @@ describe('DropdownMenu', () => {
   });
 
   it('does not show dropdown menu initially', () => {
-    render(
-      <DropdownMenu
-        trigger={<button>Options</button>}
-        items={mockItems}
-      />
-    );
+    render(<DropdownMenu trigger={<button>Options</button>} items={mockItems} />);
 
     expect(screen.queryByRole('menu')).not.toBeInTheDocument();
   });

@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import React from 'react';
-import { afterEach,beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { TypingDots } from '../../../components/atoms/typing-dots.tsx';
 
@@ -56,13 +56,7 @@ describe('TypingDots', () => {
       const dots = container.querySelectorAll('[aria-hidden="true"]');
 
       for (const dot of dots) {
-        expect(dot).toHaveClass(
-          'w-1.5',
-          'h-1.5',
-          'rounded-full',
-          'animate-bounce',
-          'bg-current'
-        );
+        expect(dot).toHaveClass('w-1.5', 'h-1.5', 'rounded-full', 'animate-bounce', 'bg-current');
       }
     });
   });
@@ -289,12 +283,7 @@ describe('TypingDots', () => {
 
   describe('HTML attributes passthrough', () => {
     it('passes through additional HTML attributes', () => {
-      render(
-        <TypingDots
-          data-testid="custom-typing-dots"
-          title="Loading indicator"
-        />
-      );
+      render(<TypingDots data-testid="custom-typing-dots" title="Loading indicator" />);
 
       const container = screen.getByTestId('custom-typing-dots');
       expect(container).toHaveAttribute('title', 'Loading indicator');
@@ -385,13 +374,7 @@ describe('TypingDots', () => {
       expect(dots).toHaveLength(3);
 
       for (const [index, dot] of dots.entries()) {
-        expect(dot).toHaveClass(
-          'w-1.5',
-          'h-1.5',
-          'rounded-full',
-          'animate-bounce',
-          'bg-current'
-        );
+        expect(dot).toHaveClass('w-1.5', 'h-1.5', 'rounded-full', 'animate-bounce', 'bg-current');
         expect(dot).toHaveStyle({
           animationDuration: '1s',
           animationDelay: ['0ms', '200ms', '400ms'][index],

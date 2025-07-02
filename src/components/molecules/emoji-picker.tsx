@@ -216,7 +216,7 @@ const emojis = [
  *   setPickerOpen(true);
  * };
  */
-export const EmojiPicker =  ({
+export const EmojiPicker = ({
   onClose,
   onEmojiSelect,
   position,

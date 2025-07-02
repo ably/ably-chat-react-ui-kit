@@ -334,7 +334,6 @@ export const useMessageWindow = ({
     [anchorIdx, findInsertionIndex, findMessageIndex]
   );
 
-
   const handleDiscontinuity = useCallback(
     (recoverFromSerial: string) => {
       // Nothing to do if we are already recovering or we have no history API

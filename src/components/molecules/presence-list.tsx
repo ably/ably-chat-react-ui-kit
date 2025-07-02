@@ -104,7 +104,7 @@ const buildPresenceSentence = (presenceData: PresenceMember[]): string => {
  * // presenceData = [5 members] → "Alice, Bob, Charlie and 2 more participants are present"
  */
 
-export const PresenceList =  ({
+export const PresenceList = ({
   tooltipPosition,
   coords,
   tooltipClassName,

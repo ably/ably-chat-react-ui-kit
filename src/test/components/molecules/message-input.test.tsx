@@ -51,7 +51,6 @@ vi.mock('../../../components/atoms/icon', () => ({
   ),
 }));
 
-
 // Mocks the TextInput component
 vi.mock('../../../components/atoms/text-input', () => {
   const MockedTextInput = React.forwardRef<HTMLTextAreaElement, TextInputProps>(
@@ -235,9 +234,8 @@ describe('MessageInput', () => {
   it('inserts emoji at cursor position when selected', () => {
     render(<MessageInput onSend={mockOnSend} />);
 
-
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-    const input = screen.getByTestId('text-input') as HTMLTextAreaElement
+    const input = screen.getByTestId('text-input') as HTMLTextAreaElement;
 
     fireEvent.change(input, { target: { value: 'Hello world' } });
 
@@ -247,11 +245,11 @@ describe('MessageInput', () => {
 
     Object.defineProperty(input, 'selectionStart', {
       value: 5,
-      writable: true
+      writable: true,
     });
     Object.defineProperty(input, 'selectionEnd', {
       value: 5,
-      writable: true
+      writable: true,
     });
 
     // Open the emoji picker and select an emoji

@@ -116,7 +116,7 @@ export const ChatSettingsProvider = ({
   initialGlobalSettings = {},
   initialRoomSettings = {},
   children,
-}: ChatSettingsProviderProps)  => {
+}: ChatSettingsProviderProps) => {
   // Merge initial global settings with defaults
   const globalSettings: ChatSettings = {
     ...DEFAULT_SETTINGS,

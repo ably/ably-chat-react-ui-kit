@@ -1,4 +1,4 @@
-import { fireEvent,render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -17,21 +17,8 @@ vi.mock('../../../components/atoms/icon', () => ({
 
 // Mock the Button component
 vi.mock('../../../components/atoms/button', () => ({
-  Button: ({ 
-    children, 
-    onClick, 
-    type, 
-    variant, 
-    disabled, 
-    ...props 
-  }: ButtonProps) => (
-    <button
-      onClick={onClick}
-      type={type}
-      disabled={disabled}
-      data-variant={variant}
-      {...props}
-    >
+  Button: ({ children, onClick, type, variant, disabled, ...props }: ButtonProps) => (
+    <button onClick={onClick} type={type} disabled={disabled} data-variant={variant} {...props}>
       {children}
     </button>
   ),
@@ -39,14 +26,14 @@ vi.mock('../../../components/atoms/button', () => ({
 
 // Mock the TextInput component
 vi.mock('../../../components/atoms/text-input', () => ({
-  TextInput: ({ 
-    value, 
-    onChange, 
-    placeholder, 
-    className, 
-    autoFocus, 
+  TextInput: ({
+    value,
+    onChange,
+    placeholder,
+    className,
+    autoFocus,
     'aria-label': ariaLabel,
-    'aria-required': ariaRequired
+    'aria-required': ariaRequired,
   }: TextInputProps) => (
     <input
       data-testid="text-input"
@@ -63,26 +50,14 @@ vi.mock('../../../components/atoms/text-input', () => ({
 
 describe('CreateRoomModal', () => {
   it('renders nothing when isOpen is false', () => {
-    render(
-      <CreateRoomModal
-        isOpen={false}
-        onClose={() => {}}
-        onCreateRoom={() => {}}
-      />
-    );
+    render(<CreateRoomModal isOpen={false} onClose={() => {}} onCreateRoom={() => {}} />);
 
     // The modal should not be in the document
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
   it('renders correctly when isOpen is true', () => {
-    render(
-      <CreateRoomModal
-        isOpen={true}
-        onClose={() => {}}
-        onCreateRoom={() => {}}
-      />
-    );
+    render(<CreateRoomModal isOpen={true} onClose={() => {}} onCreateRoom={() => {}} />);
 
     // The modal should be in the document
     const dialog = screen.getByRole('dialog');
@@ -101,13 +76,7 @@ describe('CreateRoomModal', () => {
   it('calls onClose when backdrop is clicked', () => {
     const handleClose = vi.fn();
 
-    render(
-      <CreateRoomModal
-        isOpen={true}
-        onClose={handleClose}
-        onCreateRoom={() => {}}
-      />
-    );
+    render(<CreateRoomModal isOpen={true} onClose={handleClose} onCreateRoom={() => {}} />);
 
     // Click the backdrop (the first div with fixed positioning)
     const backdrop = screen.getByRole('dialog').parentElement;
@@ -120,13 +89,7 @@ describe('CreateRoomModal', () => {
   it('calls onClose when close button is clicked', () => {
     const handleClose = vi.fn();
 
-    render(
-      <CreateRoomModal
-        isOpen={true}
-        onClose={handleClose}
-        onCreateRoom={() => {}}
-      />
-    );
+    render(<CreateRoomModal isOpen={true} onClose={handleClose} onCreateRoom={() => {}} />);
 
     // Click the close button
     const closeButton = screen.getByLabelText('Close modal');
@@ -138,13 +101,7 @@ describe('CreateRoomModal', () => {
   it('calls onClose when cancel button is clicked', () => {
     const handleClose = vi.fn();
 
-    render(
-      <CreateRoomModal
-        isOpen={true}
-        onClose={handleClose}
-        onCreateRoom={() => {}}
-      />
-    );
+    render(<CreateRoomModal isOpen={true} onClose={handleClose} onCreateRoom={() => {}} />);
 
     // Click the cancel button
     const cancelButton = screen.getByText('Cancel');
@@ -154,13 +111,7 @@ describe('CreateRoomModal', () => {
   });
 
   it('updates room name when input changes', () => {
-    render(
-      <CreateRoomModal
-        isOpen={true}
-        onClose={() => {}}
-        onCreateRoom={() => {}}
-      />
-    );
+    render(<CreateRoomModal isOpen={true} onClose={() => {}} onCreateRoom={() => {}} />);
 
     // Get the input and change its value
     const input = screen.getByTestId('text-input');
@@ -171,13 +122,7 @@ describe('CreateRoomModal', () => {
   });
 
   it('disables submit button when room name is empty', () => {
-    render(
-      <CreateRoomModal
-        isOpen={true}
-        onClose={() => {}}
-        onCreateRoom={() => {}}
-      />
-    );
+    render(<CreateRoomModal isOpen={true} onClose={() => {}} onCreateRoom={() => {}} />);
 
     // The submit button should be disabled initially (empty room name)
     const submitButton = screen.getByText('Create Room');
@@ -185,13 +130,7 @@ describe('CreateRoomModal', () => {
   });
 
   it('enables submit button when room name is not empty', () => {
-    render(
-      <CreateRoomModal
-        isOpen={true}
-        onClose={() => {}}
-        onCreateRoom={() => {}}
-      />
-    );
+    render(<CreateRoomModal isOpen={true} onClose={() => {}} onCreateRoom={() => {}} />);
 
     // Get the input and change its value
     const input = screen.getByTestId('text-input');
@@ -206,13 +145,7 @@ describe('CreateRoomModal', () => {
     const handleClose = vi.fn();
     const handleCreateRoom = vi.fn();
 
-    render(
-      <CreateRoomModal
-        isOpen={true}
-        onClose={handleClose}
-        onCreateRoom={handleCreateRoom}
-      />
-    );
+    render(<CreateRoomModal isOpen={true} onClose={handleClose} onCreateRoom={handleCreateRoom} />);
 
     const input = screen.getByTestId('text-input');
     fireEvent.change(input, { target: { value: 'New Room Name' } });
@@ -231,13 +164,7 @@ describe('CreateRoomModal', () => {
     const handleClose = vi.fn();
     const handleCreateRoom = vi.fn();
 
-    render(
-      <CreateRoomModal
-        isOpen={true}
-        onClose={handleClose}
-        onCreateRoom={handleCreateRoom}
-      />
-    );
+    render(<CreateRoomModal isOpen={true} onClose={handleClose} onCreateRoom={handleCreateRoom} />);
 
     const input = screen.getByTestId('text-input');
     fireEvent.change(input, { target: { value: 'New Room Name' } });
@@ -255,13 +182,7 @@ describe('CreateRoomModal', () => {
   it('trims whitespace from room name', () => {
     const handleCreateRoom = vi.fn();
 
-    render(
-      <CreateRoomModal
-        isOpen={true}
-        onClose={() => {}}
-        onCreateRoom={handleCreateRoom}
-      />
-    );
+    render(<CreateRoomModal isOpen={true} onClose={() => {}} onCreateRoom={handleCreateRoom} />);
 
     // Get the input and change its value with whitespace
     const input = screen.getByTestId('text-input');
@@ -278,13 +199,7 @@ describe('CreateRoomModal', () => {
   it('handles escape key press', () => {
     const handleClose = vi.fn();
 
-    render(
-      <CreateRoomModal
-        isOpen={true}
-        onClose={handleClose}
-        onCreateRoom={() => {}}
-      />
-    );
+    render(<CreateRoomModal isOpen={true} onClose={handleClose} onCreateRoom={() => {}} />);
 
     // Press the Escape key
     fireEvent.keyDown(document, { key: 'Escape' });
@@ -295,13 +210,7 @@ describe('CreateRoomModal', () => {
   it('prevents event propagation when clicking the modal', () => {
     const handleClose = vi.fn();
 
-    render(
-      <CreateRoomModal
-        isOpen={true}
-        onClose={handleClose}
-        onCreateRoom={() => {}}
-      />
-    );
+    render(<CreateRoomModal isOpen={true} onClose={handleClose} onCreateRoom={() => {}} />);
 
     // Click the modal itself (not the backdrop)
     const dialog = screen.getByRole('dialog');
@@ -315,11 +224,7 @@ describe('CreateRoomModal', () => {
     const handleClose = vi.fn();
 
     const { rerender } = render(
-      <CreateRoomModal
-        isOpen={true}
-        onClose={handleClose}
-        onCreateRoom={() => {}}
-      />
+      <CreateRoomModal isOpen={true} onClose={handleClose} onCreateRoom={() => {}} />
     );
 
     // Get the input and change its value
@@ -331,25 +236,13 @@ describe('CreateRoomModal', () => {
     expect(submitButton).not.toBeDisabled();
 
     // Close the modal
-    rerender(
-      <CreateRoomModal
-        isOpen={false}
-        onClose={handleClose}
-        onCreateRoom={() => {}}
-      />
-    );
+    rerender(<CreateRoomModal isOpen={false} onClose={handleClose} onCreateRoom={() => {}} />);
 
     // Modal should not be in the document when closed
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
 
     // Reopen the modal
-    rerender(
-      <CreateRoomModal
-        isOpen={true}
-        onClose={handleClose}
-        onCreateRoom={() => {}}
-      />
-    );
+    rerender(<CreateRoomModal isOpen={true} onClose={handleClose} onCreateRoom={() => {}} />);
 
     // Modal should be in the document when reopened
     expect(screen.getByRole('dialog')).toBeInTheDocument();
