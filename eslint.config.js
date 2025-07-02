@@ -152,6 +152,7 @@ export default [
     files: ['src/test/**/*.{ts,tsx}'],
 
     rules: {
+      "unicorn/no-useless-undefined": "off",
       '@typescript-eslint/unbound-method': 'off',
       '@typescript-eslint/no-empty-function': 'off',
       'unicorn/no-null': 'off',
