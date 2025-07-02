@@ -150,7 +150,12 @@ export default [
 
   {
     files: ['src/test/**/*.{ts,tsx}'],
-
+    languageOptions: {
+      parser: tsParser,
+      parserOptions: {
+        project: ['./tsconfig.test.json']
+      },
+    },
     rules: {
       "unicorn/no-useless-undefined": "off",
       '@typescript-eslint/unbound-method': 'off',

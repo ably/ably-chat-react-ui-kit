@@ -4,8 +4,12 @@ import { renderHook } from '@testing-library/react';
 import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
-import { ChatSettings, ChatSettingsContext, ChatSettingsContextType } from '../../context/chat-settings-context.tsx';
+import {
+  ChatSettingsContext,
+  ChatSettingsContextType,
+} from '../../context/chat-settings-context.tsx';
 import { useChatSettings } from '../../hooks/use-chat-settings.tsx';
+import { ChatSettings } from '../../providers/chat-settings-provider.tsx';
 
 describe('useChatSettings Hook', () => {
   const mockGlobalSettings: ChatSettings = {
@@ -15,8 +19,8 @@ describe('useChatSettings Hook', () => {
   };
 
   const mockRoomSettings: Record<string, Partial<ChatSettings>> = {
-    'general': { allowMessageEdits: false },
-    'announcements': { 
+    general: { allowMessageEdits: false },
+    announcements: {
       allowMessageEdits: false,
       allowMessageDeletes: false,
     },
@@ -26,7 +30,7 @@ describe('useChatSettings Hook', () => {
     if (!roomName) {
       return mockGlobalSettings;
     }
-    
+
     return {
       ...mockGlobalSettings,
       ...mockRoomSettings[roomName],
@@ -40,9 +44,7 @@ describe('useChatSettings Hook', () => {
   };
 
   const wrapper = ({ children }: { children: React.ReactNode }) => (
-    <ChatSettingsContext.Provider value={mockContextValue}>
-      {children}
-    </ChatSettingsContext.Provider>
+    <ChatSettingsContext.Provider value={mockContextValue}>{children}</ChatSettingsContext.Provider>
   );
 
   it('should return the chat settings context', () => {
@@ -56,18 +58,18 @@ describe('useChatSettings Hook', () => {
 
   it('should correctly get effective settings for a room', () => {
     const { result } = renderHook(() => useChatSettings(), { wrapper });
-    
+
     // Test global settings
     const globalSettings = result.current.getEffectiveSettings();
     expect(globalSettings).toEqual(mockGlobalSettings);
-    
+
     // Test room with overrides
     const generalSettings = result.current.getEffectiveSettings('general');
     expect(generalSettings).toEqual({
       ...mockGlobalSettings,
       allowMessageEdits: false,
     });
-    
+
     // Test room with multiple overrides
     const announcementsSettings = result.current.getEffectiveSettings('announcements');
     expect(announcementsSettings).toEqual({
@@ -75,7 +77,7 @@ describe('useChatSettings Hook', () => {
       allowMessageEdits: false,
       allowMessageDeletes: false,
     });
-    
+
     // Test non-existent room (should use global settings)
     const nonExistentRoomSettings = result.current.getEffectiveSettings('non-existent');
     expect(nonExistentRoomSettings).toEqual(mockGlobalSettings);

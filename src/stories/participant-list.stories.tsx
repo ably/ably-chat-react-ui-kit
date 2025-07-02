@@ -3,8 +3,8 @@ import { Meta, StoryObj } from '@storybook/react-vite';
 import React from 'react';
 import { action } from 'storybook/actions';
 
-import { AvatarProvider } from '../context';
 import { ParticipantList } from '../components/molecules/participant-list.tsx';
+import { AvatarProvider } from '../providers/avatar-provider';
 
 // Mock presence data
 const mockPresenceData: PresenceMember[] = [

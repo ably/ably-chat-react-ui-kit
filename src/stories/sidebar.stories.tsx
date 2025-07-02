@@ -2,8 +2,9 @@ import { Meta, StoryObj } from '@storybook/react-vite';
 import React from 'react';
 import { action } from 'storybook/actions';
 
-import { AvatarProvider, ThemeProvider } from '../context';
 import { Sidebar } from '../components/molecules/sidebar.tsx';
+import { AvatarProvider } from '../providers/avatar-provider';
+import { ThemeProvider } from '../providers';
 
 const meta: Meta<typeof Sidebar> = {
   title: 'Molecules/Sidebar',

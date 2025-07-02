@@ -3,8 +3,8 @@ import { Meta, StoryObj } from '@storybook/react-vite';
 import React from 'react';
 import { action } from 'storybook/actions';
 
-import { AvatarProvider } from '../context';
 import { ChatMessage } from '../components/molecules/chat-message.tsx';
+import { AvatarProvider } from '../providers/avatar-provider';
 
 // Sample message data to use in the story
 const sampleMessage: Message = {

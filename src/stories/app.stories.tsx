@@ -2,12 +2,10 @@ import { Meta, StoryObj } from '@storybook/react-vite';
 import React from 'react';
 import { ConnectionStatus } from '@ably/chat';
 
-import { AvatarProvider, ChatSettingsProvider, ThemeProvider } from '../context';
 import { App } from '../app/app.tsx';
-import {
-  ChatClientProvider,
-  MockChatClient,
-} from '../../.storybook/mocks/mock-ably-chat';
+import { ChatClientProvider, MockChatClient } from '../../.storybook/mocks/mock-ably-chat';
+import { AvatarProvider } from '../providers/avatar-provider';
+import { ChatSettingsProvider, ThemeProvider } from '../providers';
 
 // Extend the component props for Storybook to include mockOverrides
 type StoryProps = React.ComponentProps<typeof App> & {

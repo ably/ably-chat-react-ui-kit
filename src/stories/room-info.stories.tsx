@@ -1,9 +1,9 @@
 import { Meta, StoryObj } from '@storybook/react-vite';
 import React from 'react';
 
-import { AvatarProvider } from '../context';
 import { RoomInfo } from '../components/molecules/room-info.tsx';
 import { ChatRoomProvider, createMockScenario } from '../../.storybook/mocks/mock-ably-chat';
+import { AvatarProvider } from '../providers/avatar-provider';
 
 // Extend the component props for Storybook to include mockOverrides
 type StoryProps = React.ComponentProps<typeof RoomInfo> & {

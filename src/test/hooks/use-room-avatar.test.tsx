@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom';
 
-import { act,renderHook } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
 import React from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -59,10 +59,10 @@ describe('useRoomAvatar Hook', () => {
 
     // Should have called getAvatarForRoom
     expect(getAvatarForRoom).toHaveBeenCalledWith('test-room');
-    
+
     // Should not have called createAvatarForRoom
     expect(createAvatarForRoom).not.toHaveBeenCalled();
-    
+
     // Should return the avatar
     expect(result.current.roomAvatar).toEqual(mockRoomAvatar);
   });
@@ -78,10 +78,10 @@ describe('useRoomAvatar Hook', () => {
 
     // Should have called getAvatarForRoom
     expect(getAvatarForRoom).toHaveBeenCalledWith('test-room');
-    
+
     // Should have called createAvatarForRoom
     expect(createAvatarForRoom).toHaveBeenCalledWith('test-room', 'Test Room');
-    
+
     // Should return the created avatar
     expect(result.current.roomAvatar).toEqual(mockRoomAvatar);
   });
@@ -104,7 +104,7 @@ describe('useRoomAvatar Hook', () => {
       displayName: 'Updated Room Name',
       color: '#EF4444',
     });
-    
+
     // Local state should be updated
     expect(result.current.roomAvatar).toEqual(updatedRoomAvatar);
   });
@@ -121,7 +121,7 @@ describe('useRoomAvatar Hook', () => {
 
     // Should have called createAvatarForRoom with roomName and undefined displayName
     expect(createAvatarForRoom).toHaveBeenCalledWith('test-room', undefined);
-    
+
     // Should have used roomName as displayName
     expect(result.current.roomAvatar?.displayName).toBe('test-room');
   });

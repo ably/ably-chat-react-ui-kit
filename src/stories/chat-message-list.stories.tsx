@@ -3,9 +3,9 @@ import { Meta, StoryObj } from '@storybook/react-vite';
 import React from 'react';
 import { action } from 'storybook/actions';
 
-import { AvatarProvider } from '../context';
 import { ChatMessageList } from '../components/molecules/chat-message-list.tsx';
 import { createMockMessage, emptyMessageReactions } from '../../.storybook/mocks/mock-ably-chat';
+import { AvatarProvider } from '../providers/avatar-provider';
 
 const messages = [
   createMockMessage({

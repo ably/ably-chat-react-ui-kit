@@ -4,8 +4,9 @@ import { renderHook } from '@testing-library/react';
 import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
-import { ThemeContext, ThemeContextType, ThemeType } from '../../context/theme-context.tsx';
+import { ThemeContext, ThemeContextType } from '../../context/theme-context.tsx';
 import { useTheme } from '../../hooks/use-theme.tsx';
+import { ThemeType } from '../../providers/theme-provider.tsx';
 
 describe('useTheme Hook', () => {
   const mockThemeContext: ThemeContextType = {

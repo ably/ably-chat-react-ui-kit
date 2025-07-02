@@ -1,13 +1,3 @@
-export {
-  type AvatarChangeCallback,
-  type AvatarContextType,
-  type AvatarOptions,
-  AvatarProvider,
-} from './avatar-context.tsx';
-export {
-  type ChatSettings,
-  type ChatSettingsContextType,
-  ChatSettingsProvider,
-  type ChatSettingsProviderProps,
-} from './chat-settings-context.tsx';
-export { type ThemeContextType, ThemeProvider, type ThemeProviderProps } from './theme-context.tsx';
+export { type AvatarContextType } from './avatar-context.tsx';
+export { type ChatSettingsContextType } from './chat-settings-context.tsx';
+export { type ThemeContextType } from './theme-context.tsx';

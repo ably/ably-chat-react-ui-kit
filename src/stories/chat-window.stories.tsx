@@ -1,13 +1,12 @@
 import { Meta, StoryObj } from '@storybook/react-vite';
 import React from 'react';
 
-import { AvatarProvider, ChatSettingsProvider } from '../context';
 import { ChatWindow } from '../components/molecules/chat-window.tsx';
 import { RoomInfo } from '../components/molecules/room-info.tsx';
 import { RoomReaction } from '../components/molecules/room-reaction.tsx';
-import {
-  ChatRoomProvider,
-} from '../../.storybook/mocks/mock-ably-chat';
+import { ChatRoomProvider } from '../../.storybook/mocks/mock-ably-chat';
+import { AvatarProvider } from '../providers/avatar-provider';
+import { ChatSettingsProvider } from '../providers';
 
 type StoryProps = React.ComponentProps<typeof ChatWindow> & {
   mockOverrides?: any;

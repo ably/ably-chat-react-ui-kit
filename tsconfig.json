@@ -25,7 +25,6 @@
   "include": ["src"],
   "exclude": [
     "src/stories/*.stories.tsx",
-    "src/test/**/*",
     ".storybook/**/*",
     "dist",
     "node_modules"

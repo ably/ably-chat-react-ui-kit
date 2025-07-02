@@ -46,6 +46,6 @@ describe('useAvatar Hook', () => {
       renderHook(() => useAvatar());
     }).toThrow('useAvatar must be used within an AvatarProvider');
 
-     mockConsoleLog.mockRestore();
+    mockConsoleLog.mockRestore();
   });
 });

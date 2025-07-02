@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom';
 
-import { act,renderHook } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
 import React from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -60,10 +60,10 @@ describe('useUserAvatar Hook', () => {
 
     // Should have called getAvatarForUser
     expect(getAvatarForUser).toHaveBeenCalledWith('user-123');
-    
+
     // Should not have called createAvatarForUser
     expect(createAvatarForUser).not.toHaveBeenCalled();
-    
+
     // Should return the avatar
     expect(result.current.userAvatar).toEqual(mockUserAvatar);
   });
@@ -79,10 +79,10 @@ describe('useUserAvatar Hook', () => {
 
     // Should have called getAvatarForUser
     expect(getAvatarForUser).toHaveBeenCalledWith('user-123');
-    
+
     // Should have called createAvatarForUser
     expect(createAvatarForUser).toHaveBeenCalledWith('user-123', 'Test User');
-    
+
     // Should return the created avatar
     expect(result.current.userAvatar).toEqual(mockUserAvatar);
   });
@@ -107,7 +107,7 @@ describe('useUserAvatar Hook', () => {
       color: '#EF4444',
       src: 'https://example.com/avatar.jpg',
     });
-    
+
     // Local state should be updated
     expect(result.current.userAvatar).toEqual(updatedUserAvatar);
   });
@@ -124,7 +124,7 @@ describe('useUserAvatar Hook', () => {
 
     // Should have called createAvatarForUser with clientId and undefined displayName
     expect(createAvatarForUser).toHaveBeenCalledWith('user-123', undefined);
-    
+
     // Should have used clientId as displayName
     expect(result.current.userAvatar?.displayName).toBe('user-123');
   });
