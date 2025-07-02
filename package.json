@@ -37,7 +37,10 @@
   },
   "files": [
     "dist/**",
-    "src/**"
+    "src/**",
+    "!src/stories/*",
+    "!src/test/**/*",
+    "!.storybook/**/*"
   ],
   "repository": {
     "type": "git",

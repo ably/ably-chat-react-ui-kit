@@ -9,7 +9,9 @@ export default defineConfig({
     dts({
       insertTypesEntry: true,
       exclude: [
-        'src/stories/**/*'
+        'src/stories/*',
+        'src/test/**/*',
+        '.storybook/**/*'
       ]
     })
   ],
