@@ -7,10 +7,7 @@ import { RoomInfo } from '../components/molecules/room-info.tsx';
 import { RoomReaction } from '../components/molecules/room-reaction.tsx';
 import {
   ChatRoomProvider,
-  createMockMessage,
-  emptyMessageReactions,
 } from '../../.storybook/mocks/mock-ably-chat';
-import { ChatMessageAction } from '@ably/chat';
 
 type StoryProps = React.ComponentProps<typeof ChatWindow> & {
   mockOverrides?: any;

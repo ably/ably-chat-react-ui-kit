@@ -70,6 +70,7 @@ export default [
 
   {
     plugins: {
+      '@typescript-eslint/no-unused-vars': ['error'],
       '@typescript-eslint': fixupPluginRules(typescriptEslint),
       import:               fixupPluginRules(_import),
       security:             fixupPluginRules(security),

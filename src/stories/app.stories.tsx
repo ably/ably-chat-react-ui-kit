@@ -7,7 +7,6 @@ import { App } from '../app/app.tsx';
 import {
   ChatClientProvider,
   MockChatClient,
-  createMockScenario,
 } from '../../.storybook/mocks/mock-ably-chat';
 
 // Extend the component props for Storybook to include mockOverrides
