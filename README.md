@@ -1,3 +1,5 @@
+![Ably Chat Header](images/JavaScriptChatSDK-github.png)
+
 # Ably Chat React UI Components
 
 A library of configurable UI components for building chat applications with the Ably Chat SDK. This package provides
