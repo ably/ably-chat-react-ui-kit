@@ -392,7 +392,6 @@ export const useMessageWindow = ({
 
         updateMessages(page.items, true); // prepend older msgs
         nextPageRef.current = page.hasNext() ? () => page.next() : undefined;
-        console.log('Initial history loaded, hasNext:', page.hasNext());
         setHasMoreHistory(page.hasNext());
       } catch (error) {
         console.error('History load failed', error);
