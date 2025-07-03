@@ -31,7 +31,7 @@ This SDK supports the following platforms:
 | Browsers     | All major desktop browsers, including Chrome, Firefox, Edge and Opera. Internet Explorer is not supported. |
 | Node.js      | Version 18 or newer.                                                                                       |
 | TypeScript   | Fully supported, the library is written in TypeScript.                                                     |
-| React        | Version 18 or newer. Includes providers and hooks for deep integration with the React ecosystem.           | |
+| React        | Version 18 or newer. Includes providers and hooks for deep integration with the React ecosystem.           |
 
 > [!NOTE] The Chat UI Components SDK can be installed from NPM and requires the core Ably Chat SDK as a peer dependency.
 >
