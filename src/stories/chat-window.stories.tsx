@@ -41,6 +41,9 @@ const meta: Meta<StoryProps> = {
     roomName: 'general',
     enableTypingIndicators: true,
     windowSize: 200,
+    mockOverrides: {
+      clientId: 'user1',
+    },
   },
   argTypes: {
     mockOverrides: {

@@ -119,7 +119,7 @@ describe('ChatMessageList', () => {
   });
 
   it('renders messages correctly', () => {
-    render(<ChatMessageList messages={mockMessages} currentClientId="user1" />);
+    render(<ChatMessageList messages={mockMessages} />);
 
     // Check if all messages are rendered
     expect(screen.getByTestId('chat-message-msg1')).toBeInTheDocument();
@@ -128,39 +128,25 @@ describe('ChatMessageList', () => {
   });
 
   it('shows loading indicator when isLoading is true', () => {
-    render(<ChatMessageList messages={mockMessages} currentClientId="user1" isLoading={true} />);
+    render(<ChatMessageList messages={mockMessages} isLoading={true} />);
 
     expect(screen.getByText('Loading messages…')).toBeInTheDocument();
   });
 
   it('shows "No more messages" when hasMoreHistory is false and there are messages', () => {
-    render(
-      <ChatMessageList messages={mockMessages} currentClientId="user1" hasMoreHistory={false} />
-    );
+    render(<ChatMessageList messages={mockMessages} hasMoreHistory={false} />);
 
     expect(screen.getByText('No more messages')).toBeInTheDocument();
   });
 
   it('renders typing indicators when enableTypingIndicators is true', () => {
-    render(
-      <ChatMessageList
-        messages={mockMessages}
-        currentClientId="user1"
-        enableTypingIndicators={true}
-      />
-    );
+    render(<ChatMessageList messages={mockMessages} enableTypingIndicators={true} />);
 
     expect(screen.getByTestId('typing-indicators')).toBeInTheDocument();
   });
 
   it('does not render typing indicators when enableTypingIndicators is false', () => {
-    render(
-      <ChatMessageList
-        messages={mockMessages}
-        currentClientId="user1"
-        enableTypingIndicators={false}
-      />
-    );
+    render(<ChatMessageList messages={mockMessages} enableTypingIndicators={false} />);
 
     expect(screen.queryByTestId('typing-indicators')).not.toBeInTheDocument();
   });
@@ -169,7 +155,6 @@ describe('ChatMessageList', () => {
     render(
       <ChatMessageList
         messages={mockMessages}
-        currentClientId="user1"
         onEdit={mockOnEdit}
         onDelete={mockOnDelete}
         onReactionAdd={mockOnReactionAdd}
@@ -202,7 +187,6 @@ describe('ChatMessageList', () => {
     render(
       <ChatMessageList
         messages={mockMessages}
-        currentClientId="user1"
         onLoadMoreHistory={mockOnLoadMoreHistory}
         hasMoreHistory={true}
       />
@@ -223,13 +207,7 @@ describe('ChatMessageList', () => {
   });
 
   it('calls onMessageInView when a message comes into view', () => {
-    render(
-      <ChatMessageList
-        messages={mockMessages}
-        currentClientId="user1"
-        onMessageInView={mockOnMessageInView}
-      />
-    );
+    render(<ChatMessageList messages={mockMessages} onMessageInView={mockOnMessageInView} />);
 
     const container = screen.getByRole('log');
     const messageElement = screen.getByTestId('chat-message-msg1');
@@ -272,13 +250,7 @@ describe('ChatMessageList', () => {
   });
 
   it('calls onViewLatest when user scrolls to bottom', () => {
-    render(
-      <ChatMessageList
-        messages={mockMessages}
-        currentClientId="user1"
-        onViewLatest={mockOnViewLatest}
-      />
-    );
+    render(<ChatMessageList messages={mockMessages} onViewLatest={mockOnViewLatest} />);
 
     const container = screen.getByRole('log');
 
@@ -307,12 +279,7 @@ describe('ChatMessageList', () => {
 
   it('calls onTypingChange when typing indicators change', () => {
     render(
-      <ChatMessageList
-        messages={mockMessages}
-        currentClientId="user1"
-        enableTypingIndicators={true}
-        autoScroll={true}
-      />
+      <ChatMessageList messages={mockMessages} enableTypingIndicators={true} autoScroll={true} />
     );
 
     // Find and click the button that triggers typing change
@@ -349,16 +316,14 @@ describe('ChatMessageList', () => {
   });
 
   it('applies custom className to container', () => {
-    render(
-      <ChatMessageList messages={mockMessages} currentClientId="user1" className="custom-class" />
-    );
+    render(<ChatMessageList messages={mockMessages} className="custom-class" />);
 
     const container = screen.getByRole('log');
     expect(container).toHaveClass('custom-class');
   });
 
   it('has correct accessibility attributes', () => {
-    render(<ChatMessageList messages={mockMessages} currentClientId="user1" />);
+    render(<ChatMessageList messages={mockMessages} />);
 
     const container = screen.getByRole('log');
     expect(container).toHaveAttribute('aria-label', 'Chat messages');

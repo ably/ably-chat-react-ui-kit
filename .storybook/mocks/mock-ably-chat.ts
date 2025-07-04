@@ -5,9 +5,7 @@ import React, {
   ReactNode,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
-  useState,
 } from 'react';
 import {
   ChatMessageAction,
@@ -21,7 +19,6 @@ import {
   RoomStatus,
 } from '@ably/chat';
 import {
-  ChatStatusResponse,
   UseMessagesResponse, UseOccupancyResponse,
   UsePresenceListenerResponse, UsePresenceResponse, UseRoomReactionsResponse,
   UseRoomResponse, UseTypingResponse,

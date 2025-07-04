@@ -29,7 +29,6 @@ Object.defineProperty(globalThis, 'localStorage', {
   value: localStorageMock,
 });
 
-
 const matchMediaMock = () => {
   return {
     matches: false,
@@ -134,7 +133,9 @@ describe('ThemeProvider', () => {
               setIsReady(true);
             }, 0);
 
-            return () => { clearTimeout(timer); };
+            return () => {
+              clearTimeout(timer);
+            };
           }
         }, [context]);
 
@@ -448,7 +449,6 @@ describe('ThemeProvider', () => {
         onchange: null,
         dispatchEvent: vi.fn(),
       }));
-
 
       Object.defineProperty(globalThis, 'matchMedia', {
         writable: true,

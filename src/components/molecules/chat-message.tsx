@@ -1,4 +1,5 @@
 import { Message } from '@ably/chat';
+import { useChatClient } from '@ably/chat/react';
 import { clsx } from 'clsx';
 import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
@@ -49,12 +50,6 @@ export interface ChatMessageProps {
    * The Ably Chat message object used to display the message content.
    */
   message: Message;
-
-  /**
-   * Client ID of the currently active user.
-   * Used to determine message ownership for edit/delete permissions and UI styling.
-   */
-  currentClientId: string;
 
   /**
    * Optional callback triggered when the user saves an edited message.
@@ -118,7 +113,6 @@ export interface ChatMessageProps {
  */
 export const ChatMessage = ({
   message,
-  currentClientId,
   onEdit,
   onDelete,
   onReactionAdd,
@@ -141,7 +135,8 @@ export const ChatMessage = ({
   const messageRef = useRef<HTMLDivElement>(null);
   const messageBubbleRef = useRef<HTMLDivElement>(null);
   const avatarRef = useRef<HTMLDivElement>(null);
-  const isOwn = message.clientId === currentClientId;
+  const { clientId } = useChatClient();
+  const isOwn = message.clientId === clientId;
 
   const { userAvatar } = useUserAvatar({ clientId: message.clientId });
 
@@ -281,7 +276,7 @@ export const ChatMessage = ({
    */
   const handleReactionClick = (emoji: string) => {
     const distinct = message.reactions.distinct;
-    const hasUserReacted = distinct[emoji]?.clientIds.includes(currentClientId);
+    const hasUserReacted = distinct[emoji]?.clientIds.includes(clientId);
 
     if (hasUserReacted) {
       onReactionRemove?.(message, emoji);
@@ -502,7 +497,7 @@ export const ChatMessage = ({
           <MessageReactions
             message={message}
             onReactionClick={handleReactionClick}
-            currentClientId={currentClientId}
+            currentClientId={clientId}
           />
         )}
 

@@ -1,10 +1,16 @@
 import { ChatMessageAction } from '@ably/chat';
+import { useChatClient } from '@ably/chat/react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { createMockMessage } from '../../../../.storybook/mocks/mock-ably-chat.ts';
 import { ChatMessage } from '../../../components/molecules/chat-message.tsx';
+
+// Mock the useChatClient hook
+vi.mock('@ably/chat/react', () => ({
+  useChatClient: vi.fn(),
+}));
 
 // Mock the useUserAvatar hook so we don't need to provide an actual avatar context
 vi.mock('../../../../src/hooks/use-user-avatar.tsx', () => ({
@@ -58,30 +64,39 @@ vi.mock('../../../../src/components/molecules/emoji-picker.tsx', () => ({
 }));
 
 describe('ChatMessage', () => {
+  beforeEach(() => {
+    (useChatClient as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
+      clientId: 'user1',
+    });
+  });
+
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
+
   it('renders a message correctly', () => {
     const message = createMockMessage({
       clientId: 'user1',
       text: 'Hello, world!',
     });
 
-    render(<ChatMessage message={message} currentClientId="user2" />);
+    render(<ChatMessage message={message} />);
 
     expect(screen.getByText('Hello, world!')).toBeInTheDocument();
     expect(screen.getByLabelText(/Avatar for user1/i)).toBeInTheDocument();
   });
 
   it('shows edit/delete options for own messages when hovered', () => {
+    (useChatClient as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
+      clientId: 'user1',
+    });
+
     const message = createMockMessage({
       clientId: 'user1',
       text: 'My message',
     });
 
-    render(
-      <ChatMessage
-        message={message}
-        currentClientId="user1" // Same as message.clientId to indicate ownership
-      />
-    );
+    render(<ChatMessage message={message} />);
 
     // Find the message bubble container
     const messageBubble = screen.getByText('My message').closest('div');
@@ -96,9 +111,16 @@ describe('ChatMessage', () => {
     // Check if edit and delete buttons appear
     expect(screen.getByLabelText(/edit message/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/delete message/i)).toBeInTheDocument();
+
+    // Reset the mock
+    vi.mocked(useChatClient).mockReset();
   });
 
   it('calls onEdit when editing a message', () => {
+    (useChatClient as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
+      clientId: 'user1',
+    });
+
     const message = createMockMessage({
       clientId: 'user1',
       text: 'Original text',
@@ -106,7 +128,7 @@ describe('ChatMessage', () => {
 
     const handleEdit = vi.fn();
 
-    render(<ChatMessage message={message} currentClientId="user1" onEdit={handleEdit} />);
+    render(<ChatMessage message={message} onEdit={handleEdit} />);
 
     // Find the message bubble container and hover
     const messageBubble = screen.getByText('Original text').closest('div');
@@ -127,6 +149,9 @@ describe('ChatMessage', () => {
 
     // Check if onEdit was called with correct params
     expect(handleEdit).toHaveBeenCalledWith(message, 'Updated text');
+
+    // Reset the mock
+    vi.mocked(useChatClient).mockReset();
   });
 
   it('shows deleted message state', () => {
@@ -137,7 +162,7 @@ describe('ChatMessage', () => {
       isDeleted: true,
     });
 
-    render(<ChatMessage message={message} currentClientId="user2" />);
+    render(<ChatMessage message={message} />);
 
     expect(screen.getByText(/message deleted/i)).toBeInTheDocument();
   });
@@ -157,7 +182,7 @@ describe('ChatMessage', () => {
       },
     });
 
-    render(<ChatMessage message={message} currentClientId="user2" />);
+    render(<ChatMessage message={message} />);
 
     // Check if reactions are displayed
     expect(screen.getByText('👍')).toBeInTheDocument();
@@ -176,9 +201,7 @@ describe('ChatMessage', () => {
 
     const handleReactionAdd = vi.fn();
 
-    render(
-      <ChatMessage message={message} currentClientId="user2" onReactionAdd={handleReactionAdd} />
-    );
+    render(<ChatMessage message={message} onReactionAdd={handleReactionAdd} />);
 
     // Find the message bubble container and hover
     const messageBubble = screen.getByText('React to this message').closest('div');
@@ -202,6 +225,10 @@ describe('ChatMessage', () => {
   });
 
   it('calls onReactionRemove when removing a reaction', () => {
+    (useChatClient as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
+      clientId: 'user2',
+    });
+
     // Create a message with reactions where the current user has already reacted
     const message = createMockMessage({
       clientId: 'user1',
@@ -218,13 +245,7 @@ describe('ChatMessage', () => {
 
     const handleReactionRemove = vi.fn();
 
-    render(
-      <ChatMessage
-        message={message}
-        currentClientId="user2" // Same as in the reaction's clientIds
-        onReactionRemove={handleReactionRemove}
-      />
-    );
+    render(<ChatMessage message={message} onReactionRemove={handleReactionRemove} />);
 
     // Find and click on the 👍 reaction (which the current user has already added)
     const thumbsUpReaction = screen.getByText('👍');
@@ -232,5 +253,8 @@ describe('ChatMessage', () => {
 
     // Check if onReactionRemove was called with correct parameters
     expect(handleReactionRemove).toHaveBeenCalledWith(message, '👍');
+
+    // Reset the mock
+    vi.mocked(useChatClient).mockReset();
   });
 });

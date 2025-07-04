@@ -21,12 +21,6 @@ export interface ChatMessageListProps
   messages: Message[];
 
   /**
-   * Client ID of the currently authenticated user.
-   * Used by individual ChatMessage components to determine ownership and permissions.
-   */
-  currentClientId: string;
-
-  /**
    * Optional callback triggered when user scrolls near the top of the message list.
    * Called automatically when scroll position is within loadMoreThreshold pixels from top.
    * Use this to fetch and prepend older messages to the messages array.
@@ -136,7 +130,6 @@ export interface ChatMessageListProps
  * // Basic usage
  * <ChatMessageList
  *   messages={messages}
- *   currentClientId="user123"
  *   onEdit={handleEdit}
  *   onDelete={handleDelete}
  *   onReactionAdd={handleReactionAdd}
@@ -147,7 +140,6 @@ export interface ChatMessageListProps
  * // Rendering children like typing indicators
  * <ChatMessageList
  *   messages={messages}
- *   currentClientId="user123"
  *   onEdit={handleEdit}
  *   onDelete={handleDelete}
  *   onReactionAdd={handleReactionAdd}
@@ -161,7 +153,6 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
   (
     {
       messages,
-      currentClientId,
       onLoadMoreHistory,
       isLoading = false,
       hasMoreHistory = false,
@@ -353,7 +344,6 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
             <div key={msg.serial} ref={setEl}>
               <ChatMessage
                 message={msg}
-                currentClientId={currentClientId}
                 onEdit={onEdit}
                 onDelete={onDelete}
                 onReactionAdd={onReactionAdd}

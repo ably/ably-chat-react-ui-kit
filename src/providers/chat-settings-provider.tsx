@@ -2,7 +2,6 @@ import React, { ReactNode } from 'react';
 
 import { ChatSettingsContext, ChatSettingsContextType } from '../context/chat-settings-context.tsx';
 
-
 /**
  * Interface representing chat settings that can be configured globally or per room.
  *

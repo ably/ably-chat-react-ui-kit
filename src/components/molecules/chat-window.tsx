@@ -1,5 +1,5 @@
 import { Message, MessageReactionType } from '@ably/chat';
-import { useChatClient, useMessages, usePresence } from '@ably/chat/react';
+import { useMessages, usePresence } from '@ably/chat/react';
 import { clsx } from 'clsx';
 import React, { useCallback } from 'react';
 
@@ -135,7 +135,6 @@ export const ChatWindow = ({
   enableTypingIndicators = true,
   className,
 }: ChatWindowProps) => {
-  const { clientId } = useChatClient();
   usePresence(); // enter presence on mount
   const { getEffectiveSettings } = useChatSettings();
   const settings = getEffectiveSettings(roomName);
@@ -235,7 +234,6 @@ export const ChatWindow = ({
       {/* Messages */}
       <ChatMessageList
         messages={activeMessages}
-        currentClientId={clientId}
         isLoading={loading}
         onLoadMoreHistory={() => {
           void loadMoreHistory();

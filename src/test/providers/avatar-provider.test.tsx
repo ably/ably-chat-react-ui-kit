@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom';
 
-import { act,render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -232,13 +232,17 @@ describe('AvatarProvider', () => {
       });
 
       // Check updated user avatar
-      const userAvatar = JSON.parse(screen.getByTestId('user-avatar').textContent ?? '{}') as AvatarData;
+      const userAvatar = JSON.parse(
+        screen.getByTestId('user-avatar').textContent ?? '{}'
+      ) as AvatarData;
       expect(userAvatar).toHaveProperty('displayName', 'John Updated');
       expect(userAvatar).toHaveProperty('color', 'bg-red-500');
       expect(userAvatar).toHaveProperty('src', 'https://example.com/avatar.jpg');
 
       // Check updated room avatar
-      const roomAvatar = JSON.parse(screen.getByTestId('room-avatar').textContent ?? '{}') as AvatarData;
+      const roomAvatar = JSON.parse(
+        screen.getByTestId('room-avatar').textContent ?? '{}'
+      ) as AvatarData;
       expect(roomAvatar).toHaveProperty('displayName', 'Updated General');
       expect(roomAvatar).toHaveProperty('color', 'bg-purple-500');
 
@@ -322,7 +326,9 @@ describe('AvatarProvider', () => {
       // Check that data was persisted to localStorage
       expect(localStorageMock.setItem).toHaveBeenCalled();
       const storageKey = 'ably-chat-ui-avatars';
-      const storedData = JSON.parse(localStorageMock.getItem(storageKey) ?? '{}') as PersistedAvatarData;
+      const storedData = JSON.parse(
+        localStorageMock.getItem(storageKey) ?? '{}'
+      ) as PersistedAvatarData;
 
       expect(storedData).toHaveProperty('version', 1);
       expect(storedData).toHaveProperty('userAvatars');
@@ -366,7 +372,9 @@ describe('AvatarProvider', () => {
               });
             }, 0);
 
-            return () => { clearTimeout(timer); };
+            return () => {
+              clearTimeout(timer);
+            };
           }
         }, [context]);
 
@@ -419,7 +427,6 @@ describe('AvatarProvider', () => {
         expect(screen.getByTestId('ready')).toBeInTheDocument();
         expect(context).not.toBeNull();
       });
-
 
       act(() => {
         context?.createAvatarForUser('user1', 'User 1');

@@ -62,7 +62,6 @@ vi.mock('../../../hooks/use-message-window', () => ({
 vi.mock('../../../components/molecules/chat-message-list', () => ({
   ChatMessageList: ({
     messages,
-    currentClientId,
     isLoading,
     onLoadMoreHistory,
     hasMoreHistory,
@@ -82,7 +81,6 @@ vi.mock('../../../components/molecules/chat-message-list', () => ({
     return (
       <div data-testid="chat-message-list">
         <div>Messages: {messages.length}</div>
-        <div>Current Client ID: {currentClientId}</div>
         <div>Loading: {isLoading ? 'true' : 'false'}</div>
         <div>Has More History: {hasMoreHistory ? 'true' : 'false'}</div>
         <div>Enable Typing Indicators: {enableTypingIndicators ? 'true' : 'false'}</div>
