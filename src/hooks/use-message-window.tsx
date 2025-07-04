@@ -417,7 +417,6 @@ export const useMessageWindow = ({
       if (page) {
         updateMessages(page.items, true);
         nextPageRef.current = page.hasNext() ? () => page.next() : undefined;
-        console.log('new history fetch, hasNext:', page.hasNext());
         setHasMoreHistory(page.hasNext());
       } else {
         nextPageRef.current = undefined;
