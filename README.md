@@ -1,4 +1,4 @@
-![Ably Chat Header](images/JavaScriptChatSDK-github.png)
+![Ably Chat Header](images/Chat-UI-Kits-github-v1.0.png)
 
 # Ably Chat React UI Components
 
@@ -72,4 +72,3 @@ Read the [MAINTAINERS.md](./MAINTAINERS.md) guidelines to contribute to Ably or 
 ## Support and known issues
 
 For help or technical support, visit Ably's [support page](https://ably.com/support). You can also view the [community reported Github issues](https://github.com/ably/ably-chat-react-ui-components/issues) or raise one yourself.
-
