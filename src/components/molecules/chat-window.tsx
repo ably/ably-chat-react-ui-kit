@@ -1,4 +1,4 @@
-import { Message, MessageReactionType } from '@ably/chat';
+import { ErrorInfo, Message, MessageReactionType } from '@ably/chat';
 import { useMessages, usePresence } from '@ably/chat/react';
 import { clsx } from 'clsx';
 import React, { useCallback } from 'react';
@@ -89,6 +89,84 @@ export interface ChatWindowProps {
    * Applied to the outermost div element and combined with default styling.
    */
   className?: string;
+
+  /**
+   * Custom error handling configuration for chat operations.
+   * Provides hooks for handling specific error scenarios instead of default console logging.
+   * All handlers are optional and will fall back to console.error if not provided.
+   *
+   * @example
+   * ```tsx
+   * const errorHandling = {
+   *   onEditError: (error, message) => {
+   *     toast.error(`Failed to edit message: ${error.message}`);
+   *     console.error('Edit error:', error);
+   *   },
+   *   onDeleteError: (error, message) => {
+   *     toast.error(`Failed to delete message: ${error.message}`);
+   *   },
+   *   onAddReactionError: (error, message, emoji) => {
+   *     toast.error(`Failed to add ${emoji} reaction: ${error.message}`);
+   *   },
+   *   onSendError: (error, text) => {
+   *     toast.error(`Failed to send message: ${error.message}`);
+   *   }
+   * };
+   *
+   * <ChatWindow
+   *   roomName="general"
+   *   errorHandling={errorHandling}
+   * />
+   * ```
+   */
+  errorHandling?: {
+    /**
+     * Called when message editing fails.
+     * Provides the error object and the message that failed to edit.
+     *
+     * @param error - The error that occurred during message editing
+     * @param message - The message that failed to edit
+     */
+    onEditError?: (error: ErrorInfo, message: Message) => void;
+
+    /**
+     * Called when message deletion fails.
+     * Provides the error object and the message that failed to delete.
+     *
+     * @param error - The error that occurred during message deletion
+     * @param message - The message that failed to delete
+     */
+    onDeleteError?: (error: ErrorInfo, message: Message) => void;
+
+    /**
+     * Called when adding a reaction to a message fails.
+     * Provides the error object, the message, and the emoji that failed to add.
+     *
+     * @param error - The error that occurred during reaction addition
+     * @param message - The message that failed to receive the reaction
+     * @param emoji - The emoji that failed to be added as a reaction
+     */
+    onAddReactionError?: (error: ErrorInfo, message: Message, emoji: string) => void;
+
+    /**
+     * Called when removing a reaction from a message fails.
+     * Provides the error object, the message, and the emoji that failed to remove.
+     *
+     * @param error - The error that occurred during reaction removal
+     * @param message - The message that failed to have the reaction removed
+     * @param emoji - The emoji that failed to be removed as a reaction
+     */
+    onRemoveReactionError?: (error: ErrorInfo, message: Message, emoji: string) => void;
+
+    /**
+     * Called when sending a message fails.
+     * Provides the error object and the text that failed to send.
+     *
+     * @param error - The error that occurred during message sending
+     * @param text - The text that failed to send
+     */
+    onSendError?: (error: ErrorInfo, text: string) => void;
+  };
 }
 
 /**
@@ -102,6 +180,7 @@ export interface ChatWindowProps {
  * - Discontinuity recovery on reconnection
  * - Active chat window management to control which messages are rendered in the UI.
  * - History loading with infinite scroll support
+ * - Custom error handling for all chat operations
  *
  * @example
  * // Basic usage
@@ -126,6 +205,37 @@ export interface ChatWindowProps {
  *     customFooterContent={<RoomReaction />}
  *   />
  * </ChatRoomProvider>
+ *
+ * @example
+ * // With custom error handling
+ * const errorHandling = {
+ *   onEditError: (error, message) => {
+ *     toast.error(`Failed to edit message: ${error.message}`);
+ *     console.error('Edit failed:', error);
+ *   },
+ *   onDeleteError: (error, message) => {
+ *     toast.error(`Failed to delete message: ${error.message}`);
+ *   },
+ *   onAddReactionError: (error, message, emoji) => {
+ *     toast.error(`Failed to add ${emoji} reaction: ${error.message}`);
+ *   },
+ *   onRemoveReactionError: (error, message, emoji) => {
+ *     toast.error(`Failed to remove ${emoji} reaction: ${error.message}`);
+ *   },
+ *   onSendError: (error, text) => {
+ *     toast.error(`Failed to send message: ${error.message}`);
+ *   }
+ * };
+ *
+ * <ChatRoomProvider
+ *   key={'general'}
+ *   name={'general'}
+ * >
+ *   <ChatWindow
+ *     roomName={'general'}
+ *     errorHandling={errorHandling}
+ *   />
+ * </ChatRoomProvider>
  */
 export const ChatWindow = ({
   roomName,
@@ -134,6 +244,7 @@ export const ChatWindow = ({
   windowSize = 200,
   enableTypingIndicators = true,
   className,
+  errorHandling,
 }: ChatWindowProps) => {
   usePresence(); // enter presence on mount
   const { getEffectiveSettings } = useChatSettings();
@@ -170,10 +281,14 @@ export const ChatWindow = ({
       updateMessageRemote(msg.serial, updated)
         .then(handleRESTMessageUpdate)
         .catch((error: unknown) => {
-          console.error('Failed to update message:', error);
+          if (errorHandling?.onEditError) {
+            errorHandling.onEditError(error as ErrorInfo, msg);
+          } else {
+            console.error('Failed to update message:', error);
+          }
         });
     },
-    [updateMessageRemote, handleRESTMessageUpdate]
+    [updateMessageRemote, handleRESTMessageUpdate, errorHandling]
   );
 
   const handleMessageDelete = useCallback(
@@ -181,32 +296,44 @@ export const ChatWindow = ({
       deleteMessage(msg, { description: 'deleted by user' })
         .then(handleRESTMessageUpdate)
         .catch((error: unknown) => {
-          console.error('Failed to delete message:', error);
+          if (errorHandling?.onDeleteError) {
+            errorHandling.onDeleteError(error as ErrorInfo, msg);
+          } else {
+            console.error('Failed to delete message:', error);
+          }
         });
     },
-    [deleteMessage, handleRESTMessageUpdate]
+    [deleteMessage, handleRESTMessageUpdate, errorHandling]
   );
 
   const handleReactionAdd = useCallback(
     (msg: Message, emoji: string) => {
       sendReaction(msg, { type: MessageReactionType.Distinct, name: emoji }).catch(
         (error: unknown) => {
-          console.error('Failed to add reaction:', error);
+          if (errorHandling?.onAddReactionError) {
+            errorHandling.onAddReactionError(error as ErrorInfo, msg, emoji);
+          } else {
+            console.error('Failed to add reaction:', error);
+          }
         }
       );
     },
-    [sendReaction]
+    [sendReaction, errorHandling]
   );
 
   const handleReactionRemove = useCallback(
     (msg: Message, emoji: string) => {
       deleteReaction(msg, { type: MessageReactionType.Distinct, name: emoji }).catch(
         (error: unknown) => {
-          console.error('Failed to remove reaction:', error);
+          if (errorHandling?.onRemoveReactionError) {
+            errorHandling.onRemoveReactionError(error as ErrorInfo, msg, emoji);
+          } else {
+            console.error('Failed to remove reaction:', error);
+          }
         }
       );
     },
-    [deleteReaction]
+    [deleteReaction, errorHandling]
   );
 
   return (
@@ -244,6 +371,7 @@ export const ChatWindow = ({
             }}
             placeholder={`Message ${roomName}...`}
             aria-label={`Send message to ${roomName}`}
+            onSendError={errorHandling?.onSendError}
           />
         </div>
         {customFooterContent}

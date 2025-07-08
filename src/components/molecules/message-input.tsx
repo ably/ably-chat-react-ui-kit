@@ -1,4 +1,4 @@
-import { Message } from '@ably/chat';
+import { ErrorInfo, Message } from '@ably/chat';
 import { useMessages, useTyping } from '@ably/chat/react';
 import React, { ChangeEvent, KeyboardEvent, useCallback, useRef, useState } from 'react';
 
@@ -47,6 +47,29 @@ export interface MessageInputProps {
    * ```
    */
   placeholder?: string;
+
+  /**
+   * Callback function triggered when sending a message fails.
+   * Provides the error object and the text that failed to send.
+   * If not provided, errors will be logged to console.
+   *
+   * @param error - The error that occurred during message sending
+   * @param text - The text that failed to send
+   *
+   * @example
+   * ```tsx
+   * const handleSendError = (error: Error, text: string) => {
+   *   toast.error(`Failed to send message: ${error.message}`);
+   *   console.error('Send error:', error);
+   * };
+   *
+   * <MessageInput
+   *   onSent={handleSent}
+   *   onSendError={handleSendError}
+   * />
+   * ```
+   */
+  onSendError?: (error: ErrorInfo, text: string) => void;
 }
 
 /**
@@ -91,7 +114,11 @@ export interface MessageInputProps {
  *
  */
 
-export const MessageInput = ({ onSent, placeholder = 'Type a message...' }: MessageInputProps) => {
+export const MessageInput = ({
+  onSent,
+  placeholder = 'Type a message...',
+  onSendError,
+}: MessageInputProps) => {
   const [message, setMessage] = useState('');
   const messageRef = useRef('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -116,10 +143,14 @@ export const MessageInput = ({ onSent, placeholder = 'Type a message...' }: Mess
           });
         })
         .catch((error: unknown) => {
-          console.error('Failed to send message:', error);
+          if (onSendError) {
+            onSendError(error as ErrorInfo, trimmedMessage);
+          } else {
+            console.error('Failed to send message:', error);
+          }
         });
     }
-  }, [send, stop, onSent]);
+  }, [send, stop, onSent, onSendError]);
 
   /**
    * Handles changes to the input field

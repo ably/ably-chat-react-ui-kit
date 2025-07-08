@@ -1,5 +1,6 @@
 import { MessageReactionType } from '@ably/chat';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { ErrorInfo } from 'ably';
 import React from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -164,7 +165,7 @@ vi.mock('../../../components/molecules/chat-window-footer', () => ({
 }));
 
 vi.mock('../../../components/molecules/message-input', () => ({
-  MessageInput: ({ onSent, placeholder }: MessageInputProps) => (
+  MessageInput: ({ onSent, placeholder, onSendError }: MessageInputProps) => (
     <div data-testid="message-input">
       <input data-testid="message-input-field" placeholder={placeholder} />
       <button
@@ -183,6 +184,16 @@ vi.mock('../../../components/molecules/message-input', () => ({
       >
         Send
       </button>
+      {onSendError && (
+        <button
+          data-testid="trigger-send-error-button"
+          onClick={() => {
+            onSendError(new ErrorInfo('Failed to send message', 50000, 500), 'Failed message text');
+          }}
+        >
+          Trigger Send Error
+        </button>
+      )}
     </div>
   ),
 }));
@@ -351,5 +362,159 @@ describe('ChatWindow', () => {
     expect(screen.queryByTestId('delete-message-button')).not.toBeInTheDocument();
     expect(screen.queryByTestId('add-reaction-button')).not.toBeInTheDocument();
     expect(screen.queryByTestId('remove-reaction-button')).not.toBeInTheDocument();
+  });
+
+  describe('Error Handling', () => {
+    it('calls onEditError when message editing fails', async () => {
+      mockUpdate.mockRejectedValueOnce(new ErrorInfo('Edit failed', 50000, 500));
+
+      let errorInfo: ErrorInfo | undefined;
+
+      render(
+        <ChatWindow
+          roomName="general"
+          errorHandling={{
+            onEditError: () => {
+              errorInfo = new ErrorInfo('Edit failed', 50000, 500);
+            },
+          }}
+        />
+      );
+
+      fireEvent.click(screen.getByTestId('edit-message-button'));
+
+      await waitFor(() => {
+        expect(errorInfo).toBeDefined();
+        expect(errorInfo).toBeErrorInfo({
+          code: 50000,
+          message: 'Edit failed',
+        });
+      });
+    });
+
+    it('calls onDeleteError when message deletion fails', async () => {
+      mockDeleteMessage.mockRejectedValueOnce(new Error('Delete failed'));
+
+      let errorInfo: ErrorInfo | undefined;
+
+      render(
+        <ChatWindow
+          roomName="general"
+          errorHandling={{
+            onDeleteError: () => {
+              errorInfo = new ErrorInfo('Delete failed', 50000, 500);
+            },
+          }}
+        />
+      );
+
+      fireEvent.click(screen.getByTestId('delete-message-button'));
+
+      await waitFor(() => {
+        expect(errorInfo).toBeDefined();
+        expect(errorInfo).toBeErrorInfo({
+          code: 50000,
+          message: 'Delete failed',
+        });
+      });
+    });
+
+    it('calls onAddReactionError when adding reaction fails', async () => {
+      mockSendReaction.mockRejectedValueOnce(new Error('Add reaction failed'));
+
+      let errorInfo: ErrorInfo | undefined;
+
+      render(
+        <ChatWindow
+          roomName="general"
+          errorHandling={{
+            onAddReactionError: () => {
+              errorInfo = new ErrorInfo('Add reaction failed', 50000, 500);
+            },
+          }}
+        />
+      );
+
+      fireEvent.click(screen.getByTestId('add-reaction-button'));
+
+      await waitFor(() => {
+        expect(errorInfo).toBeDefined();
+        expect(errorInfo).toBeErrorInfo({
+          code: 50000,
+          message: 'Add reaction failed',
+        });
+      });
+    });
+
+    it('calls onRemoveReactionError when removing reaction fails', async () => {
+      mockDeleteReaction.mockRejectedValueOnce(new Error('Remove reaction failed'));
+
+      let errorInfo: ErrorInfo | undefined;
+
+      render(
+        <ChatWindow
+          roomName="general"
+          errorHandling={{
+            onRemoveReactionError: () => {
+              errorInfo = new ErrorInfo('Remove reaction failed', 50000, 500);
+            },
+          }}
+        />
+      );
+
+      fireEvent.click(screen.getByTestId('remove-reaction-button'));
+
+      await waitFor(() => {
+        expect(errorInfo).toBeDefined();
+        expect(errorInfo).toBeErrorInfo({
+          code: 50000,
+          message: 'Remove reaction failed',
+        });
+      });
+    });
+
+    it('falls back to console.error when no error handlers are provided', async () => {
+      vi.clearAllMocks();
+      const consoleSpy = vi.spyOn(console, 'error');
+      mockUpdate.mockRejectedValueOnce(new Error('Edit failed'));
+
+      render(<ChatWindow roomName="general" />);
+
+      fireEvent.click(screen.getByTestId('edit-message-button'));
+
+      await waitFor(() => {
+        expect(consoleSpy).toHaveBeenCalledWith(
+          'Failed to update message:',
+          new Error('Edit failed')
+        );
+      });
+    });
+
+    it('passes onSendError to MessageInput component', async () => {
+      let errorInfo: ErrorInfo | undefined;
+
+      render(
+        <ChatWindow
+          roomName="general"
+          errorHandling={{
+            onSendError: () => {
+              errorInfo = new ErrorInfo('Failed to send message', 50000, 500);
+            },
+          }}
+        />
+      );
+
+      expect(screen.getByTestId('trigger-send-error-button')).toBeInTheDocument();
+
+      fireEvent.click(screen.getByTestId('trigger-send-error-button'));
+
+      await waitFor(() => {
+        expect(errorInfo).toBeDefined();
+        expect(errorInfo).toBeErrorInfo({
+          code: 50000,
+          message: 'Failed to send message',
+        });
+      });
+    });
   });
 });
