@@ -62,14 +62,17 @@ describe('ChatWindow Integration Tests', () => {
             <ChatWindow roomName={roomName} />
           </ChatRoomProvider>
         </AvatarProvider>
-      </ChatClientProvider>,
+      </ChatClientProvider>
     );
 
     // Wait for the component to render
-    await waitFor(() => {
-      expect(screen.getByRole('main')).toBeInTheDocument();
-      expect(screen.getByRole('log')).toBeInTheDocument();
-    }, { timeout: 10000 });
+    await waitFor(
+      () => {
+        expect(screen.getByRole('main')).toBeInTheDocument();
+        expect(screen.getByRole('log')).toBeInTheDocument();
+      },
+      { timeout: 10000 }
+    );
 
     // wait for the room to be attached
     await waitForRoomStatus(room1, RoomStatus.Attached);
@@ -87,7 +90,7 @@ describe('ChatWindow Integration Tests', () => {
         expect(messagesReceived).toHaveLength(1);
         expect(messagesReceived[0]?.text).toBe('Hello from integration test!');
       },
-      { timeout: 5000 },
+      { timeout: 5000 }
     );
     unmount();
   });
@@ -102,7 +105,7 @@ describe('ChatWindow Integration Tests', () => {
         <ChatRoomProvider key={roomName} name={roomName}>
           <ChatWindow roomName={roomName} enableTypingIndicators={true} />
         </ChatRoomProvider>
-      </ChatClientProvider>,
+      </ChatClientProvider>
     );
 
     // Wait for the component to render
@@ -121,7 +124,7 @@ describe('ChatWindow Integration Tests', () => {
         const typingIndicators = screen.queryByText(/typing/i);
         expect(typingIndicators).toBeInTheDocument();
       },
-      { timeout: 5000 },
+      { timeout: 5000 }
     );
 
     await room2.typing.stop();
@@ -132,7 +135,7 @@ describe('ChatWindow Integration Tests', () => {
         const typingIndicators = screen.queryByText(/typing/i);
         expect(typingIndicators).not.toBeInTheDocument();
       },
-      { timeout: 1000 },
+      { timeout: 1000 }
     );
   });
 
@@ -154,7 +157,7 @@ describe('ChatWindow Integration Tests', () => {
             <ChatWindow roomName={roomName} />
           </ChatRoomProvider>
         </AvatarProvider>
-      </ChatClientProvider>,
+      </ChatClientProvider>
     );
 
     await waitForRoomStatus(room1, RoomStatus.Attached);
@@ -171,7 +174,7 @@ describe('ChatWindow Integration Tests', () => {
       () => {
         expect(sentMessage).toBeDefined();
       },
-      { timeout: 5000 },
+      { timeout: 5000 }
     );
 
     // Add a reaction from the second client
@@ -187,7 +190,7 @@ describe('ChatWindow Integration Tests', () => {
         const reactionElement = screen.queryByText('👍');
         expect(reactionElement).toBeInTheDocument();
       },
-      { timeout: 5000 },
+      { timeout: 5000 }
     );
   });
 
@@ -203,7 +206,7 @@ describe('ChatWindow Integration Tests', () => {
             <ChatWindow roomName={roomName} />
           </ChatRoomProvider>
         </AvatarProvider>
-      </ChatClientProvider>,
+      </ChatClientProvider>
     );
 
     // Wait for the component to render
@@ -216,9 +219,9 @@ describe('ChatWindow Integration Tests', () => {
     // Wait for presence to be updated
     await waitFor(
       async () => {
-        expect(await room2.presence.get()).toHaveLength(1)
+        expect(await room2.presence.get()).toHaveLength(1);
       },
-      { timeout: 5000 },
+      { timeout: 5000 }
     );
   });
 });

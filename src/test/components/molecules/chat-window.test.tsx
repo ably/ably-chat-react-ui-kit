@@ -41,7 +41,7 @@ vi.mock('../../../hooks/use-chat-settings.tsx', () => ({
   }),
 }));
 
-const mockUpdateMessages = vi.fn()
+const mockUpdateMessages = vi.fn();
 // Mocks the useMessageWindow hook
 vi.mock('../../../hooks/use-message-window', () => ({
   useMessageWindow: () => ({
@@ -262,8 +262,8 @@ describe('ChatWindow', () => {
         text: 'New message',
         clientId: 'test-user',
         serial: 'test-serial-123',
-      })],
-    );
+      }),
+    ]);
   });
 
   it('edits a message when edit button is clicked', () => {

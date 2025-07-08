@@ -9,13 +9,13 @@ const actualErrorInfo = (received: unknown, expected: unknown): Record<string, u
   const commonKeys = extractExpectedKeys(expected);
 
   const returnVal = Object.fromEntries(
-    [...commonKeys].map((key) => [key, (received as Ably.ErrorInfo)[key as keyof Ably.ErrorInfo]]),
+    [...commonKeys].map((key) => [key, (received as Ably.ErrorInfo)[key as keyof Ably.ErrorInfo]])
   );
 
   if ((received as Ably.ErrorInfo).cause ?? (expected as Ably.ErrorInfo).cause) {
     returnVal.cause = actualErrorInfo(
       (received as Ably.ErrorInfo).cause ?? {},
-      (expected as Ably.ErrorInfo).cause ?? {},
+      (expected as Ably.ErrorInfo).cause ?? {}
     ) as unknown as Ably.ErrorInfo;
   }
 
@@ -36,7 +36,10 @@ interface CheckResponseType {
   actual: unknown;
 }
 
-export const toBeErrorInfo = (received: unknown, expected: ErrorInfoCompareType): CheckResponseType => {
+export const toBeErrorInfo = (
+  received: unknown,
+  expected: ErrorInfoCompareType
+): CheckResponseType => {
   if (!(received instanceof Ably.ErrorInfo)) {
     return {
       pass: false,
@@ -47,9 +50,11 @@ export const toBeErrorInfo = (received: unknown, expected: ErrorInfoCompareType)
   }
 
   const codeMatch = expected.code === undefined || received.code === expected.code;
-  const statusCodeMatch = expected.statusCode === undefined || received.statusCode === expected.statusCode;
+  const statusCodeMatch =
+    expected.statusCode === undefined || received.statusCode === expected.statusCode;
   const messageMatch = expected.message === undefined || received.message === expected.message;
-  const causeMatch = expected.cause === undefined || toBeErrorInfo(received.cause, expected.cause).pass;
+  const causeMatch =
+    expected.cause === undefined || toBeErrorInfo(received.cause, expected.cause).pass;
 
   return {
     pass: causeMatch && codeMatch && statusCodeMatch && messageMatch,

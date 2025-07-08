@@ -24,7 +24,7 @@ const setup = async () => {
 
   // The key we need to use is the one at index 5, which gives enough permissions
   // to interact with Chat and Channels
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
   process.env.sandboxApiKey = testApp.keys[5].keyStr;
 };
 

@@ -32,15 +32,15 @@ vi.mock('@ably/chat/react', () => ({
 // Mocks the Button component
 vi.mock('../../../components/atoms/button', () => ({
   Button: ({
-             children,
-             onClick,
-             variant,
-             size,
-             className,
-             'aria-label': ariaLabel,
-             'aria-haspopup': ariaHasPopup,
-             'aria-expanded': ariaExpanded,
-           }: ButtonProps) => (
+    children,
+    onClick,
+    variant,
+    size,
+    className,
+    'aria-label': ariaLabel,
+    'aria-haspopup': ariaHasPopup,
+    'aria-expanded': ariaExpanded,
+  }: ButtonProps) => (
     <button
       onClick={onClick}
       data-variant={variant}
@@ -79,7 +79,7 @@ vi.mock('../../../components/atoms/text-input', () => {
         className,
         'aria-label': ariaLabel,
       },
-      ref,
+      ref
     ) => (
       <textarea
         ref={ref}
@@ -94,7 +94,7 @@ vi.mock('../../../components/atoms/text-input', () => {
         data-multiline={multiline}
         data-max-height={maxHeight}
       />
-    ),
+    )
   );
 
   MockedTextInput.displayName = 'MockedTextInput';
@@ -197,8 +197,8 @@ describe('MessageInput', () => {
     fireEvent.keyDown(input, { key: 'Enter' });
 
     await waitFor(() => {
-      expect(mockOnSent).toHaveBeenCalled()
-    })
+      expect(mockOnSent).toHaveBeenCalled();
+    });
   });
 
   it('does not call onSend when Shift+Enter is pressed', () => {

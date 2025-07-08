@@ -239,7 +239,9 @@ export const ChatWindow = ({
       <ChatWindowFooter>
         <div className="flex-1">
           <MessageInput
-            onSent={(msg) => { updateMessages([msg]); }}
+            onSent={(msg) => {
+              updateMessages([msg]);
+            }}
             placeholder={`Message ${roomName}...`}
             aria-label={`Send message to ${roomName}`}
           />

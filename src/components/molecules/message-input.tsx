@@ -106,16 +106,18 @@ export const MessageInput = ({ onSent, placeholder = 'Type a message...' }: Mess
   const handleSend = useCallback(() => {
     const trimmedMessage = messageRef.current.trim();
     if (trimmedMessage) {
-      send({ text: trimmedMessage }).then((sentMessage) => {
-        onSent?.(sentMessage);
-        setMessage('');
-        messageRef.current = '';
-        stop().catch((error: unknown) => {
-          console.warn('Stop typing failed:', error);
+      send({ text: trimmedMessage })
+        .then((sentMessage) => {
+          onSent?.(sentMessage);
+          setMessage('');
+          messageRef.current = '';
+          stop().catch((error: unknown) => {
+            console.warn('Stop typing failed:', error);
+          });
+        })
+        .catch((error: unknown) => {
+          console.error('Failed to send message:', error);
         });
-      }).catch((error: unknown) => {
-        console.error('Failed to send message:', error);
-      });
     }
   }, [send, stop, onSent]);
 

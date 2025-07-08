@@ -73,7 +73,9 @@ describe('RoomReaction Integration Tests', () => {
     const user = userEvent.setup();
 
     // Find and click the reaction button (should send default 👍 emoji)
-    const reactionButton = screen.getByLabelText(/Send 👍 reaction \(long press for more options\)/);
+    const reactionButton = screen.getByLabelText(
+      /Send 👍 reaction \(long press for more options\)/
+    );
     await user.click(reactionButton);
 
     // Wait for the reaction to be received by the second client
@@ -109,10 +111,12 @@ describe('RoomReaction Integration Tests', () => {
 
     // Wait for the reaction animation to be triggered
     // Since we can't easily test the animation state, we verify the reaction was sent
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
     // Verify the component is still rendered and functioning
-    const reactionButton = screen.getByLabelText(/Send 👍 reaction \(long press for more options\)/);
+    const reactionButton = screen.getByLabelText(
+      /Send 👍 reaction \(long press for more options\)/
+    );
     expect(reactionButton).toBeInTheDocument();
   });
 });
