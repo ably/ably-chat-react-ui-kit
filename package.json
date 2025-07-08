@@ -69,7 +69,6 @@
   },
   "devDependencies": {
     "vite-plugin-dts": "^4.5.4",
-    "@ably/chat": "^0.8.0",
     "@eslint/compat": "^1.2.9",
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.28.0",
@@ -105,8 +104,6 @@
     "postcss": "^8.4.35",
     "postcss-cli": "^11.0.1",
     "prettier": "^3.5.3",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
     "storybook": "^9.0.6",
     "tailwindcss": "^3.4.1",
     "typescript": "^5.5.3",
