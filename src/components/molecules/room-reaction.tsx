@@ -122,7 +122,7 @@ export const RoomReaction = ({
       }
 
       // Set the emoji and show burst for incoming reactions
-      setBurstEmoji(reaction.reaction.type);
+      setBurstEmoji(reaction.reaction.name);
 
       // Use provided position or default to screen center for incoming reactions
       if (initialEmojiBurstPosition) {
@@ -168,7 +168,7 @@ export const RoomReaction = ({
    */
   const sendRoomReaction = useCallback(
     (emoji: string): void => {
-      void send({ type: emoji }).catch((error: unknown) => {
+      send({ name: emoji }).catch((error: unknown) => {
         console.error('Failed to send room reaction:', error);
       });
     },

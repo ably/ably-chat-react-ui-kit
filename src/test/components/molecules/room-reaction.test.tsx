@@ -1,4 +1,9 @@
-import { ConnectionStatus, RoomReactionEvent, RoomReactionListener, RoomStatus } from '@ably/chat';
+import {
+  ConnectionStatus,
+  RoomReactionEvent,
+  RoomReactionListener,
+  RoomStatus,
+} from '@ably/chat';
 import { useRoomReactions } from '@ably/chat/react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
@@ -112,7 +117,7 @@ describe('RoomReaction', () => {
     // Click the reaction button
     fireEvent.click(screen.getByRole('button'));
 
-    expect(mockSend).toHaveBeenCalledWith({ type: '👍' });
+    expect(mockSend).toHaveBeenCalledWith({ name: '👍' });
 
     // Check if emoji burst is shown
     expect(screen.getByTestId('emoji-burst')).toBeInTheDocument();
@@ -177,7 +182,7 @@ describe('RoomReaction', () => {
     expect(screen.queryByTestId('emoji-wheel')).not.toBeInTheDocument();
 
     // Check if the selected emoji was sent
-    expect(mockSend).toHaveBeenCalledWith({ type: '❤️' });
+    expect(mockSend).toHaveBeenCalledWith({ name: '❤️' });
 
     // Check if emoji burst is shown with the selected emoji
     expect(screen.getByTestId('emoji-burst')).toBeInTheDocument();
@@ -262,7 +267,7 @@ describe('RoomReaction', () => {
       if (storedListener) {
         storedListener({
           reaction: {
-            type: '❤️',
+            name: '❤️',
             isSelf: false,
             metadata: {},
             headers: {},

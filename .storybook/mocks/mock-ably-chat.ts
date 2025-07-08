@@ -415,13 +415,13 @@ export const useChatSettings = () => {
 
 export const useRoomReactions = (): UseRoomReactionsResponse => {
   const overrides = useMockOverrides();
-  
   return {
     roomStatus: RoomStatus.Attached,
     connectionStatus: ConnectionStatus.Connected,
-    send: async (reaction: { type: string; metadata?: any }) => {
+    send: async (reaction: { name: string; metadata?: any }) => {
       console.log('Mock: Room reaction sent', reaction);
     },
+    ...overrides
   };
 };
 
