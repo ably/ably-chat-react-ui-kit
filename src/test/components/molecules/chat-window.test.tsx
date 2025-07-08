@@ -10,6 +10,7 @@ import { ChatWindow } from '../../../components/molecules/chat-window.tsx';
 import { ChatWindowFooterProps } from '../../../components/molecules/chat-window-footer.tsx';
 import { ChatWindowHeaderProps } from '../../../components/molecules/chat-window-header.tsx';
 import { MessageInputProps } from '../../../components/molecules/message-input.tsx';
+import { usePresence, usePresenceListener } from '@ably/chat/react';
 
 const mockSend = vi.fn().mockResolvedValue({});
 const mockDeleteMessage = vi.fn().mockResolvedValue({});
@@ -362,6 +363,23 @@ describe('ChatWindow', () => {
     expect(screen.queryByTestId('delete-message-button')).not.toBeInTheDocument();
     expect(screen.queryByTestId('add-reaction-button')).not.toBeInTheDocument();
     expect(screen.queryByTestId('remove-reaction-button')).not.toBeInTheDocument();
+  });
+
+  describe('autoEnterPresence prop', () => {
+    it('enters presence by default when autoEnterPresence is not specified', () => {
+      vi.clearAllMocks();
+      render(<ChatWindow roomName="general" />);
+
+      expect(usePresence).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not enter presence when autoEnterPresence is false', () => {
+      vi.clearAllMocks();
+
+      render(<ChatWindow roomName="general" autoEnterPresence={false} />);
+
+      expect(usePresence).not.toHaveBeenCalled();
+    });
   });
 
   describe('Error Handling', () => {

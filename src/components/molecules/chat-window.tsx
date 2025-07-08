@@ -72,6 +72,15 @@ export interface ChatWindowProps {
   enableTypingIndicators?: boolean;
 
   /**
+   * When `true` (default) the user is put into the room's presence set
+   * immediately.  Set to `false` if you need to
+   * join later (e.g. after showing a “Join chat” button).
+   *
+   * @default true
+   */
+  autoEnterPresence?: boolean;
+
+  /**
    * Controls the window size for rendering messages in UI. A larger window size will
    * produce a smoother scrolling experience, but at the cost of increased memory usage.
    * Too high a value may lead to significant performance issues.
@@ -243,10 +252,10 @@ export const ChatWindow = ({
   customFooterContent,
   windowSize = 200,
   enableTypingIndicators = true,
+  autoEnterPresence = true,
   className,
   errorHandling,
 }: ChatWindowProps) => {
-  usePresence(); // enter presence on mount
   const { getEffectiveSettings } = useChatSettings();
   const settings = getEffectiveSettings(roomName);
 
@@ -342,6 +351,9 @@ export const ChatWindow = ({
       role="main"
       aria-label={`Chat room: ${roomName}`}
     >
+      {/* Presence mount to enter presence on mount */}
+      {autoEnterPresence && <PresenceMount />}
+
       {/* Header */}
       {customHeaderContent && <ChatWindowHeader>{customHeaderContent}</ChatWindowHeader>}
 
@@ -379,5 +391,12 @@ export const ChatWindow = ({
     </div>
   );
 };
+
+/* convenience hook to enter presence on mount */
+function PresenceMount() {
+  usePresence();
+  // eslint-disable-next-line unicorn/no-null
+  return null;
+}
 
 ChatWindow.displayName = 'ChatWindow';
