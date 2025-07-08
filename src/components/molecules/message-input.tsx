@@ -1,5 +1,6 @@
-import { useTyping } from '@ably/chat/react';
-import React, { ChangeEvent, KeyboardEvent, useRef, useState } from 'react';
+import { Message } from '@ably/chat';
+import { useMessages, useTyping } from '@ably/chat/react';
+import React, { ChangeEvent, KeyboardEvent, useCallback, useRef, useState } from 'react';
 
 import { Button } from '../atoms/button.tsx';
 import { Icon } from '../atoms/icon.tsx';
@@ -12,28 +13,24 @@ import { EmojiPicker } from './emoji-picker.tsx';
 export interface MessageInputProps {
   /**
    * Callback function triggered when a message is sent.
-   * Receives the trimmed message text as a parameter.
-   * Only called when the message contains non-whitespace content.
+   * Receives the built message as a parameter. This is useful for providing
+   * an optimistic UI update or for handling the message in a parent component.
    *
    * The input field is automatically cleared after sending.
    * Typing indicators are stopped when a message is sent.
    *
-   * @param text - The trimmed message text to be sent
+   * @param message - The newly sent message object.
    *
    * @example
    * ```tsx
-   * const handleSend = async (text: string) => {
-   *   try {
-   *     await send({text});
-   *   } catch (error) {
-   *     console.error('Failed to send message:', error);
-   *   }
+   * const handleSentMessage = async (message: Message) => {
+   *  // alert('Message sent: ' + message.text);
    * };
    *
-   * <MessageInput onSend={handleSend} />
+   * <MessageInput onSent={handleSent} />
    * ```
    */
-  onSend: (text: string) => void;
+  onSent?: (message: Message) => void;
 
   /**
    * Placeholder text displayed in the input field when empty.
@@ -78,69 +75,49 @@ export interface MessageInputProps {
  * // Basic usage in chat interface
  * const [messages, setMessages] = useState<Message[]>([]);
  *
- * const handleSendMessage = async (text: string) => {
- *   const newMessage = await send({text});
- *   setMessages(prev => [...prev, newMessage]);
+ * const handleSentMessage = (message) => {
+ *   setMessages(prev => [...prev, message]);
  * };
  *
  * return (
  *   <div className="chat-container">
  *     <MessageList messages={messages} />
  *     <MessageInput
- *       onSend={handleSendMessage}
+ *       onSent={handleSentMessage}
  *       placeholder="Type your message here..."
  *     />
  *   </div>
  * );
  *
- * @example
- * // With custom styling and handlers
- * const MessageInputContainer = () => {
- *   const { room } = useRoom();
- *
- *   const handleSend = useCallback(async (message: string) => {
- *     try {
- *       await room.messages.send({ text: message });
- *       // Optional: Show success feedback
- *       toast.success('Message sent!');
- *     } catch (error) {
- *       toast.error('Failed to send message');
- *       console.error('Send error:', error);
- *     }
- *   }, [room]);
- *
- *   return (
- *     <MessageInput
- *       onSend={handleSend}
- *       placeholder={`Message #${room?.name}`}
- *     />
- *   );
- * };
- *
  */
 
-export const MessageInput = ({ onSend, placeholder = 'Type a message...' }: MessageInputProps) => {
+export const MessageInput = ({ onSent, placeholder = 'Type a message...' }: MessageInputProps) => {
   const [message, setMessage] = useState('');
+  const messageRef = useRef('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [emojiPickerPosition, setEmojiPickerPosition] = useState({ top: 0, left: 0 });
   const inputRef = useRef<HTMLTextAreaElement>(null);
-  // Use typing hook with keystroke and stop methods
   const { keystroke, stop } = useTyping();
+  const { send } = useMessages();
 
   /**
-   * Handles sending the message
-   * Trims the message, calls the onSend callback, and resets the input
+   * Handles sending the message, clearing the input, and stopping typing indicators
    */
-  const handleSend = () => {
-    if (message.trim()) {
-      onSend(message.trim());
-      setMessage('');
-      // Stop typing indicator when message is sent
-      stop().catch((error: unknown) => {
-        console.warn('Stop typing failed:', error);
+  const handleSend = useCallback(() => {
+    const trimmedMessage = messageRef.current.trim();
+    if (trimmedMessage) {
+      send({ text: trimmedMessage }).then((sentMessage) => {
+        onSent?.(sentMessage);
+        setMessage('');
+        messageRef.current = '';
+        stop().catch((error: unknown) => {
+          console.warn('Stop typing failed:', error);
+        });
+      }).catch((error: unknown) => {
+        console.error('Failed to send message:', error);
       });
     }
-  };
+  }, [send, stop, onSent]);
 
   /**
    * Handles changes to the input field
@@ -151,6 +128,7 @@ export const MessageInput = ({ onSend, placeholder = 'Type a message...' }: Mess
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const newValue = e.target.value;
     setMessage(newValue);
+    messageRef.current = newValue;
 
     // Call keystroke on each keypress when there's content
     if (newValue.trim()) {
@@ -212,6 +190,7 @@ export const MessageInput = ({ onSend, placeholder = 'Type a message...' }: Mess
       const end = input.selectionEnd;
       const newMessage = message.slice(0, start) + emoji + message.slice(end);
       setMessage(newMessage);
+      messageRef.current = newMessage; // Keep ref in sync
 
       // Trigger keystroke for emoji insertion
       keystroke().catch((error: unknown) => {
@@ -226,7 +205,9 @@ export const MessageInput = ({ onSend, placeholder = 'Type a message...' }: Mess
       }, 0);
     } else {
       // Fallback: append to end
-      setMessage((prev) => prev + emoji);
+      const newMessage = message + emoji;
+      setMessage(newMessage);
+      messageRef.current = newMessage; // Keep ref in sync
       keystroke().catch((error: unknown) => {
         console.warn('Keystroke failed:', error);
       });

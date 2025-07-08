@@ -140,7 +140,6 @@ export const ChatWindow = ({
   const settings = getEffectiveSettings(roomName);
 
   const {
-    send,
     deleteMessage,
     update: updateMessageRemote,
     sendReaction,
@@ -210,18 +209,6 @@ export const ChatWindow = ({
     [deleteReaction]
   );
 
-  const handleSendMessage = useCallback(
-    (text: string) => {
-      const trimmed = text.trim();
-      if (!trimmed) return;
-
-      send({ text: trimmed }).catch((error: unknown) => {
-        console.error('Failed to send message:', error);
-      });
-    },
-    [send]
-  );
-
   return (
     <div
       className={clsx('flex flex-col h-full bg-white dark:bg-gray-900 flex-1', className)}
@@ -252,7 +239,7 @@ export const ChatWindow = ({
       <ChatWindowFooter>
         <div className="flex-1">
           <MessageInput
-            onSend={handleSendMessage}
+            onSent={(msg) => { updateMessages([msg]); }}
             placeholder={`Message ${roomName}...`}
             aria-label={`Send message to ${roomName}`}
           />

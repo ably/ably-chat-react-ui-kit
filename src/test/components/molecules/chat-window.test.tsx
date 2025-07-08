@@ -41,6 +41,7 @@ vi.mock('../../../hooks/use-chat-settings.tsx', () => ({
   }),
 }));
 
+const mockUpdateMessages = vi.fn()
 // Mocks the useMessageWindow hook
 vi.mock('../../../hooks/use-message-window', () => ({
   useMessageWindow: () => ({
@@ -49,7 +50,7 @@ vi.mock('../../../hooks/use-message-window', () => ({
       createMockMessage({ serial: 'msg2', clientId: 'user2', text: 'How are you?' }),
       createMockMessage({ serial: 'msg3', clientId: 'user1', text: 'I am fine, thanks!' }),
     ],
-    updateMessages: vi.fn(),
+    updateMessages: mockUpdateMessages,
     showLatestMessages: vi.fn(),
     showMessagesAroundSerial: vi.fn(),
     loadMoreHistory: vi.fn(),
@@ -163,13 +164,21 @@ vi.mock('../../../components/molecules/chat-window-footer', () => ({
 }));
 
 vi.mock('../../../components/molecules/message-input', () => ({
-  MessageInput: ({ onSend, placeholder }: MessageInputProps) => (
+  MessageInput: ({ onSent, placeholder }: MessageInputProps) => (
     <div data-testid="message-input">
       <input data-testid="message-input-field" placeholder={placeholder} />
       <button
         data-testid="send-message-button"
         onClick={() => {
-          onSend('New message');
+          // Create a mock message that would be returned from the send function
+          const mockMessage = createMockMessage({
+            text: 'New message',
+            clientId: 'test-user',
+            serial: 'test-serial-123',
+          });
+
+          // Call onSent with the mock message (handle optional prop)
+          onSent?.(mockMessage);
         }}
       >
         Send
@@ -240,7 +249,7 @@ describe('ChatWindow', () => {
     expect(screen.getByText('Enable Typing Indicators: false')).toBeInTheDocument();
   });
 
-  it('sends a message when the send button is clicked', () => {
+  it('updates the message state when the send button is clicked', () => {
     vi.clearAllMocks();
 
     render(<ChatWindow roomName="general" />);
@@ -248,8 +257,13 @@ describe('ChatWindow', () => {
     // Click the send button
     fireEvent.click(screen.getByTestId('send-message-button'));
 
-    // Check if the send function was called with the correct text
-    expect(mockSend).toHaveBeenCalledWith({ text: 'New message' });
+    expect(mockUpdateMessages).toHaveBeenCalledWith([
+      expect.objectContaining({
+        text: 'New message',
+        clientId: 'test-user',
+        serial: 'test-serial-123',
+      })],
+    );
   });
 
   it('edits a message when edit button is clicked', () => {

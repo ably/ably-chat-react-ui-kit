@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -9,25 +9,38 @@ import { EmojiPickerProps } from '../../../components/molecules/emoji-picker.tsx
 import { MessageInput } from '../../../components/molecules/message-input.tsx';
 
 // Mocks the useTyping hook
+const mockSend = vi.fn().mockResolvedValue({});
+const mockDeleteMessage = vi.fn().mockResolvedValue({});
+const mockUpdate = vi.fn().mockResolvedValue({});
+const mockSendReaction = vi.fn().mockResolvedValue({});
+const mockDeleteReaction = vi.fn().mockResolvedValue({});
+
 vi.mock('@ably/chat/react', () => ({
   useTyping: () => ({
     keystroke: vi.fn().mockReturnValue(Promise.resolve()),
     stop: vi.fn().mockReturnValue(Promise.resolve()),
+  }),
+  useMessages: () => ({
+    send: mockSend,
+    deleteMessage: mockDeleteMessage,
+    update: mockUpdate,
+    sendReaction: mockSendReaction,
+    deleteReaction: mockDeleteReaction,
   }),
 }));
 
 // Mocks the Button component
 vi.mock('../../../components/atoms/button', () => ({
   Button: ({
-    children,
-    onClick,
-    variant,
-    size,
-    className,
-    'aria-label': ariaLabel,
-    'aria-haspopup': ariaHasPopup,
-    'aria-expanded': ariaExpanded,
-  }: ButtonProps) => (
+             children,
+             onClick,
+             variant,
+             size,
+             className,
+             'aria-label': ariaLabel,
+             'aria-haspopup': ariaHasPopup,
+             'aria-expanded': ariaExpanded,
+           }: ButtonProps) => (
     <button
       onClick={onClick}
       data-variant={variant}
@@ -66,7 +79,7 @@ vi.mock('../../../components/atoms/text-input', () => {
         className,
         'aria-label': ariaLabel,
       },
-      ref
+      ref,
     ) => (
       <textarea
         ref={ref}
@@ -81,7 +94,7 @@ vi.mock('../../../components/atoms/text-input', () => {
         data-multiline={multiline}
         data-max-height={maxHeight}
       />
-    )
+    ),
   );
 
   MockedTextInput.displayName = 'MockedTextInput';
@@ -112,7 +125,7 @@ vi.mock('../../../components/molecules/emoji-picker', () => ({
 }));
 
 describe('MessageInput', () => {
-  const mockOnSend = vi.fn();
+  const mockOnSent = vi.fn();
   let querySelectorSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
@@ -140,7 +153,7 @@ describe('MessageInput', () => {
   });
 
   it('renders with default placeholder', () => {
-    render(<MessageInput onSend={mockOnSend} />);
+    render(<MessageInput onSent={mockOnSent} />);
 
     const input = screen.getByTestId('text-input');
     expect(input).toBeInTheDocument();
@@ -148,14 +161,14 @@ describe('MessageInput', () => {
   });
 
   it('renders with custom placeholder', () => {
-    render(<MessageInput onSend={mockOnSend} placeholder="Custom placeholder" />);
+    render(<MessageInput onSent={mockOnSent} placeholder="Custom placeholder" />);
 
     const input = screen.getByTestId('text-input');
     expect(input).toHaveAttribute('placeholder', 'Custom placeholder');
   });
 
   it('updates input value when typing', () => {
-    render(<MessageInput onSend={mockOnSend} />);
+    render(<MessageInput onSent={mockOnSent} />);
 
     const input = screen.getByTestId('text-input');
     fireEvent.change(input, { target: { value: 'Hello, world!' } });
@@ -163,46 +176,60 @@ describe('MessageInput', () => {
     expect(input).toHaveValue('Hello, world!');
   });
 
-  it('calls onSend when Enter key is pressed', () => {
-    render(<MessageInput onSend={mockOnSend} />);
+  it('sends a message when send button is clicked', async () => {
+    render(<MessageInput onSent={mockOnSent} />);
 
     const input = screen.getByTestId('text-input');
     fireEvent.change(input, { target: { value: 'Hello, world!' } });
     fireEvent.keyDown(input, { key: 'Enter' });
 
-    expect(mockOnSend).toHaveBeenCalledWith('Hello, world!');
-    expect(input).toHaveValue(''); // Input should be cleared after sending
+    await waitFor(() => {
+      expect(mockSend).toHaveBeenCalledWith({ text: 'Hello, world!' });
+      expect(input).toHaveValue('');
+    });
+  });
+
+  it('calls onSent when Enter key is pressed', async () => {
+    render(<MessageInput onSent={mockOnSent} />);
+
+    const input = screen.getByTestId('text-input');
+    fireEvent.change(input, { target: { value: 'Hello, world!' } });
+    fireEvent.keyDown(input, { key: 'Enter' });
+
+    await waitFor(() => {
+      expect(mockOnSent).toHaveBeenCalled()
+    })
   });
 
   it('does not call onSend when Shift+Enter is pressed', () => {
-    render(<MessageInput onSend={mockOnSend} />);
+    render(<MessageInput onSent={mockOnSent} />);
 
     const input = screen.getByTestId('text-input');
     fireEvent.change(input, { target: { value: 'Hello, world!' } });
     fireEvent.keyDown(input, { key: 'Enter', shiftKey: true });
 
-    expect(mockOnSend).not.toHaveBeenCalled();
+    expect(mockOnSent).not.toHaveBeenCalled();
     expect(input).toHaveValue('Hello, world!'); // Input should not be cleared
   });
 
   it('does not call onSend when input is empty or whitespace only', () => {
-    render(<MessageInput onSend={mockOnSend} />);
+    render(<MessageInput onSent={mockOnSent} />);
 
     const input = screen.getByTestId('text-input');
 
     // Test with empty string
     fireEvent.change(input, { target: { value: '' } });
     fireEvent.keyDown(input, { key: 'Enter' });
-    expect(mockOnSend).not.toHaveBeenCalled();
+    expect(mockOnSent).not.toHaveBeenCalled();
 
     // Test with whitespace only
     fireEvent.change(input, { target: { value: '   ' } });
     fireEvent.keyDown(input, { key: 'Enter' });
-    expect(mockOnSend).not.toHaveBeenCalled();
+    expect(mockOnSent).not.toHaveBeenCalled();
   });
 
   it('shows emoji picker when emoji button is clicked', () => {
-    render(<MessageInput onSend={mockOnSend} />);
+    render(<MessageInput onSent={mockOnSent} />);
 
     // Emoji picker should not be visible initially
     expect(screen.queryByTestId('emoji-picker')).not.toBeInTheDocument();
@@ -216,7 +243,7 @@ describe('MessageInput', () => {
   });
 
   it('hides emoji picker when close button is clicked', () => {
-    render(<MessageInput onSend={mockOnSend} />);
+    render(<MessageInput onSent={mockOnSent} />);
 
     // Open the emoji picker
     const emojiButton = screen.getByLabelText('Open emoji picker');
@@ -232,7 +259,7 @@ describe('MessageInput', () => {
   });
 
   it('inserts emoji at cursor position when selected', () => {
-    render(<MessageInput onSend={mockOnSend} />);
+    render(<MessageInput onSent={mockOnSent} />);
 
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     const input = screen.getByTestId('text-input') as HTMLTextAreaElement;
@@ -265,7 +292,7 @@ describe('MessageInput', () => {
   });
 
   it('positions emoji picker correctly relative to emoji button', () => {
-    render(<MessageInput onSend={mockOnSend} />);
+    render(<MessageInput onSent={mockOnSent} />);
 
     const emojiButton = screen.getByLabelText('Open emoji picker');
     fireEvent.click(emojiButton);
@@ -286,7 +313,7 @@ describe('MessageInput', () => {
   });
 
   it('has correct accessibility attributes', () => {
-    render(<MessageInput onSend={mockOnSend} />);
+    render(<MessageInput onSent={mockOnSent} />);
 
     const form = screen.getByRole('form');
     expect(form).toHaveAttribute('aria-label', 'Message input');
