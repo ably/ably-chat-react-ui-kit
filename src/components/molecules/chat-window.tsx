@@ -191,6 +191,9 @@ export interface ChatWindowProps {
  * - History loading with infinite scroll support
  * - Custom error handling for all chat operations
  *
+ * The enableTypingIndicators prop controls both the display of typing indicators in the
+ * message list and whether the message input triggers typing events on keystroke.
+ *
  * @example
  * // Basic usage
  * <ChatRoomProvider
@@ -212,6 +215,18 @@ export interface ChatWindowProps {
  *     roomName={'general'}
  *     customHeaderContent={<RoomInfo />}
  *     customFooterContent={<RoomReaction />}
+ *   />
+ * </ChatRoomProvider>
+ *
+ * @example
+ * // With typing indicators disabled
+ * <ChatRoomProvider
+ *   key={'general'}
+ *   name={'general'}
+ * >
+ *   <ChatWindow
+ *     roomName={'general'}
+ *     enableTypingIndicators={false}
  *   />
  * </ChatRoomProvider>
  *
@@ -384,6 +399,7 @@ export const ChatWindow = ({
             placeholder={`Message ${roomName}...`}
             aria-label={`Send message to ${roomName}`}
             onSendError={errorHandling?.onSendError}
+            enableTyping={enableTypingIndicators}
           />
         </div>
         {customFooterContent}

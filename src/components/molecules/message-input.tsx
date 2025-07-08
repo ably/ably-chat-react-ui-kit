@@ -70,6 +70,24 @@ export interface MessageInputProps {
    * ```
    */
   onSendError?: (error: ErrorInfo, text: string) => void;
+
+  /**
+   * Whether to enable typing indicators when the user is typing.
+   * When enabled, triggers typing indicators on keystroke and stops them
+   * when the input is cleared or a message is sent.
+   *
+   * @default true
+   *
+   * @example
+   * ```tsx
+   * // Disable typing indicators for performance in large rooms
+   * <MessageInput
+   *   onSent={handleSent}
+   *   enableTyping={false}
+   * />
+   * ```
+   */
+  enableTyping?: boolean;
 }
 
 /**
@@ -118,6 +136,7 @@ export const MessageInput = ({
   onSent,
   placeholder = 'Type a message...',
   onSendError,
+  enableTyping = true,
 }: MessageInputProps) => {
   const [message, setMessage] = useState('');
   const messageRef = useRef('');
@@ -138,9 +157,11 @@ export const MessageInput = ({
           onSent?.(sentMessage);
           setMessage('');
           messageRef.current = '';
-          stop().catch((error: unknown) => {
-            console.warn('Stop typing failed:', error);
-          });
+          if (enableTyping) {
+            stop().catch((error: unknown) => {
+              console.warn('Stop typing failed:', error);
+            });
+          }
         })
         .catch((error: unknown) => {
           if (onSendError) {
@@ -150,7 +171,7 @@ export const MessageInput = ({
           }
         });
     }
-  }, [send, stop, onSent, onSendError]);
+  }, [send, stop, onSent, onSendError, enableTyping]);
 
   /**
    * Handles changes to the input field
@@ -163,16 +184,18 @@ export const MessageInput = ({
     setMessage(newValue);
     messageRef.current = newValue;
 
-    // Call keystroke on each keypress when there's content
-    if (newValue.trim()) {
-      keystroke().catch((error: unknown) => {
-        console.warn('Keystroke failed:', error);
-      });
-    } else {
-      // Stop typing indicator when all text is deleted
-      stop().catch((error: unknown) => {
-        console.warn('Stop typing failed:', error);
-      });
+    if (enableTyping) {
+      // Call keystroke on each keypress when there's content
+      if (newValue.trim()) {
+        keystroke().catch((error: unknown) => {
+          console.warn('Keystroke failed:', error);
+        });
+      } else {
+        // Stop typing indicator when all text is deleted
+        stop().catch((error: unknown) => {
+          console.warn('Stop typing failed:', error);
+        });
+      }
     }
   };
 
@@ -226,9 +249,11 @@ export const MessageInput = ({
       messageRef.current = newMessage; // Keep ref in sync
 
       // Trigger keystroke for emoji insertion
-      keystroke().catch((error: unknown) => {
-        console.warn('Keystroke failed:', error);
-      });
+      if (enableTyping) {
+        keystroke().catch((error: unknown) => {
+          console.warn('Keystroke failed:', error);
+        });
+      }
 
       // Focus back on input and set cursor position after emoji
       setTimeout(() => {
@@ -241,9 +266,11 @@ export const MessageInput = ({
       const newMessage = message + emoji;
       setMessage(newMessage);
       messageRef.current = newMessage; // Keep ref in sync
-      keystroke().catch((error: unknown) => {
-        console.warn('Keystroke failed:', error);
-      });
+      if (enableTyping) {
+        keystroke().catch((error: unknown) => {
+          console.warn('Keystroke failed:', error);
+        });
+      }
     }
 
     setShowEmojiPicker(false);

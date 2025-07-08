@@ -1,4 +1,5 @@
 import { MessageReactionType } from '@ably/chat';
+import { usePresence } from '@ably/chat/react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { ErrorInfo } from 'ably';
 import React from 'react';
@@ -10,7 +11,6 @@ import { ChatWindow } from '../../../components/molecules/chat-window.tsx';
 import { ChatWindowFooterProps } from '../../../components/molecules/chat-window-footer.tsx';
 import { ChatWindowHeaderProps } from '../../../components/molecules/chat-window-header.tsx';
 import { MessageInputProps } from '../../../components/molecules/message-input.tsx';
-import { usePresence, usePresenceListener } from '@ably/chat/react';
 
 const mockSend = vi.fn().mockResolvedValue({});
 const mockDeleteMessage = vi.fn().mockResolvedValue({});
@@ -166,9 +166,12 @@ vi.mock('../../../components/molecules/chat-window-footer', () => ({
 }));
 
 vi.mock('../../../components/molecules/message-input', () => ({
-  MessageInput: ({ onSent, placeholder, onSendError }: MessageInputProps) => (
+  MessageInput: ({ onSent, placeholder, onSendError, enableTyping }: MessageInputProps) => (
     <div data-testid="message-input">
       <input data-testid="message-input-field" placeholder={placeholder} />
+      <div data-testid="enable-typing-status">
+        Enable Typing: {enableTyping ? 'true' : 'false'}
+      </div>
       <button
         data-testid="send-message-button"
         onClick={() => {
@@ -259,6 +262,17 @@ describe('ChatWindow', () => {
     render(<ChatWindow roomName="general" enableTypingIndicators={false} />);
 
     expect(screen.getByText('Enable Typing Indicators: false')).toBeInTheDocument();
+  });
+
+  it('passes enableTypingIndicators as enableTyping prop to MessageInput', () => {
+    render(<ChatWindow roomName="general" enableTypingIndicators={true} />);
+
+    expect(screen.getByText('Enable Typing: true')).toBeInTheDocument();
+
+    // Render with typing indicators disabled
+    render(<ChatWindow roomName="general" enableTypingIndicators={false} />);
+
+    expect(screen.getByText('Enable Typing: false')).toBeInTheDocument();
   });
 
   it('updates the message state when the send button is clicked', () => {
