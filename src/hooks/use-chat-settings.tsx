@@ -20,5 +20,9 @@ import { ChatSettingsContext, ChatSettingsContextType } from '../context/chat-se
  * @public
  */
 export const useChatSettings = (): ChatSettingsContextType => {
-  return useContext(ChatSettingsContext);
+  const context = useContext(ChatSettingsContext);
+  if (!context) {
+    throw new Error('useChatSettings must be used within a ChatSettingsProvider');
+  }
+  return context;
 };

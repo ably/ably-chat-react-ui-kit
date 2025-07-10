@@ -5,11 +5,7 @@ export {
   type AvatarProviderProps,
   type PersistedAvatarData,
 } from './avatar-provider.tsx';
-export {
-  type ChatSettings,
-  ChatSettingsProvider,
-  type ChatSettingsProviderProps,
-} from './chat-settings-provider.tsx';
+export { ChatSettingsProvider, type ChatSettingsProviderProps } from './chat-settings-provider.tsx';
 export {
   type ThemeChangeCallback,
   type ThemeOptions,

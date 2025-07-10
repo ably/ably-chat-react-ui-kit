@@ -7,6 +7,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ChatWindow } from '../../../components/molecules/chat-window.tsx';
 import { AvatarProvider } from '../../../providers/avatar-provider.tsx';
+import { ChatSettingsProvider } from '../../../providers/chat-settings-provider.tsx';
 import { newChatClient } from '../../helper/chat.ts';
 import { randomRoomName } from '../../helper/identifier.ts';
 import { waitForRoomStatus } from '../../helper/room.ts';
@@ -56,13 +57,15 @@ describe('ChatWindow Integration Tests', () => {
     });
 
     const { unmount } = render(
-      <ChatClientProvider client={chatClient1}>
-        <AvatarProvider>
-          <ChatRoomProvider key={roomName} name={roomName}>
-            <ChatWindow roomName={roomName} />
-          </ChatRoomProvider>
-        </AvatarProvider>
-      </ChatClientProvider>
+      <ChatSettingsProvider>
+        <ChatClientProvider client={chatClient1}>
+          <AvatarProvider>
+            <ChatRoomProvider key={roomName} name={roomName}>
+              <ChatWindow roomName={roomName} />
+            </ChatRoomProvider>
+          </AvatarProvider>
+        </ChatClientProvider>
+      </ChatSettingsProvider>
     );
 
     // Wait for the component to render
@@ -101,11 +104,14 @@ describe('ChatWindow Integration Tests', () => {
     await room2.attach();
 
     render(
-      <ChatClientProvider client={chatClient1}>
-        <ChatRoomProvider key={roomName} name={roomName}>
-          <ChatWindow roomName={roomName} enableTypingIndicators={true} />
-        </ChatRoomProvider>
-      </ChatClientProvider>
+      <ChatSettingsProvider>
+        <ChatClientProvider client={chatClient1}>
+          <ChatRoomProvider key={roomName} name={roomName}>
+            <ChatWindow roomName={roomName} enableTypingIndicators={true} />
+          </ChatRoomProvider>
+        </ChatClientProvider>
+        ,
+      </ChatSettingsProvider>
     );
 
     // Wait for the component to render
@@ -151,13 +157,16 @@ describe('ChatWindow Integration Tests', () => {
     });
 
     render(
-      <ChatClientProvider client={chatClient1}>
-        <AvatarProvider>
-          <ChatRoomProvider key={roomName} name={roomName}>
-            <ChatWindow roomName={roomName} />
-          </ChatRoomProvider>
-        </AvatarProvider>
-      </ChatClientProvider>
+      <ChatSettingsProvider>
+        <ChatClientProvider client={chatClient1}>
+          <AvatarProvider>
+            <ChatRoomProvider key={roomName} name={roomName}>
+              <ChatWindow roomName={roomName} />
+            </ChatRoomProvider>
+          </AvatarProvider>
+        </ChatClientProvider>
+        ,
+      </ChatSettingsProvider>
     );
 
     await waitForRoomStatus(room1, RoomStatus.Attached);
@@ -200,13 +209,16 @@ describe('ChatWindow Integration Tests', () => {
     await room2.attach();
 
     render(
-      <ChatClientProvider client={chatClient1}>
-        <AvatarProvider>
-          <ChatRoomProvider key={roomName} name={roomName}>
-            <ChatWindow roomName={roomName} />
-          </ChatRoomProvider>
-        </AvatarProvider>
-      </ChatClientProvider>
+      <ChatSettingsProvider>
+        <ChatClientProvider client={chatClient1}>
+          <AvatarProvider>
+            <ChatRoomProvider key={roomName} name={roomName}>
+              <ChatWindow roomName={roomName} />
+            </ChatRoomProvider>
+          </AvatarProvider>
+        </ChatClientProvider>
+        ,
+      </ChatSettingsProvider>
     );
 
     // Wait for the component to render

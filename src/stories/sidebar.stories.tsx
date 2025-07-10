@@ -4,25 +4,27 @@ import { action } from 'storybook/actions';
 
 import { Sidebar } from '../components/molecules/sidebar.tsx';
 import { AvatarProvider } from '../providers/avatar-provider';
-import { ThemeProvider } from '../providers';
+import { ChatSettingsProvider, ThemeProvider } from '../providers';
 
 const meta: Meta<typeof Sidebar> = {
   title: 'Molecules/Sidebar',
   component: Sidebar,
   decorators: [
     (Story) => (
-      <ThemeProvider>
-        <AvatarProvider>
-          <div className="h-screen w-full flex bg-gray-50 dark:bg-gray-950">
-            <div className="w-64 md:w-72 lg:w-80 bg-white dark:bg-gray-900">
-              <Story />
+      <ChatSettingsProvider>
+        <ThemeProvider>
+          <AvatarProvider>
+            <div className="h-screen w-full flex bg-gray-50 dark:bg-gray-950">
+              <div className="w-64 md:w-72 lg:w-80 bg-white dark:bg-gray-900">
+                <Story />
+              </div>
+              <div className="flex-1 flex items-center justify-center">
+                <p className="text-gray-500 dark:text-gray-400">Main content area</p>
+              </div>
             </div>
-            <div className="flex-1 flex items-center justify-center">
-              <p className="text-gray-500 dark:text-gray-400">Main content area</p>
-            </div>
-          </div>
-        </AvatarProvider>
-      </ThemeProvider>
+          </AvatarProvider>
+        </ThemeProvider>
+      </ChatSettingsProvider>
     ),
   ],
   parameters: {
@@ -78,15 +80,17 @@ export const Collapsed: Story = {
   },
   decorators: [
     (Story) => (
-      <ThemeProvider>
-        <AvatarProvider>
-          <div className="h-screen w-full flex bg-gray-50 dark:bg-gray-950">
-            <div className="w-16 border-r bg-white dark:bg-gray-900">
-              <Story />
+      <ChatSettingsProvider>
+        <ThemeProvider>
+          <AvatarProvider>
+            <div className="h-screen w-full flex bg-gray-50 dark:bg-gray-950">
+              <div className="w-16 border-r bg-white dark:bg-gray-900">
+                <Story />
+              </div>
             </div>
-          </div>
-        </AvatarProvider>
-      </ThemeProvider>
+          </AvatarProvider>
+        </ThemeProvider>
+      </ChatSettingsProvider>
     ),
   ],
 };

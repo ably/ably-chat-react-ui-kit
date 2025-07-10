@@ -5,11 +5,11 @@ import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
 import {
+  ChatSettings,
   ChatSettingsContext,
   ChatSettingsContextType,
 } from '../../context/chat-settings-context.tsx';
 import { useChatSettings } from '../../hooks/use-chat-settings.tsx';
-import { ChatSettings } from '../../providers/chat-settings-provider.tsx';
 
 describe('useChatSettings Hook', () => {
   const mockGlobalSettings: ChatSettings = {

@@ -4,12 +4,8 @@ import { render, screen } from '@testing-library/react';
 import React from 'react';
 import { describe, expect, it } from 'vitest';
 
-import { ChatSettingsContext } from '../../context/chat-settings-context.tsx';
-import {
-  ChatSettings,
-  ChatSettingsProvider,
-  DEFAULT_SETTINGS,
-} from '../../providers/chat-settings-provider.tsx';
+import { ChatSettings, ChatSettingsContext } from '../../context/chat-settings-context.tsx';
+import { ChatSettingsProvider, DEFAULT_SETTINGS } from '../../providers/chat-settings-provider.tsx';
 
 describe('ChatSettingsProvider', () => {
   describe('Default settings', () => {
@@ -18,7 +14,7 @@ describe('ChatSettingsProvider', () => {
         const context = React.useContext(ChatSettingsContext);
         return (
           <div>
-            <div data-testid="global-settings">{JSON.stringify(context.globalSettings)}</div>
+            <div data-testid="global-settings">{JSON.stringify(context?.globalSettings)}</div>
           </div>
         );
       };
@@ -51,7 +47,7 @@ describe('ChatSettingsProvider', () => {
         const context = React.useContext(ChatSettingsContext);
         return (
           <div>
-            <div data-testid="global-settings">{JSON.stringify(context.globalSettings)}</div>
+            <div data-testid="global-settings">{JSON.stringify(context?.globalSettings)}</div>
           </div>
         );
       };
@@ -94,15 +90,15 @@ describe('ChatSettingsProvider', () => {
         return (
           <div>
             <>
-              <div data-testid="global-settings">{JSON.stringify(context.globalSettings)}</div>
+              <div data-testid="global-settings">{JSON.stringify(context?.globalSettings)}</div>
               <div data-testid="general-settings">
-                {JSON.stringify(context.getEffectiveSettings('general'))}
+                {JSON.stringify(context?.getEffectiveSettings('general'))}
               </div>
               <div data-testid="announcements-settings">
-                {JSON.stringify(context.getEffectiveSettings('announcements'))}
+                {JSON.stringify(context?.getEffectiveSettings('announcements'))}
               </div>
               <div data-testid="other-room-settings">
-                {JSON.stringify(context.getEffectiveSettings('other-room'))}
+                {JSON.stringify(context?.getEffectiveSettings('other-room'))}
               </div>
             </>
           </div>
@@ -161,9 +157,9 @@ describe('ChatSettingsProvider', () => {
         return (
           <div>
             <>
-              <div data-testid="global-settings">{JSON.stringify(context.globalSettings)}</div>
+              <div data-testid="global-settings">{JSON.stringify(context?.globalSettings)}</div>
               <div data-testid="no-room-settings">
-                {JSON.stringify(context.getEffectiveSettings())}
+                {JSON.stringify(context?.getEffectiveSettings())}
               </div>
             </>
           </div>
@@ -189,7 +185,7 @@ describe('ChatSettingsProvider', () => {
     it('should return frozen objects to prevent accidental mutations', () => {
       const TestComponent = () => {
         const context = React.useContext(ChatSettingsContext);
-        const settings = context.getEffectiveSettings('room');
+        const settings = context?.getEffectiveSettings('room');
         const isFrozen = Object.isFrozen(settings);
 
         return (

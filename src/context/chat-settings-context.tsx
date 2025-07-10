@@ -1,6 +1,13 @@
 import { createContext } from 'react';
 
-import { ChatSettings, DEFAULT_SETTINGS } from '../providers/chat-settings-provider.tsx';
+export interface ChatSettings {
+  /** Whether users can update their messages after sending */
+  allowMessageUpdates: boolean;
+  /** Whether users can delete their messages */
+  allowMessageDeletes: boolean;
+  /** Whether users can add reactions to messages */
+  allowMessageReactions: boolean;
+}
 
 /**
  * Context interface providing access to chat settings globally and per room.
@@ -26,8 +33,4 @@ export interface ChatSettingsContextType {
  *
  * @internal
  */
-export const ChatSettingsContext = createContext<ChatSettingsContextType>({
-  globalSettings: DEFAULT_SETTINGS,
-  roomSettings: {},
-  getEffectiveSettings: () => ({ ...DEFAULT_SETTINGS }),
-});
+export const ChatSettingsContext = createContext<ChatSettingsContextType | undefined>(undefined);

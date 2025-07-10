@@ -1,25 +1,11 @@
 import React, { ReactNode } from 'react';
 
-import { ChatSettingsContext, ChatSettingsContextType } from '../context/chat-settings-context.tsx';
+import {
+  ChatSettings,
+  ChatSettingsContext,
+  ChatSettingsContextType,
+} from '../context/chat-settings-context.tsx';
 
-/**
- * Interface representing chat settings that can be configured globally or per room.
- *
- */
-export interface ChatSettings {
-  /** Whether users can update their messages after sending */
-  allowMessageUpdates: boolean;
-  /** Whether users can delete their messages */
-  allowMessageDeletes: boolean;
-  /** Whether users can add reactions to messages */
-  allowMessageReactions: boolean;
-}
-
-/**
- * Default chat settings applied when no custom settings are provided.
- *
- * @internal
- */
 export const DEFAULT_SETTINGS: ChatSettings = {
   allowMessageUpdates: true,
   allowMessageDeletes: true,
@@ -98,20 +84,14 @@ export const ChatSettingsProvider = ({
   /**
    * Get effective settings for a room by merging global and room-specific settings.
    * Returns a frozen copy to prevent accidental mutations.
-   *
-   * @param roomName - Optional room name to get settings for
-   * @returns Effective chat settings (room-specific merged with global, or just global)
    */
   const getEffectiveSettings = (roomName?: string): ChatSettings => {
-    // If no room is specified, return global settings
     if (!roomName) {
       return Object.freeze({ ...globalSettings });
     }
 
-    // Get room-specific settings if they exist
     const roomSpecificSettings = initialRoomSettings[roomName];
 
-    // Merge global settings with room-specific settings (room settings take precedence)
     return Object.freeze({
       ...globalSettings,
       ...roomSpecificSettings,
