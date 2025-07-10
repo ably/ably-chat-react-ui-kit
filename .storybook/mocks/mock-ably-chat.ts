@@ -8,39 +8,36 @@ import React, {
   useMemo,
 } from 'react';
 import {
+  ChatClient,
   ChatMessageAction,
   ConnectionStatus,
   Message,
   MessageReactions,
-  PaginatedResult,
+  PaginatedResult, PresenceData,
   PresenceMember,
   QueryOptions,
   Room,
   RoomStatus,
+  Connection, OccupancyData,
 } from '@ably/chat';
 import {
+  ChatRoomProviderProps, UseChatConnectionResponse,
   UseMessagesResponse, UseOccupancyResponse,
   UsePresenceListenerResponse, UsePresenceResponse, UseRoomReactionsResponse,
   UseRoomResponse, UseTypingResponse,
 } from '@ably/chat/react';
+import { ChatSettings, ChatSettingsContextType } from '../../src';
 
 interface MockOverrides {
-  occupancy?: {
-    connections?: number;
-    presenceMembers?: number;
-  };
+  occupancy?: OccupancyData
   presenceData?: PresenceMember[]
-  currentlyTyping?: string[];
+  currentlyTyping?: string[]
   messages?: Message[];
   clientId?: string;
   roomName?: string;
   isPresent?: boolean;
   connectionStatus?: ConnectionStatus;
-  chatSettings?: {
-    allowMessageUpdates?: boolean;
-    allowMessageDeletes?: boolean;
-    allowMessageReactions?: boolean;
-  };
+  chatSettings?: ChatSettings
 }
 
 const MockOverridesContext = createContext<MockOverrides>({});
@@ -51,21 +48,7 @@ interface MockChatClientResponse {
   clientId: string;
 }
 
-interface MockPaginatedResult {
-  items: Message[];
-
-  first(): Promise<PaginatedResult<Message>>;
-
-  next(): Promise<PaginatedResult<Message> | null>;
-
-  current(): Promise<PaginatedResult<Message>>;
-
-  hasNext(): boolean;
-
-  isLast(): boolean;
-}
-
-const mockPaginatedResultWithItems = (items: Message[]): MockPaginatedResult => {
+const mockPaginatedResultWithItems = (items: Message[]): PaginatedResult<Message> => {
   return {
     items,
     first: () => Promise.resolve(mockPaginatedResultWithItems(items)),
@@ -76,20 +59,17 @@ const mockPaginatedResultWithItems = (items: Message[]): MockPaginatedResult => 
   };
 };
 
-export interface ChatRoomProviderProps {
-  name: string;
-  options?: any;
-  release?: boolean;
-  children?: ReactNode | ReactNode[] | null;
+export interface MockChatRoomProviderProps extends ChatRoomProviderProps {
   mockOverrides?: MockOverrides;
 }
+
 
 export const ChatRoomProvider = ({
   children,
   name,
   mockOverrides = {},
   ...props
-}: ChatRoomProviderProps) => {
+}: Partial<MockChatRoomProviderProps>) => {
   return React.createElement(
     MockOverridesContext.Provider,
     { value: mockOverrides },
@@ -130,7 +110,7 @@ export const ChatClientProvider = ({
   );
 };
 
-export const useChatClient = (): MockChatClientResponse => {
+export const useChatClient = (): Partial<ChatClient> => {
   const overrides = useMockOverrides();
 
   return {
@@ -320,7 +300,7 @@ export const usePresence = (): UsePresenceResponse => {
 export const usePresenceListener = (): UsePresenceListenerResponse => {
   const overrides = useMockOverrides();
 
-  const defaultPresenceData = [
+  const defaultPresenceData: Partial<PresenceData> = [
     { clientId: 'Alice', data: { name: 'Alice' } },
     { clientId: 'Bob', data: { name: 'Bob' } },
     { clientId: 'Charlie', data: { name: 'Charlie' } },
@@ -336,17 +316,17 @@ export const usePresenceListener = (): UsePresenceListenerResponse => {
 export const useRoom = (): UseRoomResponse => {
   const overrides = useMockOverrides();
 
-  // Create stable room object
-  const mockRoom = useMemo(() => ({
+  // Create stable room object using Partial<Room>
+  const mockRoom = useMemo((): Partial<Room> => ({
     name: overrides.roomName || 'Storybook Room',
-    roomId: 'storybook-room',
+    // Add other Room properties as your components need them
   }), [overrides.roomName]);
 
   return {
     roomStatus: RoomStatus.Attached,
     connectionStatus: ConnectionStatus.Connected,
     roomName: overrides.roomName || 'general',
-    room: mockRoom as unknown as Room,
+    room: mockRoom as Room, // Still need to cast for the return type
     attach: async () => {
       console.log('Mock: Room attached');
     },
@@ -375,31 +355,34 @@ export const useTyping = (): UseTypingResponse => {
   };
 };
 
-export class MockChatClient {
+const newConnection = (args: Partial<Connection>): Connection => {
+  return {
+    ...args
+  } as Connection
+}
+
+export class MockChatClient implements Partial<ChatClient> {
   public clientId: string;
-  public connection: { state: string };
+  public connection: Connection;
 
   constructor(options?: { clientId?: string }) {
     this.clientId = options?.clientId || 'storybook-user';
-    this.connection = {
-      state: 'connected',
-    };
+    this.connection = newConnection({status: ConnectionStatus.Connected});
   }
 }
 
-export const useChatConnection = () => {
+export const useChatConnection = (): Partial<UseChatConnectionResponse> => {
   const overrides = useMockOverrides();
   
   return {
     currentStatus: overrides.connectionStatus || ConnectionStatus.Connected,
-    error: null,
   };
 };
 
-export const useChatSettings = () => {
+export const useChatSettings = (): Partial<ChatSettingsContextType> => {
   const overrides = useMockOverrides();
   
-  const defaultSettings = {
+  const defaultSettings: ChatSettings = {
     allowMessageUpdates: true,
     allowMessageDeletes: true,
     allowMessageReactions: true,
@@ -409,25 +392,20 @@ export const useChatSettings = () => {
   
   return {
     globalSettings: settings,
-    getEffectiveSettings: (roomName: string) => settings,
+    getEffectiveSettings: (roomName?: string) => settings,
   };
 };
 
 export const useRoomReactions = (): UseRoomReactionsResponse => {
-  const overrides = useMockOverrides();
   return {
     roomStatus: RoomStatus.Attached,
     connectionStatus: ConnectionStatus.Connected,
     send: async (reaction: { name: string; metadata?: any }) => {
       console.log('Mock: Room reaction sent', reaction);
     },
-    ...overrides
   };
 };
 
-// ============================================================================
-// Convenience Functions for Stories
-// ============================================================================
 
 export const createMockScenario = {
   noParticipants: (): MockOverrides => ({

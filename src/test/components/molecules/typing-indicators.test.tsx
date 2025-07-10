@@ -1,4 +1,5 @@
-import { useTyping } from '@ably/chat/react';
+import { ChatClient } from '@ably/chat';
+import { useTyping, type UseTypingResponse } from '@ably/chat/react';
 import { render, screen } from '@testing-library/react';
 import React from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -7,8 +8,10 @@ import { TypingDotsProps } from '../../../components/atoms/typing-dots.tsx';
 import { TypingIndicators } from '../../../components/molecules/typing-indicators.tsx';
 
 vi.mock('@ably/chat/react', () => ({
-  useTyping: vi.fn().mockReturnValue({ currentlyTyping: [] }),
-  useChatClient: vi.fn().mockReturnValue({ clientId: 'current-user' }),
+  useTyping: vi
+    .fn()
+    .mockReturnValue({ currentlyTyping: new Set<string>() } as Partial<UseTypingResponse>),
+  useChatClient: vi.fn().mockReturnValue({ clientId: 'current-user' } as Partial<ChatClient>),
 }));
 
 vi.mock('../../../components/atoms/typing-dots.tsx', () => ({
@@ -26,8 +29,8 @@ describe('TypingIndicators', () => {
 
   it('renders nothing when no one is typing', () => {
     (useTyping as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
-      currentlyTyping: [],
-    });
+      currentlyTyping: new Set<string>(),
+    } as Partial<UseTypingResponse>);
 
     const { container } = render(<TypingIndicators />);
 
@@ -37,8 +40,8 @@ describe('TypingIndicators', () => {
 
   it('renders with single user typing', () => {
     (useTyping as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
-      currentlyTyping: ['user1', 'current-user'],
-    });
+      currentlyTyping: new Set(['user1', 'current-user']),
+    } as Partial<UseTypingResponse>);
 
     render(<TypingIndicators />);
 
@@ -51,8 +54,8 @@ describe('TypingIndicators', () => {
 
   it('renders with multiple users typing', () => {
     (useTyping as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
-      currentlyTyping: ['user1', 'user2', 'user3', 'current-user'],
-    });
+      currentlyTyping: new Set(['user1', 'user2', 'user3', 'current-user']),
+    } as Partial<UseTypingResponse>);
 
     render(<TypingIndicators />);
 
@@ -62,8 +65,8 @@ describe('TypingIndicators', () => {
 
   it('respects maxClients prop', () => {
     (useTyping as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
-      currentlyTyping: ['user1', 'user2', 'user3', 'current-user'],
-    });
+      currentlyTyping: new Set(['user1', 'user2', 'user3', 'current-user']),
+    } as Partial<UseTypingResponse>);
 
     render(<TypingIndicators maxClients={2} />);
 
@@ -73,8 +76,8 @@ describe('TypingIndicators', () => {
 
   it('shows all users when count is within maxClients', () => {
     (useTyping as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
-      currentlyTyping: ['user1', 'user2', 'current-user'],
-    });
+      currentlyTyping: new Set(['user1', 'user2', 'current-user']),
+    } as Partial<UseTypingResponse>);
 
     render(<TypingIndicators maxClients={3} />);
 
@@ -84,8 +87,8 @@ describe('TypingIndicators', () => {
 
   it('applies custom className when provided', () => {
     (useTyping as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
-      currentlyTyping: ['user1', 'current-user'],
-    });
+      currentlyTyping: new Set(['user1', 'current-user']),
+    } as Partial<UseTypingResponse>);
 
     render(<TypingIndicators className="custom-class" />);
 
@@ -96,8 +99,8 @@ describe('TypingIndicators', () => {
 
   it('applies custom textClassName when provided', () => {
     (useTyping as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
-      currentlyTyping: ['user1', 'current-user'],
-    });
+      currentlyTyping: new Set(['user1', 'current-user']),
+    } as Partial<UseTypingResponse>);
 
     render(<TypingIndicators textClassName="custom-text-class" />);
 
@@ -108,8 +111,8 @@ describe('TypingIndicators', () => {
 
   it('has correct accessibility attributes', () => {
     (useTyping as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
-      currentlyTyping: ['user1', 'current-user'],
-    });
+      currentlyTyping: new Set(['user1', 'current-user']),
+    } as Partial<UseTypingResponse>);
 
     render(<TypingIndicators />);
 
@@ -126,8 +129,8 @@ describe('TypingIndicators', () => {
     const mockOnTypingChange = vi.fn();
 
     (useTyping as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
-      currentlyTyping: ['user1', 'user2', 'current-user'],
-    });
+      currentlyTyping: new Set(['user1', 'user2', 'current-user']),
+    } as Partial<UseTypingResponse>);
 
     render(<TypingIndicators onTypingChange={mockOnTypingChange} />);
 
@@ -137,24 +140,24 @@ describe('TypingIndicators', () => {
 
   it('handles different sentence formats correctly', () => {
     (useTyping as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
-      currentlyTyping: ['Alice', 'Bob', 'current-user'],
-    });
+      currentlyTyping: new Set(['Alice', 'Bob', 'current-user']),
+    } as Partial<UseTypingResponse>);
 
     const { rerender } = render(<TypingIndicators maxClients={3} />);
     expect(screen.getByText('Alice and Bob are typing')).toBeInTheDocument();
 
     // Test with three users
     (useTyping as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
-      currentlyTyping: ['Alice', 'Bob', 'Charlie', 'current-user'],
-    });
+      currentlyTyping: new Set(['Alice', 'Bob', 'Charlie', 'current-user']),
+    } as Partial<UseTypingResponse>);
 
     rerender(<TypingIndicators maxClients={3} />);
     expect(screen.getByText('Alice, Bob and Charlie are typing')).toBeInTheDocument();
 
     // Test with more than three users
     (useTyping as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
-      currentlyTyping: ['Alice', 'Bob', 'Charlie', 'Dave', 'current-user'],
-    });
+      currentlyTyping: new Set(['Alice', 'Bob', 'Charlie', 'Dave', 'current-user']),
+    } as Partial<UseTypingResponse>);
 
     rerender(<TypingIndicators maxClients={3} />);
     expect(screen.getByText('Alice, Bob, Charlie and 1 other are typing')).toBeInTheDocument();

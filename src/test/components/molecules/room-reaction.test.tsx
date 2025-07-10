@@ -1,5 +1,5 @@
 import { ConnectionStatus, RoomReactionEvent, RoomReactionListener, RoomStatus } from '@ably/chat';
-import { useRoomReactions } from '@ably/chat/react';
+import { useRoomReactions, type UseRoomReactionsResponse } from '@ably/chat/react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { ErrorInfo } from 'ably';
 import React from 'react';
@@ -14,7 +14,7 @@ vi.mock('@ably/chat/react', () => ({
     roomStatus: RoomStatus.Attached,
     connectionStatus: ConnectionStatus.Connected,
     send: vi.fn().mockResolvedValue({}),
-  }),
+  } as Partial<UseRoomReactionsResponse>),
 }));
 
 // Mock the useThrottle hook to track calls and implement basic throttling for testing

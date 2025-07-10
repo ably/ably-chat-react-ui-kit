@@ -6,6 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { createMockMessage } from '../../../../.storybook/mocks/mock-ably-chat.ts';
 import { ChatMessage } from '../../../components/molecules/chat-message.tsx';
+import { UseUserAvatarReturn } from '../../../hooks/use-user-avatar.tsx';
 
 // Mock the useChatClient hook
 vi.mock('@ably/chat/react', () => ({
@@ -14,7 +15,7 @@ vi.mock('@ably/chat/react', () => ({
 
 // Mock the useUserAvatar hook so we don't need to provide an actual avatar context
 vi.mock('../../../../src/hooks/use-user-avatar.tsx', () => ({
-  useUserAvatar: () => ({
+  useUserAvatar: (): Partial<UseUserAvatarReturn> => ({
     userAvatar: {
       displayName: 'Test User',
       initials: 'TU',

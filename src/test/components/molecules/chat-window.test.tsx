@@ -1,5 +1,5 @@
 import { MessageReactionType } from '@ably/chat';
-import { usePresence } from '@ably/chat/react';
+import { type UseMessagesResponse, usePresence } from '@ably/chat/react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { ErrorInfo } from 'ably';
 import React from 'react';
@@ -11,6 +11,7 @@ import { ChatWindow } from '../../../components/molecules/chat-window.tsx';
 import { ChatWindowFooterProps } from '../../../components/molecules/chat-window-footer.tsx';
 import { ChatWindowHeaderProps } from '../../../components/molecules/chat-window-header.tsx';
 import { MessageInputProps } from '../../../components/molecules/message-input.tsx';
+import { ChatSettingsContextType } from '../../../context/chat-settings-context.tsx';
 
 const mockSend = vi.fn().mockResolvedValue({});
 const mockDeleteMessage = vi.fn().mockResolvedValue({});
@@ -26,7 +27,7 @@ const mockGetEffectiveSettings = vi.fn().mockReturnValue({
 // Mock the Ably Chat hooks
 vi.mock('@ably/chat/react', () => ({
   useChatClient: () => ({ clientId: 'test-user' }),
-  useMessages: () => ({
+  useMessages: (): Partial<UseMessagesResponse> => ({
     send: mockSend,
     deleteMessage: mockDeleteMessage,
     update: mockUpdate,
@@ -38,7 +39,7 @@ vi.mock('@ably/chat/react', () => ({
 
 // Mock the custom hooks
 vi.mock('../../../hooks/use-chat-settings.tsx', () => ({
-  useChatSettings: () => ({
+  useChatSettings: (): Partial<ChatSettingsContextType> => ({
     getEffectiveSettings: mockGetEffectiveSettings,
   }),
 }));

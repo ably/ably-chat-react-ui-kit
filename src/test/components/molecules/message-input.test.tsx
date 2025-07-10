@@ -1,3 +1,4 @@
+import { type UseMessagesResponse, type UseTypingResponse } from '@ably/chat/react';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -16,11 +17,11 @@ const mockSendReaction = vi.fn().mockResolvedValue({});
 const mockDeleteReaction = vi.fn().mockResolvedValue({});
 
 vi.mock('@ably/chat/react', () => ({
-  useTyping: () => ({
+  useTyping: (): Partial<UseTypingResponse> => ({
     keystroke: vi.fn().mockReturnValue(Promise.resolve()),
     stop: vi.fn().mockReturnValue(Promise.resolve()),
   }),
-  useMessages: () => ({
+  useMessages: (): Partial<UseMessagesResponse> => ({
     send: mockSend,
     deleteMessage: mockDeleteMessage,
     update: mockUpdate,

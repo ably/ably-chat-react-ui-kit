@@ -156,33 +156,36 @@ export const RoomReaction = ({
   /**
    * Handles incoming room reactions from other users.
    * This function will be throttled to prevent excessive UI updates.
-   * 
+   *
    * @param reaction - The incoming room reaction event
    */
-  const handleIncomingReaction = useCallback((reaction: RoomReactionEvent) => {
-    if (reaction.reaction.isSelf) {
-      // If the reaction is from ourselves, we don't need to show the burst animation
-      // (we already showed it locally for immediate feedback)
-      return;
-    }
+  const handleIncomingReaction = useCallback(
+    (reaction: RoomReactionEvent) => {
+      if (reaction.reaction.isSelf) {
+        // If the reaction is from ourselves, we don't need to show the burst animation
+        // (we already showed it locally for immediate feedback)
+        return;
+      }
 
-    // Set the emoji and show burst for incoming reactions
-    setBurstEmoji(reaction.reaction.name);
+      // Set the emoji and show burst for incoming reactions
+      setBurstEmoji(reaction.reaction.name);
 
-    // Use provided position or default to screen center for incoming reactions
-    if (initialEmojiBurstPosition) {
-      setEmojiBurstPosition(initialEmojiBurstPosition);
-    } else {
-      // Show burst in the screen center for incoming reactions
-      setEmojiBurstPosition({
-        x: window.innerWidth / 2, // horizontal center
-        y: window.innerHeight / 2, // vertical center
-      });
-    }
+      // Use provided position or default to screen center for incoming reactions
+      if (initialEmojiBurstPosition) {
+        setEmojiBurstPosition(initialEmojiBurstPosition);
+      } else {
+        // Show burst in the screen center for incoming reactions
+        setEmojiBurstPosition({
+          x: window.innerWidth / 2, // horizontal center
+          y: window.innerHeight / 2, // vertical center
+        });
+      }
 
-    setShowEmojiBurst(true);
-  }, [initialEmojiBurstPosition]);
-  
+      setShowEmojiBurst(true);
+    },
+    [initialEmojiBurstPosition]
+  );
+
   const throttledHandleIncomingReaction = useThrottle(handleIncomingReaction, 200);
 
   const { send } = useRoomReactions({

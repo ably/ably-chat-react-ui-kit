@@ -1,4 +1,10 @@
-import { usePresenceListener } from '@ably/chat/react';
+import { ChatClient, Room } from '@ably/chat';
+import {
+  usePresenceListener,
+  type UsePresenceListenerResponse,
+  type UseRoomResponse,
+  type UseTypingResponse,
+} from '@ably/chat/react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
@@ -13,10 +19,23 @@ import { TypingIndicatorsProps } from '../../../components/molecules/typing-indi
 
 // Mock the hooks from @ably/chat/react
 vi.mock('@ably/chat/react', () => ({
-  useRoom: vi.fn().mockReturnValue({ roomName: 'test-room' }),
-  usePresenceListener: vi.fn().mockReturnValue({ presenceData: [] }),
-  useTyping: vi.fn().mockReturnValue({ currentlyTyping: [] }),
-  useChatClient: vi.fn().mockReturnValue({ clientId: 'current-user' }),
+  useRoom: vi.fn().mockReturnValue({
+    roomName: 'test-room',
+    room: {
+      name: 'test-room',
+      roomId: 'test-room-id',
+    } as Partial<Room>,
+  } as Partial<UseRoomResponse>),
+  usePresenceListener: vi
+    .fn()
+    .mockReturnValue({ presenceData: [] } as Partial<UsePresenceListenerResponse>),
+  useTyping: vi
+    .fn()
+    .mockReturnValue({ currentlyTyping: new Set<string>() } as Partial<UseTypingResponse>),
+  useChatClient: vi.fn().mockReturnValue({
+    clientId: 'current-user',
+    connection: { status: 'connected' },
+  } as Partial<ChatClient>),
 }));
 
 // Mock the useRoomAvatar hook
@@ -82,7 +101,7 @@ vi.mock('../../../components/molecules/participant-list.tsx', () => ({
       data-presence-count={presenceData.length}
       data-client-id={currentClientId}
       data-position={JSON.stringify(position)}
-      data-currently-typing={[...currentlyTyping]}
+      data-currently-typing={currentlyTyping}
     >
       <button data-testid="close-participant-list" onClick={onToggle}>
         Close

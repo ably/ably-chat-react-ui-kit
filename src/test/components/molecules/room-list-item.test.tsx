@@ -1,4 +1,4 @@
-import { useOccupancy } from '@ably/chat/react';
+import { useOccupancy, type UseOccupancyResponse } from '@ably/chat/react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -14,7 +14,7 @@ vi.mock('@ably/chat/react', () => ({
   useOccupancy: vi.fn().mockReturnValue({
     connections: 0,
     presenceMembers: 0,
-  }),
+  } as Partial<UseOccupancyResponse>),
 }));
 
 // Mock the useRoomAvatar hook
