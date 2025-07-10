@@ -1,168 +1,74 @@
-# Ably Chat React UI Components (Alpha)
+![Ably Chat Header](images/Chat-UI-Kits-github-v1.0.png)
 
-Custom lightweight UI components for use with [@ably/chat](https://github.com/ably/ably-chat-js). This is currently in alpha and is not yet feature-complete. It is designed to be used with React and provides a set of components for building chat applications on top of the Ably Chat SDK.
+# Ably Chat React UI Components
 
+A library of configurable UI components for building chat applications with the Ably Chat SDK. This package provides
+ready-to-use React components that integrate seamlessly with [`@ably/chat`](https://github.com/ably/ably-chat-js) to
+handle real-time messaging, presence, typing indicators, and more.
 
-## Installation
+## Getting started
+
+Everything you need to get started with Ably Chat React UI Components:
+
+* [About Ably Chat.](https://ably.com/docs/chat)
+* [Getting started with Ably Chat in JavaScript.](https://ably.com/docs/chat/getting-started/javascript)
+* [Getting started with Ably Chat in React.](https://ably.com/docs/chat/getting-started/react)
+* [Getting started with Ably Chat React UI Components.](https://ably.com/docs/chat/getting-started/react-ui-components)
+* Play with the [livestream chat demo.](https://ably-livestream-chat-demo.vercel.app/)
+
+### Installation
 
 ```bash
-npm install ably-chat-react-ui-compents @ably/chat
+npm install @ably/chat-react-ui-components @ably/chat react react-dom
 ```
 
-## Layout and Styling
+## Supported Platforms
 
-The UI Kit uses a responsive layout with the following structure:
+This SDK supports the following platforms:
 
-- **Room List**: To view available chat rooms
-- **Chat Window**: To display messages, send messages, view typing indicators and send message reactions.
-- **Message Bubbles**: To display chat messages with sender/receiver styles.
-- **Settings Panel**: To configure room options, such as enabling/disabling typing indicators.
+| Platform     | Support                                                                                                    |
+|--------------|------------------------------------------------------------------------------------------------------------|
+| Browsers     | All major desktop browsers, including Chrome, Firefox, Edge and Opera. Internet Explorer is not supported. |
+| Node.js      | Version 18 or newer.                                                                                       |
+| TypeScript   | Fully supported, the library is written in TypeScript.                                                     |
+| React        | Version 18 or newer. Includes providers and hooks for deep integration with the React ecosystem.           |
 
-## Quick Start
+> [!NOTE] The Chat UI Components SDK can be installed from NPM and requires the core Ably Chat SDK as a peer dependency.
+>
 
-```tsx
-import React from 'react';
-import { App } from 'ably-chat-react-ui-compents';
-import { ChatClient } from '@ably/chat';
+## Core Components
 
-const App = () => {
-  // Initialize the Realtime client
-   const realtimeClient = new Ably.Realtime('YOUR_ABLY_API_KEY');
-  // Initialize Ably Chat client
-  const client = new ChatClient(realtimeClient)
+### App Component
 
-  return (
-    <div style={{ height: '100vh' }}>
-      <App
-        client={client}
-      />
-    </div>
-  );
-};
+Full application component that provides a complete chat interface out of the box:
+- Integrated sidebar for room navigation
+- Chat area with message display and input
+- Theme support (light/dark mode)
+- Avatar management
 
-export default App;
-```
+### ChatWindow
+A comprehensive chat interface for individual rooms featuring:
+- Message history with pagination
+- Real-time message display
+- Message editing and deletion
+- Reactions support
+- Typing indicators
 
-## Custom Usage
+### Sidebar
+A collapsible navigation component for managing multiple chat rooms:
+- Room list with activity indicators
+- Room creation and management
+- Presence and occupancy display
+- Theme toggle integration
 
-You can use individual components to build your own custom chat UI:
+## Releases
 
-```tsx
-import React, { useState } from 'react';
-import {
-  ChatProvider,
-  TypingProvider,
-  RoomList,
-  Room,
-  RoomSettings,
-} from 'ably-chat-react-ui-compents';
-import { ChatClient } from '@ably/chat';
+The [CHANGELOG.md](./CHANGELOG.md) contains details of the latest releases for this SDK. You can also view all Ably releases on [changelog.ably.com](https://changelog.ably.com).
 
-const CustomChat = () => {
-  // State for selected room and settings visibility
-  const [selectedRoomId, setSelectedRoomId] = useState(null);
-  const [showSettings, setShowSettings] = useState(false);
+## Contribute
 
-  return (
-        <ChatProvider client={client} currentUser={currentUser}>
-            <div className="flex justify-center items-center h-screen">
-              <div className="w-4/5 h-4/5 flex flex-col">
-                <div className="flex h-full">
-                  {/* Room List (1/4 width) */}
-                  <div className="w-1/4 h-full flex flex-col pr-4">
-                    <RoomList
-                      onRoomSelect={setSelectedRoomId}
-                      selectedRoomId={selectedRoomId}
-                      className="flex-grow"
-                    />
-                  </div>
+Read the [MAINTAINERS.md](./MAINTAINERS.md) guidelines to contribute to Ably or [Share feedback or request](https://forms.gle/mBw9M53NYuCBLFpMA) a new feature.
 
-                  {/* Chat Window (3/4 width) */}
-                  <div className="w-3/4 h-full flex flex-col max-h-full">
-                    {selectedRoomId ? (
-                      <div className="flex flex-col h-full max-h-full">
-                        {/* Room Header with Settings Button */}
-                        <div className="card flex justify-between items-center border-b py-2 px-4 flex-shrink-0 h-14">
-                          <h2>Room: {selectedRoomId}</h2>
-                          <button onClick={() => setShowSettings(!showSettings)}>
-                            {showSettings ? 'Hide Settings' : 'Settings'}
-                          </button>
-                        </div>
+## Support and known issues
 
-                        {/* Room Component */}
-                        <Room
-                          id={selectedRoomId}
-                          className="flex-grow overflow-hidden"
-                        >
-                          {showSettings && (
-                            <div className="absolute top-12 right-0 w-80 z-10">
-                              <RoomSettings onClose={() => setShowSettings(false)} />
-                            </div>
-                          )}
-                        </Room>
-                      </div>
-                    ) : (
-                      <div className="flex items-center justify-center h-full card">
-                        <p className="text-gray-500">Select a room to start chatting</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-        </ChatProvider>
-  );
-};
-```
-
-## Components
-
-### Atomic Components
-
-- `InputField` - Text input field with label and helper text
-- `MessageBubble` - Displays a chat message with sender/receiver styles
-
-### Composite Components
-
-- `RoomList` - Displays a list of available chat rooms with fixed height and scrolling
-- `Room` - Container for a chat room with fixed height and overflow handling
-- `ChatWindow` - Displays messages with input area and typing indicators
-- `RoomSettings` - Settings panel for configuring room options
-
-### Layout Components
-
-- `App` - Main application component with responsive layout
-
-## Development
-
-### Code Quality Tools
-
-This project uses ESLint and Prettier to ensure code quality and consistent formatting:
-
-- **ESLint**: Analyzes code for potential errors and enforces coding standards
-- **Prettier**: Ensures consistent code formatting
-
-#### Available Scripts
-
-- `npm run lint`: Checks for linting issues in the codebase
-- `npm run lint:fix`: Automatically fixes linting issues where possible
-- `npm run format`: Formats all TypeScript, TSX, and CSS files using Prettier
-- `npm run format:check`: Checks if all files are properly formatted without making changes
-
-Then add the following to your package.json:
-
-```json
-{
-  "lint-staged": {
-    "*.{ts,tsx}": [
-      "eslint --fix",
-      "prettier --write"
-    ],
-    "*.css": "prettier --write"
-  }
-}
-```
-
-## License
-
-MIT
+For help or technical support, visit Ably's [support page](https://ably.com/support). You can also view the [community reported Github issues](https://github.com/ably/ably-chat-react-ui-components/issues) or raise one yourself.

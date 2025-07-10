@@ -1,15 +1,32 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
+    "target": "ES2022",
     "module": "ESNext",
-    "jsx": "react",
-    "declaration": true,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "strict": true,
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
     "skipLibCheck": true,
     "outDir": "dist",
-    "moduleResolution": "node"
+    "moduleResolution": "bundler",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "strict": true,
+    "declaration": true,
+    "declarationDir": "dist",
+    "emitDeclarationOnly": true,
+    "allowImportingTsExtensions": true,
+    "alwaysStrict": true,
+    "noImplicitThis": true,
+    "strictNullChecks": true,
+    "noUncheckedIndexedAccess": true,
+    "sourceMap": true,
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": [
+    "src/stories/*.stories.tsx",
+    ".storybook/**/*",
+    "dist",
+    "node_modules"
+  ]
 }

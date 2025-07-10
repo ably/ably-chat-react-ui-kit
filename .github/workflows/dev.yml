@@ -1,0 +1,88 @@
+name: Build and test
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+env:
+  BASE_NODE_VERSION: 24
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - uses: actions/setup-node@v1
+        with:
+          node-version: ${{ env.BASE_NODE_VERSION }}
+      - run: npm ci
+      - run: npm audit --production
+  format-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - uses: actions/setup-node@v1
+        with:
+          node-version: ${{ env.BASE_NODE_VERSION }}
+      - run: npm ci
+      - run: npm run format:check
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - uses: actions/setup-node@v1
+        with:
+          node-version: ${{ env.BASE_NODE_VERSION }}
+      - run: npm ci
+      - run: npm run lint
+  test-typescript:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - uses: actions/setup-node@v1
+        with:
+          node-version: ${{ env.BASE_NODE_VERSION }}
+      - run: npm ci
+      - run: npm run test:typescript
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [18, 20, 22, 24]
+    name: test node ${{ matrix.node-version }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: npm ci
+      - run: npm run test
+        name: test
+        if: ${{ matrix.node-version != env.BASE_NODE_VERSION }}
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - uses: actions/setup-node@v1
+        with:
+          node-version: ${{ env.BASE_NODE_VERSION }}
+      - run: npm ci
+      - run: npm run build

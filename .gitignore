@@ -7,7 +7,11 @@ yarn-debug.log*
 yarn-error.log*
 /.pnp
 .pnp.js
+.env
 
 .vscode/*
 /.idea/
 /dist/
+
+*storybook.log
+storybook-static

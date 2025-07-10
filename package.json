@@ -1,39 +1,47 @@
 {
-  "name": "ably-chat-react-ui-components",
+  "name": "@ably/chat-react-ui-components",
   "version": "0.0.1",
   "description": "A library of configurable components for use with @ably/chat",
   "type": "module",
-  "main": "dist/index.js",
-  "module": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "./dist/ably-chat-react-ui-components.cjs",
+  "module": "./dist/ably-chat-react-ui-components.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/ably-chat-react-ui-components.js",
+      "require": "./dist/ably-chat-react-ui-components.cjs"
+    },
+    "./dist/style.css": "./dist/style.css"
+  },
   "sideEffects": [
     "**/*.css"
   ],
-  "style": "dist/styles.css",
-  "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.js",
-      "types": "./dist/index.d.ts",
-      "style": "./dist/styles.css"
-    }
+  "engines": {
+    "node": ">=18.0.0"
   },
+  "style": "dist/style.css",
   "scripts": {
-    "build": "tsc && npm run css:build",
-    "dev": "tsc --watch && npm run css:dev",
-    "css:dev": "npx @tailwindcss/cli -i ./src/styles.css -o ./dist/styles.css --watch",
-    "css:build": "npx @tailwindcss/cli -i ./src/styles.css -o ./dist/styles.css",
+    "build:css": "tailwindcss -i ./src/style.css -o ./dist/style.css --minify",
+    "build": "npm run build:css && vite build && tsc --declaration --emitDeclarationOnly --outDir dist",
     "prepare": "npm run build",
     "lint": "eslint 'src/**/*.{ts,tsx}'",
     "lint:fix": "eslint 'src/**/*.{ts,tsx}' --fix",
     "format": "prettier --write 'src/**/*.{ts,tsx,css}'",
-    "format:check": "prettier --check 'src/**/*.{ts,tsx,css}'"
+    "format:check": "prettier --check 'src/**/*.{ts,tsx,css}'",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:typescript": "tsc"
   },
   "files": [
     "dist/**",
-    "src/**"
-    ],
-
+    "src/**",
+    "!src/stories/*",
+    "!src/test/**/*",
+    "!.storybook/**/*"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ably/ably-chat-react-ui-components.git"
@@ -41,31 +49,73 @@
   "author": "Ably Realtime",
   "license": "Apache-2.0",
   "dependencies": {
-    "clsx": "^2.1.1",
-    "react-icons": "^5.5.0"
+    "clsx": "^2.1.1"
   },
   "peerDependencies": {
-    "@ably/chat": "^0.7.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "@ably/chat": "^0.10.0",
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@ably/chat": {
+      "optional": false
+    },
+    "react": {
+      "optional": false
+    },
+    "react-dom": {
+      "optional": false
+    }
   },
   "devDependencies": {
-    "@tailwindcss/cli": "^4.1.7",
-    "@tailwindcss/postcss": "^4.1.7",
-    "@types/react": "^18.2.0",
-    "@types/react-dom": "^18.2.0",
+    "@eslint/compat": "^1.2.9",
+    "@eslint/eslintrc": "^3.3.1",
+    "@eslint/js": "^9.28.0",
+    "@storybook/addon-a11y": "^9.0.6",
+    "@storybook/addon-docs": "^9.0.6",
+    "@storybook/addon-onboarding": "^9.0.6",
+    "@storybook/react-vite": "^9.0.6",
+    "@testing-library/jest-dom": "^6.4.6",
+    "@testing-library/react": "^16.0.1",
+    "@testing-library/user-event": "^14.5.2",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
     "@typescript-eslint/eslint-plugin": "^8.32.1",
     "@typescript-eslint/parser": "^8.32.1",
+    "@vitejs/plugin-react": "^4.5.0",
+    "ably": "^2.9.0",
+    "autoprefixer": "^10.4.18",
+    "dequal": "^2.0.3",
     "eslint": "^9.27.0",
     "eslint-config-prettier": "^10.1.5",
+    "eslint-plugin-compat": "^6.0.2",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-jsdoc": "^50.8.0",
+    "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prettier": "^5.4.0",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-security": "^3.0.1",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
+    "eslint-plugin-storybook": "^9.0.6",
+    "eslint-plugin-unicorn": "^59.0.1",
+    "globals": "^16.2.0",
+    "jsdom": "^26.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "postcss": "^8.4.35",
     "postcss-cli": "^11.0.1",
     "prettier": "^3.5.3",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "tailwindcss": "^4.1.7",
-    "typescript": "^5.5.3"
-  }
+    "storybook": "^9.0.6",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5.5.3",
+    "vite": "^5.4.19",
+    "vite-plugin-dts": "^4.5.4",
+    "vitest": "^3.0.8"
+  },
+  "browserslist": [
+    "defaults",
+    "not op_mini all",
+    "not kaios 2.5"
+  ]
 }

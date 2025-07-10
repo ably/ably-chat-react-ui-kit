@@ -1,0 +1,37 @@
+@layer utilities {
+  .ably-scrollbar {
+    --sb-track: theme('colors.gray.100');
+    --sb-thumb: theme('colors.gray.300');
+    --sb-thumb-hover: theme('colors.gray.400');
+
+    scrollbar-width: thin;
+    scrollbar-color: var(--sb-thumb) var(--sb-track);
+  }
+
+  .dark .ably-scrollbar {
+    --sb-track: theme('colors.gray.800');
+    --sb-thumb: theme('colors.gray.600');
+    --sb-thumb-hover: theme('colors.gray.500');
+  }
+
+  .ably-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+    background: var(--sb-track);
+  }
+
+  .ably-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--sb-thumb);
+    border-radius: 8px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+
+  .ably-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: var(--sb-thumb-hover);
+  }
+
+  .ably-scrollbar::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+}
