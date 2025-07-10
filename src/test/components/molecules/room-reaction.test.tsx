@@ -17,9 +17,37 @@ vi.mock('@ably/chat/react', () => ({
   }),
 }));
 
-vi.mock('../../../hooks/use-throttle.tsx', () => ({
-  useThrottle: <T extends (...args: unknown[]) => unknown>(fn: T): T => fn,
-}));
+// Mock the useThrottle hook to track calls and implement basic throttling for testing
+vi.mock('../../../hooks/use-throttle.tsx', () => {
+  const throttledFns = new Map<Function, { fn: Function; lastCall: number; delay: number }>();
+
+  return {
+    useThrottle: <T extends (...args: unknown[]) => unknown>(fn: T, delay: number): T => {
+      const throttled = (...args: unknown[]) => {
+        const now = Date.now();
+        const throttleInfo = throttledFns.get(fn);
+
+        if (!throttleInfo) {
+          // First call, register the function
+          throttledFns.set(fn, { fn, lastCall: now, delay });
+          return fn(...args);
+        }
+
+        // Check if we're in the throttle window
+        if (now - throttleInfo.lastCall < throttleInfo.delay) {
+          // In throttle window, don't call
+          return undefined;
+        }
+
+        // Outside throttle window, update last call time and call the function
+        throttledFns.set(fn, { ...throttleInfo, lastCall: now });
+        return fn(...args);
+      };
+
+      return throttled as T;
+    },
+  };
+});
 
 // Mock the EmojiWheel component
 vi.mock('../../../components/molecules/emoji-wheel.tsx', () => ({
@@ -279,6 +307,90 @@ describe('RoomReaction', () => {
     const burst = screen.getByTestId('emoji-burst');
     expect(burst).toHaveAttribute('data-position', JSON.stringify(customPosition));
     expect(burst).toHaveAttribute('data-emoji', '❤️');
+  });
+
+  it('throttles incoming reactions to prevent UI overload', () => {
+    // Store the listener function for later use
+    let storedListener: RoomReactionListener | null = null;
+
+    // Mock useRoomReactions to capture the listener
+    (useRoomReactions as unknown as ReturnType<typeof vi.fn>).mockImplementation(
+      (params?: { listener?: RoomReactionListener }) => {
+        if (params?.listener) {
+          storedListener = params.listener;
+        }
+        return {
+          roomStatus: RoomStatus.Attached,
+          connectionStatus: ConnectionStatus.Connected,
+          send: mockSend,
+        };
+      }
+    );
+
+    render(<RoomReaction />);
+
+    // Simulate multiple incoming reactions in quick succession
+    act(() => {
+      if (storedListener) {
+        // First reaction should be shown immediately
+        storedListener({
+          reaction: {
+            name: '👍',
+            isSelf: false,
+            metadata: {},
+            headers: {},
+            createdAt: new Date(),
+            clientId: 'user1',
+          },
+          type: 'reaction',
+        } as RoomReactionEvent);
+
+        // Second reaction within throttle window should be ignored
+        storedListener({
+          reaction: {
+            name: '❤️',
+            isSelf: false,
+            metadata: {},
+            headers: {},
+            createdAt: new Date(),
+            clientId: 'user2',
+          },
+          type: 'reaction',
+        } as RoomReactionEvent);
+      }
+    });
+
+    // Only the first reaction should be shown
+    const burst = screen.getByTestId('emoji-burst');
+    expect(burst).toHaveAttribute('data-emoji', '👍');
+
+    // Verify there's only one burst element
+    const bursts = screen.getAllByTestId('emoji-burst');
+    expect(bursts).toHaveLength(1);
+
+    // Advance time past the throttle window
+    vi.advanceTimersByTime(201);
+
+    // Send another reaction after the throttle window
+    act(() => {
+      if (storedListener) {
+        storedListener({
+          reaction: {
+            name: '🎉',
+            isSelf: false,
+            metadata: {},
+            headers: {},
+            createdAt: new Date(),
+            clientId: 'user3',
+          },
+          type: 'reaction',
+        } as RoomReactionEvent);
+      }
+    });
+
+    // Now the new reaction should be shown
+    const updatedBurst = screen.getByTestId('emoji-burst');
+    expect(updatedBurst).toHaveAttribute('data-emoji', '🎉');
   });
 
   it('applies custom className when provided', () => {
