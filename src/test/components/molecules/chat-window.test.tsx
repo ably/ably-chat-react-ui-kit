@@ -18,7 +18,7 @@ const mockUpdate = vi.fn().mockResolvedValue({});
 const mockSendReaction = vi.fn().mockResolvedValue({});
 const mockDeleteReaction = vi.fn().mockResolvedValue({});
 const mockGetEffectiveSettings = vi.fn().mockReturnValue({
-  allowMessageEdits: true,
+  allowMessageUpdates: true,
   allowMessageDeletes: true,
   allowMessageReactions: true,
 });
@@ -363,7 +363,7 @@ describe('ChatWindow', () => {
 
     // Override the getEffectiveSettings mock to return settings that disallow operations
     mockGetEffectiveSettings.mockReturnValueOnce({
-      allowMessageEdits: false,
+      allowMessageUpdates: false,
       allowMessageDeletes: false,
       allowMessageReactions: false,
     });

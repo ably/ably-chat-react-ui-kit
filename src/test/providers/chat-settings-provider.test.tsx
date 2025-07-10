@@ -35,7 +35,7 @@ describe('ChatSettingsProvider', () => {
 
       // Verify default settings are applied
       expect(globalSettings).toEqual(DEFAULT_SETTINGS);
-      expect(globalSettings.allowMessageEdits).toBe(true);
+      expect(globalSettings.allowMessageUpdates).toBe(true);
       expect(globalSettings.allowMessageDeletes).toBe(true);
       expect(globalSettings.allowMessageReactions).toBe(true);
     });
@@ -44,7 +44,7 @@ describe('ChatSettingsProvider', () => {
   describe('Custom global settings', () => {
     it('should merge custom global settings with defaults', () => {
       const customGlobalSettings: Partial<ChatSettings> = {
-        allowMessageEdits: false,
+        allowMessageUpdates: false,
       };
 
       const TestComponent = () => {
@@ -67,7 +67,7 @@ describe('ChatSettingsProvider', () => {
       ) as ChatSettings;
 
       // Verify custom settings are merged with defaults
-      expect(globalSettings.allowMessageEdits).toBe(false); // Custom setting
+      expect(globalSettings.allowMessageUpdates).toBe(false); // Custom setting
       expect(globalSettings.allowMessageDeletes).toBe(true); // Default setting
       expect(globalSettings.allowMessageReactions).toBe(true); // Default setting
     });
@@ -76,14 +76,14 @@ describe('ChatSettingsProvider', () => {
   describe('Room-specific settings', () => {
     it('should provide room-specific settings that override global settings', () => {
       const customGlobalSettings: Partial<ChatSettings> = {
-        allowMessageEdits: false,
+        allowMessageUpdates: false,
         allowMessageDeletes: false,
       };
 
       const roomSettings = {
-        general: { allowMessageEdits: true },
+        general: { allowMessageUpdates: true },
         announcements: {
-          allowMessageEdits: false,
+          allowMessageUpdates: false,
           allowMessageDeletes: false,
           allowMessageReactions: false,
         },
@@ -132,19 +132,19 @@ describe('ChatSettingsProvider', () => {
         screen.getByTestId('other-room-settings').textContent ?? '{}'
       ) as ChatSettings;
 
-      expect(globalSettings.allowMessageEdits).toBe(false);
+      expect(globalSettings.allowMessageUpdates).toBe(false);
       expect(globalSettings.allowMessageDeletes).toBe(false);
       expect(globalSettings.allowMessageReactions).toBe(true);
 
-      expect(generalSettings.allowMessageEdits).toBe(true);
+      expect(generalSettings.allowMessageUpdates).toBe(true);
       expect(generalSettings.allowMessageDeletes).toBe(false);
       expect(generalSettings.allowMessageReactions).toBe(true);
 
-      expect(announcementsSettings.allowMessageEdits).toBe(false);
+      expect(announcementsSettings.allowMessageUpdates).toBe(false);
       expect(announcementsSettings.allowMessageDeletes).toBe(false);
       expect(announcementsSettings.allowMessageReactions).toBe(false);
 
-      expect(otherRoomSettings.allowMessageEdits).toBe(false);
+      expect(otherRoomSettings.allowMessageUpdates).toBe(false);
       expect(otherRoomSettings.allowMessageDeletes).toBe(false);
       expect(otherRoomSettings.allowMessageReactions).toBe(true);
     });
@@ -153,7 +153,7 @@ describe('ChatSettingsProvider', () => {
   describe('getEffectiveSettings function', () => {
     it('should return global settings when no room name is provided', () => {
       const customGlobalSettings: Partial<ChatSettings> = {
-        allowMessageEdits: false,
+        allowMessageUpdates: false,
       };
 
       const TestComponent = () => {

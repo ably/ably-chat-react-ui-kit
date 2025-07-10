@@ -7,8 +7,8 @@ import { ChatSettingsContext, ChatSettingsContextType } from '../context/chat-se
  *
  */
 export interface ChatSettings {
-  /** Whether users can edit their messages after sending */
-  allowMessageEdits: boolean;
+  /** Whether users can update their messages after sending */
+  allowMessageUpdates: boolean;
   /** Whether users can delete their messages */
   allowMessageDeletes: boolean;
   /** Whether users can add reactions to messages */
@@ -21,7 +21,7 @@ export interface ChatSettings {
  * @internal
  */
 export const DEFAULT_SETTINGS: ChatSettings = {
-  allowMessageEdits: true,
+  allowMessageUpdates: true,
   allowMessageDeletes: true,
   allowMessageReactions: true,
 };
@@ -58,15 +58,15 @@ export interface ChatSettingsProviderProps {
  * @example
  * ```tsx
  * const globalSettings = {
- *   allowMessageEdits: false,
+ *   allowMessageUpdates: false,
  *   allowMessageDeletes: true,
  *   allowMessageReactions: true
  * };
  *
  * const roomSettings = {
- *   'general': { allowMessageEdits: true },
+ *   'general': { allowMessageUpdates: true },
  *   'announcements': {
- *     allowMessageEdits: false,
+ *     allowMessageUpdates: false,
  *     allowMessageDeletes: false
  *   }
  * };

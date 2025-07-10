@@ -298,7 +298,7 @@ export const ChatWindow = ({
     [updateMessages]
   );
 
-  const handleMessageEdit = useCallback(
+  const handleMessageUpdate = useCallback(
     (msg: Message, newText: string) => {
       const updated = msg.copy({ text: newText, metadata: msg.metadata, headers: msg.headers });
 
@@ -381,7 +381,7 @@ export const ChatWindow = ({
         }}
         hasMoreHistory={hasMoreHistory}
         enableTypingIndicators={enableTypingIndicators}
-        onEdit={settings.allowMessageEdits ? handleMessageEdit : undefined}
+        onEdit={settings.allowMessageUpdates ? handleMessageUpdate : undefined}
         onDelete={settings.allowMessageDeletes ? handleMessageDelete : undefined}
         onReactionAdd={settings.allowMessageReactions ? handleReactionAdd : undefined}
         onReactionRemove={settings.allowMessageReactions ? handleReactionRemove : undefined}

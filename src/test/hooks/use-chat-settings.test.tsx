@@ -13,15 +13,15 @@ import { ChatSettings } from '../../providers/chat-settings-provider.tsx';
 
 describe('useChatSettings Hook', () => {
   const mockGlobalSettings: ChatSettings = {
-    allowMessageEdits: true,
+    allowMessageUpdates: true,
     allowMessageDeletes: true,
     allowMessageReactions: true,
   };
 
   const mockRoomSettings: Record<string, Partial<ChatSettings>> = {
-    general: { allowMessageEdits: false },
+    general: { allowMessageUpdates: false },
     announcements: {
-      allowMessageEdits: false,
+      allowMessageUpdates: false,
       allowMessageDeletes: false,
     },
   };
@@ -67,14 +67,14 @@ describe('useChatSettings Hook', () => {
     const generalSettings = result.current.getEffectiveSettings('general');
     expect(generalSettings).toEqual({
       ...mockGlobalSettings,
-      allowMessageEdits: false,
+      allowMessageUpdates: false,
     });
 
     // Test room with multiple overrides
     const announcementsSettings = result.current.getEffectiveSettings('announcements');
     expect(announcementsSettings).toEqual({
       ...mockGlobalSettings,
-      allowMessageEdits: false,
+      allowMessageUpdates: false,
       allowMessageDeletes: false,
     });
 

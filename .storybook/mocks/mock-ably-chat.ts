@@ -37,7 +37,7 @@ interface MockOverrides {
   isPresent?: boolean;
   connectionStatus?: ConnectionStatus;
   chatSettings?: {
-    allowMessageEdits?: boolean;
+    allowMessageUpdates?: boolean;
     allowMessageDeletes?: boolean;
     allowMessageReactions?: boolean;
   };
@@ -400,7 +400,7 @@ export const useChatSettings = () => {
   const overrides = useMockOverrides();
   
   const defaultSettings = {
-    allowMessageEdits: true,
+    allowMessageUpdates: true,
     allowMessageDeletes: true,
     allowMessageReactions: true,
   };

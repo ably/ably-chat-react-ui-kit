@@ -19,7 +19,7 @@ vi.mock('@ably/chat/react', () => ({
 
 // Mock the useThrottle hook to track calls and implement basic throttling for testing
 vi.mock('../../../hooks/use-throttle.tsx', () => {
-  const throttledFns = new Map<Function, { fn: Function; lastCall: number; delay: number }>();
+  const throttledFns = new Map<unknown, { fn: unknown; lastCall: number; delay: number }>();
 
   return {
     useThrottle: <T extends (...args: unknown[]) => unknown>(fn: T, delay: number): T => {

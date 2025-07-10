@@ -112,7 +112,7 @@ export const ReadOnlyMode: Story = {
     initialRoomNames: ['general', 'announcements'],
     mockOverrides: {
       chatSettings: {
-        allowMessageEdits: false,
+        allowMessageUpdates: false,
         allowMessageDeletes: false,
         allowMessageReactions: false,
       },
