@@ -1,6 +1,7 @@
 import { ConnectionStatus, RoomReactionEvent, RoomReactionListener, RoomStatus } from '@ably/chat';
 import { useRoomReactions } from '@ably/chat/react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
+import { ErrorInfo } from 'ably';
 import React from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -313,5 +314,59 @@ describe('RoomReaction', () => {
 
     // Emoji wheel should be closed
     expect(screen.queryByTestId('emoji-wheel')).not.toBeInTheDocument();
+  });
+
+  it('calls onError when sending room reaction fails', async () => {
+    const mockError = new ErrorInfo('Failed to send room reaction', 50000, 500);
+    const mockSendFailure = vi.fn().mockRejectedValue(mockError);
+    const mockOnSendRoomReactionError = vi.fn();
+
+    (useRoomReactions as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
+      roomStatus: RoomStatus.Attached,
+      connectionStatus: ConnectionStatus.Connected,
+      send: mockSendFailure,
+    });
+
+    render(<RoomReaction onError={{ onSendRoomReactionError: mockOnSendRoomReactionError }} />);
+
+    // Click the reaction button
+    fireEvent.click(screen.getByRole('button'));
+
+    // Wait for the error to be handled
+    await vi.waitFor(() => {
+      expect(mockOnSendRoomReactionError).toHaveBeenCalledWith(mockError, '👍');
+    });
+
+    // Verify that the error handler was called with the correct parameters
+    expect(mockOnSendRoomReactionError).toHaveBeenCalledTimes(1);
+    expect(mockOnSendRoomReactionError).toHaveBeenCalledWith(mockError, '👍');
+  });
+
+  it('falls back to console.error when onError is not provided and sending fails', async () => {
+    const mockError = new ErrorInfo('Failed to send room reaction', 50000, 500);
+    const mockSendFailure = vi.fn().mockRejectedValue(mockError);
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    (useRoomReactions as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
+      roomStatus: RoomStatus.Attached,
+      connectionStatus: ConnectionStatus.Connected,
+      send: mockSendFailure,
+    });
+
+    render(<RoomReaction />);
+
+    // Click the reaction button
+    fireEvent.click(screen.getByRole('button'));
+
+    // Wait for the error to be handled
+    await vi.waitFor(() => {
+      expect(consoleSpy).toHaveBeenCalledWith('Failed to send room reaction:', mockError);
+    });
+
+    // Verify that console.error was called with the correct parameters
+    expect(consoleSpy).toHaveBeenCalledTimes(1);
+    expect(consoleSpy).toHaveBeenCalledWith('Failed to send room reaction:', mockError);
+
+    consoleSpy.mockRestore();
   });
 });

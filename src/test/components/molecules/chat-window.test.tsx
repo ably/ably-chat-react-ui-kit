@@ -169,9 +169,7 @@ vi.mock('../../../components/molecules/message-input', () => ({
   MessageInput: ({ onSent, placeholder, onSendError, enableTyping }: MessageInputProps) => (
     <div data-testid="message-input">
       <input data-testid="message-input-field" placeholder={placeholder} />
-      <div data-testid="enable-typing-status">
-        Enable Typing: {enableTyping ? 'true' : 'false'}
-      </div>
+      <div data-testid="enable-typing-status">Enable Typing: {enableTyping ? 'true' : 'false'}</div>
       <button
         data-testid="send-message-button"
         onClick={() => {
@@ -397,7 +395,7 @@ describe('ChatWindow', () => {
   });
 
   describe('Error Handling', () => {
-    it('calls onEditError when message editing fails', async () => {
+    it('calls onMessageUpdateError when message editing fails', async () => {
       mockUpdate.mockRejectedValueOnce(new ErrorInfo('Edit failed', 50000, 500));
 
       let errorInfo: ErrorInfo | undefined;
@@ -405,8 +403,8 @@ describe('ChatWindow', () => {
       render(
         <ChatWindow
           roomName="general"
-          errorHandling={{
-            onEditError: () => {
+          onError={{
+            onMessageUpdateError: () => {
               errorInfo = new ErrorInfo('Edit failed', 50000, 500);
             },
           }}
@@ -424,7 +422,7 @@ describe('ChatWindow', () => {
       });
     });
 
-    it('calls onDeleteError when message deletion fails', async () => {
+    it('calls onMessageDeleteError when message deletion fails', async () => {
       mockDeleteMessage.mockRejectedValueOnce(new Error('Delete failed'));
 
       let errorInfo: ErrorInfo | undefined;
@@ -432,8 +430,8 @@ describe('ChatWindow', () => {
       render(
         <ChatWindow
           roomName="general"
-          errorHandling={{
-            onDeleteError: () => {
+          onError={{
+            onMessageDeleteError: () => {
               errorInfo = new ErrorInfo('Delete failed', 50000, 500);
             },
           }}
@@ -451,7 +449,7 @@ describe('ChatWindow', () => {
       });
     });
 
-    it('calls onAddReactionError when adding reaction fails', async () => {
+    it('calls onSendReactionError when adding reaction fails', async () => {
       mockSendReaction.mockRejectedValueOnce(new Error('Add reaction failed'));
 
       let errorInfo: ErrorInfo | undefined;
@@ -459,8 +457,8 @@ describe('ChatWindow', () => {
       render(
         <ChatWindow
           roomName="general"
-          errorHandling={{
-            onAddReactionError: () => {
+          onError={{
+            onSendReactionError: () => {
               errorInfo = new ErrorInfo('Add reaction failed', 50000, 500);
             },
           }}
@@ -486,7 +484,7 @@ describe('ChatWindow', () => {
       render(
         <ChatWindow
           roomName="general"
-          errorHandling={{
+          onError={{
             onRemoveReactionError: () => {
               errorInfo = new ErrorInfo('Remove reaction failed', 50000, 500);
             },
@@ -522,14 +520,14 @@ describe('ChatWindow', () => {
       });
     });
 
-    it('passes onSendError to MessageInput component', async () => {
+    it('passes onMessageSendError to MessageInput component', async () => {
       let errorInfo: ErrorInfo | undefined;
 
       render(
         <ChatWindow
           roomName="general"
-          errorHandling={{
-            onSendError: () => {
+          onError={{
+            onMessageSendError: () => {
               errorInfo = new ErrorInfo('Failed to send message', 50000, 500);
             },
           }}

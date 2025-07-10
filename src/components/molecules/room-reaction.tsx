@@ -1,4 +1,4 @@
-import { RoomReactionEvent } from '@ably/chat';
+import { ErrorInfo, RoomReactionEvent } from '@ably/chat';
 import { useRoomReactions } from '@ably/chat/react';
 import { clsx } from 'clsx';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
@@ -53,6 +53,34 @@ export interface RoomReactionProps {
    * className="flex-shrink-0 ml-auto"
    */
   className?: string;
+
+  /**
+   * Custom error handling configuration for room reaction operations.
+   * Provides hooks for handling specific error scenarios instead of default console logging.
+   * All handlers are optional and will fall back to console.error if not provided.
+   *
+   * @example
+   * ```tsx
+   * const onError = {
+   *   onSendRoomReactionError: (error, emoji) => {
+   *     toast.error(`Failed to send ${emoji} reaction: ${error.message}`);
+   *     console.error('Room reaction error:', error);
+   *   }
+   * };
+   *
+   * <RoomReaction onError={onError} />
+   * ```
+   */
+  onError?: {
+    /**
+     * Called when sending a room reaction fails.
+     * Provides the error object and the emoji that failed to send.
+     *
+     * @param error - The error that occurred while sending the reaction
+     * @param emoji - The emoji that failed to send
+     */
+    onSendRoomReactionError?: (error: ErrorInfo, emoji: string) => void;
+  };
 }
 
 /**
@@ -94,11 +122,23 @@ export interface RoomReactionProps {
  *   emojiBurstDuration={750}
  * />
  *
+ * @example
+ * // With custom error handling
+ * <RoomReaction
+ *   onError={{
+ *     onSendRoomReactionError: (error, emoji) => {
+ *       toast.error(`Failed to send ${emoji} reaction: ${error.message}`);
+ *       console.error('Room reaction error:', error);
+ *     }
+ *   }}
+ * />
+ *
  */
 export const RoomReaction = ({
   emojiBurstDuration = 500,
   emojiBurstPosition: initialEmojiBurstPosition,
   className,
+  onError,
 }: RoomReactionProps) => {
   const [showEmojiBurst, setShowEmojiBurst] = useState(false);
   const [emojiBurstPosition, setEmojiBurstPosition] = useState(
@@ -169,10 +209,14 @@ export const RoomReaction = ({
   const sendRoomReaction = useCallback(
     (emoji: string): void => {
       send({ name: emoji }).catch((error: unknown) => {
-        console.error('Failed to send room reaction:', error);
+        if (onError?.onSendRoomReactionError) {
+          onError.onSendRoomReactionError(error as ErrorInfo, emoji);
+        } else {
+          console.error('Failed to send room reaction:', error);
+        }
       });
     },
-    [send]
+    [send, onError]
   );
 
   // Create throttled version of the send function to avoid excessive network calls
