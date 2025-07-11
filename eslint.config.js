@@ -105,6 +105,7 @@ export default [
       'no-redeclare':                    'off',
       'node/no-missing-import':          'off',
       '@typescript-eslint/prefer-nullish-coalescing': 'off',
+      'unicorn/number-literal-case': 'off',
 
       /* --- naming convention ------------------------------------------ */
       '@typescript-eslint/naming-convention': [
