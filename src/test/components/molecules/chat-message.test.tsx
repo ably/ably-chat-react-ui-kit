@@ -1,16 +1,20 @@
 import { ChatMessageAction } from '@ably/chat';
-import { useChatClient } from '@ably/chat/react';
+import { useChatClient, type UseRoomResponse } from '@ably/chat/react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { createMockMessage } from '../../../../.storybook/mocks/mock-ably-chat.ts';
 import { ChatMessage } from '../../../components/molecules/chat-message.tsx';
+import { ChatSettingsContextType } from '../../../context/chat-settings-context.tsx';
+import { useChatSettings } from '../../../hooks/use-chat-settings.tsx';
 import { UseUserAvatarReturn } from '../../../hooks/use-user-avatar.tsx';
 
-// Mock the useChatClient hook
 vi.mock('@ably/chat/react', () => ({
   useChatClient: vi.fn(),
+  useRoom: vi.fn().mockReturnValue({
+    roomName: 'test-room',
+  } as Partial<UseRoomResponse>),
 }));
 
 // Mock the useUserAvatar hook so we don't need to provide an actual avatar context
@@ -23,6 +27,8 @@ vi.mock('../../../../src/hooks/use-user-avatar.tsx', () => ({
     },
   }),
 }));
+
+vi.mock('../../../../src/hooks/use-chat-settings.tsx');
 
 vi.mock('react-dom', async () => {
   const actual = await vi.importActual('react-dom');
@@ -64,11 +70,27 @@ vi.mock('../../../../src/components/molecules/emoji-picker.tsx', () => ({
   ),
 }));
 
+const createMockUseSettings = (
+  settings?: Partial<ReturnType<typeof useChatSettings>>
+): ChatSettingsContextType => {
+  return {
+    getEffectiveSettings: vi.fn().mockReturnValue({
+      allowMessageUpdatesOwn: true,
+      allowMessageUpdatesAny: false,
+      allowMessageDeletesOwn: true,
+      allowMessageDeletesAny: false,
+      allowMessageReactions: true,
+    }),
+    ...settings,
+  } as ChatSettingsContextType;
+};
+
 describe('ChatMessage', () => {
   beforeEach(() => {
     (useChatClient as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
       clientId: 'user1',
     });
+    vi.mocked(useChatSettings).mockReturnValue(createMockUseSettings());
   });
 
   afterEach(() => {
@@ -115,6 +137,85 @@ describe('ChatMessage', () => {
 
     // Reset the mock
     vi.mocked(useChatClient).mockReset();
+  });
+
+  it('shows edit/delete options for non-own messages when allowAny settings are enabled', () => {
+    (useChatClient as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
+      clientId: 'admin1',
+    });
+
+    // Mock chat settings with allowAny permissions enabled
+    vi.mocked(useChatSettings).mockReturnValue(
+      createMockUseSettings({
+        getEffectiveSettings: vi.fn().mockReturnValue({
+          allowMessageUpdatesOwn: false,
+          allowMessageUpdatesAny: true,
+          allowMessageDeletesOwn: false,
+          allowMessageDeletesAny: true,
+          allowMessageReactions: true,
+        }),
+      })
+    );
+
+    const message = createMockMessage({
+      clientId: 'user1', // Different from current user
+      text: 'User message',
+    });
+
+    render(<ChatMessage message={message} />);
+
+    const messageBubble = screen.getByText('User message').closest('div');
+    expect(messageBubble).toBeInTheDocument();
+
+    if (messageBubble) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      fireEvent.mouseEnter(messageBubble.parentElement!);
+    }
+
+    // Check if edit and delete buttons appear when allowAny settings are enabled
+    expect(screen.getByLabelText(/edit message/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/delete message/i)).toBeInTheDocument();
+  });
+
+  it('does not show edit/delete options when corresponding settings are disabled, even for own messages', () => {
+    (useChatClient as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
+      clientId: 'user1',
+    });
+
+    // Mock chat settings with all edit/delete permissions disabled
+    vi.mocked(useChatSettings).mockReturnValue(
+      createMockUseSettings({
+        getEffectiveSettings: vi.fn().mockReturnValue({
+          allowMessageUpdatesOwn: false,
+          allowMessageUpdatesAny: false,
+          allowMessageDeletesOwn: false,
+          allowMessageDeletesAny: false,
+          allowMessageReactions: true,
+        }),
+      })
+    );
+
+    const message = createMockMessage({
+      clientId: 'user1', // Same as current user
+      text: 'My message with disabled actions',
+    });
+
+    render(<ChatMessage message={message} />);
+
+    const messageBubble = screen.getByText('My message with disabled actions').closest('div');
+    expect(messageBubble).toBeInTheDocument();
+
+    if (messageBubble) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      fireEvent.mouseEnter(messageBubble.parentElement!);
+    }
+
+    // Check that reaction button appears
+    expect(screen.getByLabelText(/add reaction/i)).toBeInTheDocument();
+
+    // Check that edit and delete buttons do not appear
+    expect(screen.queryByLabelText(/edit message/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/delete message/i)).not.toBeInTheDocument();
   });
 
   it('calls onEdit when editing a message', () => {

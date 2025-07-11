@@ -1,10 +1,17 @@
 import { createContext } from 'react';
 
+/**
+ * Interface defining chat feature settings that control UI behavior
+ */
 export interface ChatSettings {
-  /** Whether users can update their messages after sending */
-  allowMessageUpdates: boolean;
-  /** Whether users can delete their messages */
-  allowMessageDeletes: boolean;
+  /** Whether users can update their own messages after sending */
+  allowMessageUpdatesOwn: boolean;
+  /** Whether users can update any message (not just their own) */
+  allowMessageUpdatesAny: boolean;
+  /** Whether users can delete their own messages */
+  allowMessageDeletesOwn: boolean;
+  /** Whether users can delete any message (not just their own) */
+  allowMessageDeletesAny: boolean;
   /** Whether users can add reactions to messages */
   allowMessageReactions: boolean;
 }

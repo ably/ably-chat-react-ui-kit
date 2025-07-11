@@ -3,7 +3,6 @@ import { useMessages, usePresence } from '@ably/chat/react';
 import { clsx } from 'clsx';
 import React, { useCallback } from 'react';
 
-import { useChatSettings } from '../../hooks/use-chat-settings.tsx';
 import { useMessageWindow } from '../../hooks/use-message-window.tsx';
 import { ChatMessageList } from './chat-message-list.tsx';
 import { ChatWindowFooter } from './chat-window-footer.tsx';
@@ -271,9 +270,6 @@ export const ChatWindow = ({
   className,
   onError,
 }: ChatWindowProps) => {
-  const { getEffectiveSettings } = useChatSettings();
-  const settings = getEffectiveSettings(roomName);
-
   const {
     deleteMessage,
     update: updateMessageRemote,
@@ -381,10 +377,10 @@ export const ChatWindow = ({
         }}
         hasMoreHistory={hasMoreHistory}
         enableTypingIndicators={enableTypingIndicators}
-        onEdit={settings.allowMessageUpdates ? handleMessageUpdate : undefined}
-        onDelete={settings.allowMessageDeletes ? handleMessageDelete : undefined}
-        onReactionAdd={settings.allowMessageReactions ? handleReactionAdd : undefined}
-        onReactionRemove={settings.allowMessageReactions ? handleReactionRemove : undefined}
+        onEdit={handleMessageUpdate}
+        onDelete={handleMessageDelete}
+        onReactionAdd={handleReactionAdd}
+        onReactionRemove={handleReactionRemove}
         onMessageInView={showMessagesAroundSerial}
         onViewLatest={showLatestMessages}
       ></ChatMessageList>

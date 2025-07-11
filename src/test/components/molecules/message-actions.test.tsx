@@ -1,10 +1,23 @@
+import { type UseRoomResponse } from '@ably/chat/react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ButtonProps } from '../../../components/atoms/button.tsx';
 import { IconProps } from '../../../components/atoms/icon.tsx';
 import { MessageActions } from '../../../components/molecules/message-actions.tsx';
+import { ChatSettings, ChatSettingsContextType } from '../../../context/chat-settings-context.tsx';
+import { useChatSettings } from '../../../hooks/use-chat-settings.tsx';
+
+// Mock the useRoom hook
+vi.mock('@ably/chat/react', () => ({
+  useRoom: vi.fn().mockReturnValue({
+    roomName: 'test-room',
+  } as Partial<UseRoomResponse>),
+}));
+
+// Mock the useChatSettings hook
+vi.mock('../../../hooks/use-chat-settings.tsx');
 
 // Mocks the Button component
 vi.mock('../../../components/atoms/button', () => ({
@@ -37,7 +50,41 @@ vi.mock('../../../components/atoms/icon', () => ({
   ),
 }));
 
+const createMockUseSettings = (
+  settings: Partial<ReturnType<typeof useChatSettings>>
+): ChatSettingsContextType => {
+  return {
+    getEffectiveSettings: vi.fn().mockReturnValue({
+      allowMessageUpdatesOwn: true,
+      allowMessageUpdatesAny: false,
+      allowMessageDeletesOwn: true,
+      allowMessageDeletesAny: false,
+      allowMessageReactions: true,
+    }),
+    ...settings,
+  } as ChatSettingsContextType;
+};
+
 describe('MessageActions', () => {
+  const defaultSettings: ChatSettings = {
+    allowMessageUpdatesOwn: true,
+    allowMessageUpdatesAny: false,
+    allowMessageDeletesOwn: true,
+    allowMessageDeletesAny: false,
+    allowMessageReactions: true,
+  };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(useChatSettings).mockReturnValue(
+      createMockUseSettings({
+        globalSettings: defaultSettings,
+        roomSettings: {},
+        getEffectiveSettings: () => defaultSettings,
+      })
+    );
+  });
+
   it('renders nothing when no actions are provided', () => {
     const { container } = render(<MessageActions isOwn={false} />);
 
@@ -45,7 +92,7 @@ describe('MessageActions', () => {
     expect(container.firstChild).toBeNull();
   });
 
-  it('renders only reaction button for non-own messages', () => {
+  it('renders only reaction button for non-own messages with default settings', () => {
     const handleReaction = vi.fn();
 
     render(<MessageActions isOwn={false} onReactionButtonClicked={handleReaction} />);
@@ -64,7 +111,7 @@ describe('MessageActions', () => {
     expect(screen.queryByLabelText('Delete message')).not.toBeInTheDocument();
   });
 
-  it('renders all buttons for own messages', () => {
+  it('renders all buttons for own messages with default settings', () => {
     const handleReaction = vi.fn();
     const handleEdit = vi.fn();
     const handleDelete = vi.fn();
@@ -84,7 +131,7 @@ describe('MessageActions', () => {
     expect(screen.getByLabelText('Delete message')).toBeInTheDocument();
   });
 
-  it('does not render edit and delete buttons for non-own messages even if handlers are provided', () => {
+  it('does not render edit and delete buttons for non-own messages with default settings', () => {
     const handleReaction = vi.fn();
     const handleEdit = vi.fn();
     const handleDelete = vi.fn();
@@ -102,6 +149,74 @@ describe('MessageActions', () => {
     expect(screen.getByLabelText('Add reaction')).toBeInTheDocument();
 
     // Should not render edit or delete buttons
+    expect(screen.queryByLabelText('Edit message')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Delete message')).not.toBeInTheDocument();
+  });
+
+  it('renders edit and delete buttons for non-own messages when allowAny settings are enabled', () => {
+    const handleReaction = vi.fn();
+    const handleEdit = vi.fn();
+    const handleDelete = vi.fn();
+
+    const adminSettings: ChatSettings = {
+      ...defaultSettings,
+      allowMessageUpdatesAny: true,
+      allowMessageDeletesAny: true,
+    };
+
+    vi.mocked(useChatSettings).mockReturnValue({
+      globalSettings: adminSettings,
+      roomSettings: {},
+      getEffectiveSettings: () => adminSettings,
+    });
+
+    render(
+      <MessageActions
+        isOwn={false}
+        onReactionButtonClicked={handleReaction}
+        onEditButtonClicked={handleEdit}
+        onDeleteButtonClicked={handleDelete}
+      />
+    );
+
+    // Should render all three buttons when allowAny settings are enabled
+    expect(screen.getByLabelText('Add reaction')).toBeInTheDocument();
+    expect(screen.getByLabelText('Edit message')).toBeInTheDocument();
+    expect(screen.getByLabelText('Delete message')).toBeInTheDocument();
+  });
+
+  it('does not render edit and delete buttons when corresponding settings are disabled', () => {
+    const handleReaction = vi.fn();
+    const handleEdit = vi.fn();
+    const handleDelete = vi.fn();
+
+    const disabledSettings: ChatSettings = {
+      allowMessageUpdatesOwn: false,
+      allowMessageUpdatesAny: false,
+      allowMessageDeletesOwn: false,
+      allowMessageDeletesAny: false,
+      allowMessageReactions: true,
+    };
+
+    vi.mocked(useChatSettings).mockReturnValue({
+      globalSettings: disabledSettings,
+      roomSettings: {},
+      getEffectiveSettings: () => disabledSettings,
+    });
+
+    render(
+      <MessageActions
+        isOwn={true}
+        onReactionButtonClicked={handleReaction}
+        onEditButtonClicked={handleEdit}
+        onDeleteButtonClicked={handleDelete}
+      />
+    );
+
+    // Should render only the reaction button
+    expect(screen.getByLabelText('Add reaction')).toBeInTheDocument();
+
+    // Should not render edit or delete buttons even for own messages
     expect(screen.queryByLabelText('Edit message')).not.toBeInTheDocument();
     expect(screen.queryByLabelText('Delete message')).not.toBeInTheDocument();
   });
@@ -167,7 +282,7 @@ describe('MessageActions', () => {
     // Check if the toolbar has the correct styling classes
     const toolbar = screen.getByRole('toolbar');
     expect(toolbar).toHaveClass('absolute');
-    expect(toolbar).toHaveClass('-top-10');
+    expect(toolbar).toHaveClass('-top-9');
     expect(toolbar).toHaveClass('right-0');
     expect(toolbar).toHaveClass('z-10');
     expect(toolbar).toHaveClass('flex');

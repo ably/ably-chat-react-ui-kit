@@ -7,8 +7,10 @@ import {
 } from '../context/chat-settings-context.tsx';
 
 export const DEFAULT_SETTINGS: ChatSettings = {
-  allowMessageUpdates: true,
-  allowMessageDeletes: true,
+  allowMessageUpdatesOwn: true,
+  allowMessageUpdatesAny: false,
+  allowMessageDeletesOwn: true,
+  allowMessageDeletesAny: false,
   allowMessageReactions: true,
 };
 
@@ -40,20 +42,26 @@ export interface ChatSettingsProviderProps {
  * but do not affect the underlying Ably Chat functionality. If you wish to ensure no user can edit or delete messages,
  * you must also configure the Ably client capabilities accordingly.
  *
- *
  * @example
  * ```tsx
  * const globalSettings = {
- *   allowMessageUpdates: false,
- *   allowMessageDeletes: true,
+ *   allowMessageUpdatesOwn: true,
+ *   allowMessageUpdatesAny: false,
+ *   allowMessageDeletesOwn: true,
+ *   allowMessageDeletesAny: false,
  *   allowMessageReactions: true
  * };
  *
  * const roomSettings = {
- *   'general': { allowMessageUpdates: true },
+ *   'general': {
+ *     allowMessageUpdatesOwn: true,
+ *     allowMessageUpdatesAny: true // Allow user to update any message in general room
+ *   },
  *   'announcements': {
- *     allowMessageUpdates: false,
- *     allowMessageDeletes: false
+ *     allowMessageUpdatesOwn: false,
+ *     allowMessageUpdatesAny: false,
+ *     allowMessageDeletesOwn: false,
+ *     allowMessageDeletesAny: true // Allow user to delete any messages in announcements
  *   }
  * };
  *
