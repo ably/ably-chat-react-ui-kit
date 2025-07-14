@@ -27,6 +27,7 @@
     "src/stories/*.stories.tsx",
     ".storybook/**/*",
     "dist",
-    "node_modules"
-  ]
+    "node_modules",
+    "src/test/**/*",
+  ],
 }

@@ -19,7 +19,7 @@ export default defineConfig({
     lib: {
       entry: resolve(__dirname, 'src/index.ts'),
       name: 'AblyChatReactUIComponents',
-      fileName: 'ably-chat-react-ui-components',
+      fileName: 'ably/chat-react-ui-components',
       formats: ['es', 'cjs']
     },
     rollupOptions: {
