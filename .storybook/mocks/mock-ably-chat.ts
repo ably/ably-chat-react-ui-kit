@@ -44,10 +44,6 @@ const MockOverridesContext = createContext<MockOverrides>({});
 
 const useMockOverrides = () => useContext(MockOverridesContext);
 
-interface MockChatClientResponse {
-  clientId: string;
-}
-
 const mockPaginatedResultWithItems = (items: Message[]): PaginatedResult<Message> => {
   return {
     items,
@@ -383,8 +379,10 @@ export const useChatSettings = (): Partial<ChatSettingsContextType> => {
   const overrides = useMockOverrides();
   
   const defaultSettings: ChatSettings = {
-    allowMessageUpdates: true,
-    allowMessageDeletes: true,
+    allowMessageUpdatesOwn: true,
+    allowMessageUpdatesAny: false,
+    allowMessageDeletesOwn: true,
+    allowMessageDeletesAny: false,
     allowMessageReactions: true,
   };
   

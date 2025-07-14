@@ -136,7 +136,7 @@ const useAvatarGeneration = (customColors?: string[]) => {
     (text: string): string => {
       let hash = 0;
       for (let i = 0; i < text.length; i++) {
-        hash = ((hash << 5) - hash + (text.codePointAt(i) ?? 0)) & 0xFFFFFFFF;
+        hash = ((hash << 5) - hash + (text.codePointAt(i) ?? 0)) & 0xffffffff;
       }
       return avatarColors[Math.abs(hash) % avatarColors.length] || 'bg-gray-500';
     },

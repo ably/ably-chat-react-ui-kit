@@ -53,7 +53,6 @@ export interface ChatMessageProps {
 
   /**
    * Optional callback triggered when the user saves an edited message.
-   * Only called for messages owned by the current user.
    * @param message - The original message object being edited
    * @param newText - The updated message text after editing
    */
@@ -61,14 +60,12 @@ export interface ChatMessageProps {
 
   /**
    * Optional callback triggered when the user confirms message deletion.
-   * Only called for messages owned by the current user after confirmation dialog.
    * @param message - The message object to be deleted
    */
   onDelete?: (message: Message) => void;
 
   /**
    * Optional callback triggered when a user adds an emoji reaction to the message.
-   * Can be called by any user, not just the message owner.
    * @param message - The message object receiving the reaction
    * @param emoji - The emoji character being added as a reaction
    */

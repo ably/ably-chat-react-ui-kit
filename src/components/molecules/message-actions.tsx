@@ -1,5 +1,7 @@
+import { useRoom } from '@ably/chat/react';
 import React from 'react';
 
+import { useChatSettings } from '../../hooks/use-chat-settings.tsx';
 import { Button } from '../atoms/button.tsx';
 import { Icon } from '../atoms/icon.tsx';
 
@@ -27,8 +29,8 @@ export interface MessageActionsProps {
    * Callback function triggered when the edit button is clicked.
    * Should initiate edit mode for the message, typically replacing the message
    * content with an editable input field or editor component.
-   * Only displayed when isOwn is true.
-   *
+   * Displayed when:
+   * - The message is owned by the current user and allowMessageUpdatesOwn is true, or allowMessageUpdatesAny is true
    *
    * @example
    * ```tsx
@@ -44,8 +46,8 @@ export interface MessageActionsProps {
   /**
    * Callback function triggered when the delete button is clicked.
    * Should handle message deletion, typically with confirmation dialog.
-   * Only displayed when isOwn is true.
-   *
+   * Displayed when:
+   * - The message is owned by the current user and allowMessageDeletesOwn is true, or allowMessageDeletesAny is true
    *
    * @example
    * ```tsx
@@ -59,17 +61,12 @@ export interface MessageActionsProps {
 
   /**
    * Whether the message belongs to the current user.
-   * Determines if edit and delete buttons are shown.
-   * When false, only the reaction button is displayed.
-   *
-   * - Own messages: Show all actions (reaction, edit, delete)
-   * - Other messages: Show only reaction button
+   * Used in combination with chat settings to determine if edit and delete buttons are shown.
    *
    * @example
    * ```tsx
    * // Basic ownership check
    * isOwn={message.senderId === currentUser.id}
-   *
    * ```
    */
   isOwn: boolean;
@@ -116,10 +113,35 @@ export const MessageActions = ({
   onDeleteButtonClicked,
   isOwn,
 }: MessageActionsProps) => {
-  // Check if there are any actions to display
-  const hasReactionAction = onReactionButtonClicked !== undefined;
-  const hasEditAction = isOwn && onEditButtonClicked !== undefined;
-  const hasDeleteAction = isOwn && onDeleteButtonClicked !== undefined;
+  // Get the current room name
+  const { roomName } = useRoom();
+
+  // Get chat settings for the current room
+  const { getEffectiveSettings } = useChatSettings();
+  const settings = getEffectiveSettings(roomName);
+
+  const {
+    allowMessageUpdatesOwn,
+    allowMessageUpdatesAny,
+    allowMessageDeletesOwn,
+    allowMessageDeletesAny,
+    allowMessageReactions,
+  } = settings;
+
+  // Check if there are any actions to display based on settings and permissions
+  const hasReactionAction = allowMessageReactions && onReactionButtonClicked !== undefined;
+
+  // Can edit if:
+  // - User owns the message AND can edit own messages, OR
+  // - User can edit any message
+  const canEdit = (isOwn && allowMessageUpdatesOwn) || allowMessageUpdatesAny;
+  const hasEditAction = canEdit && onEditButtonClicked !== undefined;
+
+  // Can delete if:
+  // - User owns the message AND can delete own messages, OR
+  // - User can delete any message
+  const canDelete = (isOwn && allowMessageDeletesOwn) || allowMessageDeletesAny;
+  const hasDeleteAction = canDelete && onDeleteButtonClicked !== undefined;
 
   // If no actions are available, don't render anything
   if (!hasReactionAction && !hasEditAction && !hasDeleteAction) {
@@ -128,7 +150,7 @@ export const MessageActions = ({
 
   return (
     <div
-      className="absolute -top-10 right-0 z-10 flex items-center gap-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-md p-1"
+      className="absolute -top-9 right-0 z-10 flex items-center gap-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-md p-1"
       role="toolbar"
       aria-label="Message actions"
     >

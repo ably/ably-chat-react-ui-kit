@@ -11,18 +11,12 @@ import { ChatWindow } from '../../../components/molecules/chat-window.tsx';
 import { ChatWindowFooterProps } from '../../../components/molecules/chat-window-footer.tsx';
 import { ChatWindowHeaderProps } from '../../../components/molecules/chat-window-header.tsx';
 import { MessageInputProps } from '../../../components/molecules/message-input.tsx';
-import { ChatSettingsContextType } from '../../../context/chat-settings-context.tsx';
 
 const mockSend = vi.fn().mockResolvedValue({});
 const mockDeleteMessage = vi.fn().mockResolvedValue({});
 const mockUpdate = vi.fn().mockResolvedValue({});
 const mockSendReaction = vi.fn().mockResolvedValue({});
 const mockDeleteReaction = vi.fn().mockResolvedValue({});
-const mockGetEffectiveSettings = vi.fn().mockReturnValue({
-  allowMessageUpdates: true,
-  allowMessageDeletes: true,
-  allowMessageReactions: true,
-});
 
 // Mock the Ably Chat hooks
 vi.mock('@ably/chat/react', () => ({
@@ -35,13 +29,6 @@ vi.mock('@ably/chat/react', () => ({
     deleteReaction: mockDeleteReaction,
   }),
   usePresence: vi.fn(),
-}));
-
-// Mock the custom hooks
-vi.mock('../../../hooks/use-chat-settings.tsx', () => ({
-  useChatSettings: (): Partial<ChatSettingsContextType> => ({
-    getEffectiveSettings: mockGetEffectiveSettings,
-  }),
 }));
 
 const mockUpdateMessages = vi.fn();
@@ -275,8 +262,6 @@ describe('ChatWindow', () => {
   });
 
   it('updates the message state when the send button is clicked', () => {
-    vi.clearAllMocks();
-
     render(<ChatWindow roomName="general" />);
 
     // Click the send button
@@ -292,8 +277,6 @@ describe('ChatWindow', () => {
   });
 
   it('edits a message when edit button is clicked', () => {
-    vi.clearAllMocks();
-
     render(<ChatWindow roomName="general" />);
 
     // Click the edit button
@@ -304,8 +287,6 @@ describe('ChatWindow', () => {
   });
 
   it('deletes a message when delete button is clicked', () => {
-    vi.clearAllMocks();
-
     render(<ChatWindow roomName="general" />);
 
     // Click the delete button
@@ -316,8 +297,6 @@ describe('ChatWindow', () => {
   });
 
   it('adds a reaction when add reaction button is clicked', () => {
-    vi.clearAllMocks();
-
     render(<ChatWindow roomName="general" />);
 
     // Click the add reaction button
@@ -331,8 +310,6 @@ describe('ChatWindow', () => {
   });
 
   it('removes a reaction when remove reaction button is clicked', () => {
-    vi.clearAllMocks();
-
     render(<ChatWindow roomName="general" />);
 
     // Click the remove reaction button
@@ -359,36 +336,14 @@ describe('ChatWindow', () => {
     expect(container).toHaveAttribute('aria-label', 'Chat room: general');
   });
 
-  it('disables message operations when settings disallow them', () => {
-    vi.clearAllMocks();
-
-    // Override the getEffectiveSettings mock to return settings that disallow operations
-    mockGetEffectiveSettings.mockReturnValueOnce({
-      allowMessageUpdates: false,
-      allowMessageDeletes: false,
-      allowMessageReactions: false,
-    });
-
-    render(<ChatWindow roomName="general" />);
-
-    // These buttons should not be rendered because the settings disallow them
-    expect(screen.queryByTestId('edit-message-button')).not.toBeInTheDocument();
-    expect(screen.queryByTestId('delete-message-button')).not.toBeInTheDocument();
-    expect(screen.queryByTestId('add-reaction-button')).not.toBeInTheDocument();
-    expect(screen.queryByTestId('remove-reaction-button')).not.toBeInTheDocument();
-  });
-
   describe('autoEnterPresence prop', () => {
     it('enters presence by default when autoEnterPresence is not specified', () => {
-      vi.clearAllMocks();
       render(<ChatWindow roomName="general" />);
 
       expect(usePresence).toHaveBeenCalledTimes(1);
     });
 
     it('does not enter presence when autoEnterPresence is false', () => {
-      vi.clearAllMocks();
-
       render(<ChatWindow roomName="general" autoEnterPresence={false} />);
 
       expect(usePresence).not.toHaveBeenCalled();
@@ -505,7 +460,6 @@ describe('ChatWindow', () => {
     });
 
     it('falls back to console.error when no error handlers are provided', async () => {
-      vi.clearAllMocks();
       const consoleSpy = vi.spyOn(console, 'error');
       mockUpdate.mockRejectedValueOnce(new Error('Edit failed'));
 

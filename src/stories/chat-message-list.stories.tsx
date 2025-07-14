@@ -11,6 +11,7 @@ import {
   MockChatClient,
 } from '../../.storybook/mocks/mock-ably-chat.ts';
 import { AvatarProvider } from '../providers/avatar-provider.tsx';
+import { ChatSettingsProvider } from '../providers';
 
 const messages = [
   createMockMessage({
@@ -61,15 +62,20 @@ const meta: Meta<StoryProps> = {
   component: ChatMessageList,
   decorators: [
     (Story, context) => (
-      <ChatClientProvider client={new MockChatClient()} mockOverrides={context.args.mockOverrides}>
-        <AvatarProvider>
-          <div className="h-screen w-full flex items-center justify-center bg-gray-50 dark:bg-gray-950">
-            <div className="h-full max-w-xl w-full border rounded-md overflow-hidden bg-white dark:bg-gray-900 flex flex-col">
-              <Story />
+      <ChatSettingsProvider>
+        <ChatClientProvider
+          client={new MockChatClient()}
+          mockOverrides={context.args.mockOverrides}
+        >
+          <AvatarProvider>
+            <div className="h-screen w-full flex items-center justify-center bg-gray-50 dark:bg-gray-950">
+              <div className="h-full max-w-xl w-full border rounded-md overflow-hidden bg-white dark:bg-gray-900 flex flex-col">
+                <Story />
+              </div>
             </div>
-          </div>
-        </AvatarProvider>
-      </ChatClientProvider>
+          </AvatarProvider>
+        </ChatClientProvider>
+      </ChatSettingsProvider>
     ),
   ],
   parameters: {

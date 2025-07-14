@@ -44,7 +44,7 @@ const getRandomColor = (text: string): string => {
   // Generate a deterministic hash from the text
   let hash = 0;
   for (let i = 0; i < text.length; i++) {
-    hash = ((hash << 5) - hash + (text.codePointAt(i) ?? 0)) & 0xFFFFFFFF;
+    hash = ((hash << 5) - hash + (text.codePointAt(i) ?? 0)) & 0xffffffff;
   }
 
   const colorIndex = Math.abs(hash) % colors.length;

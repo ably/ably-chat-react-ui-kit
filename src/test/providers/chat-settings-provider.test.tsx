@@ -31,8 +31,10 @@ describe('ChatSettingsProvider', () => {
 
       // Verify default settings are applied
       expect(globalSettings).toEqual(DEFAULT_SETTINGS);
-      expect(globalSettings.allowMessageUpdates).toBe(true);
-      expect(globalSettings.allowMessageDeletes).toBe(true);
+      expect(globalSettings.allowMessageUpdatesOwn).toBe(true);
+      expect(globalSettings.allowMessageUpdatesAny).toBe(false);
+      expect(globalSettings.allowMessageDeletesOwn).toBe(true);
+      expect(globalSettings.allowMessageDeletesAny).toBe(false);
       expect(globalSettings.allowMessageReactions).toBe(true);
     });
   });
@@ -40,7 +42,8 @@ describe('ChatSettingsProvider', () => {
   describe('Custom global settings', () => {
     it('should merge custom global settings with defaults', () => {
       const customGlobalSettings: Partial<ChatSettings> = {
-        allowMessageUpdates: false,
+        allowMessageUpdatesOwn: false,
+        allowMessageUpdatesAny: true,
       };
 
       const TestComponent = () => {
@@ -63,24 +66,33 @@ describe('ChatSettingsProvider', () => {
       ) as ChatSettings;
 
       // Verify custom settings are merged with defaults
-      expect(globalSettings.allowMessageUpdates).toBe(false); // Custom setting
-      expect(globalSettings.allowMessageDeletes).toBe(true); // Default setting
-      expect(globalSettings.allowMessageReactions).toBe(true); // Default setting
+      expect(globalSettings.allowMessageUpdatesOwn).toBe(false);
+      expect(globalSettings.allowMessageUpdatesAny).toBe(true);
+      expect(globalSettings.allowMessageDeletesOwn).toBe(true);
+      expect(globalSettings.allowMessageDeletesAny).toBe(false);
+      expect(globalSettings.allowMessageReactions).toBe(true);
     });
   });
 
   describe('Room-specific settings', () => {
     it('should provide room-specific settings that override global settings', () => {
       const customGlobalSettings: Partial<ChatSettings> = {
-        allowMessageUpdates: false,
-        allowMessageDeletes: false,
+        allowMessageUpdatesOwn: false,
+        allowMessageUpdatesAny: false,
+        allowMessageDeletesOwn: false,
+        allowMessageDeletesAny: false,
       };
 
       const roomSettings = {
-        general: { allowMessageUpdates: true },
+        general: {
+          allowMessageUpdatesOwn: true,
+          allowMessageUpdatesAny: true,
+        },
         announcements: {
-          allowMessageUpdates: false,
-          allowMessageDeletes: false,
+          allowMessageUpdatesOwn: false,
+          allowMessageUpdatesAny: false,
+          allowMessageDeletesOwn: false,
+          allowMessageDeletesAny: false,
           allowMessageReactions: false,
         },
       };
@@ -128,20 +140,28 @@ describe('ChatSettingsProvider', () => {
         screen.getByTestId('other-room-settings').textContent ?? '{}'
       ) as ChatSettings;
 
-      expect(globalSettings.allowMessageUpdates).toBe(false);
-      expect(globalSettings.allowMessageDeletes).toBe(false);
+      expect(globalSettings.allowMessageUpdatesOwn).toBe(false);
+      expect(globalSettings.allowMessageUpdatesAny).toBe(false);
+      expect(globalSettings.allowMessageDeletesOwn).toBe(false);
+      expect(globalSettings.allowMessageDeletesAny).toBe(false);
       expect(globalSettings.allowMessageReactions).toBe(true);
 
-      expect(generalSettings.allowMessageUpdates).toBe(true);
-      expect(generalSettings.allowMessageDeletes).toBe(false);
+      expect(generalSettings.allowMessageUpdatesOwn).toBe(true);
+      expect(generalSettings.allowMessageUpdatesAny).toBe(true);
+      expect(generalSettings.allowMessageDeletesOwn).toBe(false);
+      expect(generalSettings.allowMessageDeletesAny).toBe(false);
       expect(generalSettings.allowMessageReactions).toBe(true);
 
-      expect(announcementsSettings.allowMessageUpdates).toBe(false);
-      expect(announcementsSettings.allowMessageDeletes).toBe(false);
+      expect(announcementsSettings.allowMessageUpdatesOwn).toBe(false);
+      expect(announcementsSettings.allowMessageUpdatesAny).toBe(false);
+      expect(announcementsSettings.allowMessageDeletesOwn).toBe(false);
+      expect(announcementsSettings.allowMessageDeletesAny).toBe(false);
       expect(announcementsSettings.allowMessageReactions).toBe(false);
 
-      expect(otherRoomSettings.allowMessageUpdates).toBe(false);
-      expect(otherRoomSettings.allowMessageDeletes).toBe(false);
+      expect(otherRoomSettings.allowMessageUpdatesOwn).toBe(false);
+      expect(otherRoomSettings.allowMessageUpdatesAny).toBe(false);
+      expect(otherRoomSettings.allowMessageDeletesOwn).toBe(false);
+      expect(otherRoomSettings.allowMessageDeletesAny).toBe(false);
       expect(otherRoomSettings.allowMessageReactions).toBe(true);
     });
   });
@@ -149,7 +169,8 @@ describe('ChatSettingsProvider', () => {
   describe('getEffectiveSettings function', () => {
     it('should return global settings when no room name is provided', () => {
       const customGlobalSettings: Partial<ChatSettings> = {
-        allowMessageUpdates: false,
+        allowMessageUpdatesOwn: false,
+        allowMessageUpdatesAny: true,
       };
 
       const TestComponent = () => {
