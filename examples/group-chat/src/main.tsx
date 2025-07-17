@@ -4,13 +4,13 @@ import * as Ably from 'ably';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
-import 'ably-chat-react-ui-components/dist/style.css';
+import '@ably/chat-react-ui-components/dist/style.css';
 import {
   App,
   AvatarProvider,
   ChatSettingsProvider,
   ThemeProvider,
-} from 'ably-chat-react-ui-components';
+} from '@ably/chat-react-ui-components';
 
 // Vite will replace this at build time
 const ABLY_API_KEY = import.meta.env.VITE_ABLY_API_KEY as string;
