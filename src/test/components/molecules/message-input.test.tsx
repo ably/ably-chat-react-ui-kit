@@ -10,9 +10,9 @@ import { EmojiPickerProps } from '../../../components/molecules/emoji-picker.tsx
 import { MessageInput } from '../../../components/molecules/message-input.tsx';
 
 // Mocks the useTyping hook
-const mockSend = vi.fn().mockResolvedValue({});
+const mockSendMessage = vi.fn().mockResolvedValue({});
 const mockDeleteMessage = vi.fn().mockResolvedValue({});
-const mockUpdate = vi.fn().mockResolvedValue({});
+const mockUpdateMessage = vi.fn().mockResolvedValue({});
 const mockSendReaction = vi.fn().mockResolvedValue({});
 const mockDeleteReaction = vi.fn().mockResolvedValue({});
 
@@ -22,9 +22,9 @@ vi.mock('@ably/chat/react', () => ({
     stop: vi.fn().mockReturnValue(Promise.resolve()),
   }),
   useMessages: (): Partial<UseMessagesResponse> => ({
-    send: mockSend,
+    sendMessage: mockSendMessage,
     deleteMessage: mockDeleteMessage,
-    update: mockUpdate,
+    updateMessage: mockUpdateMessage,
     sendReaction: mockSendReaction,
     deleteReaction: mockDeleteReaction,
   }),
@@ -185,7 +185,7 @@ describe('MessageInput', () => {
     fireEvent.keyDown(input, { key: 'Enter' });
 
     await waitFor(() => {
-      expect(mockSend).toHaveBeenCalledWith({ text: 'Hello, world!' });
+      expect(mockSendMessage).toHaveBeenCalledWith({ text: 'Hello, world!' });
       expect(input).toHaveValue('');
     });
   });

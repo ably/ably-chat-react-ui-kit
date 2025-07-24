@@ -126,13 +126,7 @@ export const App = ({ initialRoomNames, width = '70vw', height = '70vh' }: AppPr
       <main className="flex-1 overflow-hidden">
         {/* Render the active chat window if a room is selected, otherwise show empty state */}
         {activeRoom ? (
-          <ChatRoomProvider
-            key={activeRoom}
-            name={activeRoom}
-            attach={false}
-            release={false}
-            options={DEFAULT_ROOM_OPTIONS}
-          >
+          <ChatRoomProvider key={activeRoom} name={activeRoom} options={DEFAULT_ROOM_OPTIONS}>
             <ChatWindow
               roomName={activeRoom}
               customHeaderContent={<RoomInfo />}

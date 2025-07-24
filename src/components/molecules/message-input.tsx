@@ -144,7 +144,7 @@ export const MessageInput = ({
   const [emojiPickerPosition, setEmojiPickerPosition] = useState({ top: 0, left: 0 });
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const { keystroke, stop } = useTyping();
-  const { send } = useMessages();
+  const { sendMessage } = useMessages();
 
   /**
    * Handles sending the message, clearing the input, and stopping typing indicators
@@ -152,7 +152,7 @@ export const MessageInput = ({
   const handleSend = useCallback(() => {
     const trimmedMessage = messageRef.current.trim();
     if (trimmedMessage) {
-      send({ text: trimmedMessage })
+      sendMessage({ text: trimmedMessage })
         .then((sentMessage) => {
           onSent?.(sentMessage);
           setMessage('');
@@ -171,7 +171,7 @@ export const MessageInput = ({
           }
         });
     }
-  }, [send, stop, onSent, onSendError, enableTyping]);
+  }, [sendMessage, stop, onSent, onSendError, enableTyping]);
 
   /**
    * Handles changes to the input field

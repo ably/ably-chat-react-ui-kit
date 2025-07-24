@@ -188,7 +188,7 @@ export const RoomReaction = ({
 
   const throttledHandleIncomingReaction = useThrottle(handleIncomingReaction, 200);
 
-  const { send } = useRoomReactions({
+  const { sendRoomReaction } = useRoomReactions({
     listener: throttledHandleIncomingReaction,
   });
 
@@ -219,9 +219,9 @@ export const RoomReaction = ({
    *
    * @param emoji - The emoji reaction to send to the room
    */
-  const sendRoomReaction = useCallback(
+  const sendReactionToRoom = useCallback(
     (emoji: string): void => {
-      send({ name: emoji }).catch((error: unknown) => {
+      sendRoomReaction({ name: emoji }).catch((error: unknown) => {
         if (onError?.onSendRoomReactionError) {
           onError.onSendRoomReactionError(error as ErrorInfo, emoji);
         } else {
@@ -229,12 +229,12 @@ export const RoomReaction = ({
         }
       });
     },
-    [send, onError]
+    [sendRoomReaction, onError]
   );
 
   // Create throttled version of the send function to avoid excessive network calls
   // Limits to maximum 1 reaction per 200ms while preserving immediate visual feedback
-  const throttledSendReaction = useThrottle(sendRoomReaction, 200);
+  const throttledSendReaction = useThrottle(sendReactionToRoom, 200);
 
   /**
    * Handles sending a room reaction with immediate visual feedback and throttled network call.

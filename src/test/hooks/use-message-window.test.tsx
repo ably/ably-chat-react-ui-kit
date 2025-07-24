@@ -116,8 +116,8 @@ const createMockPaginatedResult = (
 const createMockUseMessagesResponse = (
   overrides: Partial<UseMessagesResponse> = {}
 ): UseMessagesResponse => ({
-  send: vi.fn(),
-  update: vi.fn(),
+  sendMessage: vi.fn(),
+  updateMessage: vi.fn(),
   history: vi.fn(),
   deleteMessage: vi.fn(),
   sendReaction: vi.fn(),
