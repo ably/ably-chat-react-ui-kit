@@ -12,9 +12,9 @@ import { ChatWindowFooterProps } from '../../../components/molecules/chat-window
 import { ChatWindowHeaderProps } from '../../../components/molecules/chat-window-header.tsx';
 import { MessageInputProps } from '../../../components/molecules/message-input.tsx';
 
-const mockSend = vi.fn().mockResolvedValue({});
+const mockSendMessage = vi.fn().mockResolvedValue({});
 const mockDeleteMessage = vi.fn().mockResolvedValue({});
-const mockUpdate = vi.fn().mockResolvedValue({});
+const mockUpdateMessage = vi.fn().mockResolvedValue({});
 const mockSendReaction = vi.fn().mockResolvedValue({});
 const mockDeleteReaction = vi.fn().mockResolvedValue({});
 
@@ -22,9 +22,9 @@ const mockDeleteReaction = vi.fn().mockResolvedValue({});
 vi.mock('@ably/chat/react', () => ({
   useChatClient: () => ({ clientId: 'test-user' }),
   useMessages: (): Partial<UseMessagesResponse> => ({
-    send: mockSend,
+    sendMessage: mockSendMessage,
     deleteMessage: mockDeleteMessage,
-    update: mockUpdate,
+    updateMessage: mockUpdateMessage,
     sendReaction: mockSendReaction,
     deleteReaction: mockDeleteReaction,
   }),
@@ -283,7 +283,7 @@ describe('ChatWindow', () => {
     fireEvent.click(screen.getByTestId('edit-message-button'));
 
     // Check if the update function was called
-    expect(mockUpdate).toHaveBeenCalled();
+    expect(mockUpdateMessage).toHaveBeenCalled();
   });
 
   it('deletes a message when delete button is clicked', () => {
@@ -352,7 +352,7 @@ describe('ChatWindow', () => {
 
   describe('Error Handling', () => {
     it('calls onMessageUpdateError when message editing fails', async () => {
-      mockUpdate.mockRejectedValueOnce(new ErrorInfo('Edit failed', 50000, 500));
+      mockUpdateMessage.mockRejectedValueOnce(new ErrorInfo('Edit failed', 50000, 500));
 
       let errorInfo: ErrorInfo | undefined;
 
@@ -461,7 +461,7 @@ describe('ChatWindow', () => {
 
     it('falls back to console.error when no error handlers are provided', async () => {
       const consoleSpy = vi.spyOn(console, 'error');
-      mockUpdate.mockRejectedValueOnce(new Error('Edit failed'));
+      mockUpdateMessage.mockRejectedValueOnce(new Error('Edit failed'));
 
       render(<ChatWindow roomName="general" />);
 

@@ -270,12 +270,7 @@ export const ChatWindow = ({
   className,
   onError,
 }: ChatWindowProps) => {
-  const {
-    deleteMessage,
-    update: updateMessageRemote,
-    sendReaction,
-    deleteReaction,
-  } = useMessages();
+  const { deleteMessage, updateMessage, sendReaction, deleteReaction } = useMessages();
 
   const {
     activeMessages,
@@ -298,7 +293,7 @@ export const ChatWindow = ({
     (msg: Message, newText: string) => {
       const updated = msg.copy({ text: newText, metadata: msg.metadata, headers: msg.headers });
 
-      updateMessageRemote(msg.serial, updated)
+      updateMessage(msg.serial, updated)
         .then(handleRESTMessageUpdate)
         .catch((error: unknown) => {
           if (onError?.onMessageUpdateError) {
@@ -308,7 +303,7 @@ export const ChatWindow = ({
           }
         });
     },
-    [updateMessageRemote, handleRESTMessageUpdate, onError]
+    [updateMessage, handleRESTMessageUpdate, onError]
   );
 
   const handleMessageDelete = useCallback(

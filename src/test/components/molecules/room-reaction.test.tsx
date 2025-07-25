@@ -13,7 +13,7 @@ vi.mock('@ably/chat/react', () => ({
   useRoomReactions: vi.fn().mockReturnValue({
     roomStatus: RoomStatus.Attached,
     connectionStatus: ConnectionStatus.Connected,
-    send: vi.fn().mockResolvedValue({}),
+    sendRoomReaction: vi.fn().mockResolvedValue({}),
   } as Partial<UseRoomReactionsResponse>),
 }));
 
@@ -99,7 +99,7 @@ Object.defineProperty(navigator, 'vibrate', {
 });
 
 describe('RoomReaction', () => {
-  const mockSend = vi.fn().mockResolvedValue({});
+  const mockSendRoomReaction = vi.fn().mockResolvedValue({});
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -133,7 +133,7 @@ describe('RoomReaction', () => {
     (useRoomReactions as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
       roomStatus: RoomStatus.Attached,
       connectionStatus: ConnectionStatus.Connected,
-      send: mockSend,
+      sendRoomReaction: mockSendRoomReaction,
     });
 
     render(<RoomReaction />);
@@ -141,7 +141,7 @@ describe('RoomReaction', () => {
     // Click the reaction button
     fireEvent.click(screen.getByRole('button'));
 
-    expect(mockSend).toHaveBeenCalledWith({ name: '👍' });
+    expect(mockSendRoomReaction).toHaveBeenCalledWith({ name: '👍' });
 
     // Check if emoji burst is shown
     expect(screen.getByTestId('emoji-burst')).toBeInTheDocument();
@@ -188,7 +188,7 @@ describe('RoomReaction', () => {
     (useRoomReactions as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
       roomStatus: RoomStatus.Attached,
       connectionStatus: ConnectionStatus.Connected,
-      send: mockSend,
+      sendRoomReaction: mockSendRoomReaction,
     });
 
     render(<RoomReaction />);
@@ -206,7 +206,7 @@ describe('RoomReaction', () => {
     expect(screen.queryByTestId('emoji-wheel')).not.toBeInTheDocument();
 
     // Check if the selected emoji was sent
-    expect(mockSend).toHaveBeenCalledWith({ name: '❤️' });
+    expect(mockSendRoomReaction).toHaveBeenCalledWith({ name: '❤️' });
 
     // Check if emoji burst is shown with the selected emoji
     expect(screen.getByTestId('emoji-burst')).toBeInTheDocument();
@@ -279,7 +279,7 @@ describe('RoomReaction', () => {
         return {
           roomStatus: RoomStatus.Attached,
           connectionStatus: ConnectionStatus.Connected,
-          send: mockSend,
+          sendRoomReaction: mockSendRoomReaction,
         };
       }
     );
@@ -322,7 +322,7 @@ describe('RoomReaction', () => {
         return {
           roomStatus: RoomStatus.Attached,
           connectionStatus: ConnectionStatus.Connected,
-          send: mockSend,
+          sendRoomReaction: mockSendRoomReaction,
         };
       }
     );
@@ -436,7 +436,7 @@ describe('RoomReaction', () => {
     (useRoomReactions as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
       roomStatus: RoomStatus.Attached,
       connectionStatus: ConnectionStatus.Connected,
-      send: mockSendFailure,
+      sendRoomReaction: mockSendFailure,
     });
 
     render(<RoomReaction onError={{ onSendRoomReactionError: mockOnSendRoomReactionError }} />);
@@ -462,7 +462,7 @@ describe('RoomReaction', () => {
     (useRoomReactions as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
       roomStatus: RoomStatus.Attached,
       connectionStatus: ConnectionStatus.Connected,
-      send: mockSendFailure,
+      sendRoomReaction: mockSendFailure,
     });
 
     render(<RoomReaction />);
