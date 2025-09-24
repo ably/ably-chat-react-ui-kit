@@ -39,15 +39,7 @@ export const ChatWindowFooter = ({
 }: ChatWindowFooterProps) => {
   return (
     <div
-      className={clsx(
-        // Layout
-        'flex items-center',
-        // Theme and borders
-        'bg-white dark:bg-gray-900',
-        'border-t border-gray-200 dark:border-gray-700',
-        // Custom classes
-        className
-      )}
+      className={clsx('ably-chat-window-footer', className)}
       role="contentinfo"
       aria-label={ariaLabel || 'Chat window footer'}
     >

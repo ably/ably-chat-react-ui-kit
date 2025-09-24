@@ -52,15 +52,7 @@ export const ChatWindowHeader = ({
   // Combine base classes with custom className
   return (
     <div
-      className={clsx(
-        // Layout
-        'px-6 py-4',
-        // Borders and theme
-        'border-b border-gray-200 dark:border-gray-700',
-        'bg-white dark:bg-gray-900',
-        // Custom classes
-        className
-      )}
+      className={clsx('ably-chat-window-header', className)}
       role="banner"
       aria-label={ariaLabel || 'Chat window header'}
     >

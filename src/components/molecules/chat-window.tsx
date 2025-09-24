@@ -356,7 +356,7 @@ export const ChatWindow = ({
 
   return (
     <div
-      className={clsx('flex flex-col h-full bg-white dark:bg-gray-900 flex-1', className)}
+      className={clsx('ably-chat-window', className)}
       role="main"
       aria-label={`Chat room: ${roomName}`}
     >
@@ -382,7 +382,7 @@ export const ChatWindow = ({
 
       {/* Footer */}
       <ChatWindowFooter>
-        <div className="flex-1">
+        <div className="ably-chat-window__footer-content">
           <MessageInput
             onSent={(msg) => {
               updateMessages([msg]);

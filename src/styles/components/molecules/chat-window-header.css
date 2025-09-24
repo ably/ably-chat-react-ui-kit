@@ -1,0 +1,9 @@
+/* Chat Window Header Component */
+@layer ably-components {
+  /* Header container */
+  .ably-chat-window-header {
+    @apply px-6 py-4;
+    @apply border-b border-gray-200 dark:border-gray-700;
+    @apply bg-white dark:bg-gray-900;
+  }
+}

@@ -1,5 +1,6 @@
 import { ErrorInfo, Message } from '@ably/chat';
 import { useMessages, useTyping } from '@ably/chat/react';
+import { clsx } from 'clsx';
 import React, { ChangeEvent, KeyboardEvent, useCallback, useRef, useState } from 'react';
 
 import { Button } from '../atoms/button.tsx';
@@ -277,9 +278,9 @@ export const MessageInput = ({
   };
 
   return (
-    <div className="p-4 bg-white dark:bg-gray-900" role="form" aria-label="Message input">
-      <div className="border border-gray-300 dark:border-gray-600 rounded-2xl p-2">
-        <div className="flex items-end gap-3">
+    <div className="ably-message-input" role="form" aria-label="Message input">
+      <div className="ably-message-input__wrapper">
+        <div className="ably-message-input__content">
           {/* Text Input */}
           <TextInput
             ref={inputRef as React.Ref<HTMLTextAreaElement>}
@@ -290,7 +291,7 @@ export const MessageInput = ({
             onChange={handleInputChange}
             onKeyDown={handleKeyPress}
             placeholder={placeholder}
-            className="flex-1"
+            className="ably-message-input__field"
             aria-label="Message text"
           />
 
@@ -298,7 +299,7 @@ export const MessageInput = ({
           <Button
             variant="ghost"
             size="sm"
-            className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 self-end mb-1"
+            className={clsx('ably-message-input__emoji-button')}
             onClick={handleEmojiButtonClick}
             data-emoji-button
             aria-label="Open emoji picker"

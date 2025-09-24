@@ -1,0 +1,14 @@
+/* Chat Window Footer Component */
+@layer ably-components {
+  /* Footer container */
+  .ably-chat-window-footer {
+    @apply flex items-center;
+    @apply bg-white dark:bg-gray-900;
+    @apply border-t border-gray-200 dark:border-gray-700;
+  }
+
+  /* Content wrapper */
+  .ably-chat-window-footer__content {
+    @apply flex-1;
+  }
+}

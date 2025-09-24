@@ -1,0 +1,31 @@
+/* Message Input Component */
+@layer ably-components {
+  /* Container */
+  .ably-message-input {
+    @apply p-4;
+    @apply bg-white dark:bg-gray-900;
+  }
+
+  /* Input wrapper */
+  .ably-message-input__wrapper {
+    @apply border border-gray-300 dark:border-gray-600;
+    @apply rounded-2xl p-2;
+  }
+
+  /* Content container */
+  .ably-message-input__content {
+    @apply flex items-end gap-3;
+  }
+
+  /* Text input field */
+  .ably-message-input__field {
+    @apply flex-1;
+  }
+
+  /* Emoji button */
+  .ably-message-input__emoji-button {
+    @apply text-gray-500 hover:text-gray-700;
+    @apply dark:text-gray-400 dark:hover:text-gray-200;
+    @apply self-end mb-1;
+  }
+}
