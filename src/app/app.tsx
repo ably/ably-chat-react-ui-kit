@@ -128,6 +128,7 @@ export const App = ({ initialRoomNames, width = '70vw', height = '70vh' }: AppPr
         {activeRoom ? (
           <ChatRoomProvider key={activeRoom} name={activeRoom} options={DEFAULT_ROOM_OPTIONS}>
             <ChatWindow
+              key={activeRoom}
               roomName={activeRoom}
               customHeaderContent={<RoomInfo />}
               customFooterContent={<RoomReaction />}

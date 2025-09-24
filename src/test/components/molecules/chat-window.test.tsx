@@ -346,7 +346,7 @@ describe('ChatWindow', () => {
     it('does not enter presence when autoEnterPresence is false', () => {
       render(<ChatWindow roomName="general" autoEnterPresence={false} />);
 
-      expect(usePresence).not.toHaveBeenCalled();
+      expect(usePresence).toHaveBeenCalledWith({ autoEnterLeave: false });
     });
   });
 
