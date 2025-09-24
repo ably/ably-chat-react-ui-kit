@@ -1,9 +1,13 @@
+/* Tailwind CSS v4 */
+@import "tailwindcss";
+
+/* Import our new CSS architecture */
+@import './styles/index.css';
+
+/* Keep existing scrollbar styles */
 @import './styles/scrollbar.css';
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
+/* Legacy styles - to be migrated */
 @layer base {
   html {
     font-family: 'Inter', system-ui, sans-serif;

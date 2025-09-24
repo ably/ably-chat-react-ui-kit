@@ -1,0 +1,111 @@
+/* Utility Helper Classes */
+@layer ably-utilities {
+  /* Visibility utilities */
+  .ably-sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+  
+  /* Focus utilities */
+  .ably-focus-visible {
+    @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+  }
+  
+  /* Truncation utilities */
+  .ably-truncate {
+    @apply truncate;
+  }
+  
+  .ably-line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  
+  .ably-line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  
+  /* Spacing utilities */
+  .ably-space-y-1 > * + * {
+    margin-top: var(--ably-spacing-xs);
+  }
+  
+  .ably-space-y-2 > * + * {
+    margin-top: var(--ably-spacing-sm);
+  }
+  
+  .ably-space-y-4 > * + * {
+    margin-top: var(--ably-spacing-md);
+  }
+  
+  /* Animation utilities */
+  .ably-animate-pulse {
+    animation: ably-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  
+  .ably-animate-spin {
+    animation: ably-spin 1s linear infinite;
+  }
+  
+  .ably-animate-fade-in {
+    animation: ably-fade-in 0.3s ease-in-out;
+  }
+  
+  /* Keyframes */
+  @keyframes ably-pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+  
+  @keyframes ably-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
+  @keyframes ably-fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  /* Transition utilities */
+  .ably-transition {
+    transition-property: all;
+    transition-duration: var(--ably-transition-base);
+  }
+  
+  .ably-transition-colors {
+    transition-property: color, background-color, border-color;
+    transition-duration: var(--ably-transition-base);
+  }
+  
+  .ably-transition-opacity {
+    transition-property: opacity;
+    transition-duration: var(--ably-transition-base);
+  }
+  
+  .ably-transition-transform {
+    transition-property: transform;
+    transition-duration: var(--ably-transition-base);
+  }
+}

@@ -1,0 +1,13 @@
+/* CSS Layer Definitions for Cascade Control */
+/* This ensures proper specificity order for style overrides */
+@layer ably-theme, ably-base, ably-components, ably-utilities;
+
+/* 
+ * Layer Order Explanation:
+ * 1. ably-theme: CSS custom properties and design tokens
+ * 2. ably-base: Reset styles and base element styling
+ * 3. ably-components: Component-specific styles (atoms, molecules)
+ * 4. ably-utilities: Helper classes and utilities
+ * 
+ * User's className prop styles are unlayered and will always override
+ */

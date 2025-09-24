@@ -1,0 +1,30 @@
+/* Main CSS Entry Point for Ably Chat UI Components */
+
+/* Import layer definitions first */
+@import './base/layers.css';
+
+/* Import theme variables */
+@import './base/variables.css';
+
+/* Import base reset styles */
+@import './base/reset.css';
+
+/* Import component styles - these will be added as we migrate each component */
+/* Atoms */
+/* @import './components/atoms/button.css'; */
+/* @import './components/atoms/avatar.css'; */
+/* @import './components/atoms/text-input.css'; */
+/* @import './components/atoms/icon.css'; */
+/* @import './components/atoms/tooltip.css'; */
+/* @import './components/atoms/typing-dots.css'; */
+
+/* Molecules */
+/* @import './components/molecules/chat-message.css'; */
+/* @import './components/molecules/message-input.css'; */
+/* @import './components/molecules/chat-message-list.css'; */
+/* @import './components/molecules/chat-window.css'; */
+/* @import './components/molecules/sidebar.css'; */
+/* Additional molecule imports will be added here */
+
+/* Import utility helpers */
+@import './utilities/helpers.css';
