@@ -87,7 +87,7 @@ export const ParticipantList = ({
 
   return (
     <div
-      className="absolute bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg min-w-80 max-h-96 overflow-hidden z-50"
+      className="ably-participant-list"
       style={{
         top: position.top,
         left: position.left,
@@ -98,22 +98,22 @@ export const ParticipantList = ({
       aria-labelledby="participants-heading"
     >
       {/* Header */}
-      <div className="p-4 border-b border-gray-200 dark:border-gray-600">
-        <div className="flex items-center justify-between">
-          <h3 id="participants-heading" className="font-semibold text-gray-900 dark:text-gray-100">
+      <div className="ably-participant-list__header">
+        <div className="ably-participant-list__header-content">
+          <h3 id="participants-heading" className="ably-participant-list__title">
             Participants ({presentCount})
           </h3>
           <Button variant="ghost" size="sm" onClick={onToggle} aria-label="Close participants list">
             <Icon name="close" size="sm" aria-hidden={true} />
           </Button>
         </div>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1" aria-live="polite">
+        <p className="ably-participant-list__count" aria-live="polite">
           {presentCount} {presentCount === 1 ? 'person' : 'people'} present
         </p>
       </div>
 
       {/* Participants List */}
-      <div className="max-h-64 overflow-y-auto" role="list" aria-label="Room participants">
+      <div className="ably-participant-list__content" role="list" aria-label="Room participants">
         {sortedParticipants.map((member) => {
           // Get the avatar for this user from the AvatarProvider
           return (

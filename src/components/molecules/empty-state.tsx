@@ -131,65 +131,44 @@ export const EmptyState = ({
   verticalAlign = 'center',
   textAlign = 'center',
 }: EmptyStateProps) => {
-  /**
-   * Maps maxWidth prop to Tailwind CSS classes
-   */
-  const maxWidthClasses = {
-    sm: 'max-w-sm',
-    md: 'max-w-md',
-    lg: 'max-w-lg',
-    xl: 'max-w-xl',
-  };
-
-  /**
-   * Maps verticalAlign prop to Tailwind CSS flexbox classes
-   */
-  const verticalAlignClasses = {
-    top: 'justify-start',
-    center: 'justify-center',
-    bottom: 'justify-end',
-  };
-
-  /**
-   * Maps textAlign prop to Tailwind CSS text alignment classes
-   */
-  const textAlignClasses = {
-    left: 'text-left',
-    center: 'text-center',
-    right: 'text-right',
-  };
-
   return (
     <div
-      className={clsx('flex-1 flex items-center', verticalAlignClasses[verticalAlign], className)}
+      className={clsx(
+        'ably-empty-state',
+        `ably-empty-state--align-${verticalAlign}`,
+        className
+      )}
       role="status"
       aria-label={ariaLabel}
     >
       <div
         className={clsx(
-          maxWidthClasses[maxWidth],
-          'mx-auto px-4 py-8',
-          textAlignClasses[textAlign]
+          'ably-empty-state__content',
+          `ably-empty-state__content--${maxWidth}`,
+          `ably-empty-state__content--text-${textAlign}`
         )}
       >
         {/* Icon Section */}
         {icon && (
-          <div className="mb-6" aria-hidden="true">
+          <div className="ably-empty-state__icon" aria-hidden="true">
             {icon}
           </div>
         )}
 
         {/* Title Section */}
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">{title}</h3>
+        <h3 className="ably-empty-state__title">{title}</h3>
 
         {/* Message Section */}
         {message && (
-          <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed mb-6">{message}</p>
+          <p className="ably-empty-state__message">{message}</p>
         )}
 
         {/* Action Section */}
         {action && (
-          <div className={clsx('mt-6', textAlign !== 'center' && 'flex justify-start')}>
+          <div className={clsx(
+            'ably-empty-state__action',
+            textAlign !== 'center' && 'ably-empty-state__action--left'
+          )}>
             {action}
           </div>
         )}

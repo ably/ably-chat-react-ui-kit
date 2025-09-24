@@ -53,7 +53,7 @@ export const PresenceCount = ({ presenceData }: PresenceCountProps) => {
 
   return (
     <div
-      className="absolute -bottom-1 -right-1 bg-green-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-medium"
+      className="ably-presence-count"
       aria-label={`${String(presentCount)} ${presentCount === 1 ? 'person' : 'people'} online`}
       role="status"
     >

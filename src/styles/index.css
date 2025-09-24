@@ -26,13 +26,30 @@
 @import './components/molecules/chat-window-footer.css';
 @import './components/molecules/chat-window-header.css';
 @import './components/molecules/confirm-dialog.css';
+@import './components/molecules/dropdown-menu.css';
 @import './components/molecules/emoji-picker.css';
+@import './components/molecules/empty-state.css';
 @import './components/molecules/message-actions.css';
 @import './components/molecules/message-input.css';
 @import './components/molecules/message-reactions.css';
+@import './components/molecules/presence-count.css';
+@import './components/molecules/room-info.css';
+@import './components/molecules/room-list-item.css';
+@import './components/molecules/sidebar.css';
 @import './components/molecules/typing-indicators.css';
-/* @import './components/molecules/sidebar.css'; */
-/* Additional molecule imports will be added here */
+@import './components/molecules/avatar-editor.css';
+@import './components/molecules/create-room-modal.css';
+@import './components/molecules/emoji-burst.css';
+@import './components/molecules/emoji-wheel.css';
+@import './components/molecules/participant.css';
+@import './components/molecules/participant-list.css';
+@import './components/molecules/presence-indicators.css';
+@import './components/molecules/presence-list.css';
+@import './components/molecules/room-list.css';
+@import './components/molecules/room-reaction.css';
+
+/* App Component */
+@import './app/app.css';
 
 /* Import utility helpers */
 @import './utilities/helpers.css';

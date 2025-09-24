@@ -1,0 +1,22 @@
+/**
+ * Room Reaction Component Styles
+ * Quick reaction button with emoji burst effects
+ */
+
+@layer ably-components {
+  /* Container */
+  .ably-room-reaction {
+    @apply px-4 py-4;
+  }
+
+  /* Reaction button */
+  .ably-room-reaction__button {
+    @apply inline-flex items-center justify-center px-3 py-1.5 text-sm rounded-md;
+    @apply text-gray-500 hover:text-yellow-500 dark:text-gray-400 dark:hover:text-yellow-400;
+    @apply hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors select-none;
+  }
+
+  .ably-room-reaction__emoji {
+    @apply text-xl;
+  }
+}

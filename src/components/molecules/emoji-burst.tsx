@@ -241,11 +241,11 @@ export const EmojiBurst = ({
   if (!isActive || emojis.length === 0) return;
 
   return (
-    <div className="fixed inset-0 pointer-events-none z-50" aria-hidden="true" role="presentation">
+    <div className="ably-emoji-burst" aria-hidden="true" role="presentation">
       {emojis.map((emoji) => (
         <div
           key={emoji.id}
-          className="absolute text-2xl select-none"
+          className="ably-emoji-burst__emoji"
           style={{
             left: emoji.x - 12,
             top: emoji.y - 12,

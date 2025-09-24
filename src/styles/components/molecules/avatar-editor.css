@@ -1,0 +1,115 @@
+/**
+ * Avatar Editor Component Styles
+ * Modal component for customizing user avatars
+ */
+
+@layer ably-components {
+  /* Container */
+  .ably-avatar-editor {
+    @apply fixed inset-0 bg-black/50 flex items-center justify-center z-50;
+  }
+
+  /* Modal */
+  .ably-avatar-editor__modal {
+    @apply bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md mx-4;
+  }
+
+  /* Header */
+  .ably-avatar-editor__header {
+    @apply flex items-center justify-between mb-4;
+  }
+
+  .ably-avatar-editor__title {
+    @apply text-lg font-semibold text-gray-900 dark:text-gray-100;
+  }
+
+  /* Preview */
+  .ably-avatar-editor__preview {
+    @apply flex justify-center mb-6;
+  }
+
+  /* Tabs */
+  .ably-avatar-editor__tabs {
+    @apply flex border-b border-gray-200 dark:border-gray-700 mb-4;
+  }
+
+  .ably-avatar-editor__tab {
+    @apply px-4 py-2 font-medium text-sm;
+    @apply text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300;
+  }
+
+  .ably-avatar-editor__tab--active {
+    @apply text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400;
+  }
+
+  /* Tab Panel */
+  .ably-avatar-editor__tab-panel {
+    @apply block;
+  }
+
+  .ably-avatar-editor__label {
+    @apply block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2;
+  }
+
+  /* Presets Grid */
+  .ably-avatar-editor__presets {
+    @apply grid grid-cols-3 gap-3;
+  }
+
+  .ably-avatar-editor__preset {
+    @apply cursor-pointer p-2 rounded-lg;
+    @apply hover:bg-gray-100 dark:hover:bg-gray-700;
+  }
+
+  .ably-avatar-editor__preset--selected {
+    @apply bg-blue-100 dark:bg-blue-900 ring-2 ring-blue-500;
+  }
+
+  .ably-avatar-editor__preset-content {
+    @apply flex flex-col items-center;
+  }
+
+  .ably-avatar-editor__preset-label {
+    @apply mt-1 text-xs text-gray-600 dark:text-gray-400;
+  }
+
+  /* Color Tab */
+  .ably-avatar-editor__color-tab {
+    @apply space-y-4;
+  }
+
+  /* Color Grid */
+  .ably-avatar-editor__color-grid {
+    @apply grid grid-cols-5 gap-2;
+  }
+
+  .ably-avatar-editor__color-option {
+    @apply w-8 h-8 rounded-full cursor-pointer;
+  }
+
+  .ably-avatar-editor__color-option--selected {
+    @apply ring-2 ring-offset-2 ring-gray-400;
+  }
+
+  /* Initials Input */
+  .ably-avatar-editor__initials-input {
+    @apply w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md;
+    @apply bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100;
+    @apply placeholder-gray-500 dark:placeholder-gray-400;
+    @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+  }
+
+  /* Error Message */
+  .ably-avatar-editor__error {
+    @apply text-red-600 dark:text-red-400 text-sm mt-2;
+  }
+
+  /* Actions */
+  .ably-avatar-editor__actions {
+    @apply flex gap-2 mt-6;
+  }
+
+  .ably-avatar-editor__action--primary {
+    @apply flex-1;
+  }
+}

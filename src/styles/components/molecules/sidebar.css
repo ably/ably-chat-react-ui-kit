@@ -1,0 +1,43 @@
+/* Sidebar Component */
+@layer ably-components {
+  /* Container */
+  .ably-sidebar {
+    @apply bg-white dark:bg-gray-900;
+    @apply border-r border-gray-200 dark:border-gray-800;
+    @apply flex flex-col h-full;
+    @apply w-full;
+  }
+
+  /* Header */
+  .ably-sidebar__header {
+    @apply flex items-center justify-between;
+    @apply p-4 border-b border-gray-200 dark:border-gray-800;
+    @apply min-h-[4rem];
+  }
+
+  /* Header collapsed state */
+  .ably-sidebar__header-collapsed {
+    @apply flex flex-col items-center gap-2;
+  }
+
+  /* Title */
+  .ably-sidebar__title {
+    @apply text-xl font-bold text-gray-900 dark:text-gray-100;
+    @apply truncate;
+  }
+
+  /* Room count */
+  .ably-sidebar__count {
+    @apply text-sm font-normal text-gray-500;
+  }
+
+  /* Header actions */
+  .ably-sidebar__actions {
+    @apply flex items-center gap-2 flex-shrink-0;
+  }
+
+  /* Content area */
+  .ably-sidebar__content {
+    @apply flex-1 overflow-y-auto min-w-0;
+  }
+}

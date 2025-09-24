@@ -1,0 +1,16 @@
+/**
+ * Emoji Burst Component Styles
+ * Animated burst effect for emoji reactions
+ */
+
+@layer ably-components {
+  /* Container */
+  .ably-emoji-burst {
+    @apply fixed inset-0 pointer-events-none z-50;
+  }
+
+  /* Flying emoji */
+  .ably-emoji-burst__emoji {
+    @apply absolute text-2xl select-none;
+  }
+}

@@ -1,0 +1,82 @@
+/* Empty State Component */
+@layer ably-components {
+  /* Container */
+  .ably-empty-state {
+    @apply flex-1 flex items-center;
+  }
+
+  /* Alignment modifiers */
+  .ably-empty-state--align-top {
+    @apply justify-start;
+  }
+
+  .ably-empty-state--align-center {
+    @apply justify-center;
+  }
+
+  .ably-empty-state--align-bottom {
+    @apply justify-end;
+  }
+
+  /* Content wrapper */
+  .ably-empty-state__content {
+    @apply mx-auto px-4 py-8;
+  }
+
+  /* Max width modifiers */
+  .ably-empty-state__content--sm {
+    @apply max-w-sm;
+  }
+
+  .ably-empty-state__content--md {
+    @apply max-w-md;
+  }
+
+  .ably-empty-state__content--lg {
+    @apply max-w-lg;
+  }
+
+  .ably-empty-state__content--xl {
+    @apply max-w-xl;
+  }
+
+  /* Text alignment modifiers */
+  .ably-empty-state__content--text-left {
+    @apply text-left;
+  }
+
+  .ably-empty-state__content--text-center {
+    @apply text-center;
+  }
+
+  .ably-empty-state__content--text-right {
+    @apply text-right;
+  }
+
+  /* Icon section */
+  .ably-empty-state__icon {
+    @apply mb-6;
+  }
+
+  /* Title */
+  .ably-empty-state__title {
+    @apply text-lg font-semibold;
+    @apply text-gray-900 dark:text-gray-100;
+    @apply mb-3;
+  }
+
+  /* Message */
+  .ably-empty-state__message {
+    @apply text-sm text-gray-600 dark:text-gray-400;
+    @apply leading-relaxed mb-6;
+  }
+
+  /* Action container */
+  .ably-empty-state__action {
+    @apply mt-6;
+  }
+
+  .ably-empty-state__action--left {
+    @apply flex justify-start;
+  }
+}

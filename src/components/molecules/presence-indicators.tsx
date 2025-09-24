@@ -53,8 +53,8 @@ export const PresenceIndicators = ({ className = '' }: PresenceIndicatorsProps) 
 
   return (
     <p
-      className={`text-sm ${
-        isAnyonePresent ? 'text-green-500' : 'text-gray-500 dark:text-gray-400'
+      className={`ably-presence-indicators ${
+        isAnyonePresent ? 'ably-presence-indicators--active' : 'ably-presence-indicators--inactive'
       } ${className}`}
       role="status"
       aria-live="polite"

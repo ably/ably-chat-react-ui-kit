@@ -1,0 +1,19 @@
+/**
+ * Presence Indicators Component Styles
+ * Text display showing participant count
+ */
+
+@layer ably-components {
+  /* Text display */
+  .ably-presence-indicators {
+    @apply text-sm;
+  }
+
+  .ably-presence-indicators--active {
+    @apply text-green-500;
+  }
+
+  .ably-presence-indicators--inactive {
+    @apply text-gray-500 dark:text-gray-400;
+  }
+}

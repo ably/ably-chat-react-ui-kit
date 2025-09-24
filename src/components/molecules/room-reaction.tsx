@@ -379,11 +379,11 @@ export const RoomReaction = ({
   }, []);
 
   return (
-    <div className={clsx('px-4 py-4', className)}>
+    <div className={clsx('ably-room-reaction', className)}>
       {/* Reaction Button */}
       <button
         ref={reactionButtonRef}
-        className="inline-flex items-center justify-center px-3 py-1.5 text-sm rounded-md text-gray-500 hover:text-yellow-500 dark:text-gray-400 dark:hover:text-yellow-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors select-none"
+        className="ably-room-reaction__button"
         onClick={handleReactionClick}
         onMouseDown={handleMouseDown}
         onMouseUp={handleMouseUp}
@@ -393,7 +393,7 @@ export const RoomReaction = ({
         aria-label={`Send ${defaultEmoji} reaction (long press for more options)`}
         type="button"
       >
-        <span className="text-xl" aria-hidden="true">
+        <span className="ably-room-reaction__emoji" aria-hidden="true">
           {defaultEmoji}
         </span>
       </button>

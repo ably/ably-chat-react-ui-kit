@@ -1,0 +1,65 @@
+/**
+ * Participant Component Styles
+ * Display individual chat room participant with status
+ */
+
+@layer ably-components {
+  /* Container */
+  .ably-participant {
+    @apply flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-700;
+  }
+
+  /* Avatar wrapper */
+  .ably-participant__avatar {
+    @apply relative;
+  }
+
+  /* Presence indicator dot */
+  .ably-participant__presence-indicator {
+    @apply absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full;
+    @apply border-2 border-white dark:border-gray-800;
+  }
+
+  .ably-participant__presence-indicator--online {
+    @apply bg-green-500;
+  }
+
+  .ably-participant__presence-indicator--offline {
+    @apply bg-gray-400;
+  }
+
+  /* Content */
+  .ably-participant__content {
+    @apply flex-1 min-w-0;
+  }
+
+  /* Name container */
+  .ably-participant__name-container {
+    @apply flex items-center gap-2;
+  }
+
+  .ably-participant__name {
+    @apply font-medium text-gray-900 dark:text-gray-100 truncate;
+  }
+
+  .ably-participant__self-label {
+    @apply ml-1 text-xs text-gray-500;
+  }
+
+  /* Status */
+  .ably-participant__status {
+    @apply flex items-center gap-2 mt-0.5;
+  }
+
+  .ably-participant__typing {
+    @apply text-xs text-blue-600 dark:text-blue-400 flex items-center gap-1;
+  }
+
+  .ably-participant__online {
+    @apply text-sm text-green-600 dark:text-green-400;
+  }
+
+  .ably-participant__offline {
+    @apply text-sm text-gray-500 dark:text-gray-400;
+  }
+}

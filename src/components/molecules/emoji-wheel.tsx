@@ -242,14 +242,14 @@ export const EmojiWheel = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 pointer-events-none"
+      className="ably-emoji-wheel"
       role="dialog"
       aria-label="Emoji reaction selector"
     >
       {/* Backdrop */}
       <div
-        className={`absolute inset-0 transition-opacity duration-200 pointer-events-auto ${
-          isOpen ? 'opacity-30' : 'opacity-0'
+        className={`ably-emoji-wheel__backdrop ${
+          isOpen ? 'ably-emoji-wheel__backdrop--open' : 'ably-emoji-wheel__backdrop--closed'
         }`}
         style={{ backgroundColor: 'rgba(0, 0, 0, 0.2)' }}
         onClick={onClose}
@@ -258,8 +258,8 @@ export const EmojiWheel = ({
       {/* Emoji Wheel Container */}
       <div
         data-emoji-wheel="true"
-        className={`absolute pointer-events-auto transition-all duration-300 ease-out ${
-          isOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-50'
+        className={`ably-emoji-wheel__container ${
+          isOpen ? 'ably-emoji-wheel__container--open' : 'ably-emoji-wheel__container--closed'
         }`}
         style={{
           left: safePosition.x - wheelSize / 2,
@@ -269,12 +269,12 @@ export const EmojiWheel = ({
         }}
       >
         {/* Center background circle */}
-        <div className="absolute inset-0 rounded-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-2xl border border-gray-200 dark:border-gray-600" />
+        <div className="ably-emoji-wheel__background" />
 
         {/* Center close button */}
         <button
           onClick={onClose}
-          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors flex items-center justify-center shadow-md z-10"
+          className="ably-emoji-wheel__close"
           aria-label="Close emoji selector"
         >
           <Icon name="close" size="sm" />
@@ -292,8 +292,8 @@ export const EmojiWheel = ({
               onClick={() => {
                 onEmojiSelect(emoji);
               }}
-              className={`absolute rounded-full bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl hover:scale-125 transition-all duration-200 flex items-center justify-center text-2xl border-2 border-gray-200 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 ${
-                isOpen ? 'animate-pulse' : ''
+              className={`ably-emoji-wheel__emoji-button ${
+                isOpen ? 'ably-emoji-wheel__emoji-button--animating' : ''
               }`}
               style={{
                 width: buttonSize,

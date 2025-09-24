@@ -1,0 +1,88 @@
+/* Room List Item Component */
+@layer ably-components {
+  /* Container base */
+  .ably-room-list-item {
+    @apply flex items-center gap-3 p-3;
+    @apply hover:bg-gray-50 dark:hover:bg-gray-800;
+    @apply cursor-pointer transition-colors;
+  }
+
+  /* Selected state */
+  .ably-room-list-item--selected {
+    @apply bg-gray-100 dark:bg-gray-800;
+    @apply border-r-2 border-blue-500;
+  }
+
+  /* Collapsed mode container */
+  .ably-room-list-item--collapsed {
+    @apply flex justify-center p-2;
+  }
+
+  /* Collapsed avatar wrapper */
+  .ably-room-list-item__collapsed-avatar {
+    @apply relative cursor-pointer;
+    @apply transition-transform hover:scale-110;
+  }
+
+  /* Collapsed selected state */
+  .ably-room-list-item__collapsed-avatar--selected {
+    @apply ring-2 ring-blue-500 rounded-full;
+  }
+
+  /* Avatar wrapper */
+  .ably-room-list-item__avatar {
+    @apply relative;
+  }
+
+  /* Activity indicator */
+  .ably-room-list-item__activity-indicator {
+    @apply absolute -bottom-0.5 -right-0.5;
+    @apply w-3 h-3 bg-green-500 rounded-full;
+    @apply border-2 border-white dark:border-gray-900;
+  }
+
+  /* Presence badge */
+  .ably-room-list-item__presence-badge {
+    @apply absolute -top-1 -right-1;
+    @apply bg-green-500 text-white text-xs;
+    @apply rounded-full w-4 h-4;
+    @apply flex items-center justify-center font-medium;
+  }
+
+  /* Content area */
+  .ably-room-list-item__content {
+    @apply flex-1 min-w-0;
+  }
+
+  /* Header row */
+  .ably-room-list-item__header {
+    @apply flex items-center justify-between;
+  }
+
+  /* Room name */
+  .ably-room-list-item__name {
+    @apply font-medium text-gray-900 dark:text-gray-100;
+    @apply truncate;
+  }
+
+  /* Actions wrapper */
+  .ably-room-list-item__actions {
+    @apply flex items-center gap-2 flex-shrink-0;
+  }
+
+  /* Leave button */
+  .ably-room-list-item__leave-button {
+    @apply opacity-0 transition-opacity;
+    @apply text-gray-400 hover:text-red-500 p-1;
+  }
+
+  /* Show leave button on container hover */
+  .ably-room-list-item:hover .ably-room-list-item__leave-button {
+    @apply opacity-100;
+  }
+
+  /* Connection count */
+  .ably-room-list-item__count {
+    @apply text-xs text-gray-400;
+  }
+}

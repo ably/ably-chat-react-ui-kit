@@ -1,3 +1,4 @@
+import { clsx } from 'clsx';
 import React, { useEffect, useRef, useState } from 'react';
 
 /**
@@ -180,8 +181,9 @@ export const DropdownMenu = ({ trigger, items, align = 'right' }: DropdownMenuPr
   };
 
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div className="ably-dropdown-menu" ref={dropdownRef}>
       <div
+        className="ably-dropdown-menu__trigger"
         onClick={() => {
           setIsOpen(!isOpen);
         }}
@@ -204,7 +206,7 @@ export const DropdownMenu = ({ trigger, items, align = 'right' }: DropdownMenuPr
         <>
           {/* Backdrop */}
           <div
-            className="fixed inset-0 z-40"
+            className="ably-dropdown-menu__backdrop"
             onClick={() => {
               setIsOpen(false);
             }}
@@ -216,15 +218,16 @@ export const DropdownMenu = ({ trigger, items, align = 'right' }: DropdownMenuPr
             id="dropdown-menu"
             role="menu"
             aria-orientation="vertical"
-            className={`absolute top-full mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg z-50 ${
-              align === 'right' ? 'right-0' : 'left-0'
-            }`}
+            className={clsx(
+              'ably-dropdown-menu__menu',
+              align === 'right' ? 'ably-dropdown-menu__menu--right' : 'ably-dropdown-menu__menu--left'
+            )}
           >
-            <div className="py-1">
+            <div className="ably-dropdown-menu__items">
               {items.map((item) => (
                 <button
                   key={item.id}
-                  className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3 transition-colors"
+                  className="ably-dropdown-menu__item"
                   onClick={() => {
                     handleItemClick(item);
                   }}
@@ -232,7 +235,7 @@ export const DropdownMenu = ({ trigger, items, align = 'right' }: DropdownMenuPr
                   tabIndex={-1}
                 >
                   {item.icon && (
-                    <span className="text-gray-500 dark:text-gray-400" aria-hidden="true">
+                    <span className="ably-dropdown-menu__item-icon" aria-hidden="true">
                       {item.icon}
                     </span>
                   )}

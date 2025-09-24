@@ -1,0 +1,11 @@
+/* Presence Count Component */
+@layer ably-components {
+  /* Badge */
+  .ably-presence-count {
+    @apply absolute -bottom-1 -right-1;
+    @apply bg-green-500 text-white text-xs;
+    @apply rounded-full w-6 h-6;
+    @apply flex items-center justify-center;
+    @apply font-medium;
+  }
+}

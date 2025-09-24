@@ -1,4 +1,5 @@
 import { useOccupancy } from '@ably/chat/react';
+import { clsx } from 'clsx';
 import React from 'react';
 
 import { useRoomAvatar } from '../../hooks/use-room-avatar.tsx';
@@ -131,11 +132,12 @@ export const RoomListItem = React.memo(function RoomListItem({
   // If collapsed, render just the avatar with selection indicator
   if (isCollapsed) {
     return (
-      <div className="flex justify-center p-2">
+      <div className="ably-room-list-item--collapsed">
         <div
-          className={`relative cursor-pointer transition-transform hover:scale-110 ${
-            isSelected ? 'ring-2 ring-blue-500 rounded-full' : ''
-          }`}
+          className={clsx(
+            'ably-room-list-item__collapsed-avatar',
+            isSelected && 'ably-room-list-item__collapsed-avatar--selected'
+          )}
           onClick={onClick}
           title={roomAvatarData?.displayName || roomName}
           role="button"
@@ -157,7 +159,7 @@ export const RoomListItem = React.memo(function RoomListItem({
             initials={roomAvatarData?.initials}
           />
           {isSelected && (
-            <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-gray-900" />
+            <div className="ably-room-list-item__activity-indicator" />
           )}
         </div>
       </div>
@@ -167,9 +169,10 @@ export const RoomListItem = React.memo(function RoomListItem({
   // Otherwise render the full room list item
   return (
     <div
-      className={`group flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-800
-                    cursor-pointer transition-colors
-                    ${isSelected ? 'bg-gray-100 dark:bg-gray-800 border-r-2 border-blue-500' : ''}`}
+      className={clsx(
+        'ably-room-list-item',
+        isSelected && 'ably-room-list-item--selected'
+      )}
       onClick={onClick}
       role="button"
       aria-label={`${roomAvatarData?.displayName || roomName} room${isSelected ? ' (selected)' : ''}${isActive ? `, ${String(presenceMembers)} online` : ''}`}
@@ -182,7 +185,7 @@ export const RoomListItem = React.memo(function RoomListItem({
         }
       }}
     >
-      <div className="relative">
+      <div className="ably-room-list-item__avatar">
         <Avatar
           alt={roomAvatarData?.displayName}
           src={roomAvatarData?.src}
@@ -194,7 +197,7 @@ export const RoomListItem = React.memo(function RoomListItem({
         {/* Present indicator */}
         {isActive && (
           <div
-            className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-gray-900"
+            className="ably-room-list-item__activity-indicator"
             aria-hidden="true"
             title="Room is active"
           />
@@ -203,7 +206,7 @@ export const RoomListItem = React.memo(function RoomListItem({
         {/* Present count badge */}
         {presenceMembers > 0 && (
           <div
-            className="absolute -top-1 -right-1 bg-green-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-medium"
+            className="ably-room-list-item__presence-badge"
             aria-hidden="true"
             title={`${String(presenceMembers)} ${presenceMembers === 1 ? 'person' : 'people'} online`}
           >
@@ -212,12 +215,12 @@ export const RoomListItem = React.memo(function RoomListItem({
         )}
       </div>
 
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center justify-between">
-          <h3 className="font-medium text-gray-900 dark:text-gray-100 truncate">
+      <div className="ably-room-list-item__content">
+        <div className="ably-room-list-item__header">
+          <h3 className="ably-room-list-item__name">
             {roomAvatarData?.displayName}
           </h3>
-          <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="ably-room-list-item__actions">
             {/* Leave button - only visible on hover */}
             <Button
               variant="ghost"
@@ -226,7 +229,7 @@ export const RoomListItem = React.memo(function RoomListItem({
                 e.stopPropagation();
                 onLeave();
               }}
-              className="opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-red-500 p-1"
+              className="ably-room-list-item__leave-button"
               aria-label={`Leave ${roomAvatarData?.displayName || 'room'}`}
               title={`Leave ${roomAvatarData?.displayName || 'room'}`}
             >
@@ -234,7 +237,7 @@ export const RoomListItem = React.memo(function RoomListItem({
             </Button>
             {/* Room participant count */}
             <span
-              className="text-xs text-gray-400"
+              className="ably-room-list-item__count"
               title={`${String(connections)} total ${connections === 1 ? 'connection' : 'connections'}`}
             >
               {connections}

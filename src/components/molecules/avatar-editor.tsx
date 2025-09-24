@@ -172,17 +172,17 @@ export const AvatarEditor = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md mx-4">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Edit Avatar</h2>
+    <div className="ably-avatar-editor">
+      <div className="ably-avatar-editor__modal">
+        <div className="ably-avatar-editor__header">
+          <h2 className="ably-avatar-editor__title">Edit Avatar</h2>
           <Button variant="ghost" size="sm" onClick={onClose}>
             <Icon name="close" size="sm" />
           </Button>
         </div>
 
         {/* Avatar Preview */}
-        <div className="flex justify-center mb-6">
+        <div className="ably-avatar-editor__preview">
           <Avatar
             alt={displayName}
             src={avatarUrl}
@@ -193,12 +193,10 @@ export const AvatarEditor = ({
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b border-gray-200 dark:border-gray-700 mb-4" role="tablist">
+        <div className="ably-avatar-editor__tabs" role="tablist">
           <button
-            className={`px-4 py-2 font-medium text-sm ${
-              activeTab === 'presets'
-                ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
-                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+            className={`ably-avatar-editor__tab ${
+              activeTab === 'presets' ? 'ably-avatar-editor__tab--active' : ''
             }`}
             onClick={() => {
               setActiveTab('presets');
@@ -211,10 +209,8 @@ export const AvatarEditor = ({
             Presets
           </button>
           <button
-            className={`px-4 py-2 font-medium text-sm ${
-              activeTab === 'color'
-                ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
-                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+            className={`ably-avatar-editor__tab ${
+              activeTab === 'color' ? 'ably-avatar-editor__tab--active' : ''
             }`}
             onClick={() => {
               setActiveTab('color');
@@ -230,26 +226,24 @@ export const AvatarEditor = ({
 
         {/* Presets Tab Content */}
         {activeTab === 'presets' && (
-          <div role="tabpanel" id="presets-tab" aria-labelledby="presets-tab-button">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <div className="ably-avatar-editor__tab-panel" role="tabpanel" id="presets-tab" aria-labelledby="presets-tab-button">
+            <label className="ably-avatar-editor__label">
               Choose a Preset Avatar
             </label>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="ably-avatar-editor__presets">
               {PRESET_AVATARS.map((preset, index) => (
                 <div
                   key={index}
-                  className={`cursor-pointer p-2 rounded-lg ${
-                    avatarUrl === preset.src
-                      ? 'bg-blue-100 dark:bg-blue-900 ring-2 ring-blue-500'
-                      : 'hover:bg-gray-100 dark:hover:bg-gray-700'
+                  className={`ably-avatar-editor__preset ${
+                    avatarUrl === preset.src ? 'ably-avatar-editor__preset--selected' : ''
                   }`}
                   onClick={() => {
                     handlePresetSelect(preset.src);
                   }}
                 >
-                  <div className="flex flex-col items-center">
+                  <div className="ably-avatar-editor__preset-content">
                     <Avatar alt={preset.label} src={preset.src} size="md" />
-                    <span className="mt-1 text-xs text-gray-600 dark:text-gray-400">
+                    <span className="ably-avatar-editor__preset-label">
                       {preset.label}
                     </span>
                   </div>
@@ -262,21 +256,21 @@ export const AvatarEditor = ({
         {/* Color Tab Content */}
         {activeTab === 'color' && (
           <div
-            className="space-y-4"
+            className="ably-avatar-editor__color-tab"
             role="tabpanel"
             id="color-tab"
             aria-labelledby="color-tab-button"
           >
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="ably-avatar-editor__label">
                 Background Color
               </label>
-              <div className="grid grid-cols-5 gap-2">
+              <div className="ably-avatar-editor__color-grid">
                 {COLOR_OPTIONS.map((color) => (
                   <div
                     key={color.value}
-                    className={`w-8 h-8 rounded-full ${color.value} cursor-pointer ${
-                      selectedColor === color.value ? 'ring-2 ring-offset-2 ring-gray-400' : ''
+                    className={`ably-avatar-editor__color-option ${color.value} ${
+                      selectedColor === color.value ? 'ably-avatar-editor__color-option--selected' : ''
                     }`}
                     onClick={() => {
                       handleColorSelect(color.value);
@@ -288,7 +282,7 @@ export const AvatarEditor = ({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="ably-avatar-editor__label">
                 Custom Initials (max 2 characters)
               </label>
               <input
@@ -297,18 +291,18 @@ export const AvatarEditor = ({
                 onChange={handleInitialsChange}
                 maxLength={2}
                 placeholder="AB"
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="ably-avatar-editor__initials-input"
               />
             </div>
           </div>
         )}
 
         {/* Error Message */}
-        {error && <div className="text-red-600 dark:text-red-400 text-sm mt-2">{error}</div>}
+        {error && <div className="ably-avatar-editor__error">{error}</div>}
 
         {/* Actions */}
-        <div className="flex gap-2 mt-6">
-          <Button variant="secondary" onClick={onClose} className="flex-1">
+        <div className="ably-avatar-editor__actions">
+          <Button variant="secondary" onClick={onClose} className="ably-avatar-editor__action--primary">
             Cancel
           </Button>
           {(currentAvatar || avatarUrl) && (
@@ -316,7 +310,7 @@ export const AvatarEditor = ({
               Remove
             </Button>
           )}
-          <Button onClick={handleSave} className="flex-1">
+          <Button onClick={handleSave} className="ably-avatar-editor__action--primary">
             Save
           </Button>
         </div>

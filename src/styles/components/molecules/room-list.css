@@ -1,0 +1,9 @@
+/**
+ * Room List Component Styles
+ * Container for room list items
+ */
+
+@layer ably-components {
+  /* This component is a simple wrapper that doesn't require specific styles */
+  /* It renders RoomListItem components which have their own styles */
+}

@@ -1,0 +1,61 @@
+/**
+ * Emoji Wheel Component Styles
+ * Circular emoji selector for quick reactions
+ */
+
+@layer ably-components {
+  /* Container */
+  .ably-emoji-wheel {
+    @apply fixed inset-0 z-50 pointer-events-none;
+  }
+
+  /* Backdrop */
+  .ably-emoji-wheel__backdrop {
+    @apply absolute inset-0 transition-opacity duration-200 pointer-events-auto;
+  }
+
+  .ably-emoji-wheel__backdrop--open {
+    @apply opacity-30;
+  }
+
+  .ably-emoji-wheel__backdrop--closed {
+    @apply opacity-0;
+  }
+
+  /* Wheel Container */
+  .ably-emoji-wheel__container {
+    @apply absolute pointer-events-auto transition-all duration-300 ease-out;
+  }
+
+  .ably-emoji-wheel__container--open {
+    @apply opacity-100 scale-100;
+  }
+
+  .ably-emoji-wheel__container--closed {
+    @apply opacity-0 scale-50;
+  }
+
+  /* Background circle */
+  .ably-emoji-wheel__background {
+    @apply absolute inset-0 rounded-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-2xl border border-gray-200 dark:border-gray-600;
+  }
+
+  /* Center close button */
+  .ably-emoji-wheel__close {
+    @apply absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2;
+    @apply w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600;
+    @apply transition-colors flex items-center justify-center shadow-md z-10;
+  }
+
+  /* Emoji button */
+  .ably-emoji-wheel__emoji-button {
+    @apply absolute rounded-full bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl;
+    @apply hover:scale-125 transition-all duration-200 flex items-center justify-center text-2xl;
+    @apply border-2 border-gray-200 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-400;
+    @apply hover:bg-blue-50 dark:hover:bg-blue-900/20;
+  }
+
+  .ably-emoji-wheel__emoji-button--animating {
+    @apply animate-pulse;
+  }
+}

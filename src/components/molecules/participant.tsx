@@ -98,11 +98,11 @@ export const Participant = ({
 
   return (
     <div
-      className="flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-700"
+      className="ably-participant"
       role="listitem"
       aria-label={`${isSelf ? 'You' : clientId}, ${statusText}`}
     >
-      <div className="relative">
+      <div className="ably-participant__avatar">
         <Avatar
           alt={avatarData?.displayName}
           src={avatarData?.src}
@@ -112,33 +112,33 @@ export const Participant = ({
         />
         {/* Presence Icon */}
         <div
-          className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white dark:border-gray-800 ${
-            isPresent ? 'bg-green-500' : 'bg-gray-400'
+          className={`ably-participant__presence-indicator ${
+            isPresent ? 'ably-participant__presence-indicator--online' : 'ably-participant__presence-indicator--offline'
           }`}
           aria-hidden="true"
           title={isPresent ? 'Online' : 'Offline'}
         />
       </div>
 
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2">
-          <h4 className="font-medium text-gray-900 dark:text-gray-100 truncate">
+      <div className="ably-participant__content">
+        <div className="ably-participant__name-container">
+          <h4 className="ably-participant__name">
             {clientId}
-            {isSelf && <span className="ml-1 text-xs text-gray-500">(you)</span>}
+            {isSelf && <span className="ably-participant__self-label">(you)</span>}
           </h4>
         </div>
         {/* Status */}
-        <div className="flex items-center gap-2 mt-0.5">
+        <div className="ably-participant__status">
           {/* Check if this participant is currently typing */}
           {isTyping && !isSelf ? (
-            <span className="text-xs text-blue-600 dark:text-blue-400 flex items-center gap-1">
+            <span className="ably-participant__typing">
               <TypingDots aria-hidden="true" />
               typing...
             </span>
           ) : isPresent ? (
-            <span className="text-sm text-green-600 dark:text-green-400">Online</span>
+            <span className="ably-participant__online">Online</span>
           ) : (
-            <span className="text-sm text-gray-500 dark:text-gray-400">Offline</span>
+            <span className="ably-participant__offline">Offline</span>
           )}
         </div>
       </div>

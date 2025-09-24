@@ -200,11 +200,11 @@ export const RoomInfo = ({
   };
 
   return (
-    <div className={clsx('flex items-center gap-3', className)}>
-      <div className="relative">
+    <div className={clsx('ably-room-info', className)}>
+      <div className="ably-room-info__avatar-wrapper">
         {/* Room Avatar with Hover Tooltip */}
         <div
-          className="relative cursor-pointer"
+          className="ably-room-info__avatar-button"
           onMouseEnter={handleMouseEnter}
           onMouseLeave={() => {
             setShowTooltip(false);
@@ -222,7 +222,7 @@ export const RoomInfo = ({
             }
           }}
         >
-          <div className="relative">
+          <div className="ably-room-info__avatar">
             <Avatar
               alt={roomAvatarData?.displayName}
               src={roomAvatarData?.src}
@@ -252,14 +252,14 @@ export const RoomInfo = ({
       </div>
 
       {/* Room Information */}
-      <div className="flex-1">
-        <h2 className="font-semibold text-gray-900 dark:text-gray-100">
+      <div className="ably-room-info__content">
+        <h2 className="ably-room-info__name">
           {roomAvatarData?.displayName || roomName}
         </h2>
-        <div className="flex items-center gap-2">
+        <div className="ably-room-info__indicators">
           <PresenceIndicators />
           {/* Typing Indicators */}
-          <TypingIndicators className="text-xs" />
+          <TypingIndicators className="ably-room-info__typing" />
         </div>
       </div>
     </div>

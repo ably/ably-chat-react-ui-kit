@@ -1,0 +1,52 @@
+/* Dropdown Menu Component */
+@layer ably-components {
+  /* Container */
+  .ably-dropdown-menu {
+    @apply relative;
+  }
+
+  /* Trigger button */
+  .ably-dropdown-menu__trigger {
+    /* Trigger styles are inherited from the trigger element */
+  }
+
+  /* Backdrop */
+  .ably-dropdown-menu__backdrop {
+    @apply fixed inset-0 z-40;
+  }
+
+  /* Menu container */
+  .ably-dropdown-menu__menu {
+    @apply absolute top-full mt-2 w-48;
+    @apply bg-white dark:bg-gray-800;
+    @apply border border-gray-200 dark:border-gray-600;
+    @apply rounded-lg shadow-lg z-50;
+  }
+
+  /* Menu alignment modifiers */
+  .ably-dropdown-menu__menu--right {
+    @apply right-0;
+  }
+
+  .ably-dropdown-menu__menu--left {
+    @apply left-0;
+  }
+
+  /* Menu items wrapper */
+  .ably-dropdown-menu__items {
+    @apply py-1;
+  }
+
+  /* Menu item button */
+  .ably-dropdown-menu__item {
+    @apply w-full text-left px-4 py-2 text-sm;
+    @apply text-gray-700 dark:text-gray-300;
+    @apply hover:bg-gray-100 dark:hover:bg-gray-700;
+    @apply flex items-center gap-3 transition-colors;
+  }
+
+  /* Menu item icon */
+  .ably-dropdown-menu__item-icon {
+    @apply text-gray-500 dark:text-gray-400;
+  }
+}

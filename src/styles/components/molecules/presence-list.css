@@ -1,0 +1,9 @@
+/**
+ * Presence List Component Styles
+ * Tooltip showing detailed participant information
+ */
+
+@layer ably-components {
+  /* No specific styles needed - component uses Tooltip component and inline styles for positioning */
+  /* The component primarily relies on the Tooltip atom component for its styling */
+}

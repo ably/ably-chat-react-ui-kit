@@ -74,24 +74,11 @@ export const Sidebar = ({
   const { theme, toggleTheme } = useTheme();
 
   return (
-    <aside
-      className={clsx(
-        'bg-white dark:bg-gray-900',
-        'border-r border-gray-200 dark:border-gray-800',
-        'flex flex-col h-full',
-        'w-full',
-        className
-      )}
-    >
+    <aside className={clsx('ably-sidebar', className)}>
       {/* Header */}
-      <div
-        className={clsx(
-          'flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800',
-          'min-h-[4rem]'
-        )}
-      >
+      <div className="ably-sidebar__header">
         {isCollapsed ? (
-          <div className="flex flex-col items-center gap-2">
+          <div className="ably-sidebar__header-collapsed">
             <Button variant="ghost" size="sm" onClick={toggleTheme}>
               <Icon name={theme === 'dark' ? 'sun' : 'moon'} size="md" />
             </Button>
@@ -103,11 +90,11 @@ export const Sidebar = ({
           </div>
         ) : (
           <>
-            <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100 truncate">
-              Chats <span className="text-sm font-normal text-gray-500">({roomNames.length})</span>
+            <h1 className="ably-sidebar__title">
+              Chats <span className="ably-sidebar__count">({roomNames.length})</span>
             </h1>
 
-            <div className="flex items-center gap-2 flex-shrink-0">
+            <div className="ably-sidebar__actions">
               <Button variant="ghost" size="sm" onClick={toggleTheme}>
                 <Icon name={theme === 'dark' ? 'sun' : 'moon'} size="md" />
               </Button>
@@ -140,7 +127,7 @@ export const Sidebar = ({
         )}
       </div>
 
-      <div className="flex-1 overflow-y-auto min-w-0">
+      <div className="ably-sidebar__content">
         <RoomList
           roomNames={roomNames}
           activeRoomName={activeRoomName}

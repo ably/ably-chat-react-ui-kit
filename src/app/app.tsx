@@ -84,20 +84,7 @@ export const App = ({ initialRoomNames, width = '70vw', height = '70vh' }: AppPr
 
   return (
     <div
-      className={clsx(
-        // Layout fundamentals
-        'flex',
-        // Theme and colors
-        'bg-gray-50 dark:bg-gray-950',
-        'text-gray-900 dark:text-gray-100',
-        // Positioning and overflow
-        'overflow-hidden',
-        // Visual styling
-        'border border-gray-200 dark:border-gray-700',
-        'rounded-lg shadow-lg',
-        // Centering
-        'mx-auto my-8'
-      )}
+      className="ably-app"
       style={containerStyle}
       role="main"
       aria-label="Main chat application"
@@ -105,9 +92,8 @@ export const App = ({ initialRoomNames, width = '70vw', height = '70vh' }: AppPr
       {/* Sidebar */}
       <div
         className={clsx(
-          'flex-shrink-0',
-          'transition-all duration-300 ease-in-out',
-          isSidebarCollapsed ? 'w-16' : 'w-64 md:w-72 lg:w-80'
+          'ably-app__sidebar',
+          isSidebarCollapsed ? 'ably-app__sidebar--collapsed' : 'ably-app__sidebar--expanded'
         )}
       >
         <Sidebar
@@ -123,7 +109,7 @@ export const App = ({ initialRoomNames, width = '70vw', height = '70vh' }: AppPr
       </div>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-hidden">
+      <main className="ably-app__main">
         {/* Render the active chat window if a room is selected, otherwise show empty state */}
         {activeRoom ? (
           <ChatRoomProvider key={activeRoom} name={activeRoom} options={DEFAULT_ROOM_OPTIONS}>
@@ -135,11 +121,11 @@ export const App = ({ initialRoomNames, width = '70vw', height = '70vh' }: AppPr
             />
           </ChatRoomProvider>
         ) : (
-          <div className="flex flex-col h-full">
+          <div className="ably-app__empty-state">
             <EmptyState
               icon={
                 <svg
-                  className="mx-auto h-12 w-12 text-gray-400"
+                  className="ably-app__empty-state-icon"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"

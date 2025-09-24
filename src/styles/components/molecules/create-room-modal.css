@@ -1,0 +1,47 @@
+/**
+ * Create Room Modal Component Styles
+ * Modal dialog for creating new chat rooms
+ */
+
+@layer ably-components {
+  /* Backdrop */
+  .ably-create-room-modal__backdrop {
+    @apply fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4;
+  }
+
+  /* Modal */
+  .ably-create-room-modal {
+    @apply bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md;
+  }
+
+  /* Header */
+  .ably-create-room-modal__header {
+    @apply flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700;
+  }
+
+  .ably-create-room-modal__title {
+    @apply text-xl font-semibold text-gray-900 dark:text-gray-100;
+  }
+
+  .ably-create-room-modal__close {
+    @apply text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors;
+  }
+
+  /* Content */
+  .ably-create-room-modal__content {
+    @apply p-6;
+  }
+
+  .ably-create-room-modal__field {
+    @apply mb-4;
+  }
+
+  .ably-create-room-modal__label {
+    @apply block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2;
+  }
+
+  /* Actions */
+  .ably-create-room-modal__actions {
+    @apply flex items-center justify-end gap-3;
+  }
+}
