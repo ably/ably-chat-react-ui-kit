@@ -1,0 +1,105 @@
+/* TextInput Component Styles */
+@layer ably-components {
+  /* Base input styles */
+  .ably-input {
+    @apply w-full;
+    @apply transition-colors duration-200 ease-in-out;
+    @apply focus:outline-none;
+    @apply disabled:opacity-50 disabled:pointer-events-none disabled:cursor-not-allowed;
+    @apply placeholder:text-gray-400 dark:placeholder:text-gray-500;
+  }
+  
+  /* Size variants */
+  .ably-input--sm {
+    @apply px-3 py-1.5 text-sm;
+  }
+  
+  .ably-input--md {
+    @apply px-4 py-2 text-base;
+  }
+  
+  .ably-input--lg {
+    @apply px-4 py-3 text-lg;
+  }
+  
+  /* Default variant */
+  .ably-input--default {
+    @apply rounded-lg border;
+    @apply bg-white dark:bg-gray-800;
+    @apply text-gray-900 dark:text-gray-100;
+    @apply border-gray-300 dark:border-gray-600;
+    @apply focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:border-blue-400;
+  }
+  
+  /* Message variant */
+  .ably-input--message {
+    @apply rounded-full border;
+    @apply bg-gray-50 dark:bg-gray-700;
+    @apply text-gray-900 dark:text-gray-100;
+    @apply border-gray-300 dark:border-gray-600;
+    @apply focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:border-blue-400;
+  }
+  
+  /* Error state */
+  .ably-input--error {
+    @apply border-red-500 dark:border-red-400;
+    @apply focus:ring-2 focus:ring-red-500 focus:border-red-500;
+  }
+  
+  /* Success state */
+  .ably-input--success {
+    @apply border-green-500 dark:border-green-400;
+    @apply focus:ring-2 focus:ring-green-500 focus:border-green-500;
+  }
+  
+  /* Multiline (textarea) specific */
+  .ably-input--multiline {
+    @apply resize-none overflow-y-hidden;
+  }
+  
+  /* When multiline is scrollable */
+  .ably-input--multiline-scrollable {
+    @apply overflow-y-auto;
+  }
+  
+  /* Message variant multiline keeps rounded corners */
+  .ably-input--message.ably-input--multiline {
+    @apply rounded-3xl;
+  }
+  
+  /* Prefix/suffix padding adjustments */
+  .ably-input--has-prefix {
+    @apply pl-10;
+  }
+  
+  .ably-input--has-suffix {
+    @apply pr-10;
+  }
+  
+  /* Container for inputs with prefix/suffix */
+  .ably-input-wrapper {
+    @apply relative flex items-center;
+  }
+  
+  .ably-input-wrapper--default {
+    @apply w-full;
+  }
+  
+  .ably-input-wrapper--message {
+    @apply flex-1;
+  }
+  
+  /* Prefix/suffix positioning */
+  .ably-input__prefix,
+  .ably-input__suffix {
+    @apply absolute z-10 flex items-center;
+  }
+  
+  .ably-input__prefix {
+    @apply left-3 pointer-events-none;
+  }
+  
+  .ably-input__suffix {
+    @apply right-3;
+  }
+}

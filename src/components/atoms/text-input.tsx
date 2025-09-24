@@ -150,72 +150,25 @@ export const TextInput = React.forwardRef<HTMLInputElement | HTMLTextAreaElement
     // Create a local ref for the textarea to handle auto-resize
     const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
-    // Base classes applied to all variants
-    const baseClasses = [
-      'transition-colors duration-200 ease-in-out',
-      'focus:outline-none',
-      'disabled:opacity-50 disabled:pointer-events-none disabled:cursor-not-allowed',
-      'placeholder:text-gray-400 dark:placeholder:text-gray-500',
-      'w-full',
-    ].join(' ');
-
-    // Size-specific classes
-    const sizeClasses = {
-      sm: 'px-3 py-1.5 text-sm',
-      md: 'px-4 py-2 text-base',
-      lg: 'px-4 py-3 text-lg',
-    };
-
-    // Variant-specific classes
-    const variantClasses = {
-      default: [
-        'rounded-lg border',
-        'bg-white dark:bg-gray-800',
-        'text-gray-900 dark:text-gray-100',
-        // State-specific border colors
-        error
-          ? 'border-red-500 dark:border-red-400'
-          : success
-            ? 'border-green-500 dark:border-green-400'
-            : 'border-gray-300 dark:border-gray-600',
-        // Focus states
-        error
-          ? 'focus:ring-2 focus:ring-red-500 focus:border-red-500'
-          : success
-            ? 'focus:ring-2 focus:ring-green-500 focus:border-green-500'
-            : 'focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:border-blue-400',
-      ].join(' '),
-
-      message: [
-        'rounded-full border',
-        'bg-gray-50 dark:bg-gray-700',
-        'text-gray-900 dark:text-gray-100',
-        // State-specific border colors
-        error
-          ? 'border-red-500 dark:border-red-400'
-          : success
-            ? 'border-green-500 dark:border-green-400'
-            : 'border-gray-300 dark:border-gray-600',
-        // Focus states
-        error
-          ? 'focus:ring-2 focus:ring-red-500 focus:border-red-500'
-          : success
-            ? 'focus:ring-2 focus:ring-green-500 focus:border-green-500'
-            : 'focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:border-blue-400',
-      ].join(' '),
-    };
-
-    // Additional classes for multiline textarea
-    const multilineClasses = multiline
-      ? [
-          'resize-none',
-          'overflow-y-hidden', // Hide scrollbar by default
-          variant === 'message' ? 'rounded-full' : 'rounded-lg', // Use rounded-full for message variant to match single-line input
-        ].join(' ')
-      : '';
-
     // Determine aria-invalid based on error state
     const computedAriaInvalid = ariaInvalid ?? (error ? 'true' : undefined);
+
+    // Build input classes using BEM convention
+    const buildInputClasses = () => {
+      return clsx(
+        'ably-input',
+        `ably-input--${size}`,
+        `ably-input--${variant}`,
+        {
+          'ably-input--error': error,
+          'ably-input--success': success && !error,
+          'ably-input--multiline': multiline,
+          'ably-input--has-prefix': prefix,
+          'ably-input--has-suffix': suffix,
+        },
+        className // User's custom classes always override
+      );
+    };
 
     // Auto-resize textarea function
     const autoResizeTextarea = useCallback(() => {
@@ -232,8 +185,8 @@ export const TextInput = React.forwardRef<HTMLInputElement | HTMLTextAreaElement
       // Check if content exceeds max height and show/hide scrollbar accordingly
       if (textarea.scrollHeight > Number.parseInt(maxHeight)) {
         // Show scrollbar only when content exceeds max height
-        textarea.classList.remove('overflow-y-hidden');
-        textarea.classList.add('overflow-y-auto');
+        textarea.classList.remove('ably-input--multiline');
+        textarea.classList.add('ably-input--multiline-scrollable');
 
         // If we're at max height, ensure we're scrolled to the bottom when typing
         if (textarea.value === value && typeof value === 'string') {
@@ -241,8 +194,8 @@ export const TextInput = React.forwardRef<HTMLInputElement | HTMLTextAreaElement
         }
       } else {
         // Hide scrollbar when content fits within max height
-        textarea.classList.remove('overflow-y-auto');
-        textarea.classList.add('overflow-y-hidden');
+        textarea.classList.remove('ably-input--multiline-scrollable');
+        textarea.classList.add('ably-input--multiline');
       }
     }, [maxHeight, value]);
 
@@ -267,15 +220,7 @@ export const TextInput = React.forwardRef<HTMLInputElement | HTMLTextAreaElement
             // Set our local ref
             textareaRef.current = element;
           }}
-          className={clsx(
-            baseClasses,
-            variantClasses[variant === 'message' ? 'default' : variant],
-            sizeClasses[size],
-            multilineClasses,
-            prefix && 'pl-10',
-            suffix && 'pr-10',
-            className
-          )}
+          className={buildInputClasses()}
           style={{ maxHeight }}
           disabled={disabled}
           aria-invalid={computedAriaInvalid}
@@ -298,14 +243,7 @@ export const TextInput = React.forwardRef<HTMLInputElement | HTMLTextAreaElement
       return (
         <input
           ref={ref as React.Ref<HTMLInputElement>}
-          className={clsx(
-            baseClasses,
-            variantClasses[variant],
-            sizeClasses[size],
-            prefix ? 'pl-10' : '',
-            suffix ? 'pr-10' : '',
-            className
-          )}
+          className={buildInputClasses()}
           disabled={disabled}
           aria-invalid={computedAriaInvalid}
           value={value}
@@ -319,15 +257,22 @@ export const TextInput = React.forwardRef<HTMLInputElement | HTMLTextAreaElement
     if (prefix || suffix) {
       return (
         <div
-          className={`relative flex items-center ${variant === 'default' ? 'w-full' : 'flex-1'}`}
+          className={clsx(
+            'ably-input-wrapper',
+            `ably-input-wrapper--${variant}`
+          )}
         >
           {prefix && (
-            <div className="absolute left-3 z-10 flex items-center pointer-events-none">
+            <div className="ably-input__prefix">
               {prefix}
             </div>
           )}
           {multiline ? renderTextarea() : renderInput()}
-          {suffix && <div className="absolute right-3 z-10 flex items-center">{suffix}</div>}
+          {suffix && (
+            <div className="ably-input__suffix">
+              {suffix}
+            </div>
+          )}
         </div>
       );
     }

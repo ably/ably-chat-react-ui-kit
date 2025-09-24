@@ -1,0 +1,59 @@
+/* Icon Component Styles */
+@layer ably-components {
+  /* Base icon styles */
+  .ably-icon {
+    @apply fill-none stroke-current;
+  }
+  
+  /* Size variants */
+  .ably-icon--sm {
+    @apply w-4 h-4;
+  }
+  
+  .ably-icon--md {
+    @apply w-5 h-5;
+  }
+  
+  .ably-icon--lg {
+    @apply w-6 h-6;
+  }
+  
+  .ably-icon--xl {
+    @apply w-8 h-8;
+  }
+  
+  /* Color variants */
+  .ably-icon--current {
+    @apply text-current;
+  }
+  
+  .ably-icon--primary {
+    @apply text-blue-600 dark:text-blue-400;
+  }
+  
+  .ably-icon--secondary {
+    @apply text-gray-600 dark:text-gray-400;
+  }
+  
+  .ably-icon--success {
+    @apply text-green-600 dark:text-green-400;
+  }
+  
+  .ably-icon--warning {
+    @apply text-yellow-600 dark:text-yellow-400;
+  }
+  
+  .ably-icon--error {
+    @apply text-red-600 dark:text-red-400;
+  }
+  
+  /* Interactive state */
+  .ably-icon--interactive {
+    @apply cursor-pointer;
+  }
+  
+  /* Missing icon placeholder */
+  .ably-icon-missing {
+    @apply flex items-center justify-center bg-gray-200 rounded text-gray-500 text-xs;
+  }
+}

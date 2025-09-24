@@ -11,12 +11,13 @@
 
 /* Import component styles - these will be added as we migrate each component */
 /* Atoms */
-/* @import './components/atoms/button.css'; */
-/* @import './components/atoms/avatar.css'; */
-/* @import './components/atoms/text-input.css'; */
-/* @import './components/atoms/icon.css'; */
-/* @import './components/atoms/tooltip.css'; */
-/* @import './components/atoms/typing-dots.css'; */
+@import './components/atoms/app-loading.css';
+@import './components/atoms/avatar.css';
+@import './components/atoms/button.css';
+@import './components/atoms/icon.css';
+@import './components/atoms/text-input.css';
+@import './components/atoms/tooltip.css';
+@import './components/atoms/typing-dots.css';
 
 /* Molecules */
 /* @import './components/molecules/chat-message.css'; */

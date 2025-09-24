@@ -124,9 +124,9 @@ export const PresenceList = ({
   return createPortal(
     <Tooltip
       position={tooltipPosition}
-      zIndex="z-50"
+      zIndex="50"
       className={clsx('fixed transform -translate-x-1/2', tooltipClassName)}
-      maxWidth="max-w-96"
+      maxWidth="lg"
       role="tooltip"
       aria-live="polite"
       style={{ top: coords.top, left: coords.left }}

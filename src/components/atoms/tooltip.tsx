@@ -29,9 +29,9 @@ export interface TooltipProps extends React.HTMLAttributes<HTMLDivElement> {
 
   /**
    * Maximum width constraint for the tooltip
-   * @default 'max-w-xs' (20rem)
+   * @default 'xs' (20rem)
    */
-  maxWidth?: string;
+  maxWidth?: 'xs' | 'sm' | 'md' | 'lg';
 
   /**
    * Text wrapping behavior for tooltip content
@@ -66,9 +66,9 @@ export interface TooltipProps extends React.HTMLAttributes<HTMLDivElement> {
 
   /**
    * Z-index for tooltip layering
-   * @default 'z-50'
+   * @default '50'
    */
-  zIndex?: string;
+  zIndex?: '10' | '50' | '100';
 }
 
 /**
@@ -93,7 +93,7 @@ export interface TooltipProps extends React.HTMLAttributes<HTMLDivElement> {
  *   position="below"
  *   variant="light"
  *   size="lg"
- *   maxWidth="max-w-sm"
+ *   maxWidth="sm"
  * >
  *   Custom tooltip content
  * </Tooltip>
@@ -108,106 +108,34 @@ export const Tooltip = ({
   position,
   children,
   className,
-  maxWidth = 'max-w-xs',
+  maxWidth = 'xs',
   wrap = 'wrap',
   variant = 'dark',
   size = 'md',
   showArrow = true,
-  zIndex = 'z-50',
+  zIndex = '50',
   spacing = 'default',
   role = 'tooltip',
   'aria-hidden': ariaHidden,
   ...rest
 }: TooltipProps) => {
-  // Size configurations
-  const sizeClasses = {
-    sm: {
-      surface: 'px-2 py-1 text-xs',
-      arrow: {
-        border: 'border-l-2 border-r-2',
-        directional: { above: 'border-t-2', below: 'border-b-2' },
-      },
-    },
-    md: {
-      surface: 'px-3 py-2 text-sm',
-      arrow: {
-        border: 'border-l-4 border-r-4',
-        directional: { above: 'border-t-4', below: 'border-b-4' },
-      },
-    },
-    lg: {
-      surface: 'px-4 py-3 text-base',
-      arrow: {
-        border: 'border-l-6 border-r-6',
-        directional: { above: 'border-t-6', below: 'border-b-6' },
-      },
-    },
-  };
-
-  // Variant-specific styling
-  const variantClasses = {
-    dark: {
-      surface: 'bg-gray-900 dark:bg-gray-700 text-white',
-      arrow: {
-        above: 'border-t-gray-900 dark:border-t-gray-700',
-        below: 'border-b-gray-900 dark:border-b-gray-700',
-      },
-    },
-    light: {
-      surface:
-        'bg-white dark:bg-gray-100 text-gray-900 dark:text-gray-800 border border-gray-200 dark:border-gray-300',
-      arrow: {
-        above: 'border-t-white dark:border-t-gray-100',
-        below: 'border-b-white dark:border-b-gray-100',
-      },
-    },
-  };
-
-  // Position-specific classes
-  const positionClasses = {
-    above: 'bottom-full mb-2',
-    below: 'top-full mt-2',
-  };
-
-  const wrapClasses = {
-    wrap: 'whitespace-normal',
-    nowrap: 'whitespace-nowrap',
-    truncate: 'whitespace-nowrap overflow-hidden text-ellipsis',
-  };
-
-  const spacingClasses = {
-    none: { above: 'bottom-full', below: 'top-full' },
-    sm: { above: 'bottom-full mb-1', below: 'top-full mt-1' },
-    default: { above: 'bottom-full mb-2', below: 'top-full mt-2' },
-    lg: { above: 'bottom-full mb-4', below: 'top-full mt-4' },
-  };
+  // Build tooltip classes
+  const isFixed = className?.includes('fixed');
+  const tooltipClasses = clsx(
+    !isFixed && 'ably-tooltip',
+    'ably-tooltip--' + size,
+    'ably-tooltip--' + variant,
+    'ably-tooltip--' + position,
+    'ably-tooltip--spacing-' + spacing,
+    'ably-tooltip--' + wrap,
+    'ably-tooltip--max-w-' + maxWidth,
+    'ably-tooltip--z-' + zIndex,
+    className
+  );
 
   return (
     <div
-      className={clsx(
-        // Base positioning and layout - only apply if not using fixed positioning
-        !className?.includes('fixed') && 'absolute left-1/2 transform -translate-x-1/2',
-        // Styling and appearance
-        'rounded-lg shadow-lg',
-        // Responsive sizing
-        maxWidth,
-        // Layering
-        zIndex,
-        // Position-specific classes with spacing - only apply if not using fixed positioning
-        !className?.includes('fixed') && spacingClasses[spacing][position],
-        // Size-specific padding and text
-        sizeClasses[size].surface,
-        // Text wrapping behavior
-        wrapClasses[wrap],
-        // Variant styling
-        variantClasses[variant].surface,
-        // Position-specific classes - only apply if not using fixed positioning
-        !className?.includes('fixed') && positionClasses[position],
-        // Animation and transitions
-        'transition-opacity duration-200 ease-in-out',
-        // Custom classes
-        className
-      )}
+      className={tooltipClasses}
       role={role}
       aria-hidden={ariaHidden}
       {...rest}
@@ -218,18 +146,10 @@ export const Tooltip = ({
       {showArrow && (
         <div
           className={clsx(
-            // Base arrow positioning - always centered on tooltip
-            'absolute left-1/2 transform -translate-x-1/2 w-0 h-0',
-            // Position relative to tooltip surface
-            position === 'above' ? 'top-full' : 'bottom-full',
-            // Transparent side borders for triangle shape
-            'border-transparent',
-            // Size-specific border widths
-            sizeClasses[size].arrow.border,
-            // Direction-specific border
-            sizeClasses[size].arrow.directional[position],
-            // Background color to match tooltip surface
-            variantClasses[variant].arrow[position]
+            'ably-tooltip__arrow',
+            'ably-tooltip__arrow--' + position,
+            'ably-tooltip__arrow--' + size,
+            'ably-tooltip__arrow--' + variant
           )}
           aria-hidden="true"
         />

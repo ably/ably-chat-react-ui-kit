@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import clsx from 'clsx';
 
 /**
  * AvatarData interface defines the structure for avatar data across the application.
@@ -19,26 +20,26 @@ export interface AvatarData {
 /**
  * Generates a deterministic color based on text
  * @param text - The text to generate a color from
- * @returns A Tailwind CSS color class
+ * @returns A color variant name
  */
 const getRandomColor = (text: string): string => {
   const colors = [
-    'bg-blue-500',
-    'bg-purple-500',
-    'bg-green-500',
-    'bg-orange-500',
-    'bg-red-500',
-    'bg-pink-500',
-    'bg-indigo-500',
-    'bg-yellow-500',
-    'bg-teal-500',
-    'bg-cyan-500',
-    'bg-emerald-500',
-    'bg-violet-500',
-    'bg-amber-500',
-    'bg-rose-500',
-    'bg-fuchsia-500',
-    'bg-sky-500',
+    'blue',
+    'purple',
+    'green',
+    'orange',
+    'red',
+    'pink',
+    'indigo',
+    'yellow',
+    'teal',
+    'cyan',
+    'emerald',
+    'violet',
+    'amber',
+    'rose',
+    'fuchsia',
+    'sky',
   ];
 
   // Generate a deterministic hash from the text
@@ -48,7 +49,27 @@ const getRandomColor = (text: string): string => {
   }
 
   const colorIndex = Math.abs(hash) % colors.length;
-  return colors[colorIndex] || 'bg-gray-500';
+  return colors[colorIndex] || 'gray';
+};
+
+/**
+ * Maps old Tailwind color classes to new color variant names
+ */
+const mapColorClass = (colorClass: string | undefined): string | undefined => {
+  if (!colorClass) return undefined;
+  
+  // Extract color name from bg-{color}-500 pattern
+  const match = colorClass.match(/^bg-(\w+)-\d+$/);
+  if (match && match[1]) {
+    return match[1];
+  }
+  
+  // If it's already a simple color name, return it
+  if (!colorClass.startsWith('bg-')) {
+    return colorClass;
+  }
+  
+  return undefined;
 };
 
 /**
@@ -69,7 +90,8 @@ export interface AvatarProps {
 
   /**
    * Background color for the avatar when no image is provided
-   * Uses Tailwind CSS color classes (e.g., 'bg-blue-500')
+   * Can be either a Tailwind CSS color class (e.g., 'bg-blue-500') for backward compatibility
+   * or a color name (e.g., 'blue')
    * If not provided, a color will be generated based on the alt text
    */
   color?: string;
@@ -93,6 +115,11 @@ export interface AvatarProps {
    * Click handler for the avatar, e.g for editing or viewing profiles
    */
   onClick?: () => void;
+
+  /**
+   * Additional CSS classes for customization
+   */
+  className?: string;
 }
 
 /**
@@ -119,14 +146,14 @@ export interface AvatarProps {
  *
  * @example
  * // With custom color and size
- * <Avatar alt="John Doe" color="bg-purple-500" size="lg" />
+ * <Avatar alt="John Doe" color="purple" size="lg" />
  *
  * @example
  * // Using AvatarData object
  * const avatarData = { displayName: "John Doe", src: "https://example.com/avatar.jpg" };
  * <Avatar alt={avatarData.displayName} src={avatarData.src} color={avatarData.color} initials={avatarData.initials} />
  */
-export const Avatar = ({ src, alt, color, size = 'md', initials, onClick }: AvatarProps) => {
+export const Avatar = ({ src, alt, color, size = 'md', initials, onClick, className }: AvatarProps) => {
   const [imgError, setImgError] = useState(false);
 
   // Reset image error state if src changes
@@ -134,17 +161,8 @@ export const Avatar = ({ src, alt, color, size = 'md', initials, onClick }: Avat
     setImgError(false);
   }, [src]);
 
-  // TODO: Extract to separate hook - useAvatarSizing
-  // Size classes mapping
-  const sizeClasses = {
-    sm: 'w-8 h-8 text-sm',
-    md: 'w-10 h-10 text-lg',
-    lg: 'w-12 h-12 text-xl',
-    xl: 'w-16 h-16 text-2xl',
-  };
-
-  // Use provided color or generate one based on alt text
-  const avatarColor = color || getRandomColor(alt ?? 'default');
+  // Map color prop to color variant (supporting both old and new format)
+  const colorVariant = mapColorClass(color) || getRandomColor(alt ?? 'default');
 
   // TODO: Extract to separate utility - generateInitials
   /**
@@ -188,13 +206,19 @@ export const Avatar = ({ src, alt, color, size = 'md', initials, onClick }: Avat
   // Determine if we're showing an image or initials
   const showingImage = src && !imgError;
 
+  const avatarClasses = clsx(
+    'ably-avatar',
+    `ably-avatar--${size}`,
+    `ably-avatar--${colorVariant}`,
+    {
+      'ably-avatar--clickable': onClick,
+    },
+    className,
+  );
+
   return (
     <div
-      className={`${sizeClasses[size]} rounded-full flex items-center justify-center text-white font-medium ${avatarColor} relative ${
-        onClick
-          ? 'cursor-pointer hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500'
-          : ''
-      }`}
+      className={avatarClasses}
       onClick={onClick}
       onKeyDown={
         onClick
@@ -216,7 +240,7 @@ export const Avatar = ({ src, alt, color, size = 'md', initials, onClick }: Avat
         <img
           src={src}
           alt={alt}
-          className="w-full h-full rounded-full object-cover"
+          className="ably-avatar__image"
           onError={handleImageError}
           loading="lazy"
         />

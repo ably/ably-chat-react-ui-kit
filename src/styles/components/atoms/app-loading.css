@@ -1,0 +1,30 @@
+/* AppLoading Component Styles */
+@layer ably-components {
+  /* Container styles */
+  .ably-app-loading {
+    @apply flex items-center justify-center;
+    @apply bg-gray-50 dark:bg-gray-950;
+    @apply text-gray-900 dark:text-gray-100;
+    @apply overflow-hidden;
+    @apply border border-gray-200 dark:border-gray-700;
+    @apply rounded-lg shadow-lg;
+    @apply mx-auto my-8;
+  }
+  
+  /* Content wrapper */
+  .ably-app-loading__content {
+    @apply text-center;
+  }
+  
+  /* Spinner styles */
+  .ably-app-loading__spinner {
+    @apply animate-spin rounded-full h-8 w-8;
+    @apply border-b-2 border-blue-500;
+    @apply mx-auto mb-4;
+  }
+  
+  /* Status text */
+  .ably-app-loading__text {
+    @apply text-gray-600;
+  }
+}

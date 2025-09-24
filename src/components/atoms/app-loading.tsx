@@ -8,13 +8,15 @@ interface AppLoadingProps {
   width?: string | number;
   /** Height of the loading container (default: '50vh') */
   height?: string | number;
+  /** Additional CSS classes to apply to the container */
+  className?: string;
 }
 
 /**
  * Loading component displayed while connecting to chat services.
  * Shows a spinner and connection status message.
  */
-export const AppLoading = ({ width = '50vw', height = '50vh' }: AppLoadingProps) => {
+export const AppLoading = ({ width = '50vw', height = '50vh', className }: AppLoadingProps) => {
   const containerStyle = useMemo(
     () => ({
       width: typeof width === 'number' ? `${String(width)}px` : width,
@@ -25,27 +27,14 @@ export const AppLoading = ({ width = '50vw', height = '50vh' }: AppLoadingProps)
 
   return (
     <div
-      className={clsx(
-        // Layout fundamentals
-        'flex items-center justify-center',
-        // Theme and colors
-        'bg-gray-50 dark:bg-gray-950',
-        'text-gray-900 dark:text-gray-100',
-        // Positioning and overflow
-        'overflow-hidden',
-        // Visual styling
-        'border border-gray-200 dark:border-gray-700',
-        'rounded-lg shadow-lg',
-        // Centering
-        'mx-auto my-8'
-      )}
+      className={clsx('ably-app-loading', className)}
       style={containerStyle}
       role="main"
       aria-label="Loading chat application"
     >
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-4"></div>
-        <p className="text-gray-600">Connecting to chat...</p>
+      <div className="ably-app-loading__content">
+        <div className="ably-app-loading__spinner"></div>
+        <p className="ably-app-loading__text">Connecting to chat...</p>
       </div>
     </div>
   );

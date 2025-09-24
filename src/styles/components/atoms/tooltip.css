@@ -1,0 +1,185 @@
+/* Tooltip Component Styles */
+@layer ably-components {
+  /* Base tooltip styles */
+  .ably-tooltip {
+    @apply absolute left-1/2 transform -translate-x-1/2;
+    @apply rounded-lg shadow-lg;
+    @apply transition-opacity duration-200 ease-in-out;
+  }
+  
+  /* Size variants */
+  .ably-tooltip--sm {
+    @apply px-2 py-1 text-xs;
+  }
+  
+  .ably-tooltip--md {
+    @apply px-3 py-2 text-sm;
+  }
+  
+  .ably-tooltip--lg {
+    @apply px-4 py-3 text-base;
+  }
+  
+  /* Variant styles */
+  .ably-tooltip--dark {
+    @apply bg-gray-900 dark:bg-gray-700 text-white;
+  }
+  
+  .ably-tooltip--light {
+    @apply bg-white dark:bg-gray-100 text-gray-900 dark:text-gray-800;
+    @apply border border-gray-200 dark:border-gray-300;
+  }
+  
+  /* Position variants */
+  .ably-tooltip--above {
+    @apply bottom-full;
+  }
+  
+  .ably-tooltip--below {
+    @apply top-full;
+  }
+  
+  /* Spacing variants */
+  .ably-tooltip--spacing-none.ably-tooltip--above {
+    @apply bottom-full;
+  }
+  
+  .ably-tooltip--spacing-none.ably-tooltip--below {
+    @apply top-full;
+  }
+  
+  .ably-tooltip--spacing-sm.ably-tooltip--above {
+    @apply bottom-full mb-1;
+  }
+  
+  .ably-tooltip--spacing-sm.ably-tooltip--below {
+    @apply top-full mt-1;
+  }
+  
+  .ably-tooltip--spacing-default.ably-tooltip--above {
+    @apply bottom-full mb-2;
+  }
+  
+  .ably-tooltip--spacing-default.ably-tooltip--below {
+    @apply top-full mt-2;
+  }
+  
+  .ably-tooltip--spacing-lg.ably-tooltip--above {
+    @apply bottom-full mb-4;
+  }
+  
+  .ably-tooltip--spacing-lg.ably-tooltip--below {
+    @apply top-full mt-4;
+  }
+  
+  /* Text wrap variants */
+  .ably-tooltip--wrap {
+    @apply whitespace-normal;
+  }
+  
+  .ably-tooltip--nowrap {
+    @apply whitespace-nowrap;
+  }
+  
+  .ably-tooltip--truncate {
+    @apply whitespace-nowrap overflow-hidden text-ellipsis;
+  }
+  
+  /* Arrow styles */
+  .ably-tooltip__arrow {
+    @apply absolute left-1/2 transform -translate-x-1/2 w-0 h-0;
+    @apply border-transparent;
+  }
+  
+  .ably-tooltip__arrow--above {
+    @apply top-full;
+  }
+  
+  .ably-tooltip__arrow--below {
+    @apply bottom-full;
+  }
+  
+  /* Arrow size variants */
+  .ably-tooltip__arrow--sm {
+    @apply border-l-2 border-r-2;
+  }
+  
+  .ably-tooltip__arrow--sm.ably-tooltip__arrow--above {
+    @apply border-t-2;
+  }
+  
+  .ably-tooltip__arrow--sm.ably-tooltip__arrow--below {
+    @apply border-b-2;
+  }
+  
+  .ably-tooltip__arrow--md {
+    @apply border-l-4 border-r-4;
+  }
+  
+  .ably-tooltip__arrow--md.ably-tooltip__arrow--above {
+    @apply border-t-4;
+  }
+  
+  .ably-tooltip__arrow--md.ably-tooltip__arrow--below {
+    @apply border-b-4;
+  }
+  
+  .ably-tooltip__arrow--lg {
+    @apply border-l-6 border-r-6;
+  }
+  
+  .ably-tooltip__arrow--lg.ably-tooltip__arrow--above {
+    @apply border-t-6;
+  }
+  
+  .ably-tooltip__arrow--lg.ably-tooltip__arrow--below {
+    @apply border-b-6;
+  }
+  
+  /* Arrow color variants */
+  .ably-tooltip__arrow--dark.ably-tooltip__arrow--above {
+    @apply border-t-gray-900 dark:border-t-gray-700;
+  }
+  
+  .ably-tooltip__arrow--dark.ably-tooltip__arrow--below {
+    @apply border-b-gray-900 dark:border-b-gray-700;
+  }
+  
+  .ably-tooltip__arrow--light.ably-tooltip__arrow--above {
+    @apply border-t-white dark:border-t-gray-100;
+  }
+  
+  .ably-tooltip__arrow--light.ably-tooltip__arrow--below {
+    @apply border-b-white dark:border-b-gray-100;
+  }
+  
+  /* Max width utilities */
+  .ably-tooltip--max-w-xs {
+    @apply max-w-xs;
+  }
+  
+  .ably-tooltip--max-w-sm {
+    @apply max-w-sm;
+  }
+  
+  .ably-tooltip--max-w-md {
+    @apply max-w-md;
+  }
+  
+  .ably-tooltip--max-w-lg {
+    @apply max-w-lg;
+  }
+  
+  /* Z-index utilities */
+  .ably-tooltip--z-10 {
+    @apply z-10;
+  }
+  
+  .ably-tooltip--z-50 {
+    @apply z-50;
+  }
+  
+  .ably-tooltip--z-100 {
+    z-index: 100;
+  }
+}

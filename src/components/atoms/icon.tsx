@@ -128,24 +128,6 @@ export const Icon = ({
   onClick,
   svgProps,
 }: IconProps) => {
-  // Size class mappings
-  const sizeClasses: Record<IconSize, string> = {
-    sm: 'w-4 h-4',
-    md: 'w-5 h-5',
-    lg: 'w-6 h-6',
-    xl: 'w-8 h-8',
-  };
-
-  // Color class mappings
-  const colorClasses = {
-    current: 'text-current',
-    primary: 'text-blue-600 dark:text-blue-400',
-    secondary: 'text-gray-600 dark:text-gray-400',
-    success: 'text-green-600 dark:text-green-400',
-    warning: 'text-yellow-600 dark:text-yellow-400',
-    error: 'text-red-600 dark:text-red-400',
-  };
-
   /**
    * SVG path definitions for each icon
    * All icons are designed for a 24x24 viewBox with stroke-based rendering
@@ -186,9 +168,15 @@ export const Icon = ({
       );
     }
 
+    const missingIconClasses = clsx(
+      'ably-icon-missing',
+      `ably-icon--${size}`,
+      className
+    );
+
     return (
       <div
-        className={`${sizeClasses[size]} ${className} flex items-center justify-center bg-gray-200 rounded text-gray-500 text-xs`}
+        className={missingIconClasses}
         title={`Missing icon: ${name}`}
         aria-label={ariaLabel || `Missing icon: ${name}`}
         role="img"
@@ -197,18 +185,24 @@ export const Icon = ({
       </div>
     );
   }
+  
   // Determine accessibility attributes
   const isInteractive = !!onClick;
   const shouldHideFromScreenReader = ariaHidden || (!ariaLabel && !isInteractive);
 
+  const iconClasses = clsx(
+    'ably-icon',
+    `ably-icon--${size}`,
+    `ably-icon--${color}`,
+    {
+      'ably-icon--interactive': isInteractive,
+    },
+    className
+  );
+
   return (
     <svg
-      className={clsx(
-        sizeClasses[size],
-        isInteractive && 'cursor-pointer',
-        colorClasses[color],
-        className
-      )}
+      className={iconClasses}
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"

@@ -6,11 +6,10 @@ import React from 'react';
  */
 export interface TypingDotsProps extends React.HTMLAttributes<HTMLDivElement> {
   /**
-   * Tailwind size utility classes for each dot
-   * @default 'w-1.5 h-1.5'
-   * @example 'w-2 h-2' for larger dots
+   * Size of the dots
+   * @default 'default'
    */
-  dotSizeClassName?: string;
+  size?: 'sm' | 'default' | 'md' | 'lg';
 
   /**
    * Custom classes for the container div that wraps all dots
@@ -29,10 +28,16 @@ export interface TypingDotsProps extends React.HTMLAttributes<HTMLDivElement> {
   animationDuration?: string;
 
   /**
-   * Color of the dots - uses CSS currentColor by default
-   * @default 'bg-current' (inherits text color)
+   * Color of the dots
+   * @default 'current' (inherits text color)
    */
-  dotColor?: string;
+  dotColor?: 'current' | 'blue' | 'gray' | 'green';
+
+  /**
+   * Gap between dots
+   * @default 'tight'
+   */
+  gap?: 'tight' | 'normal' | 'wide';
 }
 
 /**
@@ -56,9 +61,9 @@ const ANIMATION_DELAYS = ['0ms', '200ms', '400ms'];
  * @example
  * // Custom styling
  * <TypingDots
- *   dotSizeClassName="w-2 h-2"
- *   dotColor="bg-blue-500"
- *   className="gap-1"
+ *   size="md"
+ *   dotColor="blue"
+ *   gap="normal"
  * />
  *
  * @example
@@ -66,31 +71,40 @@ const ANIMATION_DELAYS = ['0ms', '200ms', '400ms'];
  * <TypingDots animationDuration="0.8s" />
  */
 export const TypingDots = ({
-  dotSizeClassName = 'w-1.5 h-1.5',
+  size = 'default',
   className,
   dotClassName,
   animationDuration = '1s',
-  dotColor = 'bg-current',
+  dotColor = 'current',
+  gap = 'tight',
   ...rest
-}: TypingDotsProps) => (
-  <div className={clsx('flex gap-0.5', className)} {...rest}>
-    {ANIMATION_DELAYS.map((delay) => (
-      <div
-        key={delay}
-        className={clsx(dotSizeClassName, 'rounded-full animate-bounce', dotColor, dotClassName)}
-        style={{
-          animationDelay: delay,
-          animationDuration,
-          // Ensure animation doesn't interfere with reduced motion preferences
-          // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-          ...(globalThis.window !== undefined &&
-            globalThis.matchMedia('(prefers-reduced-motion: reduce)').matches && {
-              animation: 'none',
-              opacity: 0.7,
-            }),
-        }}
-        aria-hidden="true"
-      />
-    ))}
-  </div>
-);
+}: TypingDotsProps) => {
+  const containerClasses = clsx(
+    'ably-typing-dots',
+    `ably-typing-dots--gap-${gap}`,
+    className
+  );
+
+  const dotClasses = clsx(
+    'ably-typing-dots__dot',
+    `ably-typing-dots__dot--${size}`,
+    `ably-typing-dots__dot--${dotColor}`,
+    dotClassName
+  );
+
+  return (
+    <div className={containerClasses} {...rest}>
+      {ANIMATION_DELAYS.map((delay) => (
+        <div
+          key={delay}
+          className={dotClasses}
+          style={{
+            animationDelay: delay,
+            animationDuration,
+          }}
+          aria-hidden="true"
+        />
+      ))}
+    </div>
+  );
+};
