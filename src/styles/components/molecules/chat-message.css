@@ -1,0 +1,95 @@
+/* Chat Message Component */
+@layer ably-components {
+  /* Container */
+  .ably-chat-message {
+    @apply relative flex items-start gap-2 mb-4;
+  }
+
+  /* Own message (right aligned) */
+  .ably-chat-message--own {
+    @apply flex-row-reverse;
+  }
+
+  /* Avatar container */
+  .ably-chat-message__avatar-container {
+    @apply relative;
+  }
+
+  /* Message wrapper */
+  .ably-chat-message__wrapper {
+    @apply flex flex-col;
+    @apply max-w-[85%] md:max-w-[80%] lg:max-w-[75%];
+  }
+
+  .ably-chat-message__wrapper--own {
+    @apply items-end;
+  }
+
+  .ably-chat-message__wrapper--other {
+    @apply items-start;
+  }
+
+  /* Message content container (for hover actions) */
+  .ably-chat-message__content-container {
+    @apply relative;
+  }
+
+  /* Message bubble */
+  .ably-chat-message__bubble {
+    @apply relative px-4 py-2 rounded-2xl;
+  }
+
+  .ably-chat-message__bubble--own {
+    @apply bg-gray-900 text-white;
+    @apply rounded-br-md;
+  }
+
+  .ably-chat-message__bubble--other {
+    @apply bg-gray-100 dark:bg-gray-800;
+    @apply text-gray-900 dark:text-gray-100;
+    @apply rounded-bl-md;
+  }
+
+  /* Message text */
+  .ably-chat-message__text {
+    @apply text-sm leading-relaxed;
+    @apply break-words break-all whitespace-pre-wrap;
+  }
+
+  .ably-chat-message__text--deleted {
+    @apply italic text-gray-500 dark:text-gray-400;
+  }
+
+  /* Edited indicator */
+  .ably-chat-message__edited {
+    @apply text-xs opacity-60 ml-2;
+  }
+
+  /* Edit mode container */
+  .ably-chat-message__edit-container {
+    @apply min-w-[200px];
+  }
+
+  /* Edit mode input wrapper */
+  .ably-chat-message__edit-input {
+    @apply text-sm mb-2;
+  }
+
+  /* Edit mode actions */
+  .ably-chat-message__edit-actions {
+    @apply flex gap-2;
+  }
+
+  /* Message metadata */
+  .ably-chat-message__metadata {
+    @apply flex items-center gap-2 mt-1 px-2;
+  }
+
+  .ably-chat-message__timestamp {
+    @apply text-xs text-gray-500;
+  }
+
+  .ably-chat-message__timestamp-separator {
+    @apply ml-1;
+  }
+}

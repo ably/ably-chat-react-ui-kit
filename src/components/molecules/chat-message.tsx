@@ -365,18 +365,18 @@ export const ChatMessage = ({
     <div
       ref={messageRef}
       className={clsx(
-        'relative flex items-start gap-2 mb-4',
-        isOwn ? 'flex-row-reverse' : 'flex-row',
+        'ably-chat-message',
+        isOwn && 'ably-chat-message--own',
         className
       )}
       role="article"
       aria-label={`Message from ${message.clientId}${message.action === ChatMessageAction.MessageDelete ? ' (deleted)' : ''}${message.action === ChatMessageAction.MessageUpdate ? ' (edited)' : ''}`}
     >
       {/* Avatar with hover tooltip functionality */}
-      <div className="relative">
+      <div className="ably-chat-message__avatar-container">
         <div
           ref={avatarRef}
-          className={`relative`}
+          className="ably-chat-message__avatar-container"
           onMouseEnter={handleAvatarMouseEnter}
           onMouseLeave={handleAvatarMouseLeave}
           aria-label={`Avatar for ${message.clientId}`}
@@ -415,10 +415,13 @@ export const ChatMessage = ({
       </div>
 
       <div
-        className={`flex flex-col max-w-[85%] md:max-w-[80%] lg:max-w-[75%] ${isOwn ? 'items-end' : 'items-start'}`}
+        className={clsx(
+          'ably-chat-message__wrapper',
+          isOwn ? 'ably-chat-message__wrapper--own' : 'ably-chat-message__wrapper--other'
+        )}
       >
         <div
-          className="relative"
+          className="ably-chat-message__content-container"
           onMouseEnter={() => {
             setIsHovered(true);
           }}
@@ -428,15 +431,14 @@ export const ChatMessage = ({
         >
           <div
             ref={messageBubbleRef}
-            className={`relative px-4 py-2 rounded-2xl ${
-              isOwn
-                ? 'bg-gray-900 text-white rounded-br-md'
-                : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-bl-md'
-            }`}
+            className={clsx(
+              'ably-chat-message__bubble',
+              isOwn ? 'ably-chat-message__bubble--own' : 'ably-chat-message__bubble--other'
+            )}
             aria-live={message.action === ChatMessageAction.MessageUpdate ? 'polite' : 'off'}
           >
             {isEditing ? (
-              <div className="min-w-[200px]">
+              <div className="ably-chat-message__edit-container">
                 <TextInput
                   value={editText}
                   onChange={(e) => {
@@ -444,11 +446,11 @@ export const ChatMessage = ({
                   }}
                   onKeyDown={handleKeyPress}
                   placeholder="Edit message..."
-                  className="text-sm mb-2"
+                  className="ably-chat-message__edit-input"
                   autoFocus
                   aria-label="Edit message text"
                 />
-                <div className="flex gap-2">
+                <div className="ably-chat-message__edit-actions">
                   <Button
                     variant="primary"
                     size="sm"
@@ -465,14 +467,14 @@ export const ChatMessage = ({
             ) : (
               <div>
                 {message.action === ChatMessageAction.MessageDelete ? (
-                  <p className="text-sm leading-relaxed break-words break-all whitespace-pre-wrap italic text-gray-500 dark:text-gray-400">
+                  <p className={clsx('ably-chat-message__text', 'ably-chat-message__text--deleted')}>
                     Message deleted
                   </p>
                 ) : (
-                  <p className="text-sm leading-relaxed break-words break-all whitespace-pre-wrap">
+                  <p className="ably-chat-message__text">
                     {message.text || ''}
                     {message.action === ChatMessageAction.MessageUpdate && (
-                      <span className="text-xs opacity-60 ml-2">(edited)</span>
+                      <span className="ably-chat-message__edited">(edited)</span>
                     )}
                   </p>
                 )}
@@ -502,11 +504,11 @@ export const ChatMessage = ({
             />
           )}
 
-        <div className="flex items-center gap-2 mt-1 px-2">
-          <span className="text-xs text-gray-500">
+        <div className="ably-chat-message__metadata">
+          <span className="ably-chat-message__timestamp">
             {formatTime(message.timestamp.getTime())}
             {message.action === ChatMessageAction.MessageUpdate && (
-              <span className="ml-1">
+              <span className="ably-chat-message__timestamp-separator">
                 • edited {formatTime(message.version.timestamp.getTime())}
               </span>
             )}

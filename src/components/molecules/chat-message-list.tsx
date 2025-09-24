@@ -311,10 +311,7 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
     return (
       <div
         ref={setRefs}
-        className={clsx(
-          'flex-1 overflow-y-auto pt-10 px-6 pb-6 space-y-6 bg-gray-50 dark:bg-gray-950 ably-scrollbar',
-          className
-        )}
+        className={clsx('ably-chat-message-list', 'ably-scrollbar', className)}
         role="log"
         aria-label="Chat messages"
         aria-live="polite"
@@ -323,14 +320,14 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
         {...rest}
       >
         {isLoading && (
-          <div className="flex justify-center py-4" role="status" aria-live="polite">
-            <span className="text-sm text-gray-500 dark:text-gray-400">Loading messages…</span>
+          <div className="ably-chat-message-list__loading" role="status" aria-live="polite">
+            <span className="ably-chat-message-list__loading-text">Loading messages…</span>
           </div>
         )}
 
         {!hasMoreHistory && messages.length > 0 && (
-          <div className="flex justify-center py-4" role="status">
-            <span className="text-sm text-gray-500 dark:text-gray-400">No more messages</span>
+          <div className="ably-chat-message-list__no-more" role="status">
+            <span className="ably-chat-message-list__no-more-text">No more messages</span>
           </div>
         )}
 
@@ -341,7 +338,7 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
             else messagesMapRef.current.delete(msg.serial);
           };
           return (
-            <div key={msg.serial} ref={setEl}>
+            <div key={msg.serial} ref={setEl} className="ably-chat-message-list__message">
               <ChatMessage
                 message={msg}
                 onEdit={onEdit}
@@ -353,7 +350,10 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
           );
         })}
         {enableTypingIndicators && (
-          <TypingIndicators className="px-4" onTypingChange={handleTypingChange} />
+          <TypingIndicators
+            className="ably-chat-message-list__typing"
+            onTypingChange={handleTypingChange}
+          />
         )}
       </div>
     );

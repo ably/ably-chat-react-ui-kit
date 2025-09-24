@@ -1,0 +1,60 @@
+/* Confirm Dialog Component */
+@layer ably-components {
+  /* Backdrop */
+  .ably-confirm-dialog__backdrop {
+    @apply fixed inset-0 bg-black/50 z-50;
+    @apply flex items-center justify-center p-4;
+  }
+
+  /* Dialog container */
+  .ably-confirm-dialog__container {
+    @apply bg-white dark:bg-gray-800;
+    @apply rounded-lg shadow-xl;
+    @apply w-full max-w-md;
+  }
+
+  /* Header */
+  .ably-confirm-dialog__header {
+    @apply flex items-center justify-between;
+    @apply p-6 border-b border-gray-200 dark:border-gray-700;
+  }
+
+  .ably-confirm-dialog__header-content {
+    @apply flex items-center gap-3;
+  }
+
+  /* Icon wrapper */
+  .ably-confirm-dialog__icon {
+    @apply flex-shrink-0;
+    @apply text-red-500 dark:text-red-400;
+  }
+
+  /* Title */
+  .ably-confirm-dialog__title {
+    @apply text-xl font-semibold;
+    @apply text-gray-900 dark:text-gray-100;
+  }
+
+  /* Close button */
+  .ably-confirm-dialog__close {
+    @apply text-gray-400 hover:text-gray-600;
+    @apply dark:hover:text-gray-300;
+    @apply transition-colors;
+  }
+
+  /* Content */
+  .ably-confirm-dialog__content {
+    @apply p-6;
+  }
+
+  /* Message */
+  .ably-confirm-dialog__message {
+    @apply text-gray-700 dark:text-gray-300;
+    @apply mb-6;
+  }
+
+  /* Actions */
+  .ably-confirm-dialog__actions {
+    @apply flex items-center justify-end gap-3;
+  }
+}

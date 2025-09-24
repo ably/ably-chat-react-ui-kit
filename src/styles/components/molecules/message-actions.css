@@ -1,0 +1,22 @@
+/* Message Actions Component */
+@layer ably-components {
+  /* Container */
+  .ably-message-actions {
+    @apply absolute -top-9 right-0 z-10 flex items-center gap-1;
+    @apply bg-white dark:bg-gray-800;
+    @apply border border-gray-200 dark:border-gray-600;
+    @apply rounded-lg shadow-md p-1;
+  }
+
+  /* Action buttons */
+  .ably-message-actions__button {
+    @apply text-gray-600 hover:text-gray-800;
+    @apply dark:text-gray-400 dark:hover:text-gray-200;
+  }
+
+  /* Delete button variant */
+  .ably-message-actions__button--delete {
+    @apply text-gray-600 hover:text-red-600;
+    @apply dark:text-gray-400 dark:hover:text-red-400;
+  }
+}

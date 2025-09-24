@@ -284,7 +284,7 @@ export const EmojiPicker = ({
     return displayEmojis.map((emoji) => (
       <button
         key={emoji}
-        className="w-8 h-8 flex items-center justify-center text-lg hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+        className="ably-emoji-picker__emoji"
         onClick={() => {
           handleEmojiSelect(emoji);
         }}
@@ -301,16 +301,16 @@ export const EmojiPicker = ({
     if (recentEmojis.length === 0) return;
 
     return (
-      <div className="mb-3 pb-3 border-b border-gray-200 dark:border-gray-700">
-        <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Recent</p>
+      <div className="ably-emoji-picker__recent">
+        <p className="ably-emoji-picker__recent-label">Recent</p>
         <div
-          className="grid gap-2"
+          className="ably-emoji-picker__grid"
           style={{ gridTemplateColumns: `repeat(${String(columns)}, minmax(0, 1fr))` }}
         >
           {recentEmojis.map((emoji) => (
             <button
               key={`recent-${emoji}`}
-              className="w-8 h-8 flex items-center justify-center text-lg hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+              className="ably-emoji-picker__emoji"
               onClick={() => {
                 handleEmojiSelect(emoji);
               }}
@@ -328,11 +328,11 @@ export const EmojiPicker = ({
   return (
     <>
       {/* Backdrop */}
-      <div className="fixed inset-0 z-40" onClick={onClose} aria-hidden="true" />
+      <div className="ably-emoji-picker__backdrop" onClick={onClose} aria-hidden="true" />
 
       {/* Emoji Picker */}
       <div
-        className="fixed z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg overflow-hidden"
+        className="ably-emoji-picker"
         style={{
           top: position.top,
           left: position.left,
@@ -344,13 +344,13 @@ export const EmojiPicker = ({
         aria-label="Emoji picker"
       >
         {/* Fixed container with proper scrolling */}
-        <div className="h-full flex flex-col">
+        <div className="ably-emoji-picker__wrapper">
           {/* Content area with scrolling */}
-          <div className="flex-1 overflow-y-auto p-3">
+          <div className="ably-emoji-picker__content">
             {recentEmojiButtons}
 
             <div
-              className="grid gap-2"
+              className="ably-emoji-picker__grid"
               style={{ gridTemplateColumns: `repeat(${String(columns)}, minmax(0, 1fr))` }}
             >
               {emojiButtons}

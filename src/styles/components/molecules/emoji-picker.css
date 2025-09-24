@@ -1,0 +1,51 @@
+/* Emoji Picker Component */
+@layer ably-components {
+  /* Backdrop */
+  .ably-emoji-picker__backdrop {
+    @apply fixed inset-0 z-40;
+  }
+
+  /* Container */
+  .ably-emoji-picker {
+    @apply fixed z-50;
+    @apply bg-white dark:bg-gray-800;
+    @apply border border-gray-200 dark:border-gray-600;
+    @apply rounded-lg shadow-lg overflow-hidden;
+  }
+
+  /* Content wrapper */
+  .ably-emoji-picker__wrapper {
+    @apply h-full flex flex-col;
+  }
+
+  /* Scrollable content area */
+  .ably-emoji-picker__content {
+    @apply flex-1 overflow-y-auto p-3;
+  }
+
+  /* Recent section */
+  .ably-emoji-picker__recent {
+    @apply mb-3 pb-3;
+    @apply border-b border-gray-200 dark:border-gray-700;
+  }
+
+  /* Recent label */
+  .ably-emoji-picker__recent-label {
+    @apply text-xs text-gray-500 dark:text-gray-400;
+    @apply mb-2;
+  }
+
+  /* Emoji grid */
+  .ably-emoji-picker__grid {
+    @apply grid gap-2;
+  }
+
+  /* Emoji button */
+  .ably-emoji-picker__emoji {
+    @apply w-8 h-8;
+    @apply flex items-center justify-center;
+    @apply text-lg rounded;
+    @apply hover:bg-gray-100 dark:hover:bg-gray-700;
+    @apply transition-colors;
+  }
+}

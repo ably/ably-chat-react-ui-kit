@@ -1,0 +1,38 @@
+/* Chat Message List Component */
+@layer ably-components {
+  /* Container */
+  .ably-chat-message-list {
+    @apply flex-1 overflow-y-auto;
+    @apply pt-10 px-6 pb-6 space-y-6;
+    @apply bg-gray-50 dark:bg-gray-950;
+  }
+
+  /* Loading indicator */
+  .ably-chat-message-list__loading {
+    @apply flex justify-center py-4;
+  }
+
+  .ably-chat-message-list__loading-text {
+    @apply text-sm text-gray-500 dark:text-gray-400;
+  }
+
+  /* No more messages indicator */
+  .ably-chat-message-list__no-more {
+    @apply flex justify-center py-4;
+  }
+
+  .ably-chat-message-list__no-more-text {
+    @apply text-sm text-gray-500 dark:text-gray-400;
+  }
+
+  /* Message item wrapper */
+  .ably-chat-message-list__message {
+    /* Container for individual messages */
+    /* No specific styles, just semantic grouping */
+  }
+
+  /* Typing indicators container */
+  .ably-chat-message-list__typing {
+    @apply px-4;
+  }
+}

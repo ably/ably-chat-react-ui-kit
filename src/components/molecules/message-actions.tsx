@@ -1,4 +1,5 @@
 import { useRoom } from '@ably/chat/react';
+import { clsx } from 'clsx';
 import React from 'react';
 
 import { useChatSettings } from '../../hooks/use-chat-settings.tsx';
@@ -150,7 +151,7 @@ export const MessageActions = ({
 
   return (
     <div
-      className="absolute -top-9 right-0 z-10 flex items-center gap-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-md p-1"
+      className="ably-message-actions"
       role="toolbar"
       aria-label="Message actions"
     >
@@ -158,7 +159,7 @@ export const MessageActions = ({
         <Button
           variant="ghost"
           size="sm"
-          className="text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
+          className="ably-message-actions__button"
           onClick={onReactionButtonClicked}
           aria-label="Add reaction"
         >
@@ -170,7 +171,7 @@ export const MessageActions = ({
         <Button
           variant="ghost"
           size="sm"
-          className="text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
+          className="ably-message-actions__button"
           onClick={onEditButtonClicked}
           aria-label="Edit message"
         >
@@ -182,7 +183,7 @@ export const MessageActions = ({
         <Button
           variant="ghost"
           size="sm"
-          className="text-gray-600 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400"
+          className={clsx('ably-message-actions__button', 'ably-message-actions__button--delete')}
           onClick={onDeleteButtonClicked}
           aria-label="Delete message"
         >

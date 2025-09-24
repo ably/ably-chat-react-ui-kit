@@ -156,12 +156,12 @@ export const ConfirmDialog = ({
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+        className="ably-confirm-dialog__backdrop"
         onClick={onClose}
       >
         {/* Dialog */}
         <div
-          className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md"
+          className="ably-confirm-dialog__container"
           onClick={(e) => {
             e.stopPropagation();
           }}
@@ -171,23 +171,23 @@ export const ConfirmDialog = ({
           aria-describedby="confirm-dialog-message"
         >
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-            <div className="flex items-center gap-3">
+          <div className="ably-confirm-dialog__header">
+            <div className="ably-confirm-dialog__header-content">
               {icon && (
-                <div className="flex-shrink-0 text-red-500 dark:text-red-400" aria-hidden="true">
+                <div className="ably-confirm-dialog__icon" aria-hidden="true">
                   {icon}
                 </div>
               )}
               <h2
                 id="confirm-dialog-title"
-                className="text-xl font-semibold text-gray-900 dark:text-gray-100"
+                className="ably-confirm-dialog__title"
               >
                 {title}
               </h2>
             </div>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+              className="ably-confirm-dialog__close"
               aria-label="Close dialog"
             >
               <Icon name="close" size="md" />
@@ -195,13 +195,13 @@ export const ConfirmDialog = ({
           </div>
 
           {/* Content */}
-          <div className="p-6">
-            <p id="confirm-dialog-message" className="text-gray-700 dark:text-gray-300 mb-6">
+          <div className="ably-confirm-dialog__content">
+            <p id="confirm-dialog-message" className="ably-confirm-dialog__message">
               {message}
             </p>
 
             {/* Actions */}
-            <div className="flex items-center justify-end gap-3">
+            <div className="ably-confirm-dialog__actions">
               <Button variant="secondary" onClick={onClose}>
                 {cancelText}
               </Button>
