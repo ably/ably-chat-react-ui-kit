@@ -132,7 +132,7 @@ export const useMessageWindow = ({
   const [loading, setLoading] = useState<boolean>(false);
 
   /** Access the current room context so we can reset state correctly when it changes */
-  const { room } = useRoom();
+  const { roomName } = useRoom();
 
   // Reset state when room changes.
   useEffect(() => {
@@ -148,7 +148,7 @@ export const useMessageWindow = ({
       setActiveMessages([]);
       setAnchorIdx(-1);
     };
-  }, [room]);
+  }, [roomName]);
 
   const { historyBeforeSubscribe } = useMessages({
     listener: (event: ChatMessageEvent) => {

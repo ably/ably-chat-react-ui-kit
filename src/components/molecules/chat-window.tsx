@@ -270,6 +270,9 @@ export const ChatWindow = ({
   className,
   onError,
 }: ChatWindowProps) => {
+  // Initialize presence for the room,
+  usePresence({ autoEnterLeave: autoEnterPresence });
+
   const { deleteMessage, updateMessage, sendReaction, deleteReaction } = useMessages();
 
   const {
@@ -357,9 +360,6 @@ export const ChatWindow = ({
       role="main"
       aria-label={`Chat room: ${roomName}`}
     >
-      {/* Presence mount to enter presence on mount */}
-      {autoEnterPresence && <PresenceMount />}
-
       {/* Header */}
       {customHeaderContent && <ChatWindowHeader>{customHeaderContent}</ChatWindowHeader>}
 
@@ -398,12 +398,5 @@ export const ChatWindow = ({
     </div>
   );
 };
-
-/* convenience hook to enter presence on mount */
-function PresenceMount() {
-  usePresence();
-  // eslint-disable-next-line unicorn/no-null
-  return null;
-}
 
 ChatWindow.displayName = 'ChatWindow';

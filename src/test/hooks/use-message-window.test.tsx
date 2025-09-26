@@ -10,7 +10,6 @@ import {
   MessageReactionListener,
   MessageReactionSummaryEvent,
   PaginatedResult,
-  Room,
   RoomStatus,
 } from '@ably/chat';
 import {
@@ -125,26 +124,11 @@ const createMockUseMessagesResponse = (
   historyBeforeSubscribe: vi.fn(),
   roomStatus: RoomStatus.Attached,
   connectionStatus: ConnectionStatus.Connected,
+  getMessage: vi.fn(),
   ...overrides,
 });
 
-const createMockRoom = (overrides: Partial<Room> = {}): Room =>
-  ({
-    name: 'new-test-room',
-    messages: vi.fn(),
-    presence: vi.fn(),
-    reactions: vi.fn(),
-    typing: vi.fn(),
-    status: RoomStatus.Attached,
-    attach: vi.fn(),
-    detach: vi.fn(),
-    options: {},
-    release: vi.fn(),
-    ...overrides,
-  }) as Room;
-
 const createMockUseRoomResponse = (overrides: Partial<UseRoomResponse> = {}): UseRoomResponse => ({
-  room: createMockRoom(),
   roomStatus: RoomStatus.Attached,
   connectionStatus: ConnectionStatus.Connected,
   roomName: 'test-room',
@@ -574,10 +558,7 @@ describe('useMessageWindow Hook', () => {
       expect(result.current.activeMessages.length).toBe(3);
     });
 
-    const newMockRoom = createMockRoom();
-
     vi.mocked(useRoom).mockReturnValue({
-      room: newMockRoom,
       roomStatus: 'attached' as RoomStatus,
       connectionStatus: 'connected' as ConnectionStatus,
       roomName: 'new-test-room',
