@@ -13,7 +13,7 @@ const sampleMessage: Message = {
   id: 'msg-1',
   clientId: 'user2',
   text: 'Hello there! This is a sample chat message.',
-  createdAt: new Date(),
+  timestamp: new Date(),
   updatedAt: new Date(),
   isUpdated: false,
   isDeleted: false,

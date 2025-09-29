@@ -1,9 +1,13 @@
 import { Meta, StoryObj } from '@storybook/react-vite';
 import React from 'react';
-import { ConnectionStatus } from '@ably/chat';
+import { ConnectionStatus, Message } from '@ably/chat';
 
 import { App } from '../app/app.tsx';
-import { ChatClientProvider, MockChatClient } from '../../.storybook/mocks/mock-ably-chat';
+import {
+  ChatClientProvider,
+  getSerial,
+  MockChatClient,
+} from '../../.storybook/mocks/mock-ably-chat';
 import { AvatarProvider } from '../providers/avatar-provider';
 import { ChatSettingsProvider, ThemeProvider } from '../providers';
 
@@ -131,10 +135,10 @@ export const BusyChat: Story = {
       currentlyTyping: ['User1', 'User3', 'User7'],
       messages: Array.from({ length: 50 }, (_, i) => ({
         id: `m-${i + 1}`,
-        serial: `msg_${i + 1}`,
+        serial: getSerial(Date.now() - 1000 * 60 * (50 - i)),
         clientId: `User${(i % 15) + 1}`,
         text: `Message ${i + 1}: ${i % 3 === 0 ? 'This is a longer message with more content to demonstrate text wrapping and layout.' : i % 4 === 0 ? 'Short msg' : 'Regular message content here.'}`,
-        createdAt: new Date(Date.now() - 1000 * 60 * (50 - i)),
+        timestamp: new Date(Date.now() - 1000 * 60 * (50 - i)),
         updatedAt: new Date(Date.now() - 1000 * 60 * (50 - i)),
         isUpdated: i % 10 === 0,
         isDeleted: false,
@@ -169,10 +173,10 @@ export const QuietChat: Story = {
       messages: [
         {
           id: 'm-1',
-          serial: 'msg_1',
+          serial: getSerial(Date.now() - 1000 * 60 * 30),
           clientId: 'Alice',
           text: 'Hey there! 👋',
-          createdAt: new Date(Date.now() - 1000 * 60 * 30),
+          timestamp: new Date(Date.now() - 1000 * 60 * 30),
           updatedAt: new Date(Date.now() - 1000 * 60 * 30),
           isUpdated: false,
           isDeleted: false,
@@ -180,10 +184,10 @@ export const QuietChat: Story = {
         },
         {
           id: 'm-2',
-          serial: 'msg_2',
+          serial: getSerial(Date.now() - 1000 * 60 * 25),
           clientId: 'storybook-user',
           text: 'Hello! How are you doing?',
-          createdAt: new Date(Date.now() - 1000 * 60 * 25),
+          timestamp: new Date(Date.now() - 1000 * 60 * 25),
           updatedAt: new Date(Date.now() - 1000 * 60 * 25),
           isUpdated: false,
           isDeleted: false,

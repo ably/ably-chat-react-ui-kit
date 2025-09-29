@@ -18,7 +18,7 @@ const messages = [
     serial: 'msg_1',
     clientId: 'user1',
     text: 'Hey, how are you doing today?',
-    createdAt: new Date(Date.now() - 1000 * 60 * 5),
+    timestamp: new Date(Date.now() - 1000 * 60 * 5),
     updatedAt: new Date(Date.now() - 1000 * 60 * 5),
     isUpdated: false,
     isDeleted: false,
@@ -28,7 +28,7 @@ const messages = [
     serial: 'msg_2',
     clientId: 'user2',
     text: "I'm good, thanks! Working on the new chat UI.",
-    createdAt: new Date(Date.now() - 1000 * 60 * 4),
+    timestamp: new Date(Date.now() - 1000 * 60 * 4),
     updatedAt: new Date(Date.now() - 1000 * 60 * 4),
     isUpdated: false,
     isDeleted: false,
@@ -44,7 +44,7 @@ const messages = [
     serial: 'msg_3',
     clientId: 'user3',
     text: 'Nice! Looking forward to seeing it.',
-    createdAt: new Date(Date.now() - 1000 * 60 * 3),
+    timestamp: new Date(Date.now() - 1000 * 60 * 3),
     updatedAt: new Date(Date.now() - 1000 * 60 * 3),
     isUpdated: false,
     isDeleted: false,
@@ -119,7 +119,7 @@ export const Default: Story = {
           i % 5 === 0
             ? `This is a much longer message to test text wrapping and layout. Message number ${i + 1} with lots of content to see how it displays in the chat interface.`
             : `Message ${i + 1}`,
-        createdAt: new Date(Date.now() - 1000 * 60 * (25 - i)),
+        timestamp: new Date(Date.now() - 1000 * 60 * (25 - i)),
         updatedAt: new Date(Date.now() - 1000 * 60 * (25 - i)),
         reactions: emptyMessageReactions(),
       })
@@ -134,7 +134,7 @@ export const WithReactions: Story = {
         serial: 'msg_1',
         clientId: 'user2',
         text: 'Check out this awesome feature! 🚀',
-        createdAt: new Date(Date.now() - 1000 * 60 * 10),
+        timestamp: new Date(Date.now() - 1000 * 60 * 10),
         reactions: {
           distinct: {
             '🚀': { total: 3, clientIds: ['user1', 'user3', 'user4'] },
@@ -158,7 +158,7 @@ export const WithEditedMessages: Story = {
         serial: 'msg_1',
         clientId: 'user1',
         text: 'This message has been edited to fix a typo.',
-        createdAt: new Date(Date.now() - 1000 * 60 * 10),
+        timestamp: new Date(Date.now() - 1000 * 60 * 10),
         updatedAt: new Date(Date.now() - 1000 * 60 * 5),
         isUpdated: true,
       }),
@@ -174,7 +174,7 @@ export const WithDeletedMessages: Story = {
         serial: 'msg_1',
         clientId: 'user1',
         text: 'This message has been edited to fix a typo.',
-        createdAt: new Date(Date.now() - 1000 * 60 * 10),
+        timestamp: new Date(Date.now() - 1000 * 60 * 10),
         updatedAt: new Date(Date.now() - 1000 * 60 * 5),
         isUpdated: false,
         isDeleted: true,
@@ -214,7 +214,7 @@ export const AutoScrollComparison: Story = {
               serial: `msg_${i + 1}`,
               clientId: i % 2 === 0 ? 'user1' : 'user2',
               text: `Initial message ${i + 1}`,
-              createdAt: new Date(Date.now() - 1000 * 60 * (8 - i)),
+              timestamp: new Date(Date.now() - 1000 * 60 * (8 - i)),
             })
           ) as unknown as Message[]
       );
@@ -236,7 +236,7 @@ export const AutoScrollComparison: Story = {
                   ? 'user2'
                   : 'user3',
             text: `Message ${messageCountRef.current} - ${new Date().toLocaleTimeString()}`,
-            createdAt: new Date(),
+            timestamp: new Date(),
           }) as unknown as Message;
 
           setMessages((prev) => [...prev, newMessage]);
