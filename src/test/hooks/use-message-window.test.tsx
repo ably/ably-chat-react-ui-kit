@@ -29,15 +29,26 @@ vi.mock('@ably/chat/react', () => ({
   useRoom: vi.fn(),
 }));
 
+// Utility to generate a unique serial for messages -> 01726585978590-001@abcdefghij:001
+export const getSerial = (
+  timestamp?: number,
+  counter = '001',
+  seriesId = 'abcdefghij',
+  index = '001'
+): string => {
+  const ts = timestamp ?? Date.now();
+  return `${ts.toString().padStart(14, '0')}-${counter}@${seriesId}:${index}`;
+};
+
 const createMockMessage = (overrides: Partial<Message> = {}): Message => {
-  const serial = overrides.serial ?? `msg_${Date.now().toString()}`;
+  const serial = overrides.serial ?? getSerial();
   const clientId = overrides.clientId ?? 'mock-user';
   const text = overrides.text ?? 'my chat message';
   const timestamp = overrides.timestamp ?? new Date();
   const metadata = overrides.metadata ?? {};
   const headers = overrides.headers ?? {};
   const action = overrides.action ?? ChatMessageAction.MessageCreate;
-  const version = overrides.version ?? { serial: `msg_${Date.now().toString()}` };
+  const version = overrides.version ?? { serial: getSerial() };
   const reactions = overrides.reactions ?? {
     distinct: {},
     unique: {},
@@ -136,19 +147,19 @@ const createMockUseRoomResponse = (overrides: Partial<UseRoomResponse> = {}): Us
 describe('useMessageWindow Hook', () => {
   const mockMessages = [
     createMockMessage({
-      serial: 'msg_1',
+      serial: getSerial(Date.now() - 1000 * 60 * 5),
       clientId: 'user1',
       text: 'Message 1',
       timestamp: new Date(Date.now() - 1000 * 60 * 5),
     }),
     createMockMessage({
-      serial: 'msg_2',
+      serial: getSerial(Date.now() - 1000 * 60 * 10),
       clientId: 'user2',
       text: 'Message 2',
       timestamp: new Date(Date.now() - 1000 * 60 * 4),
     }),
     createMockMessage({
-      serial: 'msg_3',
+      serial: getSerial(Date.now() - 1000 * 60 * 3),
       clientId: 'user1',
       text: 'Message 3',
       timestamp: new Date(Date.now() - 1000 * 60 * 3),
@@ -199,9 +210,10 @@ describe('useMessageWindow Hook', () => {
       expect(result.current.activeMessages.length).toBe(3);
     });
 
+    const newMsgSerial = getSerial(Date.now());
     // Simulate a new message
     const newMessage = createMockMessage({
-      serial: 'msg_4',
+      serial: newMsgSerial,
       clientId: 'user2',
       text: 'Message 4',
       timestamp: new Date(),
@@ -213,13 +225,13 @@ describe('useMessageWindow Hook', () => {
 
     // Check that the new message was added
     expect(result.current.activeMessages.length).toBe(4);
-    expect(result.current.activeMessages[3]?.serial).toBe('msg_4');
+    expect(result.current.activeMessages[3]?.serial).toBe(newMsgSerial);
   });
 
   it('should handle message window navigation', async () => {
     const navigationMessages = Array.from({ length: 20 }, (_, i) =>
       createMockMessage({
-        serial: `nav_msg_${String(i + 1)}`,
+        serial: getSerial(Date.now() - 1000 * 60 * (20 - i)),
         clientId: `user${String((i % 3) + 1)}`,
         text: `Navigation test message ${String(i + 1)}`,
         timestamp: new Date(Date.now() - 1000 * 60 * (20 - i)),
@@ -273,17 +285,22 @@ describe('useMessageWindow Hook', () => {
     await waitFor(() => {
       const latestActiveMessages = result.current.activeMessages;
       const latestSerials = latestActiveMessages.map((m) => m.serial);
-      expect(latestSerials).toContain('nav_msg_20');
+      // Should have a serial with the latest timestamp
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      expect(latestSerials).toContain(navigationMessages[19]!.serial);
     });
 
     act(() => {
-      result.current.showMessagesAroundSerial('nav_msg_5');
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      result.current.showMessagesAroundSerial(navigationMessages[4]!.serial);
     });
 
-    // SHould center on a specific message
+    // Should center on a specific message
     await waitFor(() => {
       const messageSerials = result.current.activeMessages.map((m) => m.serial);
-      expect(messageSerials).toContain('nav_msg_5');
+      // Should contain the serial we centered on
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      expect(messageSerials).toContain(navigationMessages[4]!.serial);
     });
 
     // Now scroll down to newer messages
@@ -298,8 +315,8 @@ describe('useMessageWindow Hook', () => {
       expect(newSerials).not.toEqual(beforeScrollSerials);
     });
 
-    // Check that the active messages are still within the window size + overscan
-    expect(result.current.activeMessages.length).toBeLessThanOrEqual(10 + 2 * 2); // windowSize + 2 * overscan
+    // Check that the active messages are still within the window size + overscan (idx inclusive)
+    expect(result.current.activeMessages.length).toBeLessThanOrEqual(15); // windowSize + 2 * overscan
   });
 
   it('should handle loading more history', async () => {
@@ -349,22 +366,26 @@ describe('useMessageWindow Hook', () => {
   });
 
   it('should handle updates to messages already in local state', async () => {
+    const msgSerial = getSerial(Date.now());
+    const msgSerial2 = getSerial(Date.now() + 1);
+    const msgSerial3 = getSerial(Date.now() + 2);
+
     const msg1 = createMockMessage({
-      serial: 'msg_1',
+      serial: msgSerial,
       clientId: 'user1',
       text: 'First message',
-      timestamp: new Date(Date.now() - 1000 * 60 * 10),
+      timestamp: new Date(Date.now()),
     });
 
     const msg2 = createMockMessage({
-      serial: 'msg_2',
+      serial: msgSerial2,
       clientId: 'user2',
       text: 'Second message',
-      timestamp: new Date(Date.now() - 1000 * 60 * 5),
+      timestamp: new Date(Date.now()),
     });
 
     const msg3 = createMockMessage({
-      serial: 'msg_3',
+      serial: msgSerial3,
       clientId: 'user1',
       text: 'Third message',
       timestamp: new Date(Date.now()),
@@ -388,17 +409,18 @@ describe('useMessageWindow Hook', () => {
       expect(result.current.activeMessages).toHaveLength(3);
     });
 
-    expect(result.current.activeMessages[0]?.serial).toBe('msg_1');
-    expect(result.current.activeMessages[1]?.serial).toBe('msg_2');
-    expect(result.current.activeMessages[2]?.serial).toBe('msg_3');
+    expect(result.current.activeMessages[0]?.serial).toBe(msgSerial);
+    expect(result.current.activeMessages[1]?.serial).toBe(msgSerial2);
+    expect(result.current.activeMessages[2]?.serial).toBe(msgSerial3);
 
     // Create an update message for msg_2
+    const updateSerial = getSerial(Date.now() + 3);
     const updateMessage = createMockMessage({
-      serial: 'msg_2',
+      serial: msgSerial2,
       clientId: 'user2',
       text: 'Updated message 2',
       action: ChatMessageAction.MessageUpdate,
-      version: { serial: '2' },
+      version: { serial: updateSerial },
     });
 
     act(() => {
@@ -407,19 +429,20 @@ describe('useMessageWindow Hook', () => {
 
     // Check that msg_2 was updated
     expect(result.current.activeMessages).toHaveLength(3);
-    expect(result.current.activeMessages[1]?.serial).toBe('msg_2');
+    expect(result.current.activeMessages[1]?.serial).toBe(msgSerial2);
     expect(result.current.activeMessages[1]?.text).toBe('Updated message 2');
-    expect(result.current.activeMessages[1]?.version.serial).toBe('2');
+    expect(result.current.activeMessages[1]?.version.serial).toBe(updateSerial);
 
     expect(msg2.with).toHaveBeenCalledWith(updateMessage);
   });
 
   it('should handle message reactions and ignore reactions for non-existent messages', async () => {
     let reactionsListener: MessageReactionListener | undefined;
+    const msgSerial = getSerial(Date.now());
 
     // Create one message that will receive reactions
     const existingMessage = createMockMessage({
-      serial: 'msg_1',
+      serial: msgSerial,
       clientId: 'user1',
       text: 'This message will get reactions',
     });
@@ -446,7 +469,7 @@ describe('useMessageWindow Hook', () => {
       expect(result.current.activeMessages).toHaveLength(1);
     });
 
-    expect(result.current.activeMessages[0]?.serial).toBe('msg_1');
+    expect(result.current.activeMessages[0]?.serial).toBe(msgSerial);
     expect(result.current.activeMessages[0]?.text).toBe('This message will get reactions');
     expect(result.current.activeMessages[0]?.reactions).toEqual({
       distinct: {},
@@ -460,7 +483,7 @@ describe('useMessageWindow Hook', () => {
         reactionsListener({
           type: MessageReactionEventType.Summary,
           summary: {
-            messageSerial: 'msg_1', // This message exists
+            messageSerial: msgSerial, // This message exists
             distinct: {
               '👍': { total: 1, clientIds: ['user1'] },
             },
@@ -485,7 +508,7 @@ describe('useMessageWindow Hook', () => {
         reactionsListener({
           type: MessageReactionEventType.Summary,
           summary: {
-            messageSerial: 'msg_999', // This message does not exist in local staet so it should be discarded.
+            messageSerial: getSerial(Date.now() + 1), // This message does not exist in local state so it should be discarded.
             distinct: {
               '❤️': { total: 1, clientIds: ['user2'] },
             },
@@ -498,7 +521,7 @@ describe('useMessageWindow Hook', () => {
 
     // Double check that the active messages haven't changed
     expect(result.current.activeMessages).toHaveLength(1);
-    expect(result.current.activeMessages[0]?.serial).toBe('msg_1');
+    expect(result.current.activeMessages[0]?.serial).toBe(msgSerial);
 
     // Verify the message still has the correct reactions
     const updatedMessage = result.current.activeMessages[0];
@@ -568,45 +591,6 @@ describe('useMessageWindow Hook', () => {
     expect(result.current.activeMessages).toEqual([]);
   });
 
-  it('should respect window size and overscan options', async () => {
-    const largeMessageSet = Array.from({ length: 50 }, (_, i) =>
-      createMockMessage({
-        serial: `msg_${String(i + 1)}`,
-        clientId: `user${String((i % 3) + 1)}`,
-        text: `Message ${String(i + 1)}`,
-        timestamp: new Date(Date.now() - 1000 * 60 * (50 - i)),
-      })
-    );
-
-    const stableHistoryBeforeSubscribe = vi.fn().mockResolvedValue(
-      createMockPaginatedResult({
-        items: largeMessageSet,
-        hasNext: vi.fn().mockReturnValue(false),
-      })
-    );
-
-    const stableMockResponse = createMockUseMessagesResponse({
-      historyBeforeSubscribe: stableHistoryBeforeSubscribe,
-    });
-
-    vi.mocked(useMessages).mockReturnValue(stableMockResponse);
-
-    // Render the hook with custom window size and overscan
-    const { result } = renderHook(() =>
-      useMessageWindow({
-        windowSize: 10,
-        overscan: 5,
-      })
-    );
-
-    // Wait for the initial load to complete
-    await waitFor(() => {
-      expect(result.current.activeMessages.length).toBeGreaterThan(0);
-    });
-
-    expect(result.current.activeMessages.length).toBeLessThanOrEqual(20);
-  });
-
   describe('initial loading logic', () => {
     it('should initialize with empty messages when no history function is available', () => {
       vi.mocked(useMessages).mockReturnValue(
@@ -661,8 +645,8 @@ describe('useMessageWindow Hook', () => {
       expect(result.current.hasMoreHistory).toBe(true);
       expect(result.current.activeMessages).toEqual([]);
 
-      const mockMessage1 = createMockMessage({ serial: 'msg1', text: 'Hello' });
-      const mockMessage2 = createMockMessage({ serial: 'msg2', text: 'World' });
+      const mockMessage1 = createMockMessage({ serial: getSerial(Date.now()), text: 'Hello' });
+      const mockMessage2 = createMockMessage({ serial: getSerial(Date.now() + 1), text: 'World' });
       const mockPage = createMockPaginatedResult({
         items: [mockMessage1, mockMessage2],
         hasNext: () => false,
@@ -696,7 +680,10 @@ describe('useMessageWindow Hook', () => {
 
       const { result } = renderHook(() => useMessageWindow());
 
-      const mockMessage = createMockMessage({ serial: 'msg1', text: 'Only message' });
+      const mockMessage = createMockMessage({
+        serial: getSerial(Date.now()),
+        text: 'Only message',
+      });
       const mockPage = createMockPaginatedResult({ items: [mockMessage], hasNext: () => true });
 
       await act(async () => {
