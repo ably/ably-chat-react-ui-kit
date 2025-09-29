@@ -83,12 +83,7 @@ export const App = ({ initialRoomNames, width = '70vw', height = '70vh' }: AppPr
   }
 
   return (
-    <div
-      className="ably-app"
-      style={containerStyle}
-      role="main"
-      aria-label="Main chat application"
-    >
+    <div className="ably-app" style={containerStyle} role="main" aria-label="Main chat application">
       {/* Sidebar */}
       <div
         className={clsx(

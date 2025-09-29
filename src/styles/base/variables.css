@@ -11,22 +11,22 @@
     --ably-color-danger-hover: theme('colors.red.700');
     --ably-color-success: theme('colors.green.600');
     --ably-color-warning: theme('colors.yellow.600');
-    
+
     /* Text Colors */
     --ably-text-primary: theme('colors.gray.900');
     --ably-text-secondary: theme('colors.gray.600');
     --ably-text-muted: theme('colors.gray.500');
     --ably-text-inverse: theme('colors.white');
-    
+
     /* Background Colors */
     --ably-bg-primary: theme('colors.white');
     --ably-bg-secondary: theme('colors.gray.50');
     --ably-bg-tertiary: theme('colors.gray.100');
-    
+
     /* Border Colors */
     --ably-border-primary: theme('colors.gray.300');
     --ably-border-secondary: theme('colors.gray.200');
-    
+
     /* Spacing System */
     --ably-spacing-xs: theme('spacing.1');
     --ably-spacing-sm: theme('spacing.2');
@@ -34,7 +34,7 @@
     --ably-spacing-lg: theme('spacing.6');
     --ably-spacing-xl: theme('spacing.8');
     --ably-spacing-2xl: theme('spacing.12');
-    
+
     /* Typography */
     --ably-text-xs: theme('fontSize.xs');
     --ably-text-sm: theme('fontSize.sm');
@@ -42,13 +42,13 @@
     --ably-text-lg: theme('fontSize.lg');
     --ably-text-xl: theme('fontSize.xl');
     --ably-text-2xl: theme('fontSize.2xl');
-    
+
     /* Font Weights */
     --ably-font-normal: theme('fontWeight.normal');
     --ably-font-medium: theme('fontWeight.medium');
     --ably-font-semibold: theme('fontWeight.semibold');
     --ably-font-bold: theme('fontWeight.bold');
-    
+
     /* Border Radius */
     --ably-radius-sm: theme('borderRadius.sm');
     --ably-radius-md: theme('borderRadius.md');
@@ -56,28 +56,34 @@
     --ably-radius-xl: theme('borderRadius.xl');
     --ably-radius-2xl: theme('borderRadius.2xl');
     --ably-radius-full: theme('borderRadius.full');
-    
+
     /* Border Width */
     --ably-border-width: 1px;
     --ably-border-width-2: 2px;
-    
+
     /* Transitions */
     --ably-transition-fast: 150ms ease-in-out;
     --ably-transition-base: 200ms ease-in-out;
     --ably-transition-slow: 300ms ease-in-out;
-    
+
     /* Shadows */
     --ably-shadow-sm: theme('boxShadow.sm');
     --ably-shadow-md: theme('boxShadow.md');
     --ably-shadow-lg: theme('boxShadow.lg');
-    
+
     /* Z-Index */
     --ably-z-dropdown: 1000;
     --ably-z-modal: 1050;
     --ably-z-popover: 1100;
     --ably-z-tooltip: 1150;
+
+    /* Tooltip Styles */
+    --ably-tooltip-bg: theme('colors.gray.900');
+    --ably-tooltip-text: theme('colors.white');
+    --ably-tooltip-border-color: transparent;
+    --ably-tooltip-border-width: 0px;
   }
-  
+
   /* Dark Mode Overrides */
   .dark {
     /* Colors */
@@ -85,19 +91,25 @@
     --ably-color-primary-hover: theme('colors.blue.600');
     --ably-color-secondary: theme('colors.gray.700');
     --ably-color-secondary-hover: theme('colors.gray.600');
-    
+
     /* Text Colors */
     --ably-text-primary: theme('colors.gray.100');
     --ably-text-secondary: theme('colors.gray.400');
     --ably-text-muted: theme('colors.gray.500');
-    
+
     /* Background Colors */
     --ably-bg-primary: theme('colors.gray.900');
     --ably-bg-secondary: theme('colors.gray.800');
     --ably-bg-tertiary: theme('colors.gray.700');
-    
+
     /* Border Colors */
     --ably-border-primary: theme('colors.gray.600');
     --ably-border-secondary: theme('colors.gray.700');
+
+    /* Tooltip Styles */
+    --ably-tooltip-bg: theme('colors.gray.700');
+    --ably-tooltip-text: theme('colors.white');
+    --ably-tooltip-border-color: transparent;
+    --ably-tooltip-border-width: 0px;
   }
 }

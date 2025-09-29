@@ -241,11 +241,7 @@ export const EmojiWheel = ({
   };
 
   return (
-    <div
-      className="ably-emoji-wheel"
-      role="dialog"
-      aria-label="Emoji reaction selector"
-    >
+    <div className="ably-emoji-wheel" role="dialog" aria-label="Emoji reaction selector">
       {/* Backdrop */}
       <div
         className={`ably-emoji-wheel__backdrop ${

@@ -123,11 +123,7 @@ export const TypingIndicators = ({
   if (activeTypingUsers.length === 0) return;
 
   return (
-    <div
-      className={clsx('ably-typing-indicators', className)}
-      role="status"
-      aria-live="polite"
-    >
+    <div className={clsx('ably-typing-indicators', className)} role="status" aria-live="polite">
       <TypingDots aria-hidden="true" />
       <span className={clsx('ably-typing-indicators__text', textClassName)}>
         {buildTypingSentence(activeTypingUsers, maxClients)}

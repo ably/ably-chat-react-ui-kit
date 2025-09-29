@@ -150,11 +150,7 @@ export const MessageActions = ({
   }
 
   return (
-    <div
-      className="ably-message-actions"
-      role="toolbar"
-      aria-label="Message actions"
-    >
+    <div className="ably-message-actions" role="toolbar" aria-label="Message actions">
       {hasReactionAction && (
         <Button
           variant="ghost"

@@ -1,394 +1,525 @@
-import { render, screen } from '@testing-library/react';
+import '@testing-library/jest-dom';
+
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import React from 'react';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 
 import { Tooltip } from '../../../components/atoms/tooltip.tsx';
 
-describe('Tooltip', () => {
-  describe('Basic rendering', () => {
-    it('renders with required props', () => {
-      render(<Tooltip position="above">Tooltip content</Tooltip>);
+describe('Tooltip (Simplified)', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
 
-      const tooltip = screen.getByRole('tooltip');
-      expect(tooltip).toBeInTheDocument();
-      expect(tooltip).toHaveTextContent('Tooltip content');
-    });
+  afterEach(() => {
+    vi.runOnlyPendingTimers();
+    vi.useRealTimers();
+  });
 
-    it('renders with children as React elements', () => {
+  describe('Basic Rendering', () => {
+    it('renders trigger element when tooltip is closed', () => {
       render(
-        <Tooltip position="below">
-          <div data-testid="custom-content">Custom content</div>
+        <Tooltip title="Tooltip content">
+          <button>Hover me</button>
         </Tooltip>
       );
 
-      expect(screen.getByTestId('custom-content')).toBeInTheDocument();
-      expect(screen.getByText('Custom content')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Hover me' })).toBeInTheDocument();
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    });
+
+    it('renders custom content in tooltip', async () => {
+      render(
+        <Tooltip title={<div data-testid="custom-content">Custom content</div>}>
+          <button>Hover me</button>
+        </Tooltip>
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Hover me' });
+      fireEvent.mouseEnter(trigger);
+
+      // Fast-forward past the enter delay
+      vi.advanceTimersByTime(200);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('custom-content')).toBeInTheDocument();
+      });
+    });
+
+    it('returns children unchanged when no title provided', () => {
+      render(
+        <Tooltip title="">
+          <button data-testid="button">No tooltip</button>
+        </Tooltip>
+      );
+
+      const button = screen.getByTestId('button');
+      expect(button).toBeInTheDocument();
+
+      fireEvent.mouseEnter(button);
+      vi.advanceTimersByTime(200);
+
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    });
+
+    it('returns children unchanged when null title provided', () => {
+      render(
+        <Tooltip title={null as any}>
+          <button data-testid="button">No tooltip</button>
+        </Tooltip>
+      );
+
+      const button = screen.getByTestId('button');
+      expect(button).toBeInTheDocument();
+
+      fireEvent.mouseEnter(button);
+      vi.advanceTimersByTime(200);
+
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
     });
   });
 
-  describe('Positioning', () => {
-    it('applies correct classes for above position', () => {
-      render(<Tooltip position="above">Above tooltip</Tooltip>);
+  describe('Hover and Focus Triggers', () => {
+    it('shows tooltip on mouse enter', async () => {
+      render(
+        <Tooltip title="Hover tooltip">
+          <button>Hover me</button>
+        </Tooltip>
+      );
 
-      const tooltip = screen.getByRole('tooltip');
-      expect(tooltip).toHaveClass('bottom-full', 'mb-2');
+      const trigger = screen.getByRole('button');
+      fireEvent.mouseEnter(trigger);
+
+      vi.advanceTimersByTime(200);
+
+      await waitFor(() => {
+        expect(screen.getByRole('tooltip')).toBeInTheDocument();
+        expect(screen.getByText('Hover tooltip')).toBeInTheDocument();
+      });
     });
 
-    it('applies correct classes for below position', () => {
-      render(<Tooltip position="below">Below tooltip</Tooltip>);
+    it('hides tooltip on mouse leave immediately', async () => {
+      render(
+        <Tooltip title="Hover tooltip">
+          <button>Hover me</button>
+        </Tooltip>
+      );
 
-      const tooltip = screen.getByRole('tooltip');
-      expect(tooltip).toHaveClass('top-full', 'mt-2');
+      const trigger = screen.getByRole('button');
+
+      // Show tooltip
+      fireEvent.mouseEnter(trigger);
+      vi.advanceTimersByTime(200);
+
+      await waitFor(() => {
+        expect(screen.getByRole('tooltip')).toBeInTheDocument();
+      });
+
+      // Hide tooltip immediately (no leave delay)
+      fireEvent.mouseLeave(trigger);
+      vi.advanceTimersByTime(0);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+      });
+    });
+
+    it('shows tooltip on focus', async () => {
+      render(
+        <Tooltip title="Focus tooltip">
+          <button>Focus me</button>
+        </Tooltip>
+      );
+
+      const trigger = screen.getByRole('button');
+      fireEvent.focus(trigger);
+
+      vi.advanceTimersByTime(200);
+
+      await waitFor(() => {
+        expect(screen.getByRole('tooltip')).toBeInTheDocument();
+      });
+    });
+
+    it('hides tooltip on blur immediately', async () => {
+      render(
+        <Tooltip title="Focus tooltip">
+          <button>Focus me</button>
+        </Tooltip>
+      );
+
+      const trigger = screen.getByRole('button');
+
+      // Show tooltip
+      fireEvent.focus(trigger);
+      vi.advanceTimersByTime(200);
+
+      await waitFor(() => {
+        expect(screen.getByRole('tooltip')).toBeInTheDocument();
+      });
+
+      // Hide tooltip immediately
+      fireEvent.blur(trigger);
+      vi.advanceTimersByTime(0);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+      });
     });
   });
 
-  describe('Variants', () => {
-    it('applies dark variant classes by default', () => {
-      render(<Tooltip position="above">Dark tooltip</Tooltip>);
-
-      const tooltip = screen.getByRole('tooltip');
-      expect(tooltip).toHaveClass('bg-gray-900', 'dark:bg-gray-700', 'text-white');
-    });
-
-    it('applies light variant classes', () => {
+  describe('Fixed Delay Behavior', () => {
+    it('uses fixed 200ms enter delay', async () => {
       render(
-        <Tooltip position="above" variant="light">
-          Light tooltip
+        <Tooltip title="Delayed tooltip">
+          <button>Hover me</button>
         </Tooltip>
       );
 
-      const tooltip = screen.getByRole('tooltip');
-      expect(tooltip).toHaveClass(
-        'bg-white',
-        'dark:bg-gray-100',
-        'text-gray-900',
-        'dark:text-gray-800',
-        'border',
-        'border-gray-200',
-        'dark:border-gray-300'
+      const trigger = screen.getByRole('button');
+      fireEvent.mouseEnter(trigger);
+
+      // Should not show before 200ms
+      vi.advanceTimersByTime(100);
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+
+      // Should show after 200ms
+      vi.advanceTimersByTime(100);
+
+      await waitFor(() => {
+        expect(screen.getByRole('tooltip')).toBeInTheDocument();
+      });
+    });
+
+    it('has no leave delay (immediate hide)', async () => {
+      render(
+        <Tooltip title="No leave delay">
+          <button>Hover me</button>
+        </Tooltip>
       );
+
+      const trigger = screen.getByRole('button');
+
+      // Show tooltip
+      fireEvent.mouseEnter(trigger);
+      vi.advanceTimersByTime(200);
+
+      await waitFor(() => {
+        expect(screen.getByRole('tooltip')).toBeInTheDocument();
+      });
+
+      // Should hide immediately without delay
+      fireEvent.mouseLeave(trigger);
+      vi.advanceTimersByTime(0);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+      });
     });
   });
 
-  describe('Sizes', () => {
-    it('applies small size classes', () => {
+  describe('Disabled State', () => {
+    it('does not show tooltip when disabled', () => {
       render(
-        <Tooltip position="above" size="sm">
-          Small tooltip
+        <Tooltip title="Disabled tooltip" disabled>
+          <button>Hover me</button>
         </Tooltip>
       );
 
-      const tooltip = screen.getByRole('tooltip');
-      expect(tooltip).toHaveClass('px-2', 'py-1', 'text-xs');
+      const trigger = screen.getByRole('button');
+      fireEvent.mouseEnter(trigger);
+      vi.advanceTimersByTime(200);
+
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
     });
 
-    it('applies medium size classes by default', () => {
-      render(<Tooltip position="above">Medium tooltip</Tooltip>);
-
-      const tooltip = screen.getByRole('tooltip');
-      expect(tooltip).toHaveClass('px-3', 'py-2', 'text-sm');
-    });
-
-    it('applies large size classes', () => {
+    it('does not show tooltip on focus when disabled', () => {
       render(
-        <Tooltip position="above" size="lg">
-          Large tooltip
+        <Tooltip title="Disabled tooltip" disabled>
+          <button>Focus me</button>
         </Tooltip>
       );
 
-      const tooltip = screen.getByRole('tooltip');
-      expect(tooltip).toHaveClass('px-4', 'py-3', 'text-base');
+      const trigger = screen.getByRole('button');
+      fireEvent.focus(trigger);
+      vi.advanceTimersByTime(200);
+
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
     });
   });
 
-  describe('Arrow', () => {
-    it('renders arrow by default', () => {
-      render(<Tooltip position="above">Tooltip with arrow</Tooltip>);
-
-      const arrow = screen.getByRole('tooltip').querySelector('[aria-hidden="true"]');
-      expect(arrow).toBeInTheDocument();
-      expect(arrow).toHaveClass('w-0', 'h-0', 'border-transparent');
-    });
-
-    it('does not render arrow when showArrow is false', () => {
+  describe('Position Prop', () => {
+    it('accepts above position', async () => {
       render(
-        <Tooltip position="above" showArrow={false}>
-          Tooltip without arrow
+        <Tooltip title="Above tooltip" position="above">
+          <button>Hover me</button>
         </Tooltip>
       );
 
-      const arrow = screen.getByRole('tooltip').querySelector('[aria-hidden="true"]');
-      expect(arrow).not.toBeInTheDocument();
+      const trigger = screen.getByRole('button');
+      fireEvent.mouseEnter(trigger);
+      vi.advanceTimersByTime(200);
+
+      await waitFor(() => {
+        expect(screen.getByRole('tooltip')).toBeInTheDocument();
+      });
     });
 
-    it('applies correct arrow classes for above position with dark variant', () => {
+    it('accepts below position', async () => {
       render(
-        <Tooltip position="above" variant="dark">
-          Tooltip content
+        <Tooltip title="Below tooltip" position="below">
+          <button>Hover me</button>
         </Tooltip>
       );
 
-      const arrow = screen.getByRole('tooltip').querySelector('[aria-hidden="true"]');
-      expect(arrow).toHaveClass(
-        'top-full',
-        'border-t-gray-900',
-        'dark:border-t-gray-700',
-        'border-l-4',
-        'border-r-4',
-        'border-t-4'
-      );
+      const trigger = screen.getByRole('button');
+      fireEvent.mouseEnter(trigger);
+      vi.advanceTimersByTime(200);
+
+      await waitFor(() => {
+        expect(screen.getByRole('tooltip')).toBeInTheDocument();
+      });
     });
 
-    it('applies correct arrow classes for below position with light variant', () => {
+    it('defaults to auto position', async () => {
       render(
-        <Tooltip position="below" variant="light">
-          Tooltip content
+        <Tooltip title="Auto tooltip">
+          <button>Hover me</button>
         </Tooltip>
       );
 
-      const arrow = screen.getByRole('tooltip').querySelector('[aria-hidden="true"]');
-      expect(arrow).toHaveClass(
-        'bottom-full',
-        'border-b-white',
-        'dark:border-b-gray-100',
-        'border-l-4',
-        'border-r-4',
-        'border-b-4'
-      );
-    });
+      const trigger = screen.getByRole('button');
+      fireEvent.mouseEnter(trigger);
+      vi.advanceTimersByTime(200);
 
-    it('applies correct arrow size for small tooltip', () => {
-      render(
-        <Tooltip position="above" size="sm">
-          Small tooltip
-        </Tooltip>
-      );
-
-      const arrow = screen.getByRole('tooltip').querySelector('[aria-hidden="true"]');
-      expect(arrow).toHaveClass('border-l-2', 'border-r-2', 'border-t-2');
-    });
-
-    it('applies correct arrow size for large tooltip', () => {
-      render(
-        <Tooltip position="above" size="lg">
-          Large tooltip
-        </Tooltip>
-      );
-
-      const arrow = screen.getByRole('tooltip').querySelector('[aria-hidden="true"]');
-      expect(arrow).toHaveClass('border-l-6', 'border-r-6', 'border-t-6');
+      await waitFor(() => {
+        expect(screen.getByRole('tooltip')).toBeInTheDocument();
+      });
     });
   });
 
-  describe('Text wrapping', () => {
-    it('applies wrap classes by default', () => {
-      render(<Tooltip position="above">Wrapping tooltip</Tooltip>);
-
-      const tooltip = screen.getByRole('tooltip');
-      expect(tooltip).toHaveClass('whitespace-normal');
-    });
-
-    it('applies nowrap classes', () => {
+  describe('Fixed Styling', () => {
+    it('applies fixed BEM classes', async () => {
       render(
-        <Tooltip position="above" wrap="nowrap">
-          No wrap tooltip
+        <Tooltip title="Fixed styling">
+          <button>Hover me</button>
         </Tooltip>
       );
 
-      const tooltip = screen.getByRole('tooltip');
-      expect(tooltip).toHaveClass('whitespace-nowrap');
+      const trigger = screen.getByRole('button');
+      fireEvent.mouseEnter(trigger);
+      vi.advanceTimersByTime(200);
+
+      await waitFor(() => {
+        const tooltip = screen.getByRole('tooltip');
+        expect(tooltip).toHaveClass('ably-tooltip');
+        expect(tooltip).toHaveClass('ably-tooltip--md'); // Fixed medium size
+        expect(tooltip).toHaveClass('ably-tooltip--wrap'); // Fixed wrap
+        expect(tooltip).toHaveClass('ably-tooltip--max-w-xs'); // Fixed max width
+      });
     });
 
-    it('applies truncate classes', () => {
+    it('applies custom className alongside fixed classes', async () => {
       render(
-        <Tooltip position="above" wrap="truncate">
-          Truncated tooltip
+        <Tooltip title="Custom styled" className="my-custom-class">
+          <button>Hover me</button>
         </Tooltip>
       );
 
-      const tooltip = screen.getByRole('tooltip');
-      expect(tooltip).toHaveClass('whitespace-nowrap', 'overflow-hidden', 'text-ellipsis');
-    });
-  });
+      const trigger = screen.getByRole('button');
+      fireEvent.mouseEnter(trigger);
+      vi.advanceTimersByTime(200);
 
-  describe('Spacing', () => {
-    it('applies default spacing', () => {
-      render(<Tooltip position="above">Default spacing</Tooltip>);
-
-      const tooltip = screen.getByRole('tooltip');
-      expect(tooltip).toHaveClass('bottom-full', 'mb-2');
-    });
-
-    it('applies small spacing', () => {
-      render(
-        <Tooltip position="above" spacing="sm">
-          Small spacing
-        </Tooltip>
-      );
-
-      const tooltip = screen.getByRole('tooltip');
-      expect(tooltip).toHaveClass('bottom-full', 'mb-1');
-    });
-
-    it('applies large spacing', () => {
-      render(
-        <Tooltip position="below" spacing="lg">
-          Large spacing
-        </Tooltip>
-      );
-
-      const tooltip = screen.getByRole('tooltip');
-      expect(tooltip).toHaveClass('top-full', 'mt-4');
-    });
-
-    it('applies no spacing', () => {
-      render(
-        <Tooltip position="above" spacing="none">
-          No spacing
-        </Tooltip>
-      );
-
-      const tooltip = screen.getByRole('tooltip');
-      expect(tooltip).toHaveClass('bottom-full');
-      expect(tooltip).not.toHaveClass('mb-2', 'mb-1', 'mb-4');
-    });
-  });
-
-  describe('Custom styling', () => {
-    it('applies custom maxWidth', () => {
-      render(
-        <Tooltip position="above" maxWidth="max-w-lg">
-          Custom width tooltip
-        </Tooltip>
-      );
-
-      const tooltip = screen.getByRole('tooltip');
-      expect(tooltip).toHaveClass('max-w-lg');
-    });
-
-    it('applies custom zIndex', () => {
-      render(
-        <Tooltip position="above" zIndex="z-40">
-          Custom z-index tooltip
-        </Tooltip>
-      );
-
-      const tooltip = screen.getByRole('tooltip');
-      expect(tooltip).toHaveClass('z-40');
-    });
-
-    it('applies custom className', () => {
-      render(
-        <Tooltip position="above" className="custom-tooltip">
-          Custom class tooltip
-        </Tooltip>
-      );
-
-      const tooltip = screen.getByRole('tooltip');
-      expect(tooltip).toHaveClass('custom-tooltip');
-    });
-
-    it('handles fixed positioning without adding default position classes', () => {
-      render(
-        <Tooltip position="above" className="fixed top-10 left-10">
-          Fixed position tooltip
-        </Tooltip>
-      );
-
-      const tooltip = screen.getByRole('tooltip');
-      expect(tooltip).toHaveClass('fixed', 'top-10', 'left-10');
-      // Should not have default positioning classes when using fixed
-      expect(tooltip).not.toHaveClass('absolute', 'left-1/2', 'transform', '-translate-x-1/2');
+      await waitFor(() => {
+        const tooltip = screen.getByRole('tooltip');
+        expect(tooltip).toHaveClass('my-custom-class');
+        expect(tooltip).toHaveClass('ably-tooltip');
+        expect(tooltip).toHaveClass('ably-tooltip--md');
+      });
     });
   });
 
   describe('Accessibility', () => {
-    it('has correct ARIA attributes by default', () => {
-      render(<Tooltip position="above">Accessible tooltip</Tooltip>);
-
-      const tooltip = screen.getByRole('tooltip');
-      expect(tooltip).toHaveAttribute('role', 'tooltip');
-    });
-
-    it('applies custom ARIA attributes', () => {
+    it('has correct ARIA attributes', async () => {
       render(
-        <Tooltip position="above" aria-hidden="true">
-          Hidden tooltip
+        <Tooltip title="Accessible tooltip">
+          <button>Hover me</button>
         </Tooltip>
       );
 
-      const tooltip = screen.getByRole('tooltip', { hidden: true });
-      expect(tooltip).toHaveAttribute('aria-hidden', 'true');
+      const trigger = screen.getByRole('button');
+
+      // Initially no aria-describedby
+      expect(trigger).not.toHaveAttribute('aria-describedby');
+
+      fireEvent.mouseEnter(trigger);
+      vi.advanceTimersByTime(200);
+
+      await waitFor(() => {
+        const tooltip = screen.getByRole('tooltip');
+        expect(tooltip).toBeInTheDocument();
+        expect(trigger).toHaveAttribute('aria-describedby');
+
+        const tooltipId = trigger.getAttribute('aria-describedby');
+        expect(tooltip).toHaveAttribute('id', tooltipId);
+      });
     });
 
-    it('arrow has aria-hidden attribute', () => {
-      render(<Tooltip position="above">Tooltip with arrow</Tooltip>);
+    it('tooltip has proper role attribute', async () => {
+      render(
+        <Tooltip title="Accessible tooltip">
+          <button>Hover me</button>
+        </Tooltip>
+      );
 
-      const arrow = screen.getByRole('tooltip').querySelector('[aria-hidden="true"]');
-      expect(arrow).toHaveAttribute('aria-hidden', 'true');
+      const trigger = screen.getByRole('button');
+      fireEvent.mouseEnter(trigger);
+      vi.advanceTimersByTime(200);
+
+      await waitFor(() => {
+        const tooltip = screen.getByRole('tooltip');
+        expect(tooltip).toHaveAttribute('role', 'tooltip');
+      });
+    });
+
+    it('removes aria-describedby when tooltip is hidden', async () => {
+      render(
+        <Tooltip title="ARIA tooltip">
+          <button>Hover me</button>
+        </Tooltip>
+      );
+
+      const trigger = screen.getByRole('button');
+
+      // Show tooltip
+      fireEvent.mouseEnter(trigger);
+      vi.advanceTimersByTime(200);
+
+      await waitFor(() => {
+        expect(trigger).toHaveAttribute('aria-describedby');
+      });
+
+      // Hide tooltip
+      fireEvent.mouseLeave(trigger);
+      vi.advanceTimersByTime(0);
+
+      await waitFor(() => {
+        expect(trigger).not.toHaveAttribute('aria-describedby');
+      });
     });
   });
 
-  describe('Additional HTML attributes', () => {
-    it('passes through additional HTML attributes', () => {
+  describe('Event Handling', () => {
+    it('preserves existing event handlers on child', async () => {
+      const handleClick = vi.fn();
+      const handleMouseEnter = vi.fn();
+      const handleMouseLeave = vi.fn();
+      const handleFocus = vi.fn();
+      const handleBlur = vi.fn();
+
       render(
-        <Tooltip position="above" data-testid="custom-tooltip" id="tooltip-1">
-          Custom attributes
+        <Tooltip title="Preserved events">
+          <button
+            onClick={handleClick}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
+          >
+            Interactive button
+          </button>
         </Tooltip>
       );
 
-      const tooltip = screen.getByTestId('custom-tooltip');
-      expect(tooltip).toHaveAttribute('id', 'tooltip-1');
-    });
+      const trigger = screen.getByRole('button');
 
-    it('excludes component-specific props from DOM', () => {
-      render(
-        <Tooltip
-          position="above"
-          maxWidth="max-w-sm"
-          wrap="nowrap"
-          variant="light"
-          size="lg"
-          showArrow={false}
-          spacing="lg"
-          zIndex="z-30"
-        >
-          Props filtering test
-        </Tooltip>
-      );
+      // Test all preserved events
+      fireEvent.click(trigger);
+      expect(handleClick).toHaveBeenCalledTimes(1);
 
-      const tooltip = screen.getByRole('tooltip');
-      // These should not appear as DOM attributes
-      expect(tooltip).not.toHaveAttribute('maxWidth');
-      expect(tooltip).not.toHaveAttribute('wrap');
-      expect(tooltip).not.toHaveAttribute('variant');
-      expect(tooltip).not.toHaveAttribute('size');
-      expect(tooltip).not.toHaveAttribute('showArrow');
-      expect(tooltip).not.toHaveAttribute('spacing');
-      expect(tooltip).not.toHaveAttribute('zIndex');
+      fireEvent.mouseEnter(trigger);
+      expect(handleMouseEnter).toHaveBeenCalledTimes(1);
+
+      fireEvent.mouseLeave(trigger);
+      expect(handleMouseLeave).toHaveBeenCalledTimes(1);
+
+      fireEvent.focus(trigger);
+      expect(handleFocus).toHaveBeenCalledTimes(1);
+
+      fireEvent.blur(trigger);
+      expect(handleBlur).toHaveBeenCalledTimes(1);
     });
   });
 
-  describe('Default values', () => {
-    it('uses default values when props are not provided', () => {
-      render(<Tooltip position="above">Default values test</Tooltip>);
+  describe('Edge Cases', () => {
+    it('handles rapid mouse enter/leave', async () => {
+      render(
+        <Tooltip title="Rapid hover">
+          <button>Hover me</button>
+        </Tooltip>
+      );
 
-      const tooltip = screen.getByRole('tooltip');
-      // Default maxWidth
-      expect(tooltip).toHaveClass('max-w-xs');
-      // Default variant (dark)
-      expect(tooltip).toHaveClass('bg-gray-900');
-      // Default size (md)
-      expect(tooltip).toHaveClass('px-3', 'py-2', 'text-sm');
-      // Default wrap (wrap)
-      expect(tooltip).toHaveClass('whitespace-normal');
-      // Default zIndex
-      expect(tooltip).toHaveClass('z-50');
-      // Default spacing
-      expect(tooltip).toHaveClass('mb-2');
-      // Arrow should be shown by default
-      const arrow = tooltip.querySelector('[aria-hidden="true"]');
-      expect(arrow).toBeInTheDocument();
+      const trigger = screen.getByRole('button');
+
+      // Rapid enter/leave/enter
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseLeave(trigger);
+      fireEvent.mouseEnter(trigger);
+
+      vi.advanceTimersByTime(200);
+
+      await waitFor(() => {
+        expect(screen.getByRole('tooltip')).toBeInTheDocument();
+      });
+    });
+
+    it('handles rapid focus/blur', async () => {
+      render(
+        <Tooltip title="Rapid focus">
+          <button>Focus me</button>
+        </Tooltip>
+      );
+
+      const trigger = screen.getByRole('button');
+
+      // Rapid focus/blur/focus
+      fireEvent.focus(trigger);
+      fireEvent.blur(trigger);
+      fireEvent.focus(trigger);
+
+      vi.advanceTimersByTime(200);
+
+      await waitFor(() => {
+        expect(screen.getByRole('tooltip')).toBeInTheDocument();
+      });
+    });
+
+    it('clears timeouts properly on unmount', () => {
+      const { unmount } = render(
+        <Tooltip title="Unmount test">
+          <button>Hover me</button>
+        </Tooltip>
+      );
+
+      const trigger = screen.getByRole('button');
+      fireEvent.mouseEnter(trigger);
+
+      // Unmount before timeout completes
+      unmount();
+
+      // Should not throw or cause issues
+      vi.advanceTimersByTime(200);
+    });
+
+    it('handles single child requirement', () => {
+      // Test that tooltip only works with single child
+      const { container } = render(
+        <Tooltip title="Single child only">
+          <button>Only child</button>
+        </Tooltip>
+      );
+
+      expect(container.querySelector('button')).toBeInTheDocument();
     });
   });
 });

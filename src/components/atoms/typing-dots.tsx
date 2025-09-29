@@ -79,11 +79,7 @@ export const TypingDots = ({
   gap = 'tight',
   ...rest
 }: TypingDotsProps) => {
-  const containerClasses = clsx(
-    'ably-typing-dots',
-    `ably-typing-dots--gap-${gap}`,
-    className
-  );
+  const containerClasses = clsx('ably-typing-dots', `ably-typing-dots--gap-${gap}`, className);
 
   const dotClasses = clsx(
     'ably-typing-dots__dot',

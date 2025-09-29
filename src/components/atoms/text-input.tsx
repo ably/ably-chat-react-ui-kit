@@ -256,23 +256,10 @@ export const TextInput = React.forwardRef<HTMLInputElement | HTMLTextAreaElement
     // If we have prefix or suffix, wrap in a container
     if (prefix || suffix) {
       return (
-        <div
-          className={clsx(
-            'ably-input-wrapper',
-            `ably-input-wrapper--${variant}`
-          )}
-        >
-          {prefix && (
-            <div className="ably-input__prefix">
-              {prefix}
-            </div>
-          )}
+        <div className={clsx('ably-input-wrapper', `ably-input-wrapper--${variant}`)}>
+          {prefix && <div className="ably-input__prefix">{prefix}</div>}
           {multiline ? renderTextarea() : renderInput()}
-          {suffix && (
-            <div className="ably-input__suffix">
-              {suffix}
-            </div>
-          )}
+          {suffix && <div className="ably-input__suffix">{suffix}</div>}
         </div>
       );
     }

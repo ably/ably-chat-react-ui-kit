@@ -57,18 +57,18 @@ const getRandomColor = (text: string): string => {
  */
 const mapColorClass = (colorClass: string | undefined): string | undefined => {
   if (!colorClass) return undefined;
-  
+
   // Extract color name from bg-{color}-500 pattern
   const match = colorClass.match(/^bg-(\w+)-\d+$/);
   if (match && match[1]) {
     return match[1];
   }
-  
+
   // If it's already a simple color name, return it
   if (!colorClass.startsWith('bg-')) {
     return colorClass;
   }
-  
+
   return undefined;
 };
 
@@ -153,7 +153,15 @@ export interface AvatarProps {
  * const avatarData = { displayName: "John Doe", src: "https://example.com/avatar.jpg" };
  * <Avatar alt={avatarData.displayName} src={avatarData.src} color={avatarData.color} initials={avatarData.initials} />
  */
-export const Avatar = ({ src, alt, color, size = 'md', initials, onClick, className }: AvatarProps) => {
+export const Avatar = ({
+  src,
+  alt,
+  color,
+  size = 'md',
+  initials,
+  onClick,
+  className,
+}: AvatarProps) => {
   const [imgError, setImgError] = useState(false);
 
   // Reset image error state if src changes
@@ -213,7 +221,7 @@ export const Avatar = ({ src, alt, color, size = 'md', initials, onClick, classN
     {
       'ably-avatar--clickable': onClick,
     },
-    className,
+    className
   );
 
   return (
@@ -233,7 +241,6 @@ export const Avatar = ({ src, alt, color, size = 'md', initials, onClick, classN
       data-testid="avatar-component"
       role={onClick ? 'button' : showingImage ? undefined : 'img'}
       tabIndex={onClick ? 0 : undefined}
-      title={alt}
       aria-label={alt}
     >
       {src && !imgError ? (

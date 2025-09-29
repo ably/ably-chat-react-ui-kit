@@ -122,10 +122,6 @@ export const ChatMessage = ({
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [emojiPickerPosition, setEmojiPickerPosition] = useState({ top: 0, left: 0 });
 
-  // Avatar hover tooltip state
-  const [showAvatarTooltip, setShowAvatarTooltip] = useState(false);
-  const [tooltipPosition, setTooltipPosition] = useState<'above' | 'below'>('above');
-
   // Confirm dialog state
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
@@ -299,119 +295,31 @@ export const ChatMessage = ({
     }
   };
 
-  /**
-   * Handles mouse enter event on the avatar
-   * Calculates optimal tooltip position and shows tooltip with user's clientId
-   *
-   * @param event - The mouse enter event
-   */
-  const handleAvatarMouseEnter = (event: React.MouseEvent) => {
-    const rect = event.currentTarget.getBoundingClientRect();
-    const tooltipHeight = 40; // Approximate tooltip height
-    const spaceAbove = rect.top;
-    const spaceBelow = window.innerHeight - rect.bottom;
-
-    // Position above if there's enough space, otherwise below
-    if (spaceAbove >= tooltipHeight + 10) {
-      setTooltipPosition('above');
-    } else if (spaceBelow >= tooltipHeight + 10) {
-      setTooltipPosition('below');
-    } else {
-      // If neither has enough space, use the side with more space
-      setTooltipPosition(spaceAbove > spaceBelow ? 'above' : 'below');
-    }
-
-    setShowAvatarTooltip(true);
-  };
-
-  /**
-   * Handles mouse leave event on the avatar
-   * Hides the tooltip
-   */
-  const handleAvatarMouseLeave = () => {
-    setShowAvatarTooltip(false);
-  };
-
-  /**
-   * Calculates tooltip position based on avatar location and viewport constraints
-   *
-   * @returns Object containing top and left positioning values
-   */
-  const calculateTooltipPosition = () => {
-    const avatarRect = avatarRef.current?.getBoundingClientRect();
-
-    if (!avatarRect) return;
-
-    // Approximate tooltip height (padding + text + arrow)
-    const tooltipHeight = 40;
-    const spacing = 8; // Space between avatar and tooltip
-
-    // Calculate vertical position with proper spacing
-    const tooltipY =
-      tooltipPosition === 'above'
-        ? avatarRect.top - tooltipHeight - spacing
-        : avatarRect.bottom + spacing;
-
-    // Calculate horizontal position - center on avatar
-    const avatarCenter = (avatarRect.left + avatarRect.right) / 2;
-
-    return {
-      top: tooltipY,
-      left: avatarCenter,
-    };
-  };
-
   return (
     <div
       ref={messageRef}
-      className={clsx(
-        'ably-chat-message',
-        isOwn && 'ably-chat-message--own',
-        className
-      )}
+      className={clsx('ably-chat-message', isOwn && 'ably-chat-message--own', className)}
       role="article"
       aria-label={`Message from ${message.clientId}${message.action === ChatMessageAction.MessageDelete ? ' (deleted)' : ''}${message.action === ChatMessageAction.MessageUpdate ? ' (edited)' : ''}`}
     >
       {/* Avatar with hover tooltip functionality */}
       <div className="ably-chat-message__avatar-container">
-        <div
-          ref={avatarRef}
-          className="ably-chat-message__avatar-container"
-          onMouseEnter={handleAvatarMouseEnter}
-          onMouseLeave={handleAvatarMouseLeave}
-          aria-label={`Avatar for ${message.clientId}`}
-          tabIndex={isOwn ? 0 : undefined}
-        >
-          <Avatar
-            alt={userAvatar?.displayName}
-            src={userAvatar?.src}
-            color={userAvatar?.color}
-            size="sm"
-            initials={userAvatar?.initials}
-          />
-        </div>
-
-        {/* Avatar Hover Tooltip */}
-        {showAvatarTooltip &&
-          (() => {
-            const coords = calculateTooltipPosition();
-
-            if (!coords) return;
-
-            return createPortal(
-              <Tooltip
-                position={tooltipPosition}
-                className="fixed transform -translate-x-1/2"
-                style={{ top: coords.top, left: coords.left }}
-                spacing="none"
-                role="tooltip"
-                aria-live="polite"
-              >
-                <div className="text-center text-sm px-2 py-1">{message.clientId}</div>
-              </Tooltip>,
-              document.body
-            );
-          })()}
+        <Tooltip title={message.clientId}>
+          <div
+            ref={avatarRef}
+            className="ably-chat-message__avatar-container"
+            aria-label={`Avatar for ${message.clientId}`}
+            tabIndex={isOwn ? 0 : undefined}
+          >
+            <Avatar
+              alt={userAvatar?.displayName}
+              src={userAvatar?.src}
+              color={userAvatar?.color}
+              size="sm"
+              initials={userAvatar?.initials}
+            />
+          </div>
+        </Tooltip>
       </div>
 
       <div
@@ -467,7 +375,9 @@ export const ChatMessage = ({
             ) : (
               <div>
                 {message.action === ChatMessageAction.MessageDelete ? (
-                  <p className={clsx('ably-chat-message__text', 'ably-chat-message__text--deleted')}>
+                  <p
+                    className={clsx('ably-chat-message__text', 'ably-chat-message__text--deleted')}
+                  >
                     Message deleted
                   </p>
                 ) : (

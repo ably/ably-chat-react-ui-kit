@@ -5,51 +5,85 @@
     @apply rounded-full flex items-center justify-center;
     @apply text-white font-medium relative;
   }
-  
+
   /* Size variants */
   .ably-avatar--sm {
     @apply w-8 h-8 text-sm;
   }
-  
+
   .ably-avatar--md {
     @apply w-10 h-10 text-lg;
   }
-  
+
   .ably-avatar--lg {
     @apply w-12 h-12 text-xl;
   }
-  
+
   .ably-avatar--xl {
     @apply w-16 h-16 text-2xl;
   }
-  
+
   /* Clickable state */
   .ably-avatar--clickable {
     @apply cursor-pointer hover:opacity-80 transition-opacity;
     @apply focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500;
   }
-  
+
   /* Avatar image */
   .ably-avatar__image {
     @apply w-full h-full rounded-full object-cover;
   }
-  
+
   /* Color variants for deterministic colors */
-  .ably-avatar--blue { @apply bg-blue-500; }
-  .ably-avatar--purple { @apply bg-purple-500; }
-  .ably-avatar--green { @apply bg-green-500; }
-  .ably-avatar--orange { @apply bg-orange-500; }
-  .ably-avatar--red { @apply bg-red-500; }
-  .ably-avatar--pink { @apply bg-pink-500; }
-  .ably-avatar--indigo { @apply bg-indigo-500; }
-  .ably-avatar--yellow { @apply bg-yellow-500; }
-  .ably-avatar--teal { @apply bg-teal-500; }
-  .ably-avatar--cyan { @apply bg-cyan-500; }
-  .ably-avatar--emerald { @apply bg-emerald-500; }
-  .ably-avatar--violet { @apply bg-violet-500; }
-  .ably-avatar--amber { @apply bg-amber-500; }
-  .ably-avatar--rose { @apply bg-rose-500; }
-  .ably-avatar--fuchsia { @apply bg-fuchsia-500; }
-  .ably-avatar--sky { @apply bg-sky-500; }
-  .ably-avatar--gray { @apply bg-gray-500; }
+  .ably-avatar--blue {
+    @apply bg-blue-500;
+  }
+  .ably-avatar--purple {
+    @apply bg-purple-500;
+  }
+  .ably-avatar--green {
+    @apply bg-green-500;
+  }
+  .ably-avatar--orange {
+    @apply bg-orange-500;
+  }
+  .ably-avatar--red {
+    @apply bg-red-500;
+  }
+  .ably-avatar--pink {
+    @apply bg-pink-500;
+  }
+  .ably-avatar--indigo {
+    @apply bg-indigo-500;
+  }
+  .ably-avatar--yellow {
+    @apply bg-yellow-500;
+  }
+  .ably-avatar--teal {
+    @apply bg-teal-500;
+  }
+  .ably-avatar--cyan {
+    @apply bg-cyan-500;
+  }
+  .ably-avatar--emerald {
+    @apply bg-emerald-500;
+  }
+  .ably-avatar--violet {
+    @apply bg-violet-500;
+  }
+  .ably-avatar--amber {
+    @apply bg-amber-500;
+  }
+  .ably-avatar--rose {
+    @apply bg-rose-500;
+  }
+  .ably-avatar--fuchsia {
+    @apply bg-fuchsia-500;
+  }
+  .ably-avatar--sky {
+    @apply bg-sky-500;
+  }
+  .ably-avatar--gray {
+    @apply bg-gray-500;
+  }
 }

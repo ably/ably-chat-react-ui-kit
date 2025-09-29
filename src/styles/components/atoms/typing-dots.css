@@ -4,62 +4,62 @@
   .ably-typing-dots {
     @apply flex gap-0.5;
   }
-  
+
   /* Individual dot styles */
   .ably-typing-dots__dot {
     @apply rounded-full animate-bounce;
   }
-  
+
   /* Default dot size */
   .ably-typing-dots__dot--default {
     @apply w-1.5 h-1.5;
   }
-  
+
   /* Small dot size */
   .ably-typing-dots__dot--sm {
     @apply w-1 h-1;
   }
-  
+
   /* Medium dot size */
   .ably-typing-dots__dot--md {
     @apply w-2 h-2;
   }
-  
+
   /* Large dot size */
   .ably-typing-dots__dot--lg {
     @apply w-2.5 h-2.5;
   }
-  
+
   /* Dot colors */
   .ably-typing-dots__dot--current {
     @apply bg-current;
   }
-  
+
   .ably-typing-dots__dot--blue {
     @apply bg-blue-500;
   }
-  
+
   .ably-typing-dots__dot--gray {
     @apply bg-gray-500;
   }
-  
+
   .ably-typing-dots__dot--green {
     @apply bg-green-500;
   }
-  
+
   /* Gap variations */
   .ably-typing-dots--gap-tight {
     @apply gap-0.5;
   }
-  
+
   .ably-typing-dots--gap-normal {
     @apply gap-1;
   }
-  
+
   .ably-typing-dots--gap-wide {
     @apply gap-1.5;
   }
-  
+
   /* Reduced motion support */
   @media (prefers-reduced-motion: reduce) {
     .ably-typing-dots__dot {

@@ -133,11 +133,7 @@ export const EmptyState = ({
 }: EmptyStateProps) => {
   return (
     <div
-      className={clsx(
-        'ably-empty-state',
-        `ably-empty-state--align-${verticalAlign}`,
-        className
-      )}
+      className={clsx('ably-empty-state', `ably-empty-state--align-${verticalAlign}`, className)}
       role="status"
       aria-label={ariaLabel}
     >
@@ -159,16 +155,16 @@ export const EmptyState = ({
         <h3 className="ably-empty-state__title">{title}</h3>
 
         {/* Message Section */}
-        {message && (
-          <p className="ably-empty-state__message">{message}</p>
-        )}
+        {message && <p className="ably-empty-state__message">{message}</p>}
 
         {/* Action Section */}
         {action && (
-          <div className={clsx(
-            'ably-empty-state__action',
-            textAlign !== 'center' && 'ably-empty-state__action--left'
-          )}>
+          <div
+            className={clsx(
+              'ably-empty-state__action',
+              textAlign !== 'center' && 'ably-empty-state__action--left'
+            )}
+          >
             {action}
           </div>
         )}

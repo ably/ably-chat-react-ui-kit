@@ -1,5 +1,5 @@
 /* Tailwind CSS v4 */
-@import "tailwindcss";
+@import 'tailwindcss';
 
 /* Import our new CSS architecture */
 @import './styles/index.css';

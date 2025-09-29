@@ -136,10 +136,7 @@ export const CreateRoomModal = ({ isOpen, onClose, onCreateRoom }: CreateRoomMod
   return (
     <>
       {/* Backdrop */}
-      <div
-        className="ably-create-room-modal__backdrop"
-        onClick={handleClose}
-      >
+      <div className="ably-create-room-modal__backdrop" onClick={handleClose}>
         {/* Modal */}
         <div
           className="ably-create-room-modal"
@@ -167,9 +164,7 @@ export const CreateRoomModal = ({ isOpen, onClose, onCreateRoom }: CreateRoomMod
           {/* Content */}
           <form onSubmit={handleSubmit} className="ably-create-room-modal__content">
             <div className="ably-create-room-modal__field">
-              <label className="ably-create-room-modal__label">
-                Room Name
-              </label>
+              <label className="ably-create-room-modal__label">Room Name</label>
               <TextInput
                 value={roomName}
                 onChange={(e) => {

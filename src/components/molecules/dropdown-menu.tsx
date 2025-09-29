@@ -220,7 +220,9 @@ export const DropdownMenu = ({ trigger, items, align = 'right' }: DropdownMenuPr
             aria-orientation="vertical"
             className={clsx(
               'ably-dropdown-menu__menu',
-              align === 'right' ? 'ably-dropdown-menu__menu--right' : 'ably-dropdown-menu__menu--left'
+              align === 'right'
+                ? 'ably-dropdown-menu__menu--right'
+                : 'ably-dropdown-menu__menu--left'
             )}
           >
             <div className="ably-dropdown-menu__items">

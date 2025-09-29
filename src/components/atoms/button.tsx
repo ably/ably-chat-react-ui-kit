@@ -82,10 +82,7 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 const DefaultSpinner = ({ size }: { size: ButtonSize }) => {
   return (
     <svg
-      className={clsx(
-        'ably-button__spinner',
-        `ably-button__spinner--${size}`
-      )}
+      className={clsx('ably-button__spinner', `ably-button__spinner--${size}`)}
       fill="none"
       viewBox="0 0 24 24"
     >
@@ -173,12 +170,7 @@ export const Button = ({
   );
 
   return (
-    <button
-      className={buttonClasses}
-      disabled={isDisabled}
-      aria-disabled={isDisabled}
-      {...props}
-    >
+    <button className={buttonClasses} disabled={isDisabled} aria-disabled={isDisabled} {...props}>
       {/* Left icon or loading spinner */}
       {loading ? (
         loadingSpinner || <DefaultSpinner size={size} />
@@ -189,9 +181,7 @@ export const Button = ({
       ) : undefined}
 
       {/* Button content */}
-      <span className={clsx({ 'ably-button__content--loading': loading })}>
-        {children}
-      </span>
+      <span className={clsx({ 'ably-button__content--loading': loading })}>{children}</span>
 
       {/* Right icon (hidden during loading) */}
       {!loading && rightIcon && (

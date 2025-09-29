@@ -226,10 +226,13 @@ export const AvatarEditor = ({
 
         {/* Presets Tab Content */}
         {activeTab === 'presets' && (
-          <div className="ably-avatar-editor__tab-panel" role="tabpanel" id="presets-tab" aria-labelledby="presets-tab-button">
-            <label className="ably-avatar-editor__label">
-              Choose a Preset Avatar
-            </label>
+          <div
+            className="ably-avatar-editor__tab-panel"
+            role="tabpanel"
+            id="presets-tab"
+            aria-labelledby="presets-tab-button"
+          >
+            <label className="ably-avatar-editor__label">Choose a Preset Avatar</label>
             <div className="ably-avatar-editor__presets">
               {PRESET_AVATARS.map((preset, index) => (
                 <div
@@ -243,9 +246,7 @@ export const AvatarEditor = ({
                 >
                   <div className="ably-avatar-editor__preset-content">
                     <Avatar alt={preset.label} src={preset.src} size="md" />
-                    <span className="ably-avatar-editor__preset-label">
-                      {preset.label}
-                    </span>
+                    <span className="ably-avatar-editor__preset-label">{preset.label}</span>
                   </div>
                 </div>
               ))}
@@ -262,15 +263,15 @@ export const AvatarEditor = ({
             aria-labelledby="color-tab-button"
           >
             <div>
-              <label className="ably-avatar-editor__label">
-                Background Color
-              </label>
+              <label className="ably-avatar-editor__label">Background Color</label>
               <div className="ably-avatar-editor__color-grid">
                 {COLOR_OPTIONS.map((color) => (
                   <div
                     key={color.value}
                     className={`ably-avatar-editor__color-option ${color.value} ${
-                      selectedColor === color.value ? 'ably-avatar-editor__color-option--selected' : ''
+                      selectedColor === color.value
+                        ? 'ably-avatar-editor__color-option--selected'
+                        : ''
                     }`}
                     onClick={() => {
                       handleColorSelect(color.value);
@@ -302,7 +303,11 @@ export const AvatarEditor = ({
 
         {/* Actions */}
         <div className="ably-avatar-editor__actions">
-          <Button variant="secondary" onClick={onClose} className="ably-avatar-editor__action--primary">
+          <Button
+            variant="secondary"
+            onClick={onClose}
+            className="ably-avatar-editor__action--primary"
+          >
             Cancel
           </Button>
           {(currentAvatar || avatarUrl) && (

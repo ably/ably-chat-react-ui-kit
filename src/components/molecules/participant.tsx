@@ -113,7 +113,9 @@ export const Participant = ({
         {/* Presence Icon */}
         <div
           className={`ably-participant__presence-indicator ${
-            isPresent ? 'ably-participant__presence-indicator--online' : 'ably-participant__presence-indicator--offline'
+            isPresent
+              ? 'ably-participant__presence-indicator--online'
+              : 'ably-participant__presence-indicator--offline'
           }`}
           aria-hidden="true"
           title={isPresent ? 'Online' : 'Offline'}

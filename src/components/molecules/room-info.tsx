@@ -151,93 +151,48 @@ export const RoomInfo = ({
   const chatClient = useChatClient();
   const currentClientId = chatClient.clientId;
 
-  const [showTooltip, setShowTooltip] = useState(false);
-  const [tooltipPosition, setTooltipPosition] = useState<'above' | 'below'>('above');
-  const [tooltipCoords, setTooltipCoords] = useState<{ top: number; left: number } | undefined>();
   const [isOpen, setIsOpen] = useState(false);
   const { roomAvatar } = useRoomAvatar({ roomName });
   const roomAvatarData = propRoomAvatar || roomAvatar;
 
   const onToggle = () => {
-    setShowTooltip(false); // Hide tooltip when toggling participant list
     setIsOpen(!isOpen);
-  };
-
-  /**
-   * Handles mouse enter event on the room avatar
-   * Calculates optimal tooltip position based on available space
-   *
-   * @param event - The mouse enter event
-   */
-  const handleMouseEnter = (event: React.MouseEvent) => {
-    const rect = event.currentTarget.getBoundingClientRect();
-    const tooltipHeight = 30; // Approximate tooltip height
-    const spacing = 5; // Space between avatar and tooltip
-    const spaceAbove = rect.top;
-    const spaceBelow = window.innerHeight - rect.bottom;
-
-    // Position above if there's enough space, otherwise below
-    let finalTooltipPosition: 'above' | 'below';
-    if (spaceAbove >= tooltipHeight + spacing + 10) {
-      finalTooltipPosition = 'above';
-    } else if (spaceBelow >= tooltipHeight + spacing + 10) {
-      finalTooltipPosition = 'below';
-    } else {
-      // If neither has enough space, use the side with more space
-      finalTooltipPosition = spaceAbove > spaceBelow ? 'above' : 'below';
-    }
-
-    setTooltipPosition(finalTooltipPosition);
-
-    // Calculate coordinates for fixed positioning (viewport-relative)
-    const horizontalCenter = (rect.left + rect.right) / 2;
-    const verticalPos =
-      finalTooltipPosition === 'above' ? rect.top - tooltipHeight - spacing : rect.bottom + spacing;
-
-    setTooltipCoords({ top: verticalPos, left: horizontalCenter });
-
-    setShowTooltip(true);
   };
 
   return (
     <div className={clsx('ably-room-info', className)}>
       <div className="ably-room-info__avatar-wrapper">
         {/* Room Avatar with Hover Tooltip */}
-        <div
-          className="ably-room-info__avatar-button"
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={() => {
-            setShowTooltip(false);
-          }}
-          onClick={onToggle}
-          role="button"
-          aria-haspopup="dialog"
-          aria-expanded={isOpen}
-          aria-label={`${roomAvatarData?.displayName || roomName} (${String(presenceData.length || 0)} participants)`}
-          tabIndex={0}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault();
-              onToggle();
-            }
-          }}
-        >
-          <div className="ably-room-info__avatar">
-            <Avatar
-              alt={roomAvatarData?.displayName}
-              src={roomAvatarData?.src}
-              color={roomAvatarData?.color}
-              size="lg"
-              initials={roomAvatarData?.initials}
-            />
+        <PresenceList>
+          <div
+            className="ably-room-info__avatar-button"
+            onClick={onToggle}
+            role="button"
+            aria-haspopup="dialog"
+            aria-expanded={isOpen}
+            aria-label={`${roomAvatarData?.displayName || roomName} (${String(presenceData.length || 0)} participants)`}
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onToggle();
+              }
+            }}
+          >
+            <div className="ably-room-info__avatar">
+              <Avatar
+                alt={roomAvatarData?.displayName}
+                src={roomAvatarData?.src}
+                color={roomAvatarData?.color}
+                size="lg"
+                initials={roomAvatarData?.initials}
+              />
+            </div>
+
+            {/* Present Count Badge */}
+            <PresenceCount presenceData={presenceData} />
           </div>
-
-          {/* Present Count Badge */}
-          <PresenceCount presenceData={presenceData} />
-        </div>
-
-        {/* Hover Tooltip */}
-        {showTooltip && <PresenceList tooltipPosition={tooltipPosition} coords={tooltipCoords} />}
+        </PresenceList>
 
         {/* Participants Dropdown */}
         {isOpen && currentClientId && (
@@ -253,9 +208,7 @@ export const RoomInfo = ({
 
       {/* Room Information */}
       <div className="ably-room-info__content">
-        <h2 className="ably-room-info__name">
-          {roomAvatarData?.displayName || roomName}
-        </h2>
+        <h2 className="ably-room-info__name">{roomAvatarData?.displayName || roomName}</h2>
         <div className="ably-room-info__indicators">
           <PresenceIndicators />
           {/* Typing Indicators */}

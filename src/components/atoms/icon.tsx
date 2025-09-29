@@ -168,11 +168,7 @@ export const Icon = ({
       );
     }
 
-    const missingIconClasses = clsx(
-      'ably-icon-missing',
-      `ably-icon--${size}`,
-      className
-    );
+    const missingIconClasses = clsx('ably-icon-missing', `ably-icon--${size}`, className);
 
     return (
       <div
@@ -185,7 +181,7 @@ export const Icon = ({
       </div>
     );
   }
-  
+
   // Determine accessibility attributes
   const isInteractive = !!onClick;
   const shouldHideFromScreenReader = ariaHidden || (!ariaLabel && !isInteractive);

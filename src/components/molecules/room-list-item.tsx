@@ -158,9 +158,7 @@ export const RoomListItem = React.memo(function RoomListItem({
             size="md"
             initials={roomAvatarData?.initials}
           />
-          {isSelected && (
-            <div className="ably-room-list-item__activity-indicator" />
-          )}
+          {isSelected && <div className="ably-room-list-item__activity-indicator" />}
         </div>
       </div>
     );
@@ -169,10 +167,7 @@ export const RoomListItem = React.memo(function RoomListItem({
   // Otherwise render the full room list item
   return (
     <div
-      className={clsx(
-        'ably-room-list-item',
-        isSelected && 'ably-room-list-item--selected'
-      )}
+      className={clsx('ably-room-list-item', isSelected && 'ably-room-list-item--selected')}
       onClick={onClick}
       role="button"
       aria-label={`${roomAvatarData?.displayName || roomName} room${isSelected ? ' (selected)' : ''}${isActive ? `, ${String(presenceMembers)} online` : ''}`}
@@ -217,9 +212,7 @@ export const RoomListItem = React.memo(function RoomListItem({
 
       <div className="ably-room-list-item__content">
         <div className="ably-room-list-item__header">
-          <h3 className="ably-room-list-item__name">
-            {roomAvatarData?.displayName}
-          </h3>
+          <h3 className="ably-room-list-item__name">{roomAvatarData?.displayName}</h3>
           <div className="ably-room-list-item__actions">
             {/* Leave button - only visible on hover */}
             <Button

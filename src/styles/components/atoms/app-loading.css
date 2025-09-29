@@ -10,19 +10,19 @@
     @apply rounded-lg shadow-lg;
     @apply mx-auto my-8;
   }
-  
+
   /* Content wrapper */
   .ably-app-loading__content {
     @apply text-center;
   }
-  
+
   /* Spinner styles */
   .ably-app-loading__spinner {
     @apply animate-spin rounded-full h-8 w-8;
     @apply border-b-2 border-blue-500;
     @apply mx-auto mb-4;
   }
-  
+
   /* Status text */
   .ably-app-loading__text {
     @apply text-gray-600;

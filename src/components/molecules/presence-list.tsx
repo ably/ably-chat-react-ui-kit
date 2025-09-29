@@ -1,41 +1,17 @@
 import { PresenceMember } from '@ably/chat';
 import { usePresenceListener } from '@ably/chat/react';
-import { clsx } from 'clsx';
 import React, { useEffect, useState } from 'react';
-import { createPortal } from 'react-dom';
 
 import { Tooltip } from '../atoms/tooltip.tsx';
 
 /**
  * Props for the PresenceList component
  */
-export interface PresenceListProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface PresenceListProps {
   /**
-   * Positioning of the tooltip relative to its trigger element.
-   * - `above`: Tooltip appears above trigger with downward-pointing arrow
-   * - `below`: Tooltip appears below trigger with upward-pointing arrow
+   * The trigger element that will show the presence tooltip on hover
    */
-  tooltipPosition: 'above' | 'below';
-
-  /**
-   * Absolute viewport coordinates (in pixels) where the tooltip should be
-   * rendered. Calculated by the parent component.
-   */
-  coords?: { top: number; left: number } | null;
-
-  /**
-   * Optional CSS classes to apply to the Tooltip component.
-   * Allows customization of the tooltip's background, padding, shadows, etc.
-   * Merged with default tooltip styling using clsx.
-   */
-  tooltipClassName?: string;
-
-  /**
-   * Optional CSS classes to apply to the tooltip text content.
-   * Allows customization of font size, weight, color, alignment, etc.
-   * Merged with default text styling (centered, truncated) using clsx.
-   */
-  textClassName?: string;
+  children: React.ReactElement;
 }
 
 /**
@@ -74,43 +50,18 @@ const buildPresenceSentence = (presenceData: PresenceMember[]): string => {
  *
  * Core Features:
  * - Human-readable participant list with smart truncation and formatting
- * - Flexible positioning (above/below) with proper arrow orientation
+ * - Automatic positioning with collision detection
  * - Accessible tooltip with ARIA attributes and live region updates
- * - Customizable styling through multiple className props
- * - Theme-aware styling supporting both light and dark modes
- * - Maximum width constraint (max-w-96) with text truncation for long lists
- *
+ * - Real-time updates when presence data changes
  *
  * @example
- * // Basic usage within RoomInfo hover interaction
- * <PresenceList
- *   tooltipPosition={tooltipPosition}
- * />
+ * // Basic usage
+ * <PresenceList>
+ *   <Button>Show Participants</Button>
+ * </PresenceList>
  *
- * @example
- * // With custom styling
- * <PresenceList
- *   tooltipPosition="above"
- *   surfaceClassName="bg-blue-900 border-blue-700"
- *   textClassName="text-blue-100 font-medium"
- * />
- *
- *
- * @example
- * // Different presence scenarios and generated text
- * // presenceData = [] → "No one is currently present"
- * // presenceData = [{ clientId: "Alice" }] → "Alice is present"
- * // presenceData = [{ clientId: "Alice" }, { clientId: "Bob" }] → "Alice, Bob are present"
- * // presenceData = [5 members] → "Alice, Bob, Charlie and 2 more participants are present"
  */
-
-export const PresenceList = ({
-  tooltipPosition,
-  coords,
-  tooltipClassName,
-  textClassName,
-  ...rest
-}: PresenceListProps) => {
+export const PresenceList = ({ children }: PresenceListProps) => {
   const { presenceData } = usePresenceListener();
   const [presenceText, setPresenceText] = useState('No one is currently present');
 
@@ -119,21 +70,9 @@ export const PresenceList = ({
     setPresenceText(newText);
   }, [presenceData]);
 
-  if (!coords) return;
-
-  return createPortal(
-    <Tooltip
-      position={tooltipPosition}
-      zIndex="50"
-      className={clsx('fixed transform -translate-x-1/2', tooltipClassName)}
-      maxWidth="lg"
-      role="tooltip"
-      aria-live="polite"
-      style={{ top: coords.top, left: coords.left }}
-      {...rest}
-    >
-      <div className={clsx('text-center truncate', textClassName)}>{presenceText}</div>
-    </Tooltip>,
-    document.body
+  return (
+    <Tooltip title={presenceText} position={'auto'}>
+      {children}
+    </Tooltip>
   );
 };

@@ -155,10 +155,7 @@ export const ConfirmDialog = ({
   return (
     <>
       {/* Backdrop */}
-      <div
-        className="ably-confirm-dialog__backdrop"
-        onClick={onClose}
-      >
+      <div className="ably-confirm-dialog__backdrop" onClick={onClose}>
         {/* Dialog */}
         <div
           className="ably-confirm-dialog__container"
@@ -178,10 +175,7 @@ export const ConfirmDialog = ({
                   {icon}
                 </div>
               )}
-              <h2
-                id="confirm-dialog-title"
-                className="ably-confirm-dialog__title"
-              >
+              <h2 id="confirm-dialog-title" className="ably-confirm-dialog__title">
                 {title}
               </h2>
             </div>

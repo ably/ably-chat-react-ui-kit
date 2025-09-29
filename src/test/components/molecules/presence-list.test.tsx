@@ -1,9 +1,10 @@
-import { usePresenceListener } from '@ably/chat/react';
-import { render, screen } from '@testing-library/react';
-import React from 'react';
-import { describe, expect, it, vi } from 'vitest';
+import '@testing-library/jest-dom';
 
-import { TooltipProps } from '../../../components/atoms/tooltip.tsx';
+import { usePresenceListener } from '@ably/chat/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import React from 'react';
+import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
+
 import { PresenceList } from '../../../components/molecules/presence-list.tsx';
 
 // Mock the usePresenceListener hook
@@ -11,86 +12,119 @@ vi.mock('@ably/chat/react', () => ({
   usePresenceListener: vi.fn(),
 }));
 
-// Mock the createPortal function
-vi.mock('react-dom', () => ({
-  createPortal: (node: React.ReactNode) => node,
-}));
-
 // Mock the Tooltip component
 vi.mock('../../../components/atoms/tooltip.tsx', () => ({
-  Tooltip: ({
-    children,
-    className,
-    role,
-    'aria-live': ariaLive,
-    position,
-    style,
-  }: TooltipProps) => (
-    <div
-      data-testid="tooltip"
-      className={className}
-      role={role}
-      aria-live={ariaLive}
-      data-position={position}
-      style={style}
-    >
-      {children}
-    </div>
-  ),
+  Tooltip: ({ title, children, position = 'auto', maxWidth = 'xs', ...props }: any) => {
+    const [isVisible, setIsVisible] = React.useState(false);
+
+    const clonedChild = React.cloneElement(children, {
+      onMouseEnter: () => setIsVisible(true),
+      onMouseLeave: () => setIsVisible(false),
+      ...children.props,
+    });
+
+    return (
+      <>
+        {clonedChild}
+        {isVisible && (
+          <div data-testid="tooltip" data-position={position} data-max-width={maxWidth} {...props}>
+            {title}
+          </div>
+        )}
+      </>
+    );
+  },
 }));
 
 describe('PresenceList', () => {
-  it('renders nothing when coords are not provided', () => {
-    (usePresenceListener as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
-      presenceData: [{ clientId: 'user1' }],
-    });
-
-    const { container } = render(<PresenceList tooltipPosition="above" />);
-
-    expect(container.firstChild).toBeNull();
+  beforeEach(() => {
+    vi.useFakeTimers();
   });
 
-  it('renders tooltip with "No one is currently present" when no one is present', () => {
+  afterEach(() => {
+    vi.runOnlyPendingTimers();
+    vi.useRealTimers();
+  });
+
+  it('renders children correctly', () => {
     (usePresenceListener as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
       presenceData: [],
     });
 
-    render(<PresenceList tooltipPosition="above" coords={{ top: 100, left: 200 }} />);
+    render(
+      <PresenceList>
+        <button data-testid="trigger">Show Participants</button>
+      </PresenceList>
+    );
 
-    const tooltip = screen.getByTestId('tooltip');
-    expect(tooltip).toBeInTheDocument();
-    expect(tooltip).toHaveAttribute('data-position', 'above');
-    expect(tooltip).toHaveAttribute('role', 'tooltip');
-    expect(tooltip).toHaveAttribute('aria-live', 'polite');
-
-    expect(screen.getByText('No one is currently present')).toBeInTheDocument();
+    expect(screen.getByTestId('trigger')).toBeInTheDocument();
+    expect(screen.getByText('Show Participants')).toBeInTheDocument();
   });
 
-  it('renders tooltip with single person text', () => {
+  it('shows tooltip with "No one is currently present" when no one is present', async () => {
+    (usePresenceListener as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
+      presenceData: [],
+    });
+
+    render(
+      <PresenceList>
+        <button data-testid="trigger">Show Participants</button>
+      </PresenceList>
+    );
+
+    const trigger = screen.getByTestId('trigger');
+    fireEvent.mouseEnter(trigger);
+
+    await waitFor(() => {
+      const tooltip = screen.getByTestId('tooltip');
+      expect(tooltip).toBeInTheDocument();
+      expect(tooltip).toHaveTextContent('No one is currently present');
+    });
+  });
+
+  it('shows tooltip with single person text', async () => {
     (usePresenceListener as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
       presenceData: [{ clientId: 'Alice' }],
     });
 
-    render(<PresenceList tooltipPosition="below" coords={{ top: 100, left: 200 }} />);
+    render(
+      <PresenceList>
+        <button data-testid="trigger">Show Participants</button>
+      </PresenceList>
+    );
 
-    const tooltip = screen.getByTestId('tooltip');
-    expect(tooltip).toBeInTheDocument();
-    expect(tooltip).toHaveAttribute('data-position', 'below');
+    const trigger = screen.getByTestId('trigger');
+    fireEvent.mouseEnter(trigger);
 
-    expect(screen.getByText('Alice is present')).toBeInTheDocument();
+    await waitFor(() => {
+      const tooltip = screen.getByTestId('tooltip');
+      expect(tooltip).toBeInTheDocument();
+      expect(tooltip).toHaveTextContent('Alice is present');
+    });
   });
 
-  it('renders tooltip with multiple people text', () => {
+  it('shows tooltip with multiple people text', async () => {
     (usePresenceListener as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
       presenceData: [{ clientId: 'Alice' }, { clientId: 'Bob' }],
     });
 
-    render(<PresenceList tooltipPosition="above" coords={{ top: 100, left: 200 }} />);
+    render(
+      <PresenceList>
+        <button data-testid="trigger">Show Participants</button>
+      </PresenceList>
+    );
 
-    expect(screen.getByText('Alice, Bob are present')).toBeInTheDocument();
+    const trigger = screen.getByTestId('trigger');
+    fireEvent.mouseEnter(trigger);
+
+    await waitFor(() => {
+      const tooltip = screen.getByTestId('tooltip');
+      expect(tooltip).toBeInTheDocument();
+      expect(tooltip).toHaveTextContent('Alice, Bob are present');
+    });
   });
 
-  it('truncates list and shows count for more than 2 people', () => {
+  it('truncates list and shows count for more than 2 people', async () => {
     (usePresenceListener as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
       presenceData: [
         { clientId: 'Alice' },
@@ -100,47 +134,158 @@ describe('PresenceList', () => {
       ],
     });
 
-    render(<PresenceList tooltipPosition="above" coords={{ top: 100, left: 200 }} />);
+    render(
+      <PresenceList>
+        <button data-testid="trigger">Show Participants</button>
+      </PresenceList>
+    );
 
-    expect(screen.getByText('Alice, Bob and 2 more are present')).toBeInTheDocument();
+    const trigger = screen.getByTestId('trigger');
+    fireEvent.mouseEnter(trigger);
+
+    await waitFor(() => {
+      const tooltip = screen.getByTestId('tooltip');
+      expect(tooltip).toBeInTheDocument();
+      expect(tooltip).toHaveTextContent('Alice, Bob and 2 more are present');
+    });
   });
 
-  it('applies custom tooltip and text classes', () => {
+  it('updates tooltip content when presence data changes', async () => {
+    const mockUsePresenceListener = usePresenceListener as unknown as ReturnType<typeof vi.fn>;
+
+    // Start with no one present
+    mockUsePresenceListener.mockReturnValue({
+      presenceData: [],
+    });
+
+    const { rerender } = render(
+      <PresenceList>
+        <button data-testid="trigger">Show Participants</button>
+      </PresenceList>
+    );
+
+    const trigger = screen.getByTestId('trigger');
+    fireEvent.mouseEnter(trigger);
+
+    await waitFor(() => {
+      const tooltip = screen.getByTestId('tooltip');
+      expect(tooltip).toHaveTextContent('No one is currently present');
+    });
+
+    // Update to have one person present
+    mockUsePresenceListener.mockReturnValue({
+      presenceData: [{ clientId: 'Alice' }],
+    });
+
+    rerender(
+      <PresenceList>
+        <button data-testid="trigger">Show Participants</button>
+      </PresenceList>
+    );
+
+    await waitFor(() => {
+      const tooltip = screen.getByTestId('tooltip');
+      expect(tooltip).toHaveTextContent('Alice is present');
+    });
+  });
+
+  it('supports custom positioning', () => {
+    (usePresenceListener as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
+      presenceData: [{ clientId: 'Alice' }],
+    });
+
+    render(
+      <PresenceList position="above">
+        <button data-testid="trigger">Show Participants</button>
+      </PresenceList>
+    );
+
+    const trigger = screen.getByTestId('trigger');
+    fireEvent.mouseEnter(trigger);
+
+    waitFor(() => {
+      const tooltip = screen.getByTestId('tooltip');
+      expect(tooltip).toHaveAttribute('data-position', 'above');
+    });
+  });
+
+  it('passes through tooltip props', () => {
     (usePresenceListener as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
       presenceData: [{ clientId: 'Alice' }],
     });
 
     render(
       <PresenceList
-        tooltipPosition="above"
-        coords={{ top: 100, left: 200 }}
-        tooltipClassName="custom-tooltip"
-        textClassName="custom-text"
-      />
+        position="below"
+        tooltipProps={{
+          maxWidth: 'md',
+          variant: 'light',
+        }}
+      >
+        <button data-testid="trigger">Show Participants</button>
+      </PresenceList>
     );
 
-    const tooltip = screen.getByTestId('tooltip');
-    expect(tooltip).toHaveClass('custom-tooltip');
-    expect(tooltip).toHaveClass('fixed');
-    expect(tooltip).toHaveClass('transform');
-    expect(tooltip).toHaveClass('-translate-x-1/2');
+    const trigger = screen.getByTestId('trigger');
+    fireEvent.mouseEnter(trigger);
 
-    // Find the text element directly, not its parent
-    const textElement = screen.getByText('Alice is present');
-    expect(textElement).toHaveClass('custom-text');
-    expect(textElement).toHaveClass('text-center');
-    expect(textElement).toHaveClass('truncate');
+    waitFor(() => {
+      const tooltip = screen.getByTestId('tooltip');
+      expect(tooltip).toHaveAttribute('data-position', 'below');
+      expect(tooltip).toHaveAttribute('data-max-width', 'md');
+    });
   });
 
-  it('positions tooltip at the provided coordinates', () => {
+  it('hides tooltip on mouse leave', async () => {
     (usePresenceListener as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
       presenceData: [{ clientId: 'Alice' }],
     });
 
-    render(<PresenceList tooltipPosition="above" coords={{ top: 123, left: 456 }} />);
+    render(
+      <PresenceList>
+        <button data-testid="trigger">Show Participants</button>
+      </PresenceList>
+    );
 
-    const tooltip = screen.getByTestId('tooltip');
-    expect(tooltip).toHaveStyle('top: 123px');
-    expect(tooltip).toHaveStyle('left: 456px');
+    const trigger = screen.getByTestId('trigger');
+
+    // Show tooltip
+    fireEvent.mouseEnter(trigger);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('tooltip')).toBeInTheDocument();
+    });
+
+    // Hide tooltip
+    fireEvent.mouseLeave(trigger);
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('tooltip')).not.toBeInTheDocument();
+    });
+  });
+
+  it('works with different child elements', async () => {
+    (usePresenceListener as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
+      presenceData: [{ clientId: 'Alice' }],
+    });
+
+    render(
+      <PresenceList>
+        <div data-testid="custom-trigger" className="presence-indicator">
+          5 online
+        </div>
+      </PresenceList>
+    );
+
+    const trigger = screen.getByTestId('custom-trigger');
+    expect(trigger).toHaveTextContent('5 online');
+    expect(trigger).toHaveClass('presence-indicator');
+
+    fireEvent.mouseEnter(trigger);
+
+    await waitFor(() => {
+      const tooltip = screen.getByTestId('tooltip');
+      expect(tooltip).toHaveTextContent('Alice is present');
+    });
   });
 });
