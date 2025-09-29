@@ -13,12 +13,13 @@ import {
   ConnectionStatus,
   Message,
   MessageReactions,
-  PaginatedResult, PresenceData,
+  PaginatedResult,
   PresenceMember,
   QueryOptions,
-  Room,
   RoomStatus,
-  Connection, OccupancyData,
+  Connection,
+  OccupancyData,
+  Serial,
 } from '@ably/chat';
 import {
   ChatRoomProviderProps, UseChatConnectionResponse,
@@ -28,6 +29,13 @@ import {
 } from '@ably/chat/react';
 import { ChatSettings, ChatSettingsContextType } from '../../src';
 
+// Utility to generate a unique serial for messages -> 01726585978590-001@abcdefghij:001
+export const getSerial = (timestamp?: number, sequence = '001', identifier = 'abcdefghij', version = '001'): string => {
+  const ts = timestamp ?? Date.now();
+  return `${ts.toString().padStart(14, '0')}-${sequence}@${identifier}:${version}`;
+};
+
+
 interface MockOverrides {
   occupancy?: OccupancyData
   presenceData?: PresenceMember[]
@@ -35,7 +43,7 @@ interface MockOverrides {
   messages?: Message[];
   clientId?: string;
   roomName?: string;
-  isPresent?: boolean;
+  present?: boolean;
   connectionStatus?: ConnectionStatus;
   chatSettings?: ChatSettings
 }
@@ -123,23 +131,28 @@ export function emptyMessageReactions(): MessageReactions {
 }
 
 export const createMockMessage = (overrides: Partial<Message> = {}): Message => {
+  const ts = overrides.timestamp || new Date();
+  const msgSerial = overrides.serial || getSerial(ts.getTime());
+  const versionTimestamp = overrides.version?.timestamp || new Date(ts.getTime() + 1);
+  const versionSerial = overrides.version?.serial || getSerial(ts.getTime() + 1);
   const defaults: Partial<Message> = {
-    serial: `msg_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+    serial: msgSerial,
     clientId: 'mock-user',
     text: 'my chat message',
-    createdAt: new Date(),
-    timestamp: new Date(),
+    timestamp: ts,
     metadata: {},
     headers: {},
     action: ChatMessageAction.MessageCreate,
-    version: '1',
+    version: {
+      serial: versionSerial,
+      timestamp: versionTimestamp,
+    },
     reactions: emptyMessageReactions(),
-    operation: undefined,
 
     get isUpdated() { return this.action === ChatMessageAction.MessageUpdate; },
     get isDeleted() { return this.action === ChatMessageAction.MessageDelete; },
-    get deletedBy() { return this.isDeleted ? this.operation?.clientId : undefined; },
-    get updatedBy() { return this.isUpdated ? this.operation?.clientId : undefined; },
+    get deletedBy() { return this.isDeleted ? this.version?.clientId : undefined; },
+    get updatedBy() { return this.isUpdated ? this.version?.clientId : undefined; },
     get deletedAt() { return this.isDeleted ? this.timestamp : undefined; },
     get updatedAt() { return this.isUpdated ? this.timestamp : undefined; },
 
@@ -169,27 +182,40 @@ export const useMessages = (options?: {
 }): UseMessagesResponse => {
   const overrides = useMockOverrides();
 
+  const msgSerial = overrides.messages?.[0]?.serial || getSerial(Date.now());
+  const msgSerial2 = overrides.messages?.[1]?.serial || getSerial(Date.now() + 1);
+  const versionSerial = overrides.messages?.[0]?.version?.serial || getSerial(Date.now());
+  const versionSerial2 = overrides.messages?.[1]?.version?.serial || getSerial(Date.now() + 1);
+
   // Create stable mock paginated result
   const mockPaginatedResult = useMemo(() => {
     const mockMessages: Message[] = overrides.messages || [
       createMockMessage({
-        serial: 'msg_1',
+        serial: msgSerial,
         clientId: 'user1',
         text: 'Hey, how are you doing today?',
-        createdAt: new Date(Date.now() - 1000 * 60 * 5),
+        timestamp: new Date(Date.now() - 1000 * 60 * 5),
         updatedAt: new Date(Date.now() - 1000 * 60 * 5),
+        version: {
+          serial: versionSerial,
+          timestamp: new Date(Date.now() - 1000 * 60 * 5),
+        },
         isUpdated: false,
         isDeleted: false,
         reactions: emptyMessageReactions(),
       }),
       createMockMessage({
-        serial: 'msg_2',
+        serial: msgSerial2,
         clientId: 'user2',
         text: "I'm good, thanks! Working on the new chat UI.",
-        createdAt: new Date(Date.now() - 1000 * 60 * 4),
+        timestamp: new Date(Date.now() - 1000 * 60 * 4),
         updatedAt: new Date(Date.now() - 1000 * 60 * 4),
         isUpdated: false,
         isDeleted: false,
+        version: {
+          serial: versionSerial2,
+          timestamp: new Date(Date.now() - 1000 * 60 * 4),
+        },
         reactions: {
           distinct: {
             '😊': { total: 2, clientIds: ['user1', 'user2'] },
@@ -222,20 +248,23 @@ export const useMessages = (options?: {
   );
 
   return {
+    getMessage(serial: Serial): Promise<Message> {
+      return Promise.resolve(createMockMessage());
+    },
     history(options: QueryOptions): Promise<PaginatedResult<Message>> {
       return Promise.resolve(mockPaginatedResult)
     },
     roomStatus: RoomStatus.Attached,
     connectionStatus: ConnectionStatus.Connected,
     historyBeforeSubscribe,
-    send: async (params) => {
+    sendMessage: async (params) => {
       console.log('Mock: Message sent', params);
       return createMockMessage({
         text: params.text || '',
         clientId: overrides.clientId || 'storybook-user',
       });
     },
-    update: async (serial, params, details) => {
+    updateMessage: async (serial, params, details) => {
       console.log('Mock: Message updated', serial, params);
       const serialString = (serial as { serial: string }).serial;
       return createMockMessage({
@@ -243,7 +272,6 @@ export const useMessages = (options?: {
         text: params.text || 'Updated message',
         clientId: overrides.clientId || 'storybook-user',
         action: ChatMessageAction.MessageUpdate,
-        version: '2',
         metadata: params.metadata || {},
         headers: params.headers || {},
       });
@@ -255,7 +283,6 @@ export const useMessages = (options?: {
         text: 'Message deleted',
         clientId: overrides.clientId || 'storybook-user',
         action: ChatMessageAction.MessageDelete,
-        version: '2',
       });
     },
     sendReaction: async (params: any) => {
@@ -284,9 +311,17 @@ export const usePresence = (): UsePresenceResponse => {
   const overrides = useMockOverrides();
 
   return {
+    enter: async () => {
+      console.log('Mock: Entered presence');
+    },
+    leave: async () => {
+      console.log('Mock: Left presence');
+    },
     roomStatus: RoomStatus.Attached,
     connectionStatus: ConnectionStatus.Connected,
-    isPresent: overrides.isPresent ?? true,
+    myPresenceState: {
+      present: overrides.present ?? true
+    },
     update: async () => {
       console.log('Mock: Updated presence');
     },
@@ -296,7 +331,7 @@ export const usePresence = (): UsePresenceResponse => {
 export const usePresenceListener = (): UsePresenceListenerResponse => {
   const overrides = useMockOverrides();
 
-  const defaultPresenceData: Partial<PresenceData> = [
+  const defaultPresenceData: Partial<PresenceMember>[] = [
     { clientId: 'Alice', data: { name: 'Alice' } },
     { clientId: 'Bob', data: { name: 'Bob' } },
     { clientId: 'Charlie', data: { name: 'Charlie' } },
@@ -305,24 +340,17 @@ export const usePresenceListener = (): UsePresenceListenerResponse => {
   return {
     roomStatus: RoomStatus.Attached,
     connectionStatus: ConnectionStatus.Connected,
-    presenceData: overrides.presenceData ?? defaultPresenceData as PresenceMember[]
+    presenceData: overrides.presenceData ?? (defaultPresenceData as PresenceMember[]),
   };
 };
 
 export const useRoom = (): UseRoomResponse => {
   const overrides = useMockOverrides();
 
-  // Create stable room object using Partial<Room>
-  const mockRoom = useMemo((): Partial<Room> => ({
-    name: overrides.roomName || 'Storybook Room',
-    // Add other Room properties as your components need them
-  }), [overrides.roomName]);
-
   return {
     roomStatus: RoomStatus.Attached,
     connectionStatus: ConnectionStatus.Connected,
     roomName: overrides.roomName || 'general',
-    room: mockRoom as Room, // Still need to cast for the return type
     attach: async () => {
       console.log('Mock: Room attached');
     },
@@ -398,7 +426,7 @@ export const useRoomReactions = (): UseRoomReactionsResponse => {
   return {
     roomStatus: RoomStatus.Attached,
     connectionStatus: ConnectionStatus.Connected,
-    send: async (reaction: { name: string; metadata?: any }) => {
+    sendRoomReaction: async (reaction: { name: string; metadata?: any }) => {
       console.log('Mock: Room reaction sent', reaction);
     },
   };
