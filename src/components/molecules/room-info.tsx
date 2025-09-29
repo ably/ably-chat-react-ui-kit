@@ -7,7 +7,6 @@ import { Avatar, AvatarData } from '../atoms/avatar.tsx';
 import { ParticipantList } from './participant-list.tsx';
 import { PresenceCount } from './presence-count.tsx';
 import { PresenceIndicators } from './presence-indicators.tsx';
-import { PresenceList } from './presence-list.tsx';
 import { TypingIndicators } from './typing-indicators.tsx';
 
 /**
@@ -163,36 +162,34 @@ export const RoomInfo = ({
     <div className={clsx('ably-room-info', className)}>
       <div className="ably-room-info__avatar-wrapper">
         {/* Room Avatar with Hover Tooltip */}
-        <PresenceList>
-          <div
-            className="ably-room-info__avatar-button"
-            onClick={onToggle}
-            role="button"
-            aria-haspopup="dialog"
-            aria-expanded={isOpen}
-            aria-label={`${roomAvatarData?.displayName || roomName} (${String(presenceData.length || 0)} participants)`}
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                onToggle();
-              }
-            }}
-          >
-            <div className="ably-room-info__avatar">
-              <Avatar
-                alt={roomAvatarData?.displayName}
-                src={roomAvatarData?.src}
-                color={roomAvatarData?.color}
-                size="lg"
-                initials={roomAvatarData?.initials}
-              />
-            </div>
-
-            {/* Present Count Badge */}
-            <PresenceCount presenceData={presenceData} />
+        <div
+          className="ably-room-info__avatar-button"
+          onClick={onToggle}
+          role="button"
+          aria-haspopup="dialog"
+          aria-expanded={isOpen}
+          aria-label={`${roomAvatarData?.displayName || roomName} (${String(presenceData.length || 0)} participants)`}
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              onToggle();
+            }
+          }}
+        >
+          <div className="ably-room-info__avatar">
+            <Avatar
+              alt={roomAvatarData?.displayName}
+              src={roomAvatarData?.src}
+              color={roomAvatarData?.color}
+              size="lg"
+              initials={roomAvatarData?.initials}
+            />
           </div>
-        </PresenceList>
+
+          {/* Present Count Badge */}
+          <PresenceCount presenceData={presenceData} />
+        </div>
 
         {/* Participants Dropdown */}
         {isOpen && currentClientId && (

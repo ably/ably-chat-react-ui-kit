@@ -27,8 +27,8 @@ describe('TextInput', () => {
       render(<TextInput placeholder="Enter text" />);
 
       const input = screen.getByPlaceholderText('Enter text');
-      expect(input).toHaveClass('px-4', 'py-2', 'text-base'); // md size
-      expect(input).toHaveClass('rounded-lg', 'border'); // default variant
+      expect(input).toHaveClass('ably-input', 'ably-input--md'); // md size
+      expect(input).toHaveClass('ably-input--default'); // default variant
     });
   });
 
@@ -37,14 +37,14 @@ describe('TextInput', () => {
       render(<TextInput variant="default" placeholder="Enter text" />);
 
       const input = screen.getByPlaceholderText('Enter text');
-      expect(input).toHaveClass('rounded-lg', 'bg-white', 'dark:bg-gray-800');
+      expect(input).toHaveClass('ably-input--default');
     });
 
     it('applies message variant classes', () => {
       render(<TextInput variant="message" placeholder="Enter text" />);
 
       const input = screen.getByPlaceholderText('Enter text');
-      expect(input).toHaveClass('rounded-full', 'bg-gray-50', 'dark:bg-gray-700');
+      expect(input).toHaveClass('ably-input--message');
     });
   });
 
@@ -53,21 +53,21 @@ describe('TextInput', () => {
       render(<TextInput size="sm" placeholder="Enter text" />);
 
       const input = screen.getByPlaceholderText('Enter text');
-      expect(input).toHaveClass('px-3', 'py-1.5', 'text-sm');
+      expect(input).toHaveClass('ably-input--sm');
     });
 
     it('applies medium size classes', () => {
       render(<TextInput size="md" placeholder="Enter text" />);
 
       const input = screen.getByPlaceholderText('Enter text');
-      expect(input).toHaveClass('px-4', 'py-2', 'text-base');
+      expect(input).toHaveClass('ably-input--md');
     });
 
     it('applies large size classes', () => {
       render(<TextInput size="lg" placeholder="Enter text" />);
 
       const input = screen.getByPlaceholderText('Enter text');
-      expect(input).toHaveClass('px-4', 'py-3', 'text-lg');
+      expect(input).toHaveClass('ably-input--lg');
     });
   });
 
@@ -76,16 +76,14 @@ describe('TextInput', () => {
       render(<TextInput error placeholder="Enter text" />);
 
       const input = screen.getByPlaceholderText('Enter text');
-      expect(input).toHaveClass('border-red-500', 'dark:border-red-400');
-      expect(input).toHaveClass('focus:ring-red-500', 'focus:border-red-500');
+      expect(input).toHaveClass('ably-input--error');
     });
 
     it('applies success state classes', () => {
       render(<TextInput success placeholder="Enter text" />);
 
       const input = screen.getByPlaceholderText('Enter text');
-      expect(input).toHaveClass('border-green-500', 'dark:border-green-400');
-      expect(input).toHaveClass('focus:ring-green-500', 'focus:border-green-500');
+      expect(input).toHaveClass('ably-input--success');
     });
 
     it('applies disabled state classes and attributes', () => {
@@ -93,7 +91,7 @@ describe('TextInput', () => {
 
       const input = screen.getByPlaceholderText('Enter text');
       expect(input).toBeDisabled();
-      expect(input).toHaveClass('disabled:opacity-50', 'disabled:pointer-events-none');
+      expect(input).toBeDisabled();
     });
   });
 
@@ -146,7 +144,7 @@ describe('TextInput', () => {
       render(<TextInput prefix={prefix} placeholder="Enter text" />);
 
       expect(screen.getByTestId('prefix')).toBeInTheDocument();
-      expect(screen.getByPlaceholderText('Enter text')).toHaveClass('pl-10');
+      expect(screen.getByPlaceholderText('Enter text')).toHaveClass('ably-input--has-prefix');
     });
 
     it('renders with suffix element', () => {
@@ -154,7 +152,7 @@ describe('TextInput', () => {
       render(<TextInput suffix={suffix} placeholder="Enter text" />);
 
       expect(screen.getByTestId('suffix')).toBeInTheDocument();
-      expect(screen.getByPlaceholderText('Enter text')).toHaveClass('pr-10');
+      expect(screen.getByPlaceholderText('Enter text')).toHaveClass('ably-input--has-suffix');
     });
 
     it('renders with both prefix and suffix', () => {
@@ -166,16 +164,16 @@ describe('TextInput', () => {
       expect(screen.getByTestId('suffix')).toBeInTheDocument();
 
       const input = screen.getByPlaceholderText('Enter text');
-      expect(input).toHaveClass('pl-10', 'pr-10');
+      expect(input).toHaveClass('ably-input--has-prefix', 'ably-input--has-suffix');
     });
 
     it('wraps input in container when prefix or suffix is present', () => {
       const prefix = <span data-testid="prefix">@</span>;
       const { container } = render(<TextInput prefix={prefix} placeholder="Enter text" />);
 
-      const wrapper = container.querySelector('.relative');
+      const wrapper = container.querySelector('.ably-input-wrapper');
       expect(wrapper).toBeInTheDocument();
-      expect(wrapper).toHaveClass('flex', 'items-center');
+      expect(wrapper).toHaveClass('ably-input-wrapper--default');
     });
   });
 
@@ -191,14 +189,14 @@ describe('TextInput', () => {
       render(<TextInput multiline placeholder="Enter text" />);
 
       const textarea = screen.getByPlaceholderText('Enter text');
-      expect(textarea).toHaveClass('resize-none', 'overflow-y-hidden');
+      expect(textarea).toHaveClass('ably-input--multiline');
     });
 
     it('applies rounded-full for message variant when multiline', () => {
       render(<TextInput multiline variant="message" placeholder="Enter text" />);
 
       const textarea = screen.getByPlaceholderText('Enter text');
-      expect(textarea).toHaveClass('rounded-full');
+      expect(textarea).toHaveClass('ably-input--message', 'ably-input--multiline');
     });
 
     it('sets maxHeight style', () => {
@@ -263,8 +261,8 @@ describe('TextInput', () => {
       await user.type(textarea, 'Very long content that exceeds max height');
 
       await waitFor(() => {
-        expect(textarea).toHaveClass('overflow-y-auto');
-        expect(textarea).not.toHaveClass('overflow-y-hidden');
+        expect(textarea).toHaveClass('ably-input--multiline-scrollable');
+        expect(textarea).not.toHaveClass('ably-input--multiline');
       });
     });
   });

@@ -127,12 +127,12 @@ const calculatePosition = (
 export const Tooltip = ({
   title,
   children,
-  position = 'below',
+  position = 'auto',
   disabled = false,
   className,
 }: TooltipProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [coords, setCoords] = useState<{ top: number; left: number } | undefined>(undefined);
+  const [coords, setCoords] = useState<{ top: number; left: number } | undefined>();
 
   const triggerRef = useRef<HTMLElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
@@ -200,7 +200,11 @@ export const Tooltip = ({
   // Update position when tooltip becomes visible
   useEffect(() => {
     if (isOpen) {
-      updatePosition();
+      // Wait a tick for the tooltip to render to measure size, then update position
+      // Ensures coords get set so the portal content appears
+      queueMicrotask(() => {
+        updatePosition();
+      });
     }
   }, [isOpen, updatePosition]);
 
@@ -251,13 +255,17 @@ export const Tooltip = ({
   return (
     <>
       {cloneChild}
-      {isOpen && coords &&
-        createPortal(
-          <TooltipContent ref={tooltipRef} id={tooltipId} coords={coords} className={className}>
+      {isOpen && createPortal(
+          <TooltipContent
+            ref={tooltipRef}
+            id={tooltipId}
+            coords={coords ?? { top: 0, left: 0 }}
+            className={className}
+          >
             {title}
           </TooltipContent>,
           document.body
-        )}
+      )}
     </>
   );
 };

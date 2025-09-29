@@ -22,7 +22,7 @@ describe('Avatar Component', () => {
       render(<Avatar alt="John Doe" />);
 
       const avatar = screen.getByRole('img');
-      expect(avatar).toHaveClass('w-10', 'h-10', 'text-lg');
+      expect(avatar).toHaveClass('ably-avatar', 'ably-avatar--md', 'ably-avatar--violet');
     });
 
     it('displays initials when no image is provided', () => {
@@ -39,7 +39,7 @@ describe('Avatar Component', () => {
       const image = screen.getByRole('img');
       expect(image).toHaveAttribute('src', 'https://example.com/avatar.jpg');
       expect(image).toHaveAttribute('alt', 'John Doe');
-      expect(image).toHaveClass('w-full', 'h-full', 'rounded-full', 'object-cover');
+      expect(image).toHaveClass('ably-avatar__image');
     });
 
     it('falls back to initials when image fails to load', async () => {
@@ -83,21 +83,15 @@ describe('Avatar Component', () => {
   });
 
   describe('Size Variants', () => {
-    const sizes = [
-      { size: 'sm' as const, classes: ['w-8', 'h-8', 'text-sm'] },
-      { size: 'md' as const, classes: ['w-10', 'h-10', 'text-lg'] },
-      { size: 'lg' as const, classes: ['w-12', 'h-12', 'text-xl'] },
-      { size: 'xl' as const, classes: ['w-16', 'h-16', 'text-2xl'] },
-    ];
+    const sizes = ['sm', 'md', 'lg', 'xl'] as const;
 
-    for (const { size, classes } of sizes) {
+    for (const size of sizes) {
       it(`renders ${size} size correctly`, () => {
         render(<Avatar alt="John Doe" size={size} />);
 
         const avatar = screen.getByRole('img');
-        for (const className of classes) {
-          expect(avatar).toHaveClass(className);
-        }
+        expect(avatar).toHaveClass('ably-avatar');
+        expect(avatar).toHaveClass(`ably-avatar--${size}`);
       });
     }
   });
@@ -149,7 +143,8 @@ describe('Avatar Component', () => {
       render(<Avatar alt="John Doe" color="bg-purple-500" />);
 
       const avatar = screen.getByRole('img');
-      expect(avatar).toHaveClass('bg-purple-500');
+      expect(avatar).toHaveClass('ably-avatar');
+      expect(avatar.className).toContain('ably-avatar--purple');
     });
 
     it('generates deterministic color from alt text', () => {
@@ -157,27 +152,27 @@ describe('Avatar Component', () => {
 
       const avatar = screen.getByRole('img');
       // Should have one of the predefined color classes
-      const colorClasses = [
-        'bg-blue-500',
-        'bg-purple-500',
-        'bg-green-500',
-        'bg-orange-500',
-        'bg-red-500',
-        'bg-pink-500',
-        'bg-indigo-500',
-        'bg-yellow-500',
-        'bg-teal-500',
-        'bg-cyan-500',
-        'bg-emerald-500',
-        'bg-violet-500',
-        'bg-amber-500',
-        'bg-rose-500',
-        'bg-fuchsia-500',
-        'bg-sky-500',
+      const colorNames = [
+        'blue',
+        'purple',
+        'green',
+        'orange',
+        'red',
+        'pink',
+        'indigo',
+        'yellow',
+        'teal',
+        'cyan',
+        'emerald',
+        'violet',
+        'amber',
+        'rose',
+        'fuchsia',
+        'sky',
       ];
 
-      const hasColorClass = colorClasses.some((colorClass) =>
-        avatar.classList.contains(colorClass)
+      const hasColorClass = colorNames.some((colorName) =>
+        avatar.className.includes(`ably-avatar--${colorName}`)
       );
       expect(hasColorClass).toBe(true);
     });
@@ -198,7 +193,8 @@ describe('Avatar Component', () => {
       render(<Avatar />);
 
       const avatar = screen.getByRole('img');
-      expect(avatar).toHaveClass('bg-purple-500');
+      expect(avatar).toHaveClass('ably-avatar');
+      expect(avatar.className).toContain('ably-avatar--purple');
     });
   });
 
@@ -209,7 +205,7 @@ describe('Avatar Component', () => {
 
       const avatar = screen.getByRole('button');
       expect(avatar).toBeInTheDocument();
-      expect(avatar).toHaveClass('cursor-pointer');
+      expect(avatar).toHaveClass('ably-avatar--clickable');
       expect(avatar).toHaveAttribute('tabIndex', '0');
     });
 
@@ -256,7 +252,7 @@ describe('Avatar Component', () => {
       render(<Avatar alt="John Doe" onClick={handleClick} />);
 
       const avatar = screen.getByRole('button');
-      expect(avatar).toHaveClass('hover:opacity-80', 'transition-opacity');
+      expect(avatar).toHaveClass('ably-avatar--clickable');
     });
 
     it('has focus styles when clickable', () => {
@@ -264,19 +260,14 @@ describe('Avatar Component', () => {
       render(<Avatar alt="John Doe" onClick={handleClick} />);
 
       const avatar = screen.getByRole('button');
-      expect(avatar).toHaveClass(
-        'focus:outline-none',
-        'focus:ring-2',
-        'focus:ring-offset-2',
-        'focus:ring-blue-500'
-      );
+      expect(avatar).toHaveClass('ably-avatar--clickable');
     });
 
     it('does not have interactive styles when not clickable', () => {
       render(<Avatar alt="John Doe" />);
 
       const avatar = screen.getByRole('img');
-      expect(avatar).not.toHaveClass('cursor-pointer');
+      expect(avatar).not.toHaveClass('ably-avatar--clickable');
       expect(avatar).not.toHaveAttribute('tabIndex');
     });
   });
@@ -326,7 +317,8 @@ describe('Avatar Component', () => {
       );
 
       const avatar = screen.getByTestId('avatar-component');
-      expect(avatar).toHaveClass('bg-pink-500');
+      expect(avatar).toHaveClass('ably-avatar');
+      expect(avatar.className).toContain('ably-avatar--pink');
       expect(avatar).toHaveAttribute('title', avatarData.displayName);
       expect(avatar).toHaveAttribute('aria-label', avatarData.displayName);
 
@@ -355,7 +347,7 @@ describe('Avatar Component', () => {
       // Should have generated color
       const avatar = screen.getByRole('img');
       const hasGeneratedColor = [...avatar.classList].some(
-        (cls) => cls.startsWith('bg-') && cls !== 'bg-gray-500'
+        (cls) => cls.startsWith('ably-avatar--') && cls !== 'ably-avatar--md'
       );
       expect(hasGeneratedColor).toBe(true);
     });

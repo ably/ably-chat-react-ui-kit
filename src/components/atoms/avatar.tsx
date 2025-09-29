@@ -1,5 +1,5 @@
+import { clsx } from 'clsx';
 import React, { useEffect, useState } from 'react';
-import clsx from 'clsx';
 
 /**
  * AvatarData interface defines the structure for avatar data across the application.
@@ -59,8 +59,8 @@ const mapColorClass = (colorClass: string | undefined): string | undefined => {
   if (!colorClass) return undefined;
 
   // Extract color name from bg-{color}-500 pattern
-  const match = colorClass.match(/^bg-(\w+)-\d+$/);
-  if (match && match[1]) {
+  const match = /^bg-(\w+)-\d+$/.exec(colorClass);
+  if (match?.[1]) {
     return match[1];
   }
 
@@ -242,6 +242,7 @@ export const Avatar = ({
       role={onClick ? 'button' : showingImage ? undefined : 'img'}
       tabIndex={onClick ? 0 : undefined}
       aria-label={alt}
+      title={alt}
     >
       {src && !imgError ? (
         <img

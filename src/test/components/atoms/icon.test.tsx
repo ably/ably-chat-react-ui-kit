@@ -39,14 +39,14 @@ describe('Icon Component', () => {
       const { container } = render(<Icon name="send" />);
 
       const icon = getIcon(container);
-      expect(icon).toHaveClass('w-5', 'h-5');
+      expect(icon).toHaveClass('ably-icon ably-icon--md ably-icon--current');
     });
 
     it('uses current color by default', () => {
       const { container } = render(<Icon name="send" />);
 
       const icon = getIcon(container);
-      expect(icon).toHaveClass('text-current');
+      expect(icon).toHaveClass('ably-icon--current');
     });
 
     it('applies custom className', () => {
@@ -97,10 +97,10 @@ describe('Icon Component', () => {
 
   describe('Size Variants', () => {
     const sizes: { size: IconProps['size']; expectedClasses: string[] }[] = [
-      { size: 'sm', expectedClasses: ['w-4', 'h-4'] },
-      { size: 'md', expectedClasses: ['w-5', 'h-5'] },
-      { size: 'lg', expectedClasses: ['w-6', 'h-6'] },
-      { size: 'xl', expectedClasses: ['w-8', 'h-8'] },
+      { size: 'sm', expectedClasses: ['ably-icon', 'ably-icon--sm', 'ably-icon--current'] },
+      { size: 'md', expectedClasses: ['ably-icon', 'ably-icon--md', 'ably-icon--current'] },
+      { size: 'lg', expectedClasses: ['ably-icon', 'ably-icon--lg', 'ably-icon--current'] },
+      { size: 'xl', expectedClasses: ['ably-icon', 'ably-icon--xl', 'ably-icon--current'] },
     ];
 
     for (const { size, expectedClasses } of sizes) {
@@ -118,12 +118,12 @@ describe('Icon Component', () => {
 
   describe('Color Variants', () => {
     const colors: { color: IconProps['color']; expectedClass: string }[] = [
-      { color: 'current', expectedClass: 'text-current' },
-      { color: 'primary', expectedClass: 'text-blue-600' },
-      { color: 'secondary', expectedClass: 'text-gray-600' },
-      { color: 'success', expectedClass: 'text-green-600' },
-      { color: 'warning', expectedClass: 'text-yellow-600' },
-      { color: 'error', expectedClass: 'text-red-600' },
+      { color: 'current', expectedClass: 'ably-icon--current' },
+      { color: 'primary', expectedClass: 'ably-icon--primary' },
+      { color: 'secondary', expectedClass: 'ably-icon--secondary' },
+      { color: 'success', expectedClass: 'ably-icon--success' },
+      { color: 'warning', expectedClass: 'ably-icon--warning' },
+      { color: 'error', expectedClass: 'ably-icon--error' },
     ];
 
     for (const { color, expectedClass } of colors) {
@@ -388,7 +388,7 @@ describe('Icon Component', () => {
       const icon = screen.getByTestId('delete-icon');
 
       expect(icon).toHaveClass('w-6', 'h-6');
-      expect(icon).toHaveClass('text-red-600', 'dark:text-red-400');
+      expect(icon).toHaveClass('text-red-600', 'icon--error-dark');
       expect(icon).toHaveClass('hover:scale-110');
       expect(icon).toHaveClass('cursor-pointer');
       expect(icon).toHaveAttribute('role', 'button');

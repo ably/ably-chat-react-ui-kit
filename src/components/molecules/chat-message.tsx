@@ -2,14 +2,12 @@ import { ChatMessageAction, Message } from '@ably/chat';
 import { useChatClient } from '@ably/chat/react';
 import { clsx } from 'clsx';
 import React, { useEffect, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
 
 import { useUserAvatar } from '../../hooks/use-user-avatar.tsx';
 import { Avatar } from '../atoms/avatar.tsx';
 import { Button } from '../atoms/button.tsx';
 import { Icon } from '../atoms/icon.tsx';
 import { TextInput } from '../atoms/text-input.tsx';
-import { Tooltip } from '../atoms/tooltip.tsx';
 import { ConfirmDialog } from './confirm-dialog.tsx';
 import { EmojiPicker } from './emoji-picker.tsx';
 import { MessageActions } from './message-actions.tsx';
@@ -304,22 +302,20 @@ export const ChatMessage = ({
     >
       {/* Avatar with hover tooltip functionality */}
       <div className="ably-chat-message__avatar-container">
-        <Tooltip title={message.clientId}>
-          <div
-            ref={avatarRef}
-            className="ably-chat-message__avatar-container"
-            aria-label={`Avatar for ${message.clientId}`}
-            tabIndex={isOwn ? 0 : undefined}
-          >
-            <Avatar
-              alt={userAvatar?.displayName}
-              src={userAvatar?.src}
-              color={userAvatar?.color}
-              size="sm"
-              initials={userAvatar?.initials}
-            />
-          </div>
-        </Tooltip>
+        <div
+          ref={avatarRef}
+          className="ably-chat-message__avatar-container"
+          aria-label={`Avatar for ${message.clientId}`}
+          tabIndex={isOwn ? 0 : undefined}
+        >
+          <Avatar
+            alt={userAvatar?.displayName}
+            src={userAvatar?.src}
+            color={userAvatar?.color}
+            size="sm"
+            initials={userAvatar?.initials}
+          />
+        </div>
       </div>
 
       <div

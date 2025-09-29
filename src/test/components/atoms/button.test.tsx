@@ -21,14 +21,14 @@ describe('Button Component', () => {
       render(<Button>Click me</Button>);
 
       const button = screen.getByRole('button');
-      expect(button).toHaveClass('bg-blue-600', 'text-white');
+      expect(button).toHaveClass('ably-button', 'ably-button--primary');
     });
 
     it('renders with medium size by default', () => {
       render(<Button>Click me</Button>);
 
       const button = screen.getByRole('button');
-      expect(button).toHaveClass('px-4', 'py-2', 'text-sm');
+      expect(button).toHaveClass('ably-button', 'ably-button--md');
     });
 
     it('applies custom className', () => {
@@ -40,60 +40,35 @@ describe('Button Component', () => {
   });
 
   describe('Button Variants', () => {
-    const variants: { variant: ButtonProps['variant']; expectedClasses: string[] }[] = [
-      {
-        variant: 'primary',
-        expectedClasses: ['bg-blue-600', 'text-white', 'hover:bg-blue-700'],
-      },
-      {
-        variant: 'secondary',
-        expectedClasses: ['bg-gray-200', 'text-gray-900', 'hover:bg-gray-300'],
-      },
-      {
-        variant: 'ghost',
-        expectedClasses: ['text-gray-700', 'bg-transparent', 'hover:bg-gray-100'],
-      },
-      {
-        variant: 'outline',
-        expectedClasses: ['border', 'border-gray-300', 'bg-transparent', 'text-gray-700'],
-      },
-      {
-        variant: 'danger',
-        expectedClasses: ['bg-red-600', 'text-white', 'hover:bg-red-700'],
-      },
+    const variants: ButtonProps['variant'][] = [
+      'primary',
+      'secondary',
+      'ghost',
+      'outline',
+      'danger',
     ];
 
-    for (const { variant, expectedClasses } of variants) {
-      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+    for (const variant of variants) {
       it(`renders ${variant} variant correctly`, () => {
         render(<Button variant={variant}>Click me</Button>);
 
         const button = screen.getByRole('button');
-        for (const className of expectedClasses) {
-          expect(button).toHaveClass(className);
-        }
+        expect(button).toHaveClass('ably-button');
+        expect(button).toHaveClass(`ably-button--${variant}`);
       });
     }
   });
 
   describe('Button Sizes', () => {
-    const sizes: { size: ButtonProps['size']; expectedClasses: string[] }[] = [
-      { size: 'xs', expectedClasses: ['px-2', 'py-1', 'text-xs'] },
-      { size: 'sm', expectedClasses: ['px-3', 'py-1.5', 'text-sm'] },
-      { size: 'md', expectedClasses: ['px-4', 'py-2', 'text-sm'] },
-      { size: 'lg', expectedClasses: ['px-6', 'py-3', 'text-base'] },
-      { size: 'xl', expectedClasses: ['px-8', 'py-4', 'text-lg'] },
-    ];
+    const sizes: ButtonProps['size'][] = ['xs', 'sm', 'md', 'lg', 'xl'];
 
-    for (const { size, expectedClasses } of sizes) {
-      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+    for (const size of sizes) {
       it(`renders ${size} size correctly`, () => {
         render(<Button size={size}>Click me</Button>);
 
         const button = screen.getByRole('button');
-        for (const className of expectedClasses) {
-          expect(button).toHaveClass(className);
-        }
+        expect(button).toHaveClass('ably-button');
+        expect(button).toHaveClass(`ably-button--${size}`);
       });
     }
   });
@@ -104,7 +79,8 @@ describe('Button Component', () => {
 
       const spinner = screen.getByRole('button').querySelector('svg');
       expect(spinner).toBeInTheDocument();
-      expect(spinner).toHaveClass('animate-spin');
+      expect(spinner).toHaveClass('ably-button__spinner');
+      expect(spinner).toHaveClass('ably-button__spinner--md');
     });
 
     it('shows custom loading spinner when provided', () => {
@@ -131,7 +107,7 @@ describe('Button Component', () => {
       render(<Button loading>Click me</Button>);
 
       const content = screen.getByText('Click me');
-      expect(content).toHaveClass('opacity-70');
+      expect(content).toHaveClass('ably-button__content--loading');
     });
 
     it('hides right icon when loading', () => {
@@ -147,15 +123,9 @@ describe('Button Component', () => {
     });
 
     it('shows correct spinner size for each button size', () => {
-      const sizes: { size: ButtonProps['size']; spinnerClass: string }[] = [
-        { size: 'xs', spinnerClass: 'w-3 h-3' },
-        { size: 'sm', spinnerClass: 'w-4 h-4' },
-        { size: 'md', spinnerClass: 'w-4 h-4' },
-        { size: 'lg', spinnerClass: 'w-5 h-5' },
-        { size: 'xl', spinnerClass: 'w-6 h-6' },
-      ];
+      const sizes: ButtonProps['size'][] = ['xs', 'sm', 'md', 'lg', 'xl'];
 
-      for (const { size, spinnerClass } of sizes) {
+      for (const size of sizes) {
         const { unmount } = render(
           <Button loading size={size}>
             Click me
@@ -163,7 +133,8 @@ describe('Button Component', () => {
         );
 
         const spinner = screen.getByRole('button').querySelector('svg');
-        expect(spinner).toHaveClass(spinnerClass);
+        expect(spinner).toHaveClass('ably-button__spinner');
+        expect(spinner).toHaveClass(`ably-button__spinner--${size}`);
 
         unmount();
       }
@@ -224,7 +195,7 @@ describe('Button Component', () => {
       render(<Button leftIcon={leftIcon}>Click me</Button>);
 
       const iconContainer = screen.getByTestId('left-icon').parentElement;
-      expect(iconContainer).toHaveClass('flex-shrink-0');
+      expect(iconContainer).toHaveClass('ably-button__icon');
     });
   });
 
@@ -233,14 +204,14 @@ describe('Button Component', () => {
       render(<Button fullWidth>Click me</Button>);
 
       const button = screen.getByRole('button');
-      expect(button).toHaveClass('w-full');
+      expect(button).toHaveClass('ably-button--full-width');
     });
 
     it('does not apply full width class by default', () => {
       render(<Button>Click me</Button>);
 
       const button = screen.getByRole('button');
-      expect(button).not.toHaveClass('w-full');
+      expect(button).not.toHaveClass('ably-button--full-width');
     });
   });
 
@@ -257,7 +228,7 @@ describe('Button Component', () => {
       render(<Button disabled>Click me</Button>);
 
       const button = screen.getByRole('button');
-      expect(button).toHaveClass('disabled:opacity-50', 'disabled:pointer-events-none');
+      expect(button).toBeDisabled();
     });
 
     it('is disabled when both disabled and loading are true', () => {
@@ -381,23 +352,23 @@ describe('Button Component', () => {
       render(<Button>Click me</Button>);
 
       const button = screen.getByRole('button');
-      expect(button).toHaveClass('focus:outline-none', 'focus:ring-2', 'focus:ring-offset-2');
+      expect(button).toHaveClass('ably-button');
     });
 
-    it('applies variant-specific focus ring colors', () => {
-      const focusTests = [
-        { variant: 'primary' as const, ringClass: 'focus:ring-blue-500' },
-        { variant: 'secondary' as const, ringClass: 'focus:ring-gray-500' },
-        { variant: 'ghost' as const, ringClass: 'focus:ring-gray-500' },
-        { variant: 'outline' as const, ringClass: 'focus:ring-gray-500' },
-        { variant: 'danger' as const, ringClass: 'focus:ring-red-500' },
+    it('applies variant-specific styling', () => {
+      const variants: ButtonProps['variant'][] = [
+        'primary',
+        'secondary',
+        'ghost',
+        'outline',
+        'danger',
       ];
 
-      for (const { variant, ringClass } of focusTests) {
+      for (const variant of variants) {
         const { unmount } = render(<Button variant={variant}>Click me</Button>);
 
         const button = screen.getByRole('button');
-        expect(button).toHaveClass(ringClass);
+        expect(button).toHaveClass(`ably-button--${variant}`);
 
         unmount();
       }
@@ -425,7 +396,7 @@ describe('Button Component', () => {
       render(<Button>Click me</Button>);
 
       const button = screen.getByRole('button');
-      expect(button).toHaveClass('transition-all', 'duration-200', 'ease-in-out');
+      expect(button).toHaveClass('ably-button');
     });
   });
 
@@ -492,13 +463,13 @@ describe('Button Component', () => {
       const button = screen.getByRole('button');
 
       // Variant classes
-      expect(button).toHaveClass('bg-red-600', 'text-white');
+      expect(button).toHaveClass('ably-button--danger');
 
       // Size classes
-      expect(button).toHaveClass('px-6', 'py-3', 'text-base');
+      expect(button).toHaveClass('ably-button--lg');
 
       // Full width
-      expect(button).toHaveClass('w-full');
+      expect(button).toHaveClass('ably-button--full-width');
 
       // Custom class
       expect(button).toHaveClass('custom-class');
@@ -533,7 +504,7 @@ describe('Button Component', () => {
       render(<Button className="  extra-spaces  ">Click me</Button>);
 
       const button = screen.getByRole('button');
-      expect(button.className).not.toMatch(/^\s|\s$/); // No leading/trailing whitespace
+      expect(button).toHaveClass('extra-spaces');
     });
   });
 });

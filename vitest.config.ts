@@ -13,6 +13,7 @@ export default defineConfig({
     globals: true,
     globalSetup: './src/test/helper/test-setup.ts',
     css: true,
+    testTimeout: 5000,
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts', './src/test/helper/expectations.ts'],
     include: ['src/test/**/*.test.{ts,tsx}'],
