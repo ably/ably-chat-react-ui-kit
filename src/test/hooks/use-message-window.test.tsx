@@ -33,31 +33,27 @@ const createMockMessage = (overrides: Partial<Message> = {}): Message => {
   const serial = overrides.serial ?? `msg_${Date.now().toString()}`;
   const clientId = overrides.clientId ?? 'mock-user';
   const text = overrides.text ?? 'my chat message';
-  const createdAt = overrides.createdAt ?? new Date();
   const timestamp = overrides.timestamp ?? new Date();
   const metadata = overrides.metadata ?? {};
   const headers = overrides.headers ?? {};
   const action = overrides.action ?? ChatMessageAction.MessageCreate;
-  const version = overrides.version ?? `msg_${Date.now().toString()}`;
+  const version = overrides.version ?? { serial: `msg_${Date.now().toString()}` };
   const reactions = overrides.reactions ?? {
     distinct: {},
     unique: {},
     multiple: {},
   };
-  const operation = overrides.operation ?? {};
 
   const combinedArgs: Partial<Message> = {
     serial,
     clientId,
     text,
-    createdAt,
     timestamp,
     metadata,
     headers,
     action,
     version,
     reactions,
-    operation,
     isUpdated: overrides.isUpdated ?? false,
     isDeleted: overrides.isDeleted ?? false,
     deletedBy: overrides.deletedBy,
@@ -143,19 +139,19 @@ describe('useMessageWindow Hook', () => {
       serial: 'msg_1',
       clientId: 'user1',
       text: 'Message 1',
-      createdAt: new Date(Date.now() - 1000 * 60 * 5),
+      timestamp: new Date(Date.now() - 1000 * 60 * 5),
     }),
     createMockMessage({
       serial: 'msg_2',
       clientId: 'user2',
       text: 'Message 2',
-      createdAt: new Date(Date.now() - 1000 * 60 * 4),
+      timestamp: new Date(Date.now() - 1000 * 60 * 4),
     }),
     createMockMessage({
       serial: 'msg_3',
       clientId: 'user1',
       text: 'Message 3',
-      createdAt: new Date(Date.now() - 1000 * 60 * 3),
+      timestamp: new Date(Date.now() - 1000 * 60 * 3),
     }),
   ];
 
@@ -208,7 +204,7 @@ describe('useMessageWindow Hook', () => {
       serial: 'msg_4',
       clientId: 'user2',
       text: 'Message 4',
-      createdAt: new Date(),
+      timestamp: new Date(),
     });
 
     act(() => {
@@ -226,7 +222,7 @@ describe('useMessageWindow Hook', () => {
         serial: `nav_msg_${String(i + 1)}`,
         clientId: `user${String((i % 3) + 1)}`,
         text: `Navigation test message ${String(i + 1)}`,
-        createdAt: new Date(Date.now() - 1000 * 60 * (20 - i)),
+        timestamp: new Date(Date.now() - 1000 * 60 * (20 - i)),
       })
     );
 
@@ -314,7 +310,7 @@ describe('useMessageWindow Hook', () => {
           serial: 'msg_0',
           clientId: 'user3',
           text: 'Earlier message',
-          createdAt: new Date(Date.now() - 1000 * 60 * 10),
+          timestamp: new Date(Date.now() - 1000 * 60 * 10),
         }),
       ],
     });
@@ -357,21 +353,21 @@ describe('useMessageWindow Hook', () => {
       serial: 'msg_1',
       clientId: 'user1',
       text: 'First message',
-      createdAt: new Date(Date.now() - 1000 * 60 * 10),
+      timestamp: new Date(Date.now() - 1000 * 60 * 10),
     });
 
     const msg2 = createMockMessage({
       serial: 'msg_2',
       clientId: 'user2',
       text: 'Second message',
-      createdAt: new Date(Date.now() - 1000 * 60 * 5),
+      timestamp: new Date(Date.now() - 1000 * 60 * 5),
     });
 
     const msg3 = createMockMessage({
       serial: 'msg_3',
       clientId: 'user1',
       text: 'Third message',
-      createdAt: new Date(Date.now()),
+      timestamp: new Date(Date.now()),
     });
 
     vi.mocked(useMessages).mockReturnValue(
@@ -402,7 +398,7 @@ describe('useMessageWindow Hook', () => {
       clientId: 'user2',
       text: 'Updated message 2',
       action: ChatMessageAction.MessageUpdate,
-      version: '2',
+      version: { serial: '2' },
     });
 
     act(() => {
@@ -413,7 +409,7 @@ describe('useMessageWindow Hook', () => {
     expect(result.current.activeMessages).toHaveLength(3);
     expect(result.current.activeMessages[1]?.serial).toBe('msg_2');
     expect(result.current.activeMessages[1]?.text).toBe('Updated message 2');
-    expect(result.current.activeMessages[1]?.version).toBe('2');
+    expect(result.current.activeMessages[1]?.version.serial).toBe('2');
 
     expect(msg2.with).toHaveBeenCalledWith(updateMessage);
   });
@@ -578,7 +574,7 @@ describe('useMessageWindow Hook', () => {
         serial: `msg_${String(i + 1)}`,
         clientId: `user${String((i % 3) + 1)}`,
         text: `Message ${String(i + 1)}`,
-        createdAt: new Date(Date.now() - 1000 * 60 * (50 - i)),
+        timestamp: new Date(Date.now() - 1000 * 60 * (50 - i)),
       })
     );
 
