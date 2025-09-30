@@ -5,15 +5,18 @@ import { action } from 'storybook/actions';
 
 import { ChatMessage } from '../components/molecules/chat-message.tsx';
 import { AvatarProvider } from '../providers/avatar-provider.tsx';
-import { ChatClientProvider, MockChatClient } from '../../.storybook/mocks/mock-ably-chat.ts';
+import {
+  ChatClientProvider,
+  MockChatClient,
+  createMockMessage,
+} from '../../.storybook/mocks/mock-ably-chat.ts';
 import { ChatSettingsProvider } from '../providers';
 
 // Sample message data to use in the story
-const sampleMessage: Message = {
-  id: 'msg-1',
+const sampleMessage: Message = createMockMessage({
   clientId: 'user2',
   text: 'Hello there! This is a sample chat message.',
-  createdAt: new Date(),
+  timestamp: new Date(),
   updatedAt: new Date(),
   isUpdated: false,
   isDeleted: false,
@@ -21,8 +24,10 @@ const sampleMessage: Message = {
     distinct: {
       '👍': { total: 1, clientIds: ['user1'] },
     },
+    unique: {},
+    multiple: {},
   },
-} as unknown as Message;
+});
 
 // Extend the component props for Storybook to include mockOverrides
 type StoryProps = React.ComponentProps<typeof ChatMessage> & {

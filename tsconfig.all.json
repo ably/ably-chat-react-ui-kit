@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.json",
+  "include": [
+    "src/**/*",
+    ".storybook/**/*"
+  ],
+  "exclude": [
+    "dist",
+    "node_modules"
+  ],
+  "compilerOptions": {
+    "types": ["vitest/globals", "@testing-library/jest-dom"]
+  }
+}

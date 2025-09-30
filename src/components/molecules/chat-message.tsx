@@ -500,7 +500,7 @@ export const ChatMessage = ({
 
         <div className="flex items-center gap-2 mt-1 px-2">
           <span className="text-xs text-gray-500">
-            {formatTime(message.createdAt.getTime())}
+            {formatTime(message.timestamp.getTime())}
             {!message.isDeleted && message.isUpdated && message.updatedAt && (
               <span className="ml-1">• edited {formatTime(message.updatedAt.getTime())}</span>
             )}
