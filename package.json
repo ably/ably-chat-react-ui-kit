@@ -1,6 +1,6 @@
 {
   "name": "@ably/chat-react-ui-components",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A library of configurable components for use with @ably/chat",
   "type": "module",
   "main": "./dist/ably/chat-react-ui-components.cjs",
