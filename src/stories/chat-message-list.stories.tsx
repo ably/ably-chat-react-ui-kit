@@ -9,13 +9,14 @@ import {
   emptyMessageReactions,
   ChatClientProvider,
   MockChatClient,
+  getSerial,
 } from '../../.storybook/mocks/mock-ably-chat.ts';
 import { AvatarProvider } from '../providers/avatar-provider.tsx';
 import { ChatSettingsProvider } from '../providers';
 
 const messages = [
   createMockMessage({
-    serial: 'msg_1',
+    serial: getSerial(Date.now() - 1000 * 60 * 5),
     clientId: 'user1',
     text: 'Hey, how are you doing today?',
     timestamp: new Date(Date.now() - 1000 * 60 * 5),
@@ -25,7 +26,7 @@ const messages = [
     reactions: emptyMessageReactions(),
   }),
   createMockMessage({
-    serial: 'msg_2',
+    serial: getSerial(Date.now() - 1000 * 60 * 4),
     clientId: 'user2',
     text: "I'm good, thanks! Working on the new chat UI.",
     timestamp: new Date(Date.now() - 1000 * 60 * 4),
@@ -41,7 +42,7 @@ const messages = [
     },
   }),
   createMockMessage({
-    serial: 'msg_3',
+    serial: getSerial(Date.now() - 1000 * 60 * 3),
     clientId: 'user3',
     text: 'Nice! Looking forward to seeing it.',
     timestamp: new Date(Date.now() - 1000 * 60 * 3),
@@ -113,7 +114,7 @@ export const Default: Story = {
   args: {
     messages: Array.from({ length: 25 }, (_, i) =>
       createMockMessage({
-        serial: `msg_${i + 1}`,
+        serial: getSerial(Date.now() - 1000 * 60 * (25 - i)),
         clientId: i % 4 === 0 ? 'user1' : `user${(i % 3) + 2}`,
         text:
           i % 5 === 0
@@ -131,7 +132,7 @@ export const WithReactions: Story = {
   args: {
     messages: [
       createMockMessage({
-        serial: 'msg_1',
+        serial: getSerial(Date.now() - 1000 * 60 * 10),
         clientId: 'user2',
         text: 'Check out this awesome feature! 🚀',
         timestamp: new Date(Date.now() - 1000 * 60 * 10),
@@ -147,7 +148,7 @@ export const WithReactions: Story = {
         },
       }),
       ...messages.slice(1),
-    ] as unknown as Message[],
+    ] as Message[],
   },
 };
 
@@ -155,7 +156,7 @@ export const WithEditedMessages: Story = {
   args: {
     messages: [
       createMockMessage({
-        serial: 'msg_1',
+        serial: getSerial(Date.now() - 1000 * 60 * 10),
         clientId: 'user1',
         text: 'This message has been edited to fix a typo.',
         timestamp: new Date(Date.now() - 1000 * 60 * 10),
@@ -163,7 +164,7 @@ export const WithEditedMessages: Story = {
         isUpdated: true,
       }),
       ...messages.slice(1),
-    ] as unknown as Message[],
+    ] as Message[],
   },
 };
 
@@ -171,7 +172,7 @@ export const WithDeletedMessages: Story = {
   args: {
     messages: [
       createMockMessage({
-        serial: 'msg_1',
+        serial: getSerial(Date.now() - 1000 * 60 * 10),
         clientId: 'user1',
         text: 'This message has been edited to fix a typo.',
         timestamp: new Date(Date.now() - 1000 * 60 * 10),
@@ -180,7 +181,7 @@ export const WithDeletedMessages: Story = {
         isDeleted: true,
       }),
       ...messages.slice(1),
-    ] as unknown as Message[],
+    ] as Message[],
   },
 };
 
@@ -216,7 +217,7 @@ export const AutoScrollComparison: Story = {
               text: `Initial message ${i + 1}`,
               timestamp: new Date(Date.now() - 1000 * 60 * (8 - i)),
             })
-          ) as unknown as Message[]
+          ) as Message[]
       );
 
       const [isRunning, setIsRunning] = React.useState(true);
@@ -228,7 +229,7 @@ export const AutoScrollComparison: Story = {
         const interval = setInterval(() => {
           messageCountRef.current += 1;
           const newMessage = createMockMessage({
-            serial: `msg_${messageCountRef.current}`,
+            serial: getSerial(Date.now() + messageCountRef.current),
             clientId:
               messageCountRef.current % 3 === 0
                 ? 'user1'
@@ -237,7 +238,7 @@ export const AutoScrollComparison: Story = {
                   : 'user3',
             text: `Message ${messageCountRef.current} - ${new Date().toLocaleTimeString()}`,
             timestamp: new Date(),
-          }) as unknown as Message;
+          }) as Message;
 
           setMessages((prev) => [...prev, newMessage]);
         }, 1500);

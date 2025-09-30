@@ -1,12 +1,6 @@
 // .storybook/mocks/mock-ably-chat.ts
 
-import React, {
-  createContext,
-  ReactNode,
-  useCallback,
-  useContext,
-  useMemo,
-} from 'react';
+import React, { createContext, ReactNode, useCallback, useContext, useMemo } from 'react';
 import {
   ChatClient,
   ChatMessageAction,
@@ -22,30 +16,39 @@ import {
   Serial,
 } from '@ably/chat';
 import {
-  ChatRoomProviderProps, UseChatConnectionResponse,
-  UseMessagesResponse, UseOccupancyResponse,
-  UsePresenceListenerResponse, UsePresenceResponse, UseRoomReactionsResponse,
-  UseRoomResponse, UseTypingResponse,
+  ChatRoomProviderProps,
+  UseChatConnectionResponse,
+  UseMessagesResponse,
+  UseOccupancyResponse,
+  UsePresenceListenerResponse,
+  UsePresenceResponse,
+  UseRoomReactionsResponse,
+  UseRoomResponse,
+  UseTypingResponse,
 } from '@ably/chat/react';
 import { ChatSettings, ChatSettingsContextType } from '../../src';
 
 // Utility to generate a unique serial for messages -> 01726585978590-001@abcdefghij:001
-export const getSerial = (timestamp?: number, sequence = '001', identifier = 'abcdefghij', version = '001'): string => {
+export const getSerial = (
+  timestamp?: number,
+  counter = '001',
+  seriesId = 'abcdefghij',
+  index = '001'
+): string => {
   const ts = timestamp ?? Date.now();
-  return `${ts.toString().padStart(14, '0')}-${sequence}@${identifier}:${version}`;
+  return `${ts.toString().padStart(14, '0')}-${counter}@${seriesId}:${index}`;
 };
 
-
 interface MockOverrides {
-  occupancy?: OccupancyData
-  presenceData?: PresenceMember[]
-  currentlyTyping?: string[]
+  occupancy?: OccupancyData;
+  presenceData?: PresenceMember[];
+  currentlyTyping?: string[];
   messages?: Message[];
   clientId?: string;
   roomName?: string;
   present?: boolean;
   connectionStatus?: ConnectionStatus;
-  chatSettings?: ChatSettings
+  chatSettings?: ChatSettings;
 }
 
 const MockOverridesContext = createContext<MockOverrides>({});
@@ -66,7 +69,6 @@ const mockPaginatedResultWithItems = (items: Message[]): PaginatedResult<Message
 export interface MockChatRoomProviderProps extends ChatRoomProviderProps {
   mockOverrides?: MockOverrides;
 }
-
 
 export const ChatRoomProvider = ({
   children,
@@ -149,22 +151,56 @@ export const createMockMessage = (overrides: Partial<Message> = {}): Message => 
     },
     reactions: emptyMessageReactions(),
 
-    get isUpdated() { return this.action === ChatMessageAction.MessageUpdate; },
-    get isDeleted() { return this.action === ChatMessageAction.MessageDelete; },
-    get deletedBy() { return this.isDeleted ? this.version?.clientId : undefined; },
-    get updatedBy() { return this.isUpdated ? this.version?.clientId : undefined; },
-    get deletedAt() { return this.isDeleted ? this.timestamp : undefined; },
-    get updatedAt() { return this.isUpdated ? this.timestamp : undefined; },
+    get isUpdated() {
+      return this.action === ChatMessageAction.MessageUpdate;
+    },
+    get isDeleted() {
+      return this.action === ChatMessageAction.MessageDelete;
+    },
+    get deletedBy() {
+      return this.isDeleted ? this.version?.clientId : undefined;
+    },
+    get updatedBy() {
+      return this.isUpdated ? this.version?.clientId : undefined;
+    },
+    get deletedAt() {
+      return this.isDeleted ? this.timestamp : undefined;
+    },
+    get updatedAt() {
+      return this.isUpdated ? this.timestamp : undefined;
+    },
 
-    before: () => false,
-    after: () => true,
-    equal: (other: Message) => defaults.serial === other.serial,
-    isSameAs: (other: Message) => defaults.serial === other.serial,
-    isOlderVersionOf: () => false,
-    isNewerVersionOf: () => false,
-    isSameVersionAs: () => true,
+    before(other: Message) {
+      return this.serial ? this.serial < other.serial : false;
+    },
+    after(other: Message) {
+      return this.serial ? this.serial > other.serial : false;
+    },
+    equal(other: Message) {
+      return this.serial ? this.serial === other.serial : false;
+    },
+    isSameAs(other: Message) {
+      return this.serial ? this.serial === other.serial : false;
+    },
+    isOlderVersionOf(other: Message) {
+      return this.version?.serial && other.version?.serial
+        ? this.version.serial < other.version.serial
+        : false;
+    },
+    isNewerVersionOf(other: Message) {
+      return this.version?.serial && other.version?.serial
+        ? this.version.serial > other.version.serial
+        : false;
+    },
+    isSameVersionAs(other: Message) {
+      return this.version?.serial && other.version?.serial
+        ? this.version.serial === other.version.serial
+        : false;
+    },
 
-    with: () => createMockMessage(overrides),
+    with(other) {
+      return other as Message;
+    },
     copy: (updates: any = {}) => createMockMessage({ ...overrides, ...updates }),
   };
 
@@ -184,8 +220,6 @@ export const useMessages = (options?: {
 
   const msgSerial = overrides.messages?.[0]?.serial || getSerial(Date.now());
   const msgSerial2 = overrides.messages?.[1]?.serial || getSerial(Date.now() + 1);
-  const versionSerial = overrides.messages?.[0]?.version?.serial || getSerial(Date.now());
-  const versionSerial2 = overrides.messages?.[1]?.version?.serial || getSerial(Date.now() + 1);
 
   // Create stable mock paginated result
   const mockPaginatedResult = useMemo(() => {
@@ -197,7 +231,7 @@ export const useMessages = (options?: {
         timestamp: new Date(Date.now() - 1000 * 60 * 5),
         updatedAt: new Date(Date.now() - 1000 * 60 * 5),
         version: {
-          serial: versionSerial,
+          serial: msgSerial,
           timestamp: new Date(Date.now() - 1000 * 60 * 5),
         },
         isUpdated: false,
@@ -213,7 +247,7 @@ export const useMessages = (options?: {
         isUpdated: false,
         isDeleted: false,
         version: {
-          serial: versionSerial2,
+          serial: msgSerial2,
           timestamp: new Date(Date.now() - 1000 * 60 * 4),
         },
         reactions: {
@@ -238,7 +272,6 @@ export const useMessages = (options?: {
     return createMockPaginatedResult(mockMessages);
   }, [overrides.messages]);
 
-
   const historyBeforeSubscribe = useCallback(
     async (options: QueryOptions) => {
       console.log('Mock: Getting message history', options);
@@ -252,7 +285,7 @@ export const useMessages = (options?: {
       return Promise.resolve(createMockMessage());
     },
     history(options: QueryOptions): Promise<PaginatedResult<Message>> {
-      return Promise.resolve(mockPaginatedResult)
+      return Promise.resolve(mockPaginatedResult);
     },
     roomStatus: RoomStatus.Attached,
     connectionStatus: ConnectionStatus.Connected,
@@ -266,12 +299,14 @@ export const useMessages = (options?: {
     },
     updateMessage: async (serial, params, details) => {
       console.log('Mock: Message updated', serial, params);
-      const serialString = (serial as { serial: string }).serial;
       return createMockMessage({
-        serial: serialString,
+        serial: serial as string,
         text: params.text || 'Updated message',
         clientId: overrides.clientId || 'storybook-user',
         action: ChatMessageAction.MessageUpdate,
+        version: {
+          serial: getSerial(Date.now()),
+        },
         metadata: params.metadata || {},
         headers: params.headers || {},
       });
@@ -283,6 +318,9 @@ export const useMessages = (options?: {
         text: 'Message deleted',
         clientId: overrides.clientId || 'storybook-user',
         action: ChatMessageAction.MessageDelete,
+        version: {
+          serial: getSerial(Date.now()),
+        },
       });
     },
     sendReaction: async (params: any) => {
@@ -292,7 +330,7 @@ export const useMessages = (options?: {
     deleteReaction: async (params: any) => {
       console.log('Mock: Reaction deleted', params);
       return Promise.resolve();
-    }
+    },
   };
 };
 
@@ -320,7 +358,7 @@ export const usePresence = (): UsePresenceResponse => {
     roomStatus: RoomStatus.Attached,
     connectionStatus: ConnectionStatus.Connected,
     myPresenceState: {
-      present: overrides.present ?? true
+      present: overrides.present ?? true,
     },
     update: async () => {
       console.log('Mock: Updated presence');
@@ -381,9 +419,9 @@ export const useTyping = (): UseTypingResponse => {
 
 const newConnection = (args: Partial<Connection>): Connection => {
   return {
-    ...args
-  } as Connection
-}
+    ...args,
+  } as Connection;
+};
 
 export class MockChatClient implements Partial<ChatClient> {
   public clientId: string;
@@ -391,13 +429,13 @@ export class MockChatClient implements Partial<ChatClient> {
 
   constructor(options?: { clientId?: string }) {
     this.clientId = options?.clientId || 'storybook-user';
-    this.connection = newConnection({status: ConnectionStatus.Connected});
+    this.connection = newConnection({ status: ConnectionStatus.Connected });
   }
 }
 
 export const useChatConnection = (): Partial<UseChatConnectionResponse> => {
   const overrides = useMockOverrides();
-  
+
   return {
     currentStatus: overrides.connectionStatus || ConnectionStatus.Connected,
   };
@@ -405,7 +443,7 @@ export const useChatConnection = (): Partial<UseChatConnectionResponse> => {
 
 export const useChatSettings = (): Partial<ChatSettingsContextType> => {
   const overrides = useMockOverrides();
-  
+
   const defaultSettings: ChatSettings = {
     allowMessageUpdatesOwn: true,
     allowMessageUpdatesAny: false,
@@ -413,9 +451,9 @@ export const useChatSettings = (): Partial<ChatSettingsContextType> => {
     allowMessageDeletesAny: false,
     allowMessageReactions: true,
   };
-  
+
   const settings = { ...defaultSettings, ...overrides.chatSettings };
-  
+
   return {
     globalSettings: settings,
     getEffectiveSettings: (roomName?: string) => settings,
@@ -431,7 +469,6 @@ export const useRoomReactions = (): UseRoomReactionsResponse => {
     },
   };
 };
-
 
 export const createMockScenario = {
   noParticipants: (): MockOverrides => ({
