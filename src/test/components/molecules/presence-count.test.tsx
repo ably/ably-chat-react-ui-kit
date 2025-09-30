@@ -1,3 +1,4 @@
+import { PresenceMember } from '@ably/chat';
 import { render, screen } from '@testing-library/react';
 import React from 'react';
 import { describe, expect, it } from 'vitest';
@@ -13,14 +14,16 @@ describe('PresenceCount', () => {
   it('renders a badge with count 1', () => {
     render(
       <PresenceCount
-        presenceData={[
-          {
-            clientId: 'user1',
-            data: undefined,
-            extras: undefined,
-            updatedAt: 0,
-          },
-        ]}
+        presenceData={
+          [
+            {
+              clientId: 'user1',
+              data: undefined,
+              extras: undefined,
+              updatedAt: new Date(Date.now()),
+            },
+          ] as PresenceMember[]
+        }
       />
     );
 
@@ -33,26 +36,28 @@ describe('PresenceCount', () => {
   it('renders a badge with plural text for multiple users', () => {
     render(
       <PresenceCount
-        presenceData={[
-          {
-            clientId: 'user1',
-            data: undefined,
-            extras: undefined,
-            updatedAt: 0,
-          },
-          {
-            clientId: 'user2',
-            data: undefined,
-            extras: undefined,
-            updatedAt: 0,
-          },
-          {
-            clientId: 'user3',
-            data: undefined,
-            extras: undefined,
-            updatedAt: 0,
-          },
-        ]}
+        presenceData={
+          [
+            {
+              clientId: 'user1',
+              data: undefined,
+              extras: undefined,
+              updatedAt: new Date(Date.now()),
+            },
+            {
+              clientId: 'user2',
+              data: undefined,
+              extras: undefined,
+              updatedAt: new Date(Date.now()),
+            },
+            {
+              clientId: 'user3',
+              data: undefined,
+              extras: undefined,
+              updatedAt: new Date(Date.now()),
+            },
+          ] as PresenceMember[]
+        }
       />
     );
 
@@ -67,8 +72,8 @@ describe('PresenceCount', () => {
       clientId: `user${(i + 1).toString()}`,
       data: undefined,
       extras: undefined,
-      updatedAt: 0,
-    }));
+      updatedAt: new Date(Date.now()),
+    })) as PresenceMember[];
 
     render(<PresenceCount presenceData={manyMembers} />);
 
@@ -81,14 +86,16 @@ describe('PresenceCount', () => {
   it('has correct styling', () => {
     render(
       <PresenceCount
-        presenceData={[
-          {
-            clientId: 'user1',
-            data: undefined,
-            extras: undefined,
-            updatedAt: 0,
-          },
-        ]}
+        presenceData={
+          [
+            {
+              clientId: 'user1',
+              data: undefined,
+              extras: undefined,
+              updatedAt: new Date(Date.now()),
+            },
+          ] as PresenceMember[]
+        }
       />
     );
 

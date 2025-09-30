@@ -23,17 +23,17 @@
   "style": "dist/style.css",
   "scripts": {
     "build:css": "tailwindcss -i ./src/style.css -o ./dist/style.css --minify",
-    "build": "npm run build:css && vite build && tsc --declaration --emitDeclarationOnly --outDir dist",
+    "build": "npm run build:css && vite build && tsc --declaration --emitDeclarationOnly --outDir dist && npm run build-storybook",
     "prepare": "npm run build",
     "lint": "eslint 'src/**/*.{ts,tsx}'",
-    "lint:fix": "eslint 'src/**/*.{ts,tsx}' --fix",
-    "format": "prettier --list-different --write 'src/**/*.{ts,tsx,css}'",
-    "format:check": "prettier --check 'src/**/*.{ts,tsx,css}'",
+    "lint:fix": "eslint 'src/**/*.{ts,tsx}'",
+    "format": "prettier --list-different --write 'src/**/*.{ts,tsx,css}' '.storybook/**/*.{ts,tsx}'",
+    "format:check": "prettier --check 'src/**/*.{ts,tsx,css}' '.storybook/**/*.{ts,tsx}'",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:typescript": "tsc"
+    "test:typescript": "tsc --project tsconfig.all.json --noEmit"
   },
   "files": [
     "dist/**",

@@ -5,7 +5,11 @@ import { action } from 'storybook/actions';
 
 import { ChatMessage } from '../components/molecules/chat-message.tsx';
 import { AvatarProvider } from '../providers/avatar-provider.tsx';
-import { ChatClientProvider, MockChatClient, createMockMessage } from '../../.storybook/mocks/mock-ably-chat.ts';
+import {
+  ChatClientProvider,
+  MockChatClient,
+  createMockMessage,
+} from '../../.storybook/mocks/mock-ably-chat.ts';
 import { ChatSettingsProvider } from '../providers';
 
 // Sample message data to use in the story

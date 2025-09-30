@@ -42,10 +42,10 @@ vi.mock('../../../components/atoms/icon', () => ({
 
 describe('ParticipantList', () => {
   const mockPresenceData: PresenceMember[] = [
-    { clientId: 'user1', data: {}, extras: {}, updatedAt: new Date().getUTCDate() },
-    { clientId: 'user2', data: {}, extras: {}, updatedAt: new Date().getUTCDate() },
-    { clientId: 'user3', data: {}, extras: {}, updatedAt: new Date().getUTCDate() },
-  ];
+    { clientId: 'user1', data: {}, extras: {}, updatedAt: new Date(Date.now()) },
+    { clientId: 'user2', data: {}, extras: {}, updatedAt: new Date(Date.now()) },
+    { clientId: 'user3', data: {}, extras: {}, updatedAt: new Date(Date.now()) },
+  ] as PresenceMember[];
 
   const mockTypingUsers = new Set(['user2']);
   const mockToggle = vi.fn();
@@ -171,9 +171,11 @@ describe('ParticipantList', () => {
   it('handles singular form for one participant', () => {
     render(
       <ParticipantList
-        presenceData={[
-          { clientId: 'user1', data: {}, extras: {}, updatedAt: new Date().getUTCDate() },
-        ]}
+        presenceData={
+          [
+            { clientId: 'user1', data: {}, extras: {}, updatedAt: new Date(Date.now()) },
+          ] as PresenceMember[]
+        }
         currentClientId="user1"
         currentlyTyping={new Set()}
         onToggle={mockToggle}
