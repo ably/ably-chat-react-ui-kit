@@ -23,7 +23,8 @@
   "style": "dist/style.css",
   "scripts": {
     "build:css": "tailwindcss -i ./src/style.css -o ./dist/style.css --minify",
-    "build": "npm run build:css && vite build && tsc --declaration --emitDeclarationOnly --outDir dist && npm run build-storybook",
+    "build": "npm run build:css && vite build && tsc --declaration --emitDeclarationOnly --outDir dist",
+    "build:full": "npm run build && npm run build-storybook",
     "prepare": "npm run build",
     "lint": "eslint 'src/**/*.{ts,tsx}'",
     "lint:fix": "eslint 'src/**/*.{ts,tsx}'",
