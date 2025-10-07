@@ -665,7 +665,7 @@ describe('useMessageWindow Hook', () => {
     expect(result.current.activeMessages[2]?.text).toBe('Fresh message 3');
 
     // Verify that none of the initial messages are present
-    const activeMessageTexts = result.current.activeMessages.map(m => m.text);
+    const activeMessageTexts = result.current.activeMessages.map((m) => m.text);
     expect(activeMessageTexts).not.toContain('Initial message 1');
     expect(activeMessageTexts).not.toContain('Initial message 2');
 
