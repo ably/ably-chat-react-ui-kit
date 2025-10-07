@@ -570,6 +570,109 @@ describe('useMessageWindow Hook', () => {
     });
   });
 
+  it('should clear old state and get fresh state after discontinuity', async () => {
+    let onDiscontinuityCallback: DiscontinuityListener | undefined;
+
+    // Initial messages that will be loaded first
+    const initialMessages = [
+      createMockMessage({
+        serial: getSerial(Date.now() - 1000 * 60 * 5),
+        clientId: 'user1',
+        text: 'Initial message 1',
+        timestamp: new Date(Date.now() - 1000 * 60 * 5),
+      }),
+      createMockMessage({
+        serial: getSerial(Date.now() - 1000 * 60 * 4),
+        clientId: 'user2',
+        text: 'Initial message 2',
+        timestamp: new Date(Date.now() - 1000 * 60 * 4),
+      }),
+    ];
+
+    // Fresh messages that will be loaded after discontinuity
+    const freshMessages = [
+      createMockMessage({
+        serial: getSerial(Date.now() - 1000 * 60 * 3),
+        clientId: 'user1',
+        text: 'Fresh message 1',
+        timestamp: new Date(Date.now() - 1000 * 60 * 3),
+      }),
+      createMockMessage({
+        serial: getSerial(Date.now() - 1000 * 60 * 2),
+        clientId: 'user2',
+        text: 'Fresh message 2',
+        timestamp: new Date(Date.now() - 1000 * 60 * 2),
+      }),
+      createMockMessage({
+        serial: getSerial(Date.now() - 1000 * 60),
+        clientId: 'user1',
+        text: 'Fresh message 3',
+        timestamp: new Date(Date.now() - 1000 * 60),
+      }),
+    ];
+
+    // Mock historyBeforeSubscribe to return different results on different calls
+    const mockHistoryBeforeSubscribe = vi
+      .fn()
+      .mockResolvedValueOnce(
+        createMockPaginatedResult({
+          items: initialMessages,
+          hasNext: vi.fn().mockReturnValue(false),
+        })
+      )
+      .mockResolvedValueOnce(
+        createMockPaginatedResult({
+          items: freshMessages,
+          hasNext: vi.fn().mockReturnValue(false),
+        })
+      );
+
+    const stableMockResponse = createMockUseMessagesResponse({
+      historyBeforeSubscribe: mockHistoryBeforeSubscribe,
+    });
+
+    vi.mocked(useMessages).mockImplementation((params?: UseMessagesParams) => {
+      onDiscontinuityCallback = params?.onDiscontinuity;
+      return stableMockResponse;
+    });
+
+    const { result } = renderHook(() => useMessageWindow());
+
+    // Wait for initial load to complete
+    await waitFor(() => {
+      expect(result.current.activeMessages.length).toBe(2);
+    });
+
+    // Verify initial messages are loaded
+    expect(result.current.activeMessages[0]?.text).toBe('Initial message 1');
+    expect(result.current.activeMessages[1]?.text).toBe('Initial message 2');
+
+    // Simulate a discontinuity event
+    act(() => {
+      if (onDiscontinuityCallback) {
+        onDiscontinuityCallback(new Error('Simulated discontinuity') as ErrorInfo);
+      }
+    });
+
+    // Wait for the discontinuity to clear old state and load fresh messages
+    await waitFor(() => {
+      expect(result.current.activeMessages.length).toBe(3);
+    });
+
+    // Verify that the old messages are cleared and fresh messages are loaded
+    expect(result.current.activeMessages[0]?.text).toBe('Fresh message 1');
+    expect(result.current.activeMessages[1]?.text).toBe('Fresh message 2');
+    expect(result.current.activeMessages[2]?.text).toBe('Fresh message 3');
+
+    // Verify that none of the initial messages are present
+    const activeMessageTexts = result.current.activeMessages.map((m) => m.text);
+    expect(activeMessageTexts).not.toContain('Initial message 1');
+    expect(activeMessageTexts).not.toContain('Initial message 2');
+
+    // Verify historyBeforeSubscribe was called twice (initial load + discontinuity recovery)
+    expect(mockHistoryBeforeSubscribe).toHaveBeenCalledTimes(2);
+  });
+
   it('should reset state when room changes', async () => {
     const { result, rerender } = renderHook(() => useMessageWindow());
 

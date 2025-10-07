@@ -117,7 +117,6 @@ export const useMessageWindow = ({
   );
   const serialSetRef = useRef<Set<string>>(new Set());
   const initialHistoryLoadedRef = useRef<boolean>(false);
-  const recoveringRef = useRef<boolean>(false);
 
   /** Entire message history, should not be used for UI display */
   const allMessagesRef = useRef<Message[]>([]);
@@ -136,18 +135,15 @@ export const useMessageWindow = ({
 
   // Reset state when room changes.
   useEffect(() => {
-    return () => {
-      // Reset all state
-      allMessagesRef.current = [];
-      serialSetRef.current = new Set();
-      nextPageRef.current = undefined;
-      initialHistoryLoadedRef.current = false;
-      recoveringRef.current = false;
+    // Reset all state when we load a new room
+    allMessagesRef.current = [];
+    serialSetRef.current = new Set();
+    nextPageRef.current = undefined;
+    initialHistoryLoadedRef.current = false;
 
-      setVersion(0);
-      setActiveMessages([]);
-      setAnchorIdx(-1);
-    };
+    setVersion(0);
+    setActiveMessages([]);
+    setAnchorIdx(-1);
   }, [roomName]);
 
   const { historyBeforeSubscribe } = useMessages({
@@ -187,14 +183,7 @@ export const useMessageWindow = ({
       });
     },
     onDiscontinuity: () => {
-      // Get the serial of the last message in the current window
-      const messages = allMessagesRef.current;
-      if (messages.length === 0) return;
-
-      // eslint-disable-next-line unicorn/prefer-at
-      const lastReceivedMessage = messages[messages.length - 1];
-      if (!lastReceivedMessage) return;
-      handleDiscontinuity(lastReceivedMessage.serial);
+      handleDiscontinuity();
     },
   });
 
@@ -276,7 +265,6 @@ export const useMessageWindow = ({
   const updateMessages = useCallback(
     (msgs: Message[], prepend = false) => {
       if (msgs.length === 0) return;
-
       setVersion((prevVersion) => {
         if (prevVersion === 0 && allMessagesRef.current.length > 0) {
           // If this is the first update and we already have messages, we need to reset the state
@@ -334,42 +322,43 @@ export const useMessageWindow = ({
     [anchorIdx, findInsertionIndex, findMessageIndex]
   );
 
-  const handleDiscontinuity = useCallback(
-    (recoverFromSerial: string) => {
-      // Nothing to do if we are already recovering or we have no history API
-      if (recoveringRef.current || !historyBeforeSubscribe) return;
+  /**
+   * Common history loading logic shared between initial load and discontinuity handling
+   */
+  const loadHistoryAndUpdateState = useCallback(
+    async (limit: number, cancelledRef?: { current: boolean }) => {
+      if (!historyBeforeSubscribe) return;
 
-      recoveringRef.current = true;
       setLoading(true);
 
-      void (async () => {
-        try {
-          let page = await historyBeforeSubscribe({ limit: historyBatchSize });
-          for (;;) {
-            updateMessages(page.items.reverse());
-            // Binary search the sorted list in reverse order, since history is order descending
-            if (findMessageIndex(page.items, recoverFromSerial, true) !== -1) {
-              break;
-            }
-
-            if (page.hasNext()) {
-              const nextPage = await page.next();
-              if (!nextPage) break; // no more pages
-              page = nextPage; // move further back in time
-            } else {
-              break; // no more pages
-            }
-          }
-        } catch (error: unknown) {
-          console.error('Discontinuity recovery failed', error);
-        } finally {
-          recoveringRef.current = false;
+      try {
+        const page = await historyBeforeSubscribe({ limit });
+        // Check if component was unmounted while async operation was running
+        if (cancelledRef?.current) {
+          return;
+        }
+        updateMessages(page.items, true);
+        nextPageRef.current = page.hasNext() ? () => page.next() : undefined;
+        setHasMoreHistory(page.hasNext());
+      } catch (error: unknown) {
+        console.error('History load failed', error);
+        if (!cancelledRef?.current) {
+          initialHistoryLoadedRef.current = false;
+        }
+      } finally {
+        if (!cancelledRef?.current) {
           setLoading(false);
         }
-      })();
+      }
     },
-    [findMessageIndex, historyBeforeSubscribe, updateMessages, historyBatchSize]
+    [historyBeforeSubscribe, updateMessages]
   );
+
+  const handleDiscontinuity = useCallback(() => {
+    // Set message version back to zero, this will clear message states and trigger a full reload
+    setVersion(0);
+    void loadHistoryAndUpdateState(historyBatchSize);
+  }, [loadHistoryAndUpdateState, historyBatchSize]);
 
   /* Reset initial load state when historyBeforeSubscribe changes */
   useEffect(() => {
@@ -380,37 +369,23 @@ export const useMessageWindow = ({
   useEffect(() => {
     if (!historyBeforeSubscribe || initialHistoryLoadedRef.current) return;
 
-    let cancelled = false;
+    const cancelledRef = { current: false };
     initialHistoryLoadedRef.current = true;
 
     const load = async () => {
-      setLoading(true);
-      try {
-        // Load enough messages to fill more than the window size and overscan
-        const page = await historyBeforeSubscribe({ limit: windowSize + overscan * 2 });
-        if (cancelled) return;
-
-        updateMessages(page.items, true); // prepend older msgs
-        nextPageRef.current = page.hasNext() ? () => page.next() : undefined;
-        setHasMoreHistory(page.hasNext());
-      } catch (error) {
-        console.error('History load failed', error);
-        initialHistoryLoadedRef.current = false;
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
+      // Load enough messages to fill more than the window size and overscan
+      await loadHistoryAndUpdateState(windowSize + overscan * 2, cancelledRef);
     };
 
     void load();
     return () => {
-      cancelled = true;
+      cancelledRef.current = true;
     };
-  }, [historyBeforeSubscribe, overscan, updateMessages, windowSize]);
+  }, [historyBeforeSubscribe, overscan, windowSize, loadHistoryAndUpdateState]);
 
   /* Load more history on demand */
   const loadMoreHistory = useCallback(async () => {
     if (loading || !hasMoreHistory || !nextPageRef.current) return;
-
     setLoading(true);
     try {
       const page = await nextPageRef.current();
