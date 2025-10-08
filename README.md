@@ -1,6 +1,6 @@
-![Ably Chat Header](images/Chat-UI-Kits-github-v1.0.png)
+![Ably Chat Header](images/Chat-UI-Kits-github-v1.1.png)
 
-# Ably Chat React UI Components
+# Ably Chat React UI Kit
 
 A library of configurable UI components for building chat applications with the Ably Chat SDK. This package provides
 ready-to-use React components that integrate seamlessly with [`@ably/chat`](https://github.com/ably/ably-chat-js) to
@@ -8,12 +8,12 @@ handle real-time messaging, presence, typing indicators, and more.
 
 ## Getting started
 
-Everything you need to get started with Ably Chat React UI Components:
+Everything you need to get started with Ably Chat React UI Kit:
 
 * [About Ably Chat.](https://ably.com/docs/chat)
 * [Getting started with Ably Chat in JavaScript.](https://ably.com/docs/chat/getting-started/javascript)
 * [Getting started with Ably Chat in React.](https://ably.com/docs/chat/getting-started/react)
-* [Getting started with Ably Chat React UI Components.](https://ably.com/docs/chat/getting-started/react-ui-components)
+* [Getting started with Ably Chat React UI Kit.](https://ably.com/docs/chat/getting-started/react-ui-kit)
 * Play with the [livestream chat demo.](https://ably-livestream-chat-demo.vercel.app/)
 
 ### Installation
@@ -71,4 +71,4 @@ Read the [MAINTAINERS.md](./MAINTAINERS.md) guidelines to contribute to Ably or 
 
 ## Support and known issues
 
-For help or technical support, visit Ably's [support page](https://ably.com/support). You can also view the [community reported Github issues](https://github.com/ably/ably-chat-react-ui-components/issues) or raise one yourself.
+For help or technical support, visit Ably's [support page](https://ably.com/support). You can also view the [community reported Github issues](https://github.com/ably/ably-chat-react-ui-kit/issues) or raise one yourself.

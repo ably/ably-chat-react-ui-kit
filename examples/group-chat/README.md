@@ -1,6 +1,6 @@
 # Group Chat Demo App
 
-A demonstration application built with Ably Chat React UI Components. This demo provides a complete chat experience with minimal setup, featuring message history, typing indicators, user presence, and more..
+A demonstration application built with Ably Chat React UI Kit. This demo provides a complete chat experience with minimal setup, featuring message history, typing indicators, user presence, and more..
 
 ## Prerequisites
 
@@ -12,7 +12,7 @@ A demonstration application built with Ably Chat React UI Components. This demo 
 
 1. **Clone or download** the repository:
    ```bash
-   git clone git@github.com:ably/ably-chat-react-ui-components.git
+   git clone git@github.com:ably/ably-chat-react-ui-kit.git
    ```
    
 2. **Install dependencies**:
@@ -44,7 +44,7 @@ Once running, you'll see a complete chat application interface with:
 ## Technology Stack
 
 - **[Ably Chat SDK](https://ably.com/docs/chat)** - Real-time chat functionality
-- **[Ably Chat React UI Components](https://ably.com/docs/chat/getting-started/ui-components-getting-started)** - Pre-built React components
+- **[Ably Chat React UI Kit](https://ably.com/docs/chat/getting-started/ui-components-getting-started)** - Pre-built React components
 - **React 19**
 - **TypeScript**
 - **Vite**
@@ -59,9 +59,9 @@ Once running, you'll see a complete chat application interface with:
 ## Learn More
 
 - [Ably Chat Documentation](https://ably.com/docs/chat)
-- [Getting Started with Ably Chat React UI Components](https://ably.com/docs/chat/getting-started/react-ui-components)
+- [Getting Started with Ably Chat React UI Kit](https://ably.com/docs/chat/getting-started/react-ui-components)
 - [Ably Chat React SDK](https://ably.com/docs/chat/getting-started/react)
 
 ## Support
 
-For help with Ably services, visit the [Ably support page](https://ably.com/support) or check the [community forums](https://github.com/ably/ably-chat-react-ui-components/discussions).
+For help or technical support, visit Ably's [support page](https://ably.com/support). You can also view the [community reported Github issues](https://github.com/ably/ably-chat-react-ui-kit/issues) or raise one yourself.
