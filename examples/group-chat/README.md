@@ -59,7 +59,7 @@ Once running, you'll see a complete chat application interface with:
 ## Learn More
 
 - [Ably Chat Documentation](https://ably.com/docs/chat)
-- [Getting Started with Ably Chat React UI Kit](https://ably.com/docs/chat/getting-started/react-ui-components)
+- [Getting Started with Ably Chat React UI Kit](https://ably.com/docs/chat/getting-started/react-ui-kit)
 - [Ably Chat React SDK](https://ably.com/docs/chat/getting-started/react)
 
 ## Support

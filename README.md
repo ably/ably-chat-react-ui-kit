@@ -19,7 +19,7 @@ Everything you need to get started with Ably Chat React UI Kit:
 ### Installation
 
 ```bash
-npm install @ably/chat-react-ui-components @ably/chat react react-dom
+npm install @ably/chat-react-ui-kit @ably/chat react react-dom
 ```
 
 ## Supported Platforms
