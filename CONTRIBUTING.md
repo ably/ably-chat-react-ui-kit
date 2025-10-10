@@ -1,4 +1,4 @@
-# Contributing To Ably Chat React UI Components
+# Contributing To Ably Chat React UI Kit
 
 ## Contributing
 
@@ -39,8 +39,8 @@ To get started with development:
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/ably/ably-chat-react-ui-components.git
-   cd ably-chat-react-ui-components
+   git clone https://github.com/ably/ably-chat-react-ui-kit.git
+   cd ably-chat-react-ui-kit
    ```
 
 2. **Install dependencies:**
