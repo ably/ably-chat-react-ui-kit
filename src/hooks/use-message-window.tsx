@@ -163,7 +163,7 @@ export const useMessageWindow = ({
     },
     reactionsListener: (event) => {
       setVersion((prevVersion) => {
-        const messageSerial = event.summary.messageSerial;
+        const messageSerial = event.messageSerial;
         let changed = false;
 
         // If we don't have the message for this reaction, we can't do anything
@@ -251,7 +251,7 @@ export const useMessageWindow = ({
         return -1;
       }
 
-      if (newMessage.before(midMessage)) {
+      if (newMessage.serial < midMessage.serial) {
         right = mid;
       } else {
         left = mid + 1;
@@ -293,12 +293,15 @@ export const useMessageWindow = ({
           const lastMessage = allMessages.at(-1);
 
           // Prepend if requested and message is older than first
-          if (prepend && (allMessages.length === 0 || (firstMessage && m.before(firstMessage)))) {
+          if (
+            prepend &&
+            (allMessages.length === 0 || (firstMessage && m.serial < firstMessage.serial))
+          ) {
             allMessages.unshift(m);
             if (anchorIdx !== -1) insertedBeforeAnchor += 1;
           }
           // Append if message is newer than last
-          else if (allMessages.length === 0 || (lastMessage && m.after(lastMessage))) {
+          else if (allMessages.length === 0 || (lastMessage && m.serial > lastMessage.serial)) {
             allMessages.push(m);
           }
           // Insert at correct position

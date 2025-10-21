@@ -1,4 +1,4 @@
-import { Message } from '@ably/chat';
+import { ChatMessageAction, Message } from '@ably/chat';
 import { useChatClient } from '@ably/chat/react';
 import { clsx } from 'clsx';
 import React, { useEffect, useRef, useState } from 'react';
@@ -272,6 +272,7 @@ export const ChatMessage = ({
    * @param emoji - The emoji to toggle
    */
   const handleReactionClick = (emoji: string) => {
+    if (!clientId) return;
     const distinct = message.reactions.distinct;
     const hasUserReacted = distinct[emoji]?.clientIds.includes(clientId);
 
@@ -369,7 +370,7 @@ export const ChatMessage = ({
         className
       )}
       role="article"
-      aria-label={`Message from ${message.clientId}${message.isDeleted ? ' (deleted)' : ''}${message.isUpdated ? ' (edited)' : ''}`}
+      aria-label={`Message from ${message.clientId}${message.action === ChatMessageAction.MessageDelete ? ' (deleted)' : ''}${message.action === ChatMessageAction.MessageUpdate ? ' (edited)' : ''}`}
     >
       {/* Avatar with hover tooltip functionality */}
       <div className="relative">
@@ -432,7 +433,7 @@ export const ChatMessage = ({
                 ? 'bg-gray-900 text-white rounded-br-md'
                 : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-bl-md'
             }`}
-            aria-live={message.isUpdated ? 'polite' : 'off'}
+            aria-live={message.action === ChatMessageAction.MessageUpdate ? 'polite' : 'off'}
           >
             {isEditing ? (
               <div className="min-w-[200px]">
@@ -463,14 +464,16 @@ export const ChatMessage = ({
               </div>
             ) : (
               <div>
-                {message.isDeleted ? (
+                {message.action === ChatMessageAction.MessageDelete ? (
                   <p className="text-sm leading-relaxed break-words break-all whitespace-pre-wrap italic text-gray-500 dark:text-gray-400">
                     Message deleted
                   </p>
                 ) : (
                   <p className="text-sm leading-relaxed break-words break-all whitespace-pre-wrap">
                     {message.text || ''}
-                    {message.isUpdated && <span className="text-xs opacity-60 ml-2">(edited)</span>}
+                    {message.action === ChatMessageAction.MessageUpdate && (
+                      <span className="text-xs opacity-60 ml-2">(edited)</span>
+                    )}
                   </p>
                 )}
               </div>
@@ -478,7 +481,7 @@ export const ChatMessage = ({
           </div>
 
           {/* Message Actions to update/delete/react */}
-          {isHovered && !isEditing && !message.isDeleted && (
+          {isHovered && !isEditing && message.action !== ChatMessageAction.MessageDelete && (
             <MessageActions
               isOwn={isOwn}
               onReactionButtonClicked={handleAddReaction}
@@ -489,20 +492,23 @@ export const ChatMessage = ({
         </div>
 
         {/* Reactions will be rendered below the relevant message */}
-        {/* eslint-disable-next-line @typescript-eslint/no-unnecessary-condition */}
-        {!message.isDeleted && Object.keys(message.reactions?.distinct || {}).length > 0 && (
-          <MessageReactions
-            message={message}
-            onReactionClick={handleReactionClick}
-            currentClientId={clientId}
-          />
-        )}
+        {message.action !== ChatMessageAction.MessageDelete &&
+          Object.keys(message.reactions.distinct).length > 0 &&
+          clientId && (
+            <MessageReactions
+              message={message}
+              onReactionClick={handleReactionClick}
+              currentClientId={clientId}
+            />
+          )}
 
         <div className="flex items-center gap-2 mt-1 px-2">
           <span className="text-xs text-gray-500">
             {formatTime(message.timestamp.getTime())}
-            {!message.isDeleted && message.isUpdated && message.updatedAt && (
-              <span className="ml-1">• edited {formatTime(message.updatedAt.getTime())}</span>
+            {message.action === ChatMessageAction.MessageUpdate && (
+              <span className="ml-1">
+                • edited {formatTime(message.version.timestamp.getTime())}
+              </span>
             )}
           </span>
         </div>

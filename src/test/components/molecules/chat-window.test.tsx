@@ -303,7 +303,7 @@ describe('ChatWindow', () => {
     fireEvent.click(screen.getByTestId('add-reaction-button'));
 
     // Check if the sendReaction function was called with the correct parameters
-    expect(mockSendReaction).toHaveBeenCalledWith(expect.any(Object), {
+    expect(mockSendReaction).toHaveBeenCalledWith('msg1', {
       type: MessageReactionType.Distinct,
       name: '👍',
     });
@@ -316,7 +316,7 @@ describe('ChatWindow', () => {
     fireEvent.click(screen.getByTestId('remove-reaction-button'));
 
     // Check if the deleteReaction function was called with the correct parameters
-    expect(mockDeleteReaction).toHaveBeenCalledWith(expect.any(Object), {
+    expect(mockDeleteReaction).toHaveBeenCalledWith('msg1', {
       type: MessageReactionType.Distinct,
       name: '👍',
     });

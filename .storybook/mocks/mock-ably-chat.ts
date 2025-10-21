@@ -6,14 +6,13 @@ import {
   ChatMessageAction,
   ConnectionStatus,
   Message,
-  MessageReactions,
+  MessageReactionSummary,
   PaginatedResult,
   PresenceMember,
-  QueryOptions,
+  HistoryParams,
   RoomStatus,
   Connection,
   OccupancyData,
-  Serial,
 } from '@ably/chat';
 import {
   ChatRoomProviderProps,
@@ -124,7 +123,7 @@ export const useChatClient = (): Partial<ChatClient> => {
   };
 };
 
-export function emptyMessageReactions(): MessageReactions {
+export function emptyMessageReactions(): MessageReactionSummary {
   return {
     unique: {},
     distinct: {},
@@ -150,53 +149,6 @@ export const createMockMessage = (overrides: Partial<Message> = {}): Message => 
       timestamp: versionTimestamp,
     },
     reactions: emptyMessageReactions(),
-
-    get isUpdated() {
-      return this.action === ChatMessageAction.MessageUpdate;
-    },
-    get isDeleted() {
-      return this.action === ChatMessageAction.MessageDelete;
-    },
-    get deletedBy() {
-      return this.isDeleted ? this.version?.clientId : undefined;
-    },
-    get updatedBy() {
-      return this.isUpdated ? this.version?.clientId : undefined;
-    },
-    get deletedAt() {
-      return this.isDeleted ? this.timestamp : undefined;
-    },
-    get updatedAt() {
-      return this.isUpdated ? this.timestamp : undefined;
-    },
-
-    before(other: Message) {
-      return this.serial ? this.serial < other.serial : false;
-    },
-    after(other: Message) {
-      return this.serial ? this.serial > other.serial : false;
-    },
-    equal(other: Message) {
-      return this.serial ? this.serial === other.serial : false;
-    },
-    isSameAs(other: Message) {
-      return this.serial ? this.serial === other.serial : false;
-    },
-    isOlderVersionOf(other: Message) {
-      return this.version?.serial && other.version?.serial
-        ? this.version.serial < other.version.serial
-        : false;
-    },
-    isNewerVersionOf(other: Message) {
-      return this.version?.serial && other.version?.serial
-        ? this.version.serial > other.version.serial
-        : false;
-    },
-    isSameVersionAs(other: Message) {
-      return this.version?.serial && other.version?.serial
-        ? this.version.serial === other.version.serial
-        : false;
-    },
 
     with(other) {
       return other as Message;
@@ -229,13 +181,10 @@ export const useMessages = (options?: {
         clientId: 'user1',
         text: 'Hey, how are you doing today?',
         timestamp: new Date(Date.now() - 1000 * 60 * 5),
-        updatedAt: new Date(Date.now() - 1000 * 60 * 5),
         version: {
           serial: msgSerial,
           timestamp: new Date(Date.now() - 1000 * 60 * 5),
         },
-        isUpdated: false,
-        isDeleted: false,
         reactions: emptyMessageReactions(),
       }),
       createMockMessage({
@@ -243,16 +192,13 @@ export const useMessages = (options?: {
         clientId: 'user2',
         text: "I'm good, thanks! Working on the new chat UI.",
         timestamp: new Date(Date.now() - 1000 * 60 * 4),
-        updatedAt: new Date(Date.now() - 1000 * 60 * 4),
-        isUpdated: false,
-        isDeleted: false,
         version: {
           serial: msgSerial2,
           timestamp: new Date(Date.now() - 1000 * 60 * 4),
         },
         reactions: {
           distinct: {
-            '😊': { total: 2, clientIds: ['user1', 'user2'] },
+            '😊': { total: 2, clientIds: ['user1', 'user2'], clipped: false },
           },
           unique: {},
           multiple: {},
@@ -273,7 +219,7 @@ export const useMessages = (options?: {
   }, [overrides.messages]);
 
   const historyBeforeSubscribe = useCallback(
-    async (options: QueryOptions) => {
+    async (options: HistoryParams) => {
       console.log('Mock: Getting message history', options);
       return mockPaginatedResult;
     },
@@ -281,10 +227,10 @@ export const useMessages = (options?: {
   );
 
   return {
-    getMessage(serial: Serial): Promise<Message> {
+    getMessage(serial: string): Promise<Message> {
       return Promise.resolve(createMockMessage());
     },
-    history(options: QueryOptions): Promise<PaginatedResult<Message>> {
+    history(options: HistoryParams): Promise<PaginatedResult<Message>> {
       return Promise.resolve(mockPaginatedResult);
     },
     roomStatus: RoomStatus.Attached,
@@ -306,6 +252,7 @@ export const useMessages = (options?: {
         action: ChatMessageAction.MessageUpdate,
         version: {
           serial: getSerial(Date.now()),
+          timestamp: new Date(Date.now()),
         },
         metadata: params.metadata || {},
         headers: params.headers || {},
@@ -320,6 +267,7 @@ export const useMessages = (options?: {
         action: ChatMessageAction.MessageDelete,
         version: {
           serial: getSerial(Date.now()),
+          timestamp: new Date(Date.now()),
         },
       });
     },

@@ -1,15 +1,15 @@
-import { Message } from '@ably/chat';
+import { ChatMessageAction, Message } from '@ably/chat';
 import { Meta, StoryObj } from '@storybook/react-vite';
 import React from 'react';
 import { action } from 'storybook/actions';
 
 import { ChatMessageList } from '../components/molecules/chat-message-list.tsx';
 import {
+  ChatClientProvider,
   createMockMessage,
   emptyMessageReactions,
-  ChatClientProvider,
-  MockChatClient,
   getSerial,
+  MockChatClient,
 } from '../../.storybook/mocks/mock-ably-chat.ts';
 import { AvatarProvider } from '../providers/avatar-provider.tsx';
 import { ChatSettingsProvider } from '../providers';
@@ -20,9 +20,6 @@ const messages = [
     clientId: 'user1',
     text: 'Hey, how are you doing today?',
     timestamp: new Date(Date.now() - 1000 * 60 * 5),
-    updatedAt: new Date(Date.now() - 1000 * 60 * 5),
-    isUpdated: false,
-    isDeleted: false,
     reactions: emptyMessageReactions(),
   }),
   createMockMessage({
@@ -30,12 +27,9 @@ const messages = [
     clientId: 'user2',
     text: "I'm good, thanks! Working on the new chat UI.",
     timestamp: new Date(Date.now() - 1000 * 60 * 4),
-    updatedAt: new Date(Date.now() - 1000 * 60 * 4),
-    isUpdated: false,
-    isDeleted: false,
     reactions: {
       distinct: {
-        '😊': { total: 2, clientIds: ['user1', 'user2'] },
+        '😊': { total: 2, clientIds: ['user1', 'user2'], clipped: false },
       },
       unique: {},
       multiple: {},
@@ -46,9 +40,6 @@ const messages = [
     clientId: 'user3',
     text: 'Nice! Looking forward to seeing it.',
     timestamp: new Date(Date.now() - 1000 * 60 * 3),
-    updatedAt: new Date(Date.now() - 1000 * 60 * 3),
-    isUpdated: false,
-    isDeleted: false,
     reactions: emptyMessageReactions(),
   }),
 ] as unknown as Message[];
@@ -121,7 +112,6 @@ export const Default: Story = {
             ? `This is a much longer message to test text wrapping and layout. Message number ${i + 1} with lots of content to see how it displays in the chat interface.`
             : `Message ${i + 1}`,
         timestamp: new Date(Date.now() - 1000 * 60 * (25 - i)),
-        updatedAt: new Date(Date.now() - 1000 * 60 * (25 - i)),
         reactions: emptyMessageReactions(),
       })
     ) as unknown as Message[],
@@ -138,10 +128,14 @@ export const WithReactions: Story = {
         timestamp: new Date(Date.now() - 1000 * 60 * 10),
         reactions: {
           distinct: {
-            '🚀': { total: 3, clientIds: ['user1', 'user3', 'user4'] },
-            '👍': { total: 5, clientIds: ['user1', 'user2', 'user3', 'user4', 'user5'] },
-            '❤️': { total: 2, clientIds: ['user1', 'user3'] },
-            '😍': { total: 1, clientIds: ['user4'] },
+            '🚀': { total: 3, clientIds: ['user1', 'user3', 'user4'], clipped: false },
+            '👍': {
+              total: 5,
+              clientIds: ['user1', 'user2', 'user3', 'user4', 'user5'],
+              clipped: false,
+            },
+            '❤️': { total: 2, clientIds: ['user1', 'user3'], clipped: false },
+            '😍': { total: 1, clientIds: ['user4'], clipped: false },
           },
           unique: {},
           multiple: {},
@@ -160,8 +154,11 @@ export const WithEditedMessages: Story = {
         clientId: 'user1',
         text: 'This message has been edited to fix a typo.',
         timestamp: new Date(Date.now() - 1000 * 60 * 10),
-        updatedAt: new Date(Date.now() - 1000 * 60 * 5),
-        isUpdated: true,
+        action: ChatMessageAction.MessageUpdate,
+        version: {
+          serial: getSerial(Date.now() - 1000 * 60 * 9),
+          timestamp: new Date(Date.now() - 1000 * 60 * 9),
+        },
       }),
       ...messages.slice(1),
     ] as Message[],
@@ -174,11 +171,13 @@ export const WithDeletedMessages: Story = {
       createMockMessage({
         serial: getSerial(Date.now() - 1000 * 60 * 10),
         clientId: 'user1',
-        text: 'This message has been edited to fix a typo.',
+        text: 'This message has been deleted to fix a typo.',
         timestamp: new Date(Date.now() - 1000 * 60 * 10),
-        updatedAt: new Date(Date.now() - 1000 * 60 * 5),
-        isUpdated: false,
-        isDeleted: true,
+        action: ChatMessageAction.MessageDelete,
+        version: {
+          serial: getSerial(Date.now() - 1000 * 60 * 9),
+          timestamp: new Date(Date.now() - 1000 * 60 * 9),
+        },
       }),
       ...messages.slice(1),
     ] as Message[],

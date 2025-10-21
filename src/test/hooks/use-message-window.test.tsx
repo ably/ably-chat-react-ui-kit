@@ -6,9 +6,9 @@ import {
   DiscontinuityListener,
   ErrorInfo,
   Message,
-  MessageReactionEventType,
   MessageReactionListener,
   MessageReactionSummaryEvent,
+  MessageReactionSummaryEventType,
   PaginatedResult,
   RoomStatus,
 } from '@ably/chat';
@@ -48,7 +48,7 @@ const createMockMessage = (overrides: Partial<Message> = {}): Message => {
   const metadata = overrides.metadata ?? {};
   const headers = overrides.headers ?? {};
   const action = overrides.action ?? ChatMessageAction.MessageCreate;
-  const version = overrides.version ?? { serial: getSerial() };
+  const version = overrides.version ?? { serial: getSerial(), timestamp: new Date() };
   const reactions = overrides.reactions ?? {
     distinct: {},
     unique: {},
@@ -65,22 +65,9 @@ const createMockMessage = (overrides: Partial<Message> = {}): Message => {
     action,
     version,
     reactions,
-    isUpdated: overrides.isUpdated ?? false,
-    isDeleted: overrides.isDeleted ?? false,
-    deletedBy: overrides.deletedBy,
-    updatedBy: overrides.updatedBy,
-    updatedAt: overrides.updatedAt,
-    deletedAt: overrides.deletedAt,
   };
 
   const combinedFuncs: Partial<Message> = {
-    before: vi.fn((other: Message) => serial < other.serial),
-    equal: vi.fn((other: Message) => serial === other.serial),
-    after: vi.fn((other: Message) => serial > other.serial),
-    isSameAs: vi.fn(),
-    isOlderVersionOf: vi.fn(),
-    isNewerVersionOf: vi.fn(),
-    isSameVersionAs: vi.fn(),
     with: vi.fn((event: Message | MessageReactionSummaryEvent) => {
       if ('serial' in event) {
         return {
@@ -90,9 +77,9 @@ const createMockMessage = (overrides: Partial<Message> = {}): Message => {
       return {
         ...combinedArgs,
         reactions: {
-          unique: event.summary.unique,
-          distinct: event.summary.distinct,
-          multiple: event.summary.multiple,
+          unique: event.reactions.unique,
+          distinct: event.reactions.distinct,
+          multiple: event.reactions.multiple,
         },
       } as Message;
     }),
@@ -414,13 +401,14 @@ describe('useMessageWindow Hook', () => {
     expect(result.current.activeMessages[2]?.serial).toBe(msgSerial3);
 
     // Create an update message for msg_2
-    const updateSerial = getSerial(Date.now() + 3);
+    const timestamp = Date.now() + 3;
+    const updateSerial = getSerial(timestamp);
     const updateMessage = createMockMessage({
       serial: msgSerial2,
       clientId: 'user2',
       text: 'Updated message 2',
       action: ChatMessageAction.MessageUpdate,
-      version: { serial: updateSerial },
+      version: { serial: updateSerial, timestamp: new Date(timestamp) },
     });
 
     act(() => {
@@ -481,11 +469,12 @@ describe('useMessageWindow Hook', () => {
     act(() => {
       if (reactionsListener) {
         reactionsListener({
-          type: MessageReactionEventType.Summary,
-          summary: {
-            messageSerial: msgSerial, // This message exists
+          type: MessageReactionSummaryEventType.Summary,
+          messageSerial: msgSerial,
+          reactions: {
+            // This message exists
             distinct: {
-              '👍': { total: 1, clientIds: ['user1'] },
+              '👍': { total: 1, clientIds: ['user1'], clipped: false },
             },
             unique: {},
             multiple: {},
@@ -499,6 +488,7 @@ describe('useMessageWindow Hook', () => {
       expect(result.current.activeMessages[0]?.reactions.distinct['👍']).toEqual({
         total: 1,
         clientIds: ['user1'],
+        clipped: false,
       });
     });
 
@@ -506,11 +496,12 @@ describe('useMessageWindow Hook', () => {
     act(() => {
       if (reactionsListener) {
         reactionsListener({
-          type: MessageReactionEventType.Summary,
-          summary: {
-            messageSerial: getSerial(Date.now() + 1), // This message does not exist in local state so it should be discarded.
+          type: MessageReactionSummaryEventType.Summary,
+          messageSerial: getSerial(Date.now() + 1),
+          reactions: {
+            // This message does not exist in local state so it should be discarded.
             distinct: {
-              '❤️': { total: 1, clientIds: ['user2'] },
+              '❤️': { total: 1, clientIds: ['user2'], clipped: false },
             },
             unique: {},
             multiple: {},
@@ -528,6 +519,7 @@ describe('useMessageWindow Hook', () => {
     expect(updatedMessage?.reactions.distinct['👍']).toEqual({
       total: 1,
       clientIds: ['user1'],
+      clipped: false,
     });
     expect(updatedMessage?.reactions.distinct['❤️']).toBeUndefined();
   });

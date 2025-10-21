@@ -261,7 +261,6 @@ describe('ChatMessage', () => {
       clientId: 'user1',
       text: 'This message was deleted',
       action: ChatMessageAction.MessageDelete,
-      isDeleted: true,
     });
 
     render(<ChatMessage message={message} />);
@@ -276,8 +275,8 @@ describe('ChatMessage', () => {
       text: 'Message with reactions',
       reactions: {
         distinct: {
-          '👍': { total: 2, clientIds: ['user1', 'user2'] },
-          '❤️': { total: 1, clientIds: ['user3'] },
+          '👍': { total: 2, clientIds: ['user1', 'user2'], clipped: false },
+          '❤️': { total: 1, clientIds: ['user3'], clipped: false },
         },
         unique: {},
         multiple: {},
@@ -337,8 +336,8 @@ describe('ChatMessage', () => {
       text: 'Message with reactions',
       reactions: {
         distinct: {
-          '👍': { total: 2, clientIds: ['user1', 'user2'] }, // Current user (user2) has reacted
-          '❤️': { total: 1, clientIds: ['user3'] },
+          '👍': { total: 2, clientIds: ['user1', 'user2'], clipped: false }, // Current user (user2) has reacted
+          '❤️': { total: 1, clientIds: ['user3'], clipped: false },
         },
         unique: {},
         multiple: {},
