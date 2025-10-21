@@ -240,7 +240,7 @@ export const RoomInfo = ({
         {showTooltip && <PresenceList tooltipPosition={tooltipPosition} coords={tooltipCoords} />}
 
         {/* Participants Dropdown */}
-        {isOpen && (
+        {isOpen && currentClientId && (
           <ParticipantList
             presenceData={presenceData}
             currentClientId={currentClientId}

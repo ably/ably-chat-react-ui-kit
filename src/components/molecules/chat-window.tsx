@@ -311,7 +311,7 @@ export const ChatWindow = ({
 
   const handleMessageDelete = useCallback(
     (msg: Message) => {
-      deleteMessage(msg, { description: 'deleted by user' })
+      deleteMessage(msg.serial, { description: 'deleted by user' })
         .then(handleRESTMessageUpdate)
         .catch((error: unknown) => {
           if (onError?.onMessageDeleteError) {
@@ -326,7 +326,7 @@ export const ChatWindow = ({
 
   const handleReactionAdd = useCallback(
     (msg: Message, emoji: string) => {
-      sendReaction(msg, { type: MessageReactionType.Distinct, name: emoji }).catch(
+      sendReaction(msg.serial, { type: MessageReactionType.Distinct, name: emoji }).catch(
         (error: unknown) => {
           if (onError?.onSendReactionError) {
             onError.onSendReactionError(error as ErrorInfo, msg, emoji);
@@ -341,7 +341,7 @@ export const ChatWindow = ({
 
   const handleReactionRemove = useCallback(
     (msg: Message, emoji: string) => {
-      deleteReaction(msg, { type: MessageReactionType.Distinct, name: emoji }).catch(
+      deleteReaction(msg.serial, { type: MessageReactionType.Distinct, name: emoji }).catch(
         (error: unknown) => {
           if (onError?.onRemoveReactionError) {
             onError.onRemoveReactionError(error as ErrorInfo, msg, emoji);

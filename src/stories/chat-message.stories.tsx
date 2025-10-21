@@ -17,12 +17,9 @@ const sampleMessage: Message = createMockMessage({
   clientId: 'user2',
   text: 'Hello there! This is a sample chat message.',
   timestamp: new Date(),
-  updatedAt: new Date(),
-  isUpdated: false,
-  isDeleted: false,
   reactions: {
     distinct: {
-      '👍': { total: 1, clientIds: ['user1'] },
+      '👍': { total: 1, clientIds: ['user1'], clipped: false },
     },
     unique: {},
     multiple: {},
