@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.2.0](https://github.com/ably/ably-chat-react-ui-kit/tree/0.2.0) (2025-10-23)
+
+- Bumps the `@ably/chat` package to 1.0.0.
+- Drops Node.js 18 support, requires Node.js 20 or newer.
+
 ## [0.1.3](https://github.com/ably/ably-chat-react-ui-kit/tree/0.1.3) (2025-10-21)
 
 - Bumps the `@ably/chat` package to 0.15.0.
