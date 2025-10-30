@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@ably/chat-react-ui-kit": "file:../../",
-    "@ably/chat": "^0.15.0",
+    "@ably/chat": "^1.1.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },

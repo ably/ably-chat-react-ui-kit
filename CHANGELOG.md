@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.3.0](https://github.com/ably/ably-chat-react-ui-kit/tree/0.3.0) (2025-10-30)
+
+- Bumps the `@ably/chat` package to 1.1.0.
+
 ## [0.2.0](https://github.com/ably/ably-chat-react-ui-kit/tree/0.2.0) (2025-10-23)
 
 - Bumps the `@ably/chat` package to 1.0.0.
