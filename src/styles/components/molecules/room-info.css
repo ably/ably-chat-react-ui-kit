@@ -28,7 +28,11 @@
   /* Room name */
   .ably-room-info__name {
     @apply font-semibold;
-    @apply text-gray-900 dark:text-gray-100;
+    @apply text-gray-900;
+  }
+
+  .dark .ably-room-info__name {
+    @apply text-gray-100;
   }
 
   /* Indicators wrapper */

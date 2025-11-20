@@ -45,9 +45,14 @@
   }
 
   .ably-chat-message__bubble--other {
-    @apply bg-gray-100 dark:bg-gray-800;
-    @apply text-gray-900 dark:text-gray-100;
+    @apply bg-gray-100;
+    @apply text-gray-900;
     @apply rounded-bl-md;
+  }
+
+  .dark .ably-chat-message__bubble--other {
+    @apply bg-gray-800;
+    @apply text-gray-100;
   }
 
   /* Message text */
@@ -57,7 +62,11 @@
   }
 
   .ably-chat-message__text--deleted {
-    @apply italic text-gray-500 dark:text-gray-400;
+    @apply italic text-gray-500;
+  }
+
+  .dark .ably-chat-message__text--deleted {
+    @apply text-gray-400;
   }
 
   /* Edited indicator */

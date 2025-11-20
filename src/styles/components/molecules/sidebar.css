@@ -2,17 +2,26 @@
 @layer ably-components {
   /* Container */
   .ably-sidebar {
-    @apply bg-white dark:bg-gray-900;
-    @apply border-r border-gray-200 dark:border-gray-800;
+    @apply bg-white;
+    @apply border-r border-gray-200;
     @apply flex flex-col h-full;
     @apply w-full;
+  }
+
+  .dark .ably-sidebar {
+    @apply bg-gray-900;
+    @apply border-gray-800;
   }
 
   /* Header */
   .ably-sidebar__header {
     @apply flex items-center justify-between;
-    @apply p-4 border-b border-gray-200 dark:border-gray-800;
+    @apply p-4 border-b border-gray-200;
     @apply min-h-[4rem];
+  }
+
+  .dark .ably-sidebar__header {
+    @apply border-gray-800;
   }
 
   /* Header collapsed state */
@@ -22,8 +31,12 @@
 
   /* Title */
   .ably-sidebar__title {
-    @apply text-xl font-bold text-gray-900 dark:text-gray-100;
+    @apply text-xl font-bold text-gray-900;
     @apply truncate;
+  }
+
+  .dark .ably-sidebar__title {
+    @apply text-gray-100;
   }
 
   /* Room count */

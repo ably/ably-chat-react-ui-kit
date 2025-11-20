@@ -6,13 +6,21 @@
 @layer ably-components {
   /* Container */
   .ably-participant-list {
-    @apply absolute bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600;
+    @apply absolute bg-white border border-gray-200;
     @apply rounded-lg shadow-lg min-w-80 max-h-96 overflow-hidden z-50;
+  }
+
+  .dark .ably-participant-list {
+    @apply bg-gray-800 border-gray-600;
   }
 
   /* Header */
   .ably-participant-list__header {
-    @apply p-4 border-b border-gray-200 dark:border-gray-600;
+    @apply p-4 border-b border-gray-200;
+  }
+
+  .dark .ably-participant-list__header {
+    @apply border-gray-600;
   }
 
   .ably-participant-list__header-content {
@@ -20,11 +28,19 @@
   }
 
   .ably-participant-list__title {
-    @apply font-semibold text-gray-900 dark:text-gray-100;
+    @apply font-semibold text-gray-900;
+  }
+
+  .dark .ably-participant-list__title {
+    @apply text-gray-100;
   }
 
   .ably-participant-list__count {
-    @apply text-sm text-gray-500 dark:text-gray-400 mt-1;
+    @apply text-sm text-gray-500 mt-1;
+  }
+
+  .dark .ably-participant-list__count {
+    @apply text-gray-400;
   }
 
   /* List container */

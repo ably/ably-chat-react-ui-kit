@@ -3,13 +3,21 @@
   /* Container */
   .ably-message-input {
     @apply p-4;
-    @apply bg-white dark:bg-gray-900;
+    @apply bg-white;
+  }
+
+  .dark .ably-message-input {
+    @apply bg-gray-900;
   }
 
   /* Input wrapper */
   .ably-message-input__wrapper {
-    @apply border border-gray-300 dark:border-gray-600;
+    @apply border border-gray-300;
     @apply rounded-2xl p-2;
+  }
+
+  .dark .ably-message-input__wrapper {
+    @apply border-gray-600;
   }
 
   /* Content container */
@@ -25,7 +33,14 @@
   /* Emoji button */
   .ably-message-input__emoji-button {
     @apply text-gray-500 hover:text-gray-700;
-    @apply dark:text-gray-400 dark:hover:text-gray-200;
     @apply self-end mb-1;
+  }
+
+  .dark .ably-message-input__emoji-button {
+    @apply text-gray-400;
+  }
+
+  .dark .ably-message-input__emoji-button:hover {
+    @apply text-gray-200;
   }
 }

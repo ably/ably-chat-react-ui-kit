@@ -3,14 +3,25 @@
   /* Container base */
   .ably-room-list-item {
     @apply flex items-center gap-3 p-3;
-    @apply hover:bg-gray-50 dark:hover:bg-gray-800;
     @apply cursor-pointer transition-colors;
+  }
+
+  .ably-room-list-item:hover {
+    @apply bg-gray-50;
+  }
+
+  .dark .ably-room-list-item:hover {
+    @apply bg-gray-800;
   }
 
   /* Selected state */
   .ably-room-list-item--selected {
-    @apply bg-gray-100 dark:bg-gray-800;
+    @apply bg-gray-100;
     @apply border-r-2 border-blue-500;
+  }
+
+  .dark .ably-room-list-item--selected {
+    @apply bg-gray-800;
   }
 
   /* Collapsed mode container */
@@ -38,7 +49,11 @@
   .ably-room-list-item__activity-indicator {
     @apply absolute -bottom-0.5 -right-0.5;
     @apply w-3 h-3 bg-green-500 rounded-full;
-    @apply border-2 border-white dark:border-gray-900;
+    @apply border-2 border-white;
+  }
+
+  .dark .ably-room-list-item__activity-indicator {
+    @apply border-gray-900;
   }
 
   /* Presence badge */
@@ -61,8 +76,12 @@
 
   /* Room name */
   .ably-room-list-item__name {
-    @apply font-medium text-gray-900 dark:text-gray-100;
+    @apply font-medium text-gray-900;
     @apply truncate;
+  }
+
+  .dark .ably-room-list-item__name {
+    @apply text-gray-100;
   }
 
   /* Actions wrapper */

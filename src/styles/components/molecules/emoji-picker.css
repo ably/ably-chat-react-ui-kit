@@ -8,9 +8,14 @@
   /* Container */
   .ably-emoji-picker {
     @apply fixed z-50;
-    @apply bg-white dark:bg-gray-800;
-    @apply border border-gray-200 dark:border-gray-600;
+    @apply bg-white;
+    @apply border border-gray-200;
     @apply rounded-lg shadow-lg overflow-hidden;
+  }
+
+  .dark .ably-emoji-picker {
+    @apply bg-gray-800;
+    @apply border-gray-600;
   }
 
   /* Content wrapper */
@@ -26,13 +31,21 @@
   /* Recent section */
   .ably-emoji-picker__recent {
     @apply mb-3 pb-3;
-    @apply border-b border-gray-200 dark:border-gray-700;
+    @apply border-b border-gray-200;
+  }
+
+  .dark .ably-emoji-picker__recent {
+    @apply border-gray-700;
   }
 
   /* Recent label */
   .ably-emoji-picker__recent-label {
-    @apply text-xs text-gray-500 dark:text-gray-400;
+    @apply text-xs text-gray-500;
     @apply mb-2;
+  }
+
+  .dark .ably-emoji-picker__recent-label {
+    @apply text-gray-400;
   }
 
   /* Emoji grid */
@@ -45,7 +58,14 @@
     @apply w-8 h-8;
     @apply flex items-center justify-center;
     @apply text-lg rounded;
-    @apply hover:bg-gray-100 dark:hover:bg-gray-700;
     @apply transition-colors;
+  }
+
+  .ably-emoji-picker__emoji:hover {
+    @apply bg-gray-100;
+  }
+
+  .dark .ably-emoji-picker__emoji:hover {
+    @apply bg-gray-700;
   }
 }

@@ -4,7 +4,11 @@
   .ably-chat-message-list {
     @apply flex-1 overflow-y-auto;
     @apply pt-10 px-6 pb-6 space-y-6;
-    @apply bg-gray-50 dark:bg-gray-950;
+    @apply bg-gray-50;
+  }
+
+  .dark .ably-chat-message-list {
+    @apply bg-gray-950;
   }
 
   /* Loading indicator */
@@ -13,7 +17,11 @@
   }
 
   .ably-chat-message-list__loading-text {
-    @apply text-sm text-gray-500 dark:text-gray-400;
+    @apply text-sm text-gray-500;
+  }
+
+  .dark .ably-chat-message-list__loading-text {
+    @apply text-gray-400;
   }
 
   /* No more messages indicator */
@@ -22,7 +30,11 @@
   }
 
   .ably-chat-message-list__no-more-text {
-    @apply text-sm text-gray-500 dark:text-gray-400;
+    @apply text-sm text-gray-500;
+  }
+
+  .dark .ably-chat-message-list__no-more-text {
+    @apply text-gray-400;
   }
 
   /* Message item wrapper */

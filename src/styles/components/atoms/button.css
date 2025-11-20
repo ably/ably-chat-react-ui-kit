@@ -35,7 +35,14 @@
     @apply bg-blue-600 text-white;
     @apply hover:bg-blue-700 active:bg-blue-800;
     @apply focus:ring-blue-500;
-    @apply dark:bg-blue-500 dark:hover:bg-blue-600;
+  }
+
+  .dark .ably-button--primary {
+    @apply bg-blue-500;
+  }
+
+  .dark .ably-button--primary:hover {
+    @apply bg-blue-600;
   }
 
   /* Secondary variant */
@@ -43,7 +50,14 @@
     @apply bg-gray-200 text-gray-900;
     @apply hover:bg-gray-300 active:bg-gray-400;
     @apply focus:ring-gray-500;
-    @apply dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600;
+  }
+
+  .dark .ably-button--secondary {
+    @apply bg-gray-700 text-gray-100;
+  }
+
+  .dark .ably-button--secondary:hover {
+    @apply bg-gray-600;
   }
 
   /* Ghost variant */
@@ -51,7 +65,18 @@
     @apply text-gray-700 bg-transparent;
     @apply hover:bg-gray-100 active:bg-gray-200;
     @apply focus:ring-gray-500;
-    @apply dark:text-gray-300 dark:hover:bg-gray-800 dark:active:bg-gray-700;
+  }
+
+  .dark .ably-button--ghost {
+    @apply text-gray-300;
+  }
+
+  .dark .ably-button--ghost:hover {
+    @apply bg-gray-800;
+  }
+
+  .dark .ably-button--ghost:active {
+    @apply bg-gray-700;
   }
 
   /* Outline variant */
@@ -59,7 +84,14 @@
     @apply border border-gray-300 bg-transparent text-gray-700;
     @apply hover:bg-gray-50 active:bg-gray-100;
     @apply focus:ring-gray-500;
-    @apply dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800;
+  }
+
+  .dark .ably-button--outline {
+    @apply border-gray-600 text-gray-300;
+  }
+
+  .dark .ably-button--outline:hover {
+    @apply bg-gray-800;
   }
 
   /* Danger variant */
@@ -67,7 +99,14 @@
     @apply bg-red-600 text-white;
     @apply hover:bg-red-700 active:bg-red-800;
     @apply focus:ring-red-500;
-    @apply dark:bg-red-500 dark:hover:bg-red-600;
+  }
+
+  .dark .ably-button--danger {
+    @apply bg-red-500;
+  }
+
+  .dark .ably-button--danger:hover {
+    @apply bg-red-600;
   }
 
   /* Full width modifier */

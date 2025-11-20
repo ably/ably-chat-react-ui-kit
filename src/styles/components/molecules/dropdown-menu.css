@@ -18,9 +18,14 @@
   /* Menu container */
   .ably-dropdown-menu__menu {
     @apply absolute top-full mt-2 w-48;
-    @apply bg-white dark:bg-gray-800;
-    @apply border border-gray-200 dark:border-gray-600;
+    @apply bg-white;
+    @apply border border-gray-200;
     @apply rounded-lg shadow-lg z-50;
+  }
+
+  .dark .ably-dropdown-menu__menu {
+    @apply bg-gray-800;
+    @apply border-gray-600;
   }
 
   /* Menu alignment modifiers */
@@ -40,13 +45,28 @@
   /* Menu item button */
   .ably-dropdown-menu__item {
     @apply w-full text-left px-4 py-2 text-sm;
-    @apply text-gray-700 dark:text-gray-300;
-    @apply hover:bg-gray-100 dark:hover:bg-gray-700;
+    @apply text-gray-700;
     @apply flex items-center gap-3 transition-colors;
+  }
+
+  .dark .ably-dropdown-menu__item {
+    @apply text-gray-300;
+  }
+
+  .ably-dropdown-menu__item:hover {
+    @apply bg-gray-100;
+  }
+
+  .dark .ably-dropdown-menu__item:hover {
+    @apply bg-gray-700;
   }
 
   /* Menu item icon */
   .ably-dropdown-menu__item-icon {
-    @apply text-gray-500 dark:text-gray-400;
+    @apply text-gray-500;
+  }
+
+  .dark .ably-dropdown-menu__item-icon {
+    @apply text-gray-400;
   }
 }

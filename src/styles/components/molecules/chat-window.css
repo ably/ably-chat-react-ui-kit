@@ -3,8 +3,12 @@
   /* Container */
   .ably-chat-window {
     @apply flex flex-col h-full;
-    @apply bg-white dark:bg-gray-900;
+    @apply bg-white;
     @apply flex-1;
+  }
+
+  .dark .ably-chat-window {
+    @apply bg-gray-900;
   }
 
   /* Footer content wrapper */

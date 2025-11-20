@@ -8,15 +8,23 @@
 
   /* Dialog container */
   .ably-confirm-dialog__container {
-    @apply bg-white dark:bg-gray-800;
+    @apply bg-white;
     @apply rounded-lg shadow-xl;
     @apply w-full max-w-md;
+  }
+
+  .dark .ably-confirm-dialog__container {
+    @apply bg-gray-800;
   }
 
   /* Header */
   .ably-confirm-dialog__header {
     @apply flex items-center justify-between;
-    @apply p-6 border-b border-gray-200 dark:border-gray-700;
+    @apply p-6 border-b border-gray-200;
+  }
+
+  .dark .ably-confirm-dialog__header {
+    @apply border-gray-700;
   }
 
   .ably-confirm-dialog__header-content {
@@ -26,20 +34,31 @@
   /* Icon wrapper */
   .ably-confirm-dialog__icon {
     @apply flex-shrink-0;
-    @apply text-red-500 dark:text-red-400;
+    @apply text-red-500;
+  }
+
+  .dark .ably-confirm-dialog__icon {
+    @apply text-red-400;
   }
 
   /* Title */
   .ably-confirm-dialog__title {
     @apply text-xl font-semibold;
-    @apply text-gray-900 dark:text-gray-100;
+    @apply text-gray-900;
+  }
+
+  .dark .ably-confirm-dialog__title {
+    @apply text-gray-100;
   }
 
   /* Close button */
   .ably-confirm-dialog__close {
     @apply text-gray-400 hover:text-gray-600;
-    @apply dark:hover:text-gray-300;
     @apply transition-colors;
+  }
+
+  .dark .ably-confirm-dialog__close:hover {
+    @apply text-gray-300;
   }
 
   /* Content */
@@ -49,8 +68,12 @@
 
   /* Message */
   .ably-confirm-dialog__message {
-    @apply text-gray-700 dark:text-gray-300;
+    @apply text-gray-700;
     @apply mb-6;
+  }
+
+  .dark .ably-confirm-dialog__message {
+    @apply text-gray-300;
   }
 
   /* Actions */

@@ -11,20 +11,36 @@
 
   /* Modal */
   .ably-create-room-modal {
-    @apply bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md;
+    @apply bg-white rounded-lg shadow-xl w-full max-w-md;
+  }
+
+  .dark .ably-create-room-modal {
+    @apply bg-gray-800;
   }
 
   /* Header */
   .ably-create-room-modal__header {
-    @apply flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700;
+    @apply flex items-center justify-between p-6 border-b border-gray-200;
+  }
+
+  .dark .ably-create-room-modal__header {
+    @apply border-gray-700;
   }
 
   .ably-create-room-modal__title {
-    @apply text-xl font-semibold text-gray-900 dark:text-gray-100;
+    @apply text-xl font-semibold text-gray-900;
+  }
+
+  .dark .ably-create-room-modal__title {
+    @apply text-gray-100;
   }
 
   .ably-create-room-modal__close {
-    @apply text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors;
+    @apply text-gray-400 hover:text-gray-600 transition-colors;
+  }
+
+  .dark .ably-create-room-modal__close:hover {
+    @apply text-gray-300;
   }
 
   /* Content */
@@ -37,7 +53,11 @@
   }
 
   .ably-create-room-modal__label {
-    @apply block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2;
+    @apply block text-sm font-medium text-gray-700 mb-2;
+  }
+
+  .dark .ably-create-room-modal__label {
+    @apply text-gray-300;
   }
 
   /* Actions */

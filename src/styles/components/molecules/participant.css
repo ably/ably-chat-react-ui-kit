@@ -6,7 +6,15 @@
 @layer ably-components {
   /* Container */
   .ably-participant {
-    @apply flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-700;
+    @apply flex items-center gap-3 p-3;
+  }
+
+  .ably-participant:hover {
+    @apply bg-gray-50;
+  }
+
+  .dark .ably-participant:hover {
+    @apply bg-gray-700;
   }
 
   /* Avatar wrapper */
@@ -17,7 +25,11 @@
   /* Presence indicator dot */
   .ably-participant__presence-indicator {
     @apply absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full;
-    @apply border-2 border-white dark:border-gray-800;
+    @apply border-2 border-white;
+  }
+
+  .dark .ably-participant__presence-indicator {
+    @apply border-gray-800;
   }
 
   .ably-participant__presence-indicator--online {
@@ -39,7 +51,11 @@
   }
 
   .ably-participant__name {
-    @apply font-medium text-gray-900 dark:text-gray-100 truncate;
+    @apply font-medium text-gray-900 truncate;
+  }
+
+  .dark .ably-participant__name {
+    @apply text-gray-100;
   }
 
   .ably-participant__self-label {
@@ -52,14 +68,26 @@
   }
 
   .ably-participant__typing {
-    @apply text-xs text-blue-600 dark:text-blue-400 flex items-center gap-1;
+    @apply text-xs text-blue-600 flex items-center gap-1;
+  }
+
+  .dark .ably-participant__typing {
+    @apply text-blue-400;
   }
 
   .ably-participant__online {
-    @apply text-sm text-green-600 dark:text-green-400;
+    @apply text-sm text-green-600;
+  }
+
+  .dark .ably-participant__online {
+    @apply text-green-400;
   }
 
   .ably-participant__offline {
-    @apply text-sm text-gray-500 dark:text-gray-400;
+    @apply text-sm text-gray-500;
+  }
+
+  .dark .ably-participant__offline {
+    @apply text-gray-400;
   }
 }

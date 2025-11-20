@@ -3,7 +3,12 @@
   /* Header container */
   .ably-chat-window-header {
     @apply px-6 py-4;
-    @apply border-b border-gray-200 dark:border-gray-700;
-    @apply bg-white dark:bg-gray-900;
+    @apply border-b border-gray-200;
+    @apply bg-white;
+  }
+
+  .dark .ably-chat-window-header {
+    @apply border-gray-700;
+    @apply bg-gray-900;
   }
 }

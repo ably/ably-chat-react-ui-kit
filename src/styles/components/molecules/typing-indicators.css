@@ -3,7 +3,11 @@
   /* Container */
   .ably-typing-indicators {
     @apply flex items-center gap-2;
-    @apply text-sm text-gray-500 dark:text-gray-400;
+    @apply text-sm text-gray-500;
+  }
+
+  .dark .ably-typing-indicators {
+    @apply text-gray-400;
   }
 
   /* Text element */

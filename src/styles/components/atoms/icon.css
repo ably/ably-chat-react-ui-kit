@@ -28,23 +28,43 @@
   }
 
   .ably-icon--primary {
-    @apply text-blue-600 dark:text-blue-400;
+    @apply text-blue-600;
+  }
+
+  .dark .ably-icon--primary {
+    @apply text-blue-400;
   }
 
   .ably-icon--secondary {
-    @apply text-gray-600 dark:text-gray-400;
+    @apply text-gray-600;
+  }
+
+  .dark .ably-icon--secondary {
+    @apply text-gray-400;
   }
 
   .ably-icon--success {
-    @apply text-green-600 dark:text-green-400;
+    @apply text-green-600;
+  }
+
+  .dark .ably-icon--success {
+    @apply text-green-400;
   }
 
   .ably-icon--warning {
-    @apply text-yellow-600 dark:text-yellow-400;
+    @apply text-yellow-600;
+  }
+
+  .dark .ably-icon--warning {
+    @apply text-yellow-400;
   }
 
   .ably-icon--error {
-    @apply text-red-600 dark:text-red-400;
+    @apply text-red-600;
+  }
+
+  .dark .ably-icon--error {
+    @apply text-red-400;
   }
 
   /* Interactive state */

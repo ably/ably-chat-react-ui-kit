@@ -37,22 +37,49 @@
 
   /* Background circle */
   .ably-emoji-wheel__background {
-    @apply absolute inset-0 rounded-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-2xl border border-gray-200 dark:border-gray-600;
+    @apply absolute inset-0 rounded-full bg-white/80 backdrop-blur-sm shadow-2xl border border-gray-200;
+  }
+
+  .dark .ably-emoji-wheel__background {
+    @apply bg-gray-800/80 border-gray-600;
   }
 
   /* Center close button */
   .ably-emoji-wheel__close {
     @apply absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2;
-    @apply w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600;
+    @apply w-10 h-10 rounded-full bg-gray-100;
     @apply transition-colors flex items-center justify-center shadow-md z-10;
+  }
+
+  .ably-emoji-wheel__close:hover {
+    @apply bg-gray-200;
+  }
+
+  .dark .ably-emoji-wheel__close {
+    @apply bg-gray-700;
+  }
+
+  .dark .ably-emoji-wheel__close:hover {
+    @apply bg-gray-600;
   }
 
   /* Emoji button */
   .ably-emoji-wheel__emoji-button {
-    @apply absolute rounded-full bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl;
+    @apply absolute rounded-full bg-white shadow-lg hover:shadow-xl;
     @apply hover:scale-125 transition-all duration-200 flex items-center justify-center text-2xl;
-    @apply border-2 border-gray-200 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-400;
-    @apply hover:bg-blue-50 dark:hover:bg-blue-900/20;
+    @apply border-2 border-gray-200;
+  }
+
+  .ably-emoji-wheel__emoji-button:hover {
+    @apply border-blue-400 bg-blue-50;
+  }
+
+  .dark .ably-emoji-wheel__emoji-button {
+    @apply bg-gray-800 border-gray-600;
+  }
+
+  .dark .ably-emoji-wheel__emoji-button:hover {
+    @apply border-blue-400 bg-blue-900/20;
   }
 
   .ably-emoji-wheel__emoji-button--animating {
