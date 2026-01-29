@@ -1,0 +1,49 @@
+name: API Reference
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+    tags:
+      - '*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      deployments: write
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - name: Use Node.js 20.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20.x
+
+      - name: Install Package Dependencies
+        run: npm ci
+
+      - name: Build Documentation
+        run: npm run build-storybook
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        # Only run this step if it's a PR from the main repository, as forks won't have the necessary secrets
+        if: github.repository == 'ably/ably-chat-react-ui-kit' && (github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository)) && github.actor != 'dependabot[bot]'
+        with:
+          aws-region: eu-west-2
+          role-to-assume: arn:aws:iam::${{ secrets.ABLY_AWS_ACCOUNT_ID_SDK }}:role/ably-sdk-builds-ably-chat-react-ui-kit
+          role-session-name: '${{ github.run_id }}-${{ github.run_number }}'
+
+      - name: Upload Documentation
+        uses: ably/sdk-upload-action@v2
+        # Only run this step if it's a PR from the main repository, as forks won't have the necessary secrets
+        if: github.repository == 'ably/ably-chat-react-ui-kit' && (github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository)) && github.actor != 'dependabot[bot]'
+        with:
+          sourcePath: storybook-static
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+          artifactName: storybook
