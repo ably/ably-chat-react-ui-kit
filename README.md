@@ -14,12 +14,20 @@ Everything you need to get started with Ably Chat React UI Kit:
 * [Getting started with Ably Chat in JavaScript.](https://ably.com/docs/chat/getting-started/javascript)
 * [Getting started with Ably Chat in React.](https://ably.com/docs/chat/getting-started/react)
 * [Getting started with Ably Chat React UI Kit.](https://ably.com/docs/chat/getting-started/react-ui-kit)
+* [SDK and usage docs in JavaScript.](https://ably.com/docs/chat/setup?lang=javascript)
+* [SDK and usage docs in React.](https://ably.com/docs/chat/setup?lang=react)
+* [SDK and usage docs for React UI kit.](https://ably.com/docs/chat/react-ui-kit/setup)
+* [API documentation (JavaScript).](https://sdk.ably.com/builds/ably/ably-chat-js/main/typedoc/modules/chat-js.html)
+* [API documentation (React Hooks).](https://sdk.ably.com/builds/ably/ably-chat-js/main/typedoc/modules/chat-react.html)
+* [API documentation (React UI kit).](https://sdk.ably.com/builds/ably/ably-chat-react-ui-kit/main/storybook/)
+* [Chat Example App.](https://github.com/ably/ably-chat-js/tree/main/demo)
+* [Chat Example App using Ably Chat React UI Kit.](https://github.com/ably/ably-chat-react-ui-kit/tree/main/examples/group-chat)
 * Play with the [livestream chat demo.](https://ably-livestream-chat-demo.vercel.app/)
 
 ### Installation
 
 ```bash
-npm install @ably/chat-react-ui-kit @ably/chat react react-dom
+npm install @ably/chat-react-ui-kit @ably/chat ably react react-dom
 ```
 
 ## Supported Platforms
@@ -60,6 +68,122 @@ A collapsible navigation component for managing multiple chat rooms:
 - Room creation and management
 - Presence and occupancy display
 - Theme toggle integration
+
+## Usage
+
+The following example demonstrates how to set up a complete chat application using the core components. This includes initializing the Ably client, wrapping your app with the required providers, and rendering the `App` component with a sidebar and chat window:
+
+```tsx
+import * as Ably from 'ably';
+import { ChatClient } from '@ably/chat';
+import { ChatClientProvider } from '@ably/chat/react';
+import {
+  App,
+  ThemeProvider,
+  AvatarProvider,
+  ChatSettingsProvider,
+} from '@ably/chat-react-ui-kit';
+
+// Don't forget to import the styles
+import '@ably/chat-react-ui-kit/dist/style.css';
+
+// Initialize Ably Realtime client with your API key and a unique client ID
+const ablyClient = new Ably.Realtime({
+  key: '<your-ably-api-key>',
+  clientId: 'user-' + Math.random().toString(36).slice(2, 9),
+});
+
+// Create a Chat client using the Ably Realtime client
+const chatClient = new ChatClient(ablyClient);
+
+function MyApp() {
+  return (
+    // ThemeProvider: Enables light/dark mode theming with optional persistence
+    <ThemeProvider options={{ persist: true, defaultTheme: 'light' }}>
+      {/* AvatarProvider: Manages user avatar state across the application */}
+      <AvatarProvider>
+        {/* ChatSettingsProvider: Provides chat configuration context */}
+        <ChatSettingsProvider>
+          {/* ChatClientProvider: Makes the chat client available to all child components */}
+          <ChatClientProvider client={chatClient}>
+            {/*
+              App: The main chat application component
+              - Renders a Sidebar for room navigation (create, select, leave rooms)
+              - Renders a ChatWindow for the active room with messages, typing indicators, and reactions
+              - initialRoomNames: Pre-populate the sidebar with these room names
+            */}
+            <App initialRoomNames={['general', 'random']} />
+          </ChatClientProvider>
+        </ChatSettingsProvider>
+      </AvatarProvider>
+    </ThemeProvider>
+  );
+}
+```
+
+### Using Individual Components
+
+For more control, you can use `ChatWindow` and `Sidebar` independently:
+
+```tsx
+import { useState } from 'react';
+import { ChatRoomProvider } from '@ably/chat/react';
+import {
+  ChatWindow,
+  Sidebar,
+  ThemeProvider,
+} from '@ably/chat-react-ui-kit';
+
+// Assumes ChatClientProvider is already set up in a parent component
+
+function CustomChatApp() {
+  const [rooms, setRooms] = useState<string[]>(['general']);
+  const [activeRoom, setActiveRoom] = useState<string | undefined>('general');
+
+  const addRoom = (name: string) => {
+    setRooms((prev) => (prev.includes(name) ? prev : [...prev, name]));
+    setActiveRoom(name);
+  };
+
+  const leaveRoom = (name: string) => {
+    setRooms((prev) => {
+      const next = prev.filter((r) => r !== name);
+      // Update active room based on the new list to avoid stale state
+      if (next.length === 0) {
+        setActiveRoom(undefined);
+      } else if (name === activeRoom) {
+        setActiveRoom(next[0]);
+      }
+      return next;
+    });
+  };
+
+  return (
+    <ThemeProvider>
+      <div className="flex h-screen">
+        {/* Sidebar: Manages room list, creation, and selection */}
+        <Sidebar
+          roomNames={rooms}
+          activeRoomName={activeRoom}
+          addRoom={addRoom}
+          setActiveRoom={setActiveRoom}
+          leaveRoom={leaveRoom}
+        />
+
+        {/* ChatWindow: Displays messages, input, typing indicators for the active room */}
+        {activeRoom && (
+          <ChatRoomProvider key={activeRoom} name={activeRoom}>
+            <ChatWindow
+              roomName={activeRoom}
+              enableTypingIndicators={true}
+            />
+          </ChatRoomProvider>
+        )}
+      </div>
+    </ThemeProvider>
+  );
+}
+```
 
 ## Releases
 
