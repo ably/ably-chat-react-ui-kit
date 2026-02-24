@@ -19,7 +19,7 @@ To validate that the web documentation code snippets are accurate and up-to-date
 Replace `{DOCS_PATH}` with the path to your local clone of the [ably/docs](https://github.com/ably/docs) repository and `{SDK_PATH}` with the path to your local clone of this SDK repository.
 
 ```text
-Verify all `react` annotated code snippets in `.mdx` files located at `{DOCS_PATH}` against the `ably-chat-react-ui-kit` source code repository at `{SDK_PATH}`.
+Verify all `react` annotated code snippets in `.mdx` files located at `{DOCS_PATH}/src/pages/docs/chat/react-ui-kit` against the `ably-chat-react-ui-kit` source code repository at `{SDK_PATH}`. Additionally, validate the file `{DOCS_PATH}/src/pages/docs/chat/getting-started/react-ui-kit.mdx` against the same `ably-chat-react-ui-kit` repository.
 
 ### Verification Steps:
 
