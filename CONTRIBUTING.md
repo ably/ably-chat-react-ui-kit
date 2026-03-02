@@ -16,7 +16,7 @@ To validate that the web documentation code snippets are accurate and up-to-date
 > [!IMPORTANT]
 > This prompt should be run with the most powerful LLM available to you (e.g. Claude Opus, GPT-5, etc.) for the best results.
 
-Replace `{DOCS_PATH}` with the path to your local clone of the [ably/docs](https://github.com/ably/docs) repository and `{SDK_PATH}` with the path to your local clone of this SDK repository.
+Replace `{DOCS_PATH}` with the path to your local clone of the [ably/docs](https://github.com/ably/docs) repository and `{SDK_PATH}` with the path to your local clone of the [ably-chat-react-ui-kit](https://github.com/ably/ably-chat-react-ui-kit) SDK repository. Ensure both the local `ably/docs` and `ably-chat-react-ui-kit` repositories are on the `main` branch and in sync with the remote.
 
 ```text
 Verify all `react` annotated code snippets in `.mdx` files located at `{DOCS_PATH}/src/pages/docs/chat/react-ui-kit` against the `ably-chat-react-ui-kit` source code repository at `{SDK_PATH}`. Additionally, validate the file `{DOCS_PATH}/src/pages/docs/chat/getting-started/react-ui-kit.mdx` against the same `ably-chat-react-ui-kit` repository.
