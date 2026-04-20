@@ -1,8 +1,9 @@
 import { useOccupancy } from '@ably/chat/react';
 import React from 'react';
 
+import { useComponents } from '../../hooks/use-components.tsx';
 import { useRoomAvatar } from '../../hooks/use-room-avatar.tsx';
-import { Avatar, AvatarData } from '../atoms/avatar.tsx';
+import { Avatar as DefaultAvatar, AvatarData } from '../atoms/avatar.tsx';
 import { Button } from '../atoms/button.tsx';
 import { Icon } from '../atoms/icon.tsx';
 import { TypingIndicators } from './typing-indicators.tsx';
@@ -116,6 +117,8 @@ export const RoomListItem = React.memo(function RoomListItem({
 
   const { roomAvatar } = useRoomAvatar({ roomName });
   const roomAvatarData = propAvatar || roomAvatar;
+
+  const { Avatar = DefaultAvatar } = useComponents();
   /**
    * Checks if the room has any active users
    *
@@ -149,13 +152,15 @@ export const RoomListItem = React.memo(function RoomListItem({
             }
           }}
         >
-          <Avatar
-            alt={roomAvatarData?.displayName}
-            src={roomAvatarData?.src}
-            color={roomAvatarData?.color}
-            size="md"
-            initials={roomAvatarData?.initials}
-          />
+          {Avatar !== null && (
+            <Avatar
+              alt={roomAvatarData?.displayName}
+              src={roomAvatarData?.src}
+              color={roomAvatarData?.color}
+              size="md"
+              initials={roomAvatarData?.initials}
+            />
+          )}
           {isSelected && (
             <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-gray-900" />
           )}
@@ -183,13 +188,15 @@ export const RoomListItem = React.memo(function RoomListItem({
       }}
     >
       <div className="relative">
-        <Avatar
-          alt={roomAvatarData?.displayName}
-          src={roomAvatarData?.src}
-          color={roomAvatarData?.color}
-          size="md"
-          initials={roomAvatarData?.initials}
-        />
+        {Avatar !== null && (
+          <Avatar
+            alt={roomAvatarData?.displayName}
+            src={roomAvatarData?.src}
+            color={roomAvatarData?.color}
+            size="md"
+            initials={roomAvatarData?.initials}
+          />
+        )}
 
         {/* Present indicator */}
         {isActive && (

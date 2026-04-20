@@ -1,5 +1,6 @@
 export { useAvatar } from './use-avatar.tsx';
 export { useChatSettings } from './use-chat-settings.tsx';
+export { useComponents } from './use-components.tsx';
 export {
   useRoomAvatar,
   type UseRoomAvatarProps,

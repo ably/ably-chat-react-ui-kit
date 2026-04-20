@@ -3,9 +3,10 @@ import { useRoomReactions } from '@ably/chat/react';
 import { clsx } from 'clsx';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
+import { useComponents } from '../../hooks/use-components.tsx';
 import { useThrottle } from '../../hooks/use-throttle.tsx';
 import { EmojiBurst } from './emoji-burst.tsx';
-import { EmojiWheel } from './emoji-wheel.tsx';
+import { EmojiWheel as DefaultEmojiWheel } from './emoji-wheel.tsx';
 
 /**
  * Props for the RoomReaction component
@@ -152,6 +153,8 @@ export const RoomReaction = ({
   const reactionButtonRef = useRef<HTMLButtonElement>(null);
   const longPressTimerRef = useRef<NodeJS.Timeout | undefined>(undefined);
   const isLongPressRef = useRef(false);
+
+  const { EmojiWheel = DefaultEmojiWheel } = useComponents();
 
   /**
    * Handles incoming room reactions from other users.
@@ -399,12 +402,14 @@ export const RoomReaction = ({
       </button>
 
       {/* Emoji Selection Wheel */}
-      <EmojiWheel
-        isOpen={showEmojiWheel}
-        position={emojiWheelPosition}
-        onEmojiSelect={handleEmojiSelect}
-        onClose={handleEmojiWheelClose}
-      />
+      {EmojiWheel !== null && (
+        <EmojiWheel
+          isOpen={showEmojiWheel}
+          position={emojiWheelPosition}
+          onEmojiSelect={handleEmojiSelect}
+          onClose={handleEmojiWheelClose}
+        />
+      )}
 
       {/* Emoji Burst Animation */}
       <EmojiBurst

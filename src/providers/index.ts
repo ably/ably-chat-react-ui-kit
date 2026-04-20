@@ -6,6 +6,7 @@ export {
   type PersistedAvatarData,
 } from './avatar-provider.tsx';
 export { ChatSettingsProvider, type ChatSettingsProviderProps } from './chat-settings-provider.tsx';
+export { ComponentsProvider, type ComponentsProviderProps } from './components-provider.tsx';
 export {
   type ThemeChangeCallback,
   type ThemeOptions,

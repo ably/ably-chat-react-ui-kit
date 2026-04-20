@@ -1,7 +1,8 @@
 import React from 'react';
 
+import { useComponents } from '../../hooks/use-components.tsx';
 import { useUserAvatar } from '../../hooks/use-user-avatar.tsx';
-import { Avatar, AvatarData } from '../atoms/avatar.tsx';
+import { Avatar as DefaultAvatar, AvatarData } from '../atoms/avatar.tsx';
 import { TypingDots } from '../atoms/typing-dots.tsx';
 
 /**
@@ -93,6 +94,8 @@ export const Participant = ({
   const { userAvatar } = useUserAvatar({ clientId });
   const avatarData = propAvatar || userAvatar;
 
+  const { Avatar = DefaultAvatar } = useComponents();
+
   // Use the helper function
   const statusText = getParticipantStatus(isTyping, isPresent, isSelf);
 
@@ -103,13 +106,15 @@ export const Participant = ({
       aria-label={`${isSelf ? 'You' : clientId}, ${statusText}`}
     >
       <div className="relative">
-        <Avatar
-          alt={avatarData?.displayName}
-          src={avatarData?.src}
-          color={avatarData?.color}
-          size="sm"
-          initials={avatarData?.initials}
-        />
+        {Avatar !== null && (
+          <Avatar
+            alt={avatarData?.displayName}
+            src={avatarData?.src}
+            color={avatarData?.color}
+            size="sm"
+            initials={avatarData?.initials}
+          />
+        )}
         {/* Presence Icon */}
         <div
           className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white dark:border-gray-800 ${

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 
-import { Avatar, AvatarData } from '../atoms/avatar.tsx';
+import { useComponents } from '../../hooks/use-components.tsx';
+import { Avatar as DefaultAvatar, AvatarData } from '../atoms/avatar.tsx';
 import { Button } from '../atoms/button.tsx';
 import { Icon } from '../atoms/icon.tsx';
 
@@ -86,6 +87,8 @@ export const AvatarEditor = ({
   const [avatarUrl, setAvatarUrl] = useState(currentAvatar || '');
   const [selectedColor, setSelectedColor] = useState(currentColor || '');
   const [customInitials, setCustomInitials] = useState('');
+
+  const { Avatar = DefaultAvatar } = useComponents();
   const [activeTab, setActiveTab] = useState<'presets' | 'color'>('presets');
   const [error, setError] = useState('');
 
@@ -183,13 +186,15 @@ export const AvatarEditor = ({
 
         {/* Avatar Preview */}
         <div className="flex justify-center mb-6">
-          <Avatar
-            alt={displayName}
-            src={avatarUrl}
-            color={selectedColor || currentColor || 'bg-gray-500'}
-            size="xl"
-            initials={getInitials()}
-          />
+          {Avatar !== null && (
+            <Avatar
+              alt={displayName}
+              src={avatarUrl}
+              color={selectedColor || currentColor || 'bg-gray-500'}
+              size="xl"
+              initials={getInitials()}
+            />
+          )}
         </div>
 
         {/* Tabs */}
@@ -248,7 +253,7 @@ export const AvatarEditor = ({
                   }}
                 >
                   <div className="flex flex-col items-center">
-                    <Avatar alt={preset.label} src={preset.src} size="md" />
+                    {Avatar !== null && <Avatar alt={preset.label} src={preset.src} size="md" />}
                     <span className="mt-1 text-xs text-gray-600 dark:text-gray-400">
                       {preset.label}
                     </span>

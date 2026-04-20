@@ -2,8 +2,9 @@ import { useChatClient, usePresenceListener, useRoom, useTyping } from '@ably/ch
 import { clsx } from 'clsx';
 import React, { useState } from 'react';
 
+import { useComponents } from '../../hooks/use-components.tsx';
 import { useRoomAvatar } from '../../hooks/use-room-avatar.tsx';
-import { Avatar, AvatarData } from '../atoms/avatar.tsx';
+import { Avatar as DefaultAvatar, AvatarData } from '../atoms/avatar.tsx';
 import { ParticipantList } from './participant-list.tsx';
 import { PresenceCount } from './presence-count.tsx';
 import { PresenceIndicators } from './presence-indicators.tsx';
@@ -158,6 +159,8 @@ export const RoomInfo = ({
   const { roomAvatar } = useRoomAvatar({ roomName });
   const roomAvatarData = propRoomAvatar || roomAvatar;
 
+  const { Avatar = DefaultAvatar } = useComponents();
+
   const onToggle = () => {
     setShowTooltip(false); // Hide tooltip when toggling participant list
     setIsOpen(!isOpen);
@@ -223,13 +226,15 @@ export const RoomInfo = ({
           }}
         >
           <div className="relative">
-            <Avatar
-              alt={roomAvatarData?.displayName}
-              src={roomAvatarData?.src}
-              color={roomAvatarData?.color}
-              size="lg"
-              initials={roomAvatarData?.initials}
-            />
+            {Avatar !== null && (
+              <Avatar
+                alt={roomAvatarData?.displayName}
+                src={roomAvatarData?.src}
+                color={roomAvatarData?.color}
+                size="lg"
+                initials={roomAvatarData?.initials}
+              />
+            )}
           </div>
 
           {/* Present Count Badge */}

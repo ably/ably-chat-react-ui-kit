@@ -25,14 +25,14 @@ export const ablyClient = new Ably.Realtime({
 export const chatClient = new ChatClient(ablyClient);
 ReactDOM.createRoot(document.querySelector('#root') || document.createElement('div')).render(
   <React.StrictMode>
-    <ThemeProvider options={{ persist: true, defaultTheme: 'light' }}>
-      <AvatarProvider>
-        <ChatSettingsProvider>
-          <ChatClientProvider client={chatClient}>
+      <ThemeProvider options={{ persist: true, defaultTheme: 'light' }}>
+        <AvatarProvider>
+          <ChatSettingsProvider>
+            <ChatClientProvider client={chatClient}>
               <App initialRoomNames={['my-first-room']} />
-          </ChatClientProvider>
-        </ChatSettingsProvider>
-      </AvatarProvider>
-    </ThemeProvider>
+            </ChatClientProvider>
+          </ChatSettingsProvider>
+        </AvatarProvider>
+      </ThemeProvider>
   </React.StrictMode>
 );

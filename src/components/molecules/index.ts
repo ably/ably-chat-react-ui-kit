@@ -13,6 +13,10 @@ export { EmojiWheel, type EmojiWheelProps } from './emoji-wheel.tsx';
 export { MessageActions, type MessageActionsProps } from './message-actions.tsx';
 export { MessageInput, type MessageInputProps } from './message-input.tsx';
 export { MessageReactions, type MessageReactionsProps } from './message-reactions.tsx';
+export {
+  NoMoreMessagesFooter,
+  type NoMoreMessagesFooterProps,
+} from './no-more-messages-footer.tsx';
 export { Participant, type ParticipantProps } from './participant.tsx';
 export { ParticipantList, type ParticipantListProps } from './participant-list.tsx';
 export { PresenceCount, type PresenceCountProps } from './presence-count.tsx';
