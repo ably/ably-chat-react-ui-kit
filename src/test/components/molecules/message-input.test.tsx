@@ -41,6 +41,7 @@ vi.mock('../../../components/atoms/button', () => ({
     'aria-label': ariaLabel,
     'aria-haspopup': ariaHasPopup,
     'aria-expanded': ariaExpanded,
+    disabled,
   }: ButtonProps) => (
     <button
       onClick={onClick}
@@ -50,6 +51,7 @@ vi.mock('../../../components/atoms/button', () => ({
       aria-label={ariaLabel}
       aria-haspopup={ariaHasPopup}
       aria-expanded={ariaExpanded}
+      disabled={disabled}
     >
       {children}
     </button>
@@ -79,6 +81,8 @@ vi.mock('../../../components/atoms/text-input', () => {
         maxHeight,
         className,
         'aria-label': ariaLabel,
+        'aria-busy': ariaBusy,
+        disabled,
       },
       ref
     ) => (
@@ -91,6 +95,8 @@ vi.mock('../../../components/atoms/text-input', () => {
         placeholder={placeholder}
         className={className}
         aria-label={ariaLabel}
+        aria-busy={ariaBusy}
+        disabled={disabled}
         data-variant={variant}
         data-multiline={multiline}
         data-max-height={maxHeight}
@@ -199,6 +205,69 @@ describe('MessageInput', () => {
 
     await waitFor(() => {
       expect(mockOnSent).toHaveBeenCalled();
+    });
+  });
+
+  it('locks the input and does not send duplicates while a send is in flight', async () => {
+    // Keep the send promise pending so rapid Enter presses overlap in flight.
+    let resolveSend: (value: unknown) => void = () => {};
+    mockSendMessage.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          resolveSend = resolve;
+        })
+    );
+
+    render(<MessageInput onSent={mockOnSent} />);
+
+    const input = screen.getByTestId('text-input');
+    fireEvent.change(input, { target: { value: 'Hello, world!' } });
+    fireEvent.keyDown(input, { key: 'Enter' });
+    fireEvent.keyDown(input, { key: 'Enter' });
+    fireEvent.keyDown(input, { key: 'Enter' });
+
+    // Only the first press fires a request; the rest are blocked while
+    // the send is in flight. The input dims and locks to signal the
+    // pending state, and keeps its text until the server confirms.
+    expect(mockSendMessage).toHaveBeenCalledTimes(1);
+    expect(input).toHaveValue('Hello, world!');
+    expect(input).toBeDisabled();
+    expect(input).toHaveAttribute('aria-busy', 'true');
+    expect(screen.getByLabelText('Open emoji picker')).toBeDisabled();
+
+    resolveSend({});
+    await waitFor(() => {
+      expect(mockOnSent).toHaveBeenCalledTimes(1);
+      expect(input).toHaveValue('');
+      expect(input).not.toBeDisabled();
+    });
+  });
+
+  it('unlocks the input with the text preserved when a send fails', async () => {
+    const sendError = new Error('network down');
+    mockSendMessage.mockRejectedValueOnce(sendError);
+    const onSendError = vi.fn();
+
+    render(<MessageInput onSent={mockOnSent} onSendError={onSendError} />);
+
+    const input = screen.getByTestId('text-input');
+    fireEvent.change(input, { target: { value: 'Hello, world!' } });
+    fireEvent.keyDown(input, { key: 'Enter' });
+
+    await waitFor(() => {
+      expect(onSendError).toHaveBeenCalledWith(sendError, 'Hello, world!');
+    });
+    // Text preserved, input unlocked so the user can retry.
+    expect(input).toHaveValue('Hello, world!');
+    expect(input).not.toBeDisabled();
+    expect(mockOnSent).not.toHaveBeenCalled();
+
+    // A retry after the failure resolves should now clear the input.
+    mockSendMessage.mockResolvedValueOnce({});
+    fireEvent.keyDown(input, { key: 'Enter' });
+    await waitFor(() => {
+      expect(mockSendMessage).toHaveBeenCalledTimes(2);
+      expect(input).toHaveValue('');
     });
   });
 
