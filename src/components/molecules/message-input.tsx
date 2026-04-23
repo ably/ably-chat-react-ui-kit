@@ -2,10 +2,11 @@ import { ErrorInfo, Message } from '@ably/chat';
 import { useMessages, useTyping } from '@ably/chat/react';
 import React, { ChangeEvent, KeyboardEvent, useCallback, useRef, useState } from 'react';
 
+import { useComponents } from '../../hooks/use-components.tsx';
 import { Button } from '../atoms/button.tsx';
 import { Icon } from '../atoms/icon.tsx';
 import { TextInput } from '../atoms/text-input.tsx';
-import { EmojiPicker } from './emoji-picker.tsx';
+import { EmojiPicker as DefaultEmojiPicker } from './emoji-picker.tsx';
 
 /**
  * Props for the MessageInput component
@@ -145,6 +146,8 @@ export const MessageInput = ({
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const { keystroke, stop } = useTyping();
   const { sendMessage } = useMessages();
+  const { EmojiPicker = DefaultEmojiPicker } = useComponents();
+  const emojiPickerDisabled = EmojiPicker === null;
 
   /**
    * Handles sending the message, clearing the input, and stopping typing indicators
@@ -295,23 +298,25 @@ export const MessageInput = ({
           />
 
           {/* Emoji Button */}
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 self-end mb-1"
-            onClick={handleEmojiButtonClick}
-            data-emoji-button
-            aria-label="Open emoji picker"
-            aria-haspopup="dialog"
-            aria-expanded={showEmojiPicker}
-          >
-            <Icon name="emoji" size="md" aria-hidden={true} />
-          </Button>
+          {!emojiPickerDisabled && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 self-end mb-1"
+              onClick={handleEmojiButtonClick}
+              data-emoji-button
+              aria-label="Open emoji picker"
+              aria-haspopup="dialog"
+              aria-expanded={showEmojiPicker}
+            >
+              <Icon name="emoji" size="md" aria-hidden={true} />
+            </Button>
+          )}
         </div>
       </div>
 
       {/* Emoji Picker */}
-      {showEmojiPicker && (
+      {showEmojiPicker && !emojiPickerDisabled && (
         <EmojiPicker
           onClose={() => {
             setShowEmojiPicker(false);

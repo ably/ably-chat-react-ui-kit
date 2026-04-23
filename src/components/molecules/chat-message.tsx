@@ -4,15 +4,16 @@ import { clsx } from 'clsx';
 import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
+import { useComponents } from '../../hooks/use-components.tsx';
 import { useUserAvatar } from '../../hooks/use-user-avatar.tsx';
-import { Avatar } from '../atoms/avatar.tsx';
+import { Avatar as DefaultAvatar } from '../atoms/avatar.tsx';
 import { Button } from '../atoms/button.tsx';
 import { Icon } from '../atoms/icon.tsx';
 import { TextInput } from '../atoms/text-input.tsx';
 import { Tooltip } from '../atoms/tooltip.tsx';
 import { ConfirmDialog } from './confirm-dialog.tsx';
-import { EmojiPicker } from './emoji-picker.tsx';
-import { MessageActions } from './message-actions.tsx';
+import { EmojiPicker as DefaultEmojiPicker } from './emoji-picker.tsx';
+import { MessageActions as DefaultMessageActions } from './message-actions.tsx';
 import { MessageReactions } from './message-reactions.tsx';
 
 /**
@@ -136,6 +137,12 @@ export const ChatMessage = ({
   const isOwn = message.clientId === clientId;
 
   const { userAvatar } = useUserAvatar({ clientId: message.clientId });
+
+  const {
+    Avatar = DefaultAvatar,
+    EmojiPicker = DefaultEmojiPicker,
+    MessageActions = DefaultMessageActions,
+  } = useComponents();
 
   /**
    * Enables edit mode for the message
@@ -382,13 +389,15 @@ export const ChatMessage = ({
           aria-label={`Avatar for ${message.clientId}`}
           tabIndex={isOwn ? 0 : undefined}
         >
-          <Avatar
-            alt={userAvatar?.displayName}
-            src={userAvatar?.src}
-            color={userAvatar?.color}
-            size="sm"
-            initials={userAvatar?.initials}
-          />
+          {Avatar !== null && (
+            <Avatar
+              alt={userAvatar?.displayName}
+              src={userAvatar?.src}
+              color={userAvatar?.color}
+              size="sm"
+              initials={userAvatar?.initials}
+            />
+          )}
         </div>
 
         {/* Avatar Hover Tooltip */}
@@ -481,14 +490,17 @@ export const ChatMessage = ({
           </div>
 
           {/* Message Actions to update/delete/react */}
-          {isHovered && !isEditing && message.action !== ChatMessageAction.MessageDelete && (
-            <MessageActions
-              isOwn={isOwn}
-              onReactionButtonClicked={handleAddReaction}
-              onEditButtonClicked={handleEdit}
-              onDeleteButtonClicked={handleDelete}
-            />
-          )}
+          {isHovered &&
+            !isEditing &&
+            message.action !== ChatMessageAction.MessageDelete &&
+            MessageActions !== null && (
+              <MessageActions
+                isOwn={isOwn}
+                onReactionButtonClicked={handleAddReaction}
+                onEditButtonClicked={handleEdit}
+                onDeleteButtonClicked={handleDelete}
+              />
+            )}
         </div>
 
         {/* Reactions will be rendered below the relevant message */}
@@ -515,7 +527,7 @@ export const ChatMessage = ({
       </div>
 
       {/* Emoji Picker */}
-      {showEmojiPicker && (
+      {showEmojiPicker && EmojiPicker !== null && (
         <EmojiPicker
           onClose={() => {
             setShowEmojiPicker(false);

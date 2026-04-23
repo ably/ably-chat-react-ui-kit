@@ -9,7 +9,9 @@ import React, {
   useState,
 } from 'react';
 
+import { useComponents } from '../../hooks/use-components.tsx';
 import { ChatMessage } from './chat-message.tsx';
+import { NoMoreMessagesFooter as DefaultNoMoreMessagesFooter } from './no-more-messages-footer.tsx';
 import { TypingIndicators } from './typing-indicators.tsx';
 
 export interface ChatMessageListProps
@@ -179,6 +181,8 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
     const [isAtBottom, setIsAtBottom] = useState(true);
     const [centerSerial, setCenterSerial] = useState<string | undefined>();
 
+    const { NoMoreMessagesFooter = DefaultNoMoreMessagesFooter } = useComponents();
+
     const isUserAtBottom = useCallback(() => {
       if (!containerRef.current) return false;
       const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
@@ -328,10 +332,8 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
           </div>
         )}
 
-        {!hasMoreHistory && messages.length > 0 && (
-          <div className="flex justify-center py-4" role="status">
-            <span className="text-sm text-gray-500 dark:text-gray-400">No more messages</span>
-          </div>
+        {!hasMoreHistory && messages.length > 0 && NoMoreMessagesFooter !== null && (
+          <NoMoreMessagesFooter />
         )}
 
         {/* Messages */}
