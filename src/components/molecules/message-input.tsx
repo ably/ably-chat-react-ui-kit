@@ -140,6 +140,12 @@ export const MessageInput = ({
 }: MessageInputProps) => {
   const [message, setMessage] = useState('');
   const messageRef = useRef('');
+  // isSendingRef is the synchronous guard consulted on every keypress;
+  // isSending mirrors it as state so the input can dim and lock during
+  // the round trip. On failure the `.finally()` releases both, which
+  // unlocks the field with the user's text preserved for retry.
+  const isSendingRef = useRef(false);
+  const [isSending, setIsSending] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [emojiPickerPosition, setEmojiPickerPosition] = useState({ top: 0, left: 0 });
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -150,11 +156,24 @@ export const MessageInput = ({
    * Handles sending the message, clearing the input, and stopping typing indicators
    */
   const handleSend = useCallback(() => {
+    // Block re-entry while a send is in flight so rapid Enter presses
+    // don't fire a second request for the same text.
+    if (isSendingRef.current) return;
     const trimmedMessage = messageRef.current.trim();
-    if (trimmedMessage) {
-      sendMessage({ text: trimmedMessage })
-        .then((sentMessage) => {
-          onSent?.(sentMessage);
+    if (!trimmedMessage) return;
+
+    isSendingRef.current = true;
+    setIsSending(true);
+    // Close any open emoji picker so the user cannot mutate the locked
+    // input while the request is in flight.
+    setShowEmojiPicker(false);
+
+    sendMessage({ text: trimmedMessage })
+      .then((sentMessage) => {
+        onSent?.(sentMessage);
+        // Only clear the input if the user hasn't started composing a
+        // new message while we were waiting.
+        if (messageRef.current.trim() === trimmedMessage) {
           setMessage('');
           messageRef.current = '';
           if (enableTyping) {
@@ -162,15 +181,19 @@ export const MessageInput = ({
               console.warn('Stop typing failed:', error);
             });
           }
-        })
-        .catch((error: unknown) => {
-          if (onSendError) {
-            onSendError(error as ErrorInfo, trimmedMessage);
-          } else {
-            console.error('Failed to send message:', error);
-          }
-        });
-    }
+        }
+      })
+      .catch((error: unknown) => {
+        if (onSendError) {
+          onSendError(error as ErrorInfo, trimmedMessage);
+        } else {
+          console.error('Failed to send message:', error);
+        }
+      })
+      .finally(() => {
+        isSendingRef.current = false;
+        setIsSending(false);
+      });
   }, [sendMessage, stop, onSent, onSendError, enableTyping]);
 
   /**
@@ -292,6 +315,8 @@ export const MessageInput = ({
             placeholder={placeholder}
             className="flex-1"
             aria-label="Message text"
+            disabled={isSending}
+            aria-busy={isSending}
           />
 
           {/* Emoji Button */}
@@ -304,6 +329,7 @@ export const MessageInput = ({
             aria-label="Open emoji picker"
             aria-haspopup="dialog"
             aria-expanded={showEmojiPicker}
+            disabled={isSending}
           >
             <Icon name="emoji" size="md" aria-hidden={true} />
           </Button>
