@@ -15,12 +15,12 @@ jobs:
       id-token: write
       contents: read
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
           submodules: true
 
       - name: Use Node.js 20.x
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 20.x
 
@@ -31,7 +31,7 @@ jobs:
         run: npm run build-storybook
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@7474bc4690e29a8392af63c5b98e7449536d5c3a # v4.3.1
         # Only run this step if it's a PR from the main repository, as forks won't have the necessary secrets
         if: github.repository == 'ably/ably-chat-react-ui-kit' && (github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository)) && github.actor != 'dependabot[bot]'
         with:
@@ -40,7 +40,7 @@ jobs:
           role-session-name: '${{ github.run_id }}-${{ github.run_number }}'
 
       - name: Upload Documentation
-        uses: ably/sdk-upload-action@v2
+        uses: ably/sdk-upload-action@4e694297f208b72b5a9f6b1248a1556f19f821d6 # v2.2.0
         # Only run this step if it's a PR from the main repository, as forks won't have the necessary secrets
         if: github.repository == 'ably/ably-chat-react-ui-kit' && (github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository)) && github.actor != 'dependabot[bot]'
         with:
