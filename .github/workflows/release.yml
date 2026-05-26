@@ -19,6 +19,7 @@ jobs:
         with:
           node-version: '20.10.0'
           registry-url: 'https://registry.npmjs.org'
+          package-manager-cache: false
       - name: Install dependencies and publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
