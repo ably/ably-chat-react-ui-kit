@@ -108,11 +108,13 @@ export const TypingIndicators = ({
   className,
   onTypingChange,
 }: TypingIndicatorsProps): ReactNode => {
-  const { currentlyTyping } = useTyping();
+  const { currentTypers } = useTyping();
   const { clientId } = useChatClient();
 
   // Exclude yourself from the typing indicators
-  const activeTypingUsers = [...currentlyTyping].filter((id) => id !== clientId);
+  const activeTypingUsers = currentTypers
+    .map((typer) => typer.clientId)
+    .filter((id) => id !== clientId);
 
   useEffect(() => {
     if (onTypingChange) {

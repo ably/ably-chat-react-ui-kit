@@ -1,6 +1,6 @@
 import { useChatClient, usePresenceListener, useRoom, useTyping } from '@ably/chat/react';
 import { clsx } from 'clsx';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 
 import { useRoomAvatar } from '../../hooks/use-room-avatar.tsx';
 import { Avatar, AvatarData } from '../atoms/avatar.tsx';
@@ -147,7 +147,11 @@ export const RoomInfo = ({
 }: RoomInfoProps) => {
   const { roomName } = useRoom();
   const { presenceData } = usePresenceListener();
-  const { currentlyTyping } = useTyping();
+  const { currentTypers } = useTyping();
+  const currentlyTyping = useMemo(
+    () => new Set(currentTypers.map((typer) => typer.clientId)),
+    [currentTypers]
+  );
   const chatClient = useChatClient();
   const currentClientId = chatClient.clientId;
 
