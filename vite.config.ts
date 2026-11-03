@@ -20,6 +20,8 @@ export default defineConfig({
       entry: resolve(__dirname, 'src/index.ts'),
       name: 'AblyChatReactUIKit',
       fileName: 'ably/chat-react-ui-kit',
+      // Vite 6+ names library CSS after the package by default; keep the published dist/style.css path.
+      cssFileName: 'style',
       formats: ['es', 'cjs']
     },
     rollupOptions: {

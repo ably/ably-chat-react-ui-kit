@@ -28,11 +28,13 @@ describe('EmojiWheel', () => {
     Object.defineProperty(globalThis, 'innerWidth', { value: 1024, writable: true });
     Object.defineProperty(globalThis, 'innerHeight', { value: 768, writable: true });
 
-    globalThis.ResizeObserver = vi.fn().mockImplementation(() => ({
-      observe: vi.fn(),
-      unobserve: vi.fn(),
-      disconnect: vi.fn(),
-    }));
+    globalThis.ResizeObserver = vi.fn(
+      class {
+        observe = vi.fn();
+        unobserve = vi.fn();
+        disconnect = vi.fn();
+      }
+    );
   });
 
   afterEach(() => {

@@ -1,7 +1,7 @@
 import { type UseMessagesResponse, type UseTypingResponse } from '@ably/chat/react';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, type MockInstance, vi } from 'vitest';
 
 import { ButtonProps } from '../../../components/atoms/button.tsx';
 import { IconProps } from '../../../components/atoms/icon.tsx';
@@ -133,7 +133,7 @@ vi.mock('../../../components/molecules/emoji-picker', () => ({
 
 describe('MessageInput', () => {
   const mockOnSent = vi.fn();
-  let querySelectorSpy: ReturnType<typeof vi.spyOn>;
+  let querySelectorSpy: MockInstance<(selectors: string) => Element | null>;
 
   beforeEach(() => {
     vi.clearAllMocks();
