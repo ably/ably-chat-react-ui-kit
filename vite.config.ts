@@ -24,7 +24,7 @@ export default defineConfig({
     },
     rollupOptions: {
       external: [
-        'ably',
+        '@ably/pubsub-device',
         'react',
         'react-dom',
         'react/jsx-runtime',

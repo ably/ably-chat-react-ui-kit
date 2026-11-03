@@ -1,13 +1,13 @@
-import { ChatClient, ChatClientOptions } from '@ably/chat';
-import * as Ably from 'ably';
+import { ChatClient, ChatClientOptions, createChatClient } from '@ably/chat';
+import * as Ably from '@ably/pubsub-device';
 
-import { ablyRealtimeClientWithToken } from './realtime-client.js';
+import { pubsubRealtimeClientWithToken } from './realtime-client.js';
 
 export const newChatClient = (
   options?: ChatClientOptions,
-  realtimeClient?: Ably.Realtime
+  pubsubClient?: Ably.PubSubClient
 ): ChatClient => {
-  realtimeClient = realtimeClient ?? ablyRealtimeClientWithToken();
+  pubsubClient = pubsubClient ?? pubsubRealtimeClientWithToken();
 
-  return new ChatClient(realtimeClient, options);
+  return createChatClient(pubsubClient, options);
 };

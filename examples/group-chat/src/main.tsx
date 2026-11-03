@@ -1,6 +1,6 @@
-import { ChatClient } from '@ably/chat';
+import { createChatClient } from '@ably/chat';
 import { ChatClientProvider } from '@ably/chat/react';
-import * as Ably from 'ably';
+import { createClient } from '@ably/pubsub-device';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
@@ -15,14 +15,14 @@ import {
 // Vite will replace this at build time
 const ABLY_API_KEY = import.meta.env.VITE_ABLY_API_KEY as string;
 
-// Create Ably Realtime client
-export const ablyClient = new Ably.Realtime({
+// Create Ably Pub/Sub client
+export const pubsubClient = createClient({
   key: ABLY_API_KEY,
   clientId: 'demo-user-' + Math.random().toString(36).slice(2, 9),
 });
 
 // Create Chat client using the Ably client
-export const chatClient = new ChatClient(ablyClient);
+export const chatClient = createChatClient(pubsubClient);
 ReactDOM.createRoot(document.querySelector('#root') || document.createElement('div')).render(
   <React.StrictMode>
     <ThemeProvider options={{ persist: true, defaultTheme: 'light' }}>
