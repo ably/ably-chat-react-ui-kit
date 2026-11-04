@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://github.com/ably/ably-chat-react-ui-kit/tree/0.4.0) (2026-11-03)
+
+- Bumps the `@ably/chat` package to 2.0.0.
+- Replaces the `ably` package with `@ably/pubsub-device` 3.0.0.
+- Drops Node.js 20 support, requires Node.js 22 or newer.
+- `TypingIndicators` and `RoomInfo` now use `currentTypers` from `useTyping`, replacing the deprecated `currentlyTyping`.
+
 ## [0.3.0](https://github.com/ably/ably-chat-react-ui-kit/tree/0.3.0) (2025-10-30)
 
 - Bumps the `@ably/chat` package to 1.1.0.

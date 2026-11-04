@@ -1,7 +1,7 @@
 import { ConnectionStatus, RoomReactionEvent, RoomReactionListener, RoomStatus } from '@ably/chat';
 import { useRoomReactions, type UseRoomReactionsResponse } from '@ably/chat/react';
+import { ErrorInfo } from '@ably/pubsub-device';
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import { ErrorInfo } from 'ably';
 import React from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 

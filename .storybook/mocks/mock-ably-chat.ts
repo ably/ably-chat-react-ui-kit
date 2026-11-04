@@ -233,6 +233,9 @@ export const useMessages = (options?: {
     history(options: HistoryParams): Promise<PaginatedResult<Message>> {
       return Promise.resolve(mockPaginatedResult);
     },
+    getVersions(serial: string): Promise<PaginatedResult<Message>> {
+      return Promise.resolve(mockPaginatedResult);
+    },
     roomStatus: RoomStatus.Attached,
     connectionStatus: ConnectionStatus.Connected,
     historyBeforeSubscribe,
@@ -356,6 +359,7 @@ export const useTyping = (): UseTypingResponse => {
     roomStatus: RoomStatus.Attached,
     connectionStatus: ConnectionStatus.Connected,
     currentlyTyping: new Set(typingUsers),
+    currentTypers: typingUsers.map((clientId) => ({ clientId })),
     keystroke: async () => {
       console.log('Mock: Keystroke detected');
     },

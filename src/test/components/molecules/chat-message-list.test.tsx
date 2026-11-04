@@ -100,22 +100,22 @@ describe('ChatMessageList', () => {
     vi.clearAllMocks();
 
     // Mock IntersectionObserver
-    const mockIntersectionObserver = vi.fn();
-    mockIntersectionObserver.mockReturnValue({
-      observe: () => null,
-      unobserve: () => null,
-      disconnect: () => null,
-    });
-    globalThis.IntersectionObserver = mockIntersectionObserver;
+    globalThis.IntersectionObserver = vi.fn(
+      class {
+        observe = () => null;
+        unobserve = () => null;
+        disconnect = () => null;
+      }
+    ) as unknown as typeof IntersectionObserver;
 
     // Mock ResizeObserver
-    const mockResizeObserver = vi.fn();
-    mockResizeObserver.mockReturnValue({
-      observe: () => null,
-      unobserve: () => null,
-      disconnect: () => null,
-    });
-    globalThis.ResizeObserver = mockResizeObserver;
+    globalThis.ResizeObserver = vi.fn(
+      class {
+        observe = () => null;
+        unobserve = () => null;
+        disconnect = () => null;
+      }
+    ) as unknown as typeof ResizeObserver;
   });
 
   it('renders messages correctly', () => {

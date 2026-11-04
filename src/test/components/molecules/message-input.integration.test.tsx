@@ -11,11 +11,13 @@ import { waitForArrayLength } from '../../helper/common.ts';
 import { randomRoomName } from '../../helper/identifier.ts';
 import { waitForRoomStatus } from '../../helper/room.ts';
 
-const ResizeObserverMock = vi.fn(() => ({
-  observe: vi.fn(),
-  unobserve: vi.fn(),
-  disconnect: vi.fn(),
-}));
+const ResizeObserverMock = vi.fn(
+  class {
+    observe = vi.fn();
+    unobserve = vi.fn();
+    disconnect = vi.fn();
+  }
+);
 
 vi.stubGlobal('ResizeObserver', ResizeObserverMock);
 

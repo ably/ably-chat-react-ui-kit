@@ -29,9 +29,7 @@ vi.mock('@ably/chat/react', () => ({
   usePresenceListener: vi
     .fn()
     .mockReturnValue({ presenceData: [] } as Partial<UsePresenceListenerResponse>),
-  useTyping: vi
-    .fn()
-    .mockReturnValue({ currentlyTyping: new Set<string>() } as Partial<UseTypingResponse>),
+  useTyping: vi.fn().mockReturnValue({ currentTypers: [] } as Partial<UseTypingResponse>),
   useChatClient: vi.fn().mockReturnValue({
     clientId: 'current-user',
     connection: { status: 'connected' },

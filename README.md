@@ -27,7 +27,7 @@ Everything you need to get started with Ably Chat React UI Kit:
 ### Installation
 
 ```bash
-npm install @ably/chat-react-ui-kit @ably/chat ably react react-dom
+npm install @ably/chat-react-ui-kit @ably/chat @ably/pubsub-device react react-dom
 ```
 
 ## Supported Platforms
@@ -37,7 +37,7 @@ This SDK supports the following platforms:
 | Platform     | Support                                                                                                    |
 |--------------|------------------------------------------------------------------------------------------------------------|
 | Browsers     | All major desktop browsers, including Chrome, Firefox, Edge and Opera. Internet Explorer is not supported. |
-| Node.js      | Version 20 or newer.                                                                                       |
+| Node.js      | Version 22 or newer.                                                                                       |
 | TypeScript   | Fully supported, the library is written in TypeScript.                                                     |
 | React        | Version 18 or newer. Includes providers and hooks for deep integration with the React ecosystem.           |
 
@@ -74,8 +74,8 @@ A collapsible navigation component for managing multiple chat rooms:
 The following example demonstrates how to set up a complete chat application using the core components. This includes initializing the Ably client, wrapping your app with the required providers, and rendering the `App` component with a sidebar and chat window:
 
 ```tsx
-import * as Ably from 'ably';
-import { ChatClient } from '@ably/chat';
+import { createClient } from '@ably/pubsub-device';
+import { createChatClient } from '@ably/chat';
 import { ChatClientProvider } from '@ably/chat/react';
 import {
   App,
@@ -87,14 +87,14 @@ import {
 // Don't forget to import the styles
 import '@ably/chat-react-ui-kit/dist/style.css';
 
-// Initialize Ably Realtime client with your API key and a unique client ID
-const ablyClient = new Ably.Realtime({
+// Initialize the Ably Pub/Sub client with your API key and a unique client ID
+const pubsubClient = createClient({
   key: '<your-ably-api-key>',
   clientId: 'user-' + Math.random().toString(36).slice(2, 9),
 });
 
-// Create a Chat client using the Ably Realtime client
-const chatClient = new ChatClient(ablyClient);
+// Create a Chat client using the Ably Pub/Sub client
+const chatClient = createChatClient(pubsubClient);
 
 function MyApp() {
   return (

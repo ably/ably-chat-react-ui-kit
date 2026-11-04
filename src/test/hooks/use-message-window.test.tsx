@@ -119,6 +119,7 @@ const createMockUseMessagesResponse = (
   roomStatus: RoomStatus.Attached,
   connectionStatus: ConnectionStatus.Connected,
   getMessage: vi.fn(),
+  getVersions: vi.fn(),
   ...overrides,
 });
 
